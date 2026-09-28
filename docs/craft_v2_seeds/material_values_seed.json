@@ -1,0 +1,74 @@
+[
+  {
+    "material_id": "mat_iron_ore",
+    "unit_price": 20,
+    "min_qty": 3,
+    "max_qty": 10,
+    "market_appearance_chance": 0.85,
+    "price_variation_min": 0.9,
+    "price_variation_max": 1.2
+  },
+  {
+    "material_id": "mat_scaly_leather",
+    "unit_price": 35,
+    "min_qty": 2,
+    "max_qty": 7,
+    "market_appearance_chance": 0.85,
+    "price_variation_min": 0.9,
+    "price_variation_max": 1.2
+  },
+  {
+    "material_id": "mat_mana_crystal",
+    "unit_price": 55,
+    "min_qty": 1,
+    "max_qty": 5,
+    "market_appearance_chance": 0.85,
+    "price_variation_min": 0.9,
+    "price_variation_max": 1.2
+  },
+  {
+    "material_id": "mat_eucalyptus_herb",
+    "unit_price": 25,
+    "min_qty": 2,
+    "max_qty": 8,
+    "market_appearance_chance": 0.85,
+    "price_variation_min": 0.9,
+    "price_variation_max": 1.2
+  },
+  {
+    "material_id": "mat_flour",
+    "unit_price": 15,
+    "min_qty": 4,
+    "max_qty": 12,
+    "market_appearance_chance": 0.85,
+    "price_variation_min": 0.9,
+    "price_variation_max": 1.2
+  },
+  {
+    "material_id": "mat_ember_coal",
+    "unit_price": 30,
+    "min_qty": 2,
+    "max_qty": 6,
+    "market_appearance_chance": 0.85,
+    "price_variation_min": 0.9,
+    "price_variation_max": 1.2
+  },
+  {
+    "material_id": "mat_granite_dust",
+    "unit_price": 28,
+    "min_qty": 2,
+    "max_qty": 6,
+    "market_appearance_chance": 0.85,
+    "price_variation_min": 0.9,
+    "price_variation_max": 1.2
+  },
+  {
+    "material_id": "mat_wild_honey",
+    "unit_price": 32,
+    "min_qty": 2,
+    "max_qty": 6,
+    "market_appearance_chance": 0.85,
+    "price_variation_min": 0.9,
+    "price_variation_max": 1.2
+  }
+]

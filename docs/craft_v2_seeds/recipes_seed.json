@@ -1,0 +1,84 @@
+{
+  "rec_01": {
+    "recipe_id": "rec_01",
+    "name": "Espada Longa de Aço",
+    "slot": "Arma",
+    "branch": "Ferragem",
+    "gender": "f",
+    "min_workshop_level": 1,
+    "base_power": 25,
+    "market_value_base": 250,
+    "unlock": {
+      "method": "start"
+    }
+  },
+  "rec_02": {
+    "recipe_id": "rec_02",
+    "name": "Amuleto de Guarda-Alma",
+    "slot": "Joia",
+    "branch": "Joalheria",
+    "gender": "m",
+    "min_workshop_level": 1,
+    "base_power": 15,
+    "market_value_base": 180,
+    "unlock": {
+      "method": "start"
+    }
+  },
+  "rec_03": {
+    "recipe_id": "rec_03",
+    "name": "Cota de Malha",
+    "slot": "Armadura",
+    "branch": "Ferragem",
+    "gender": "f",
+    "min_workshop_level": 1,
+    "base_power": 20,
+    "market_value_base": 220,
+    "unlock": {
+      "method": "start"
+    }
+  },
+  "rec_04": {
+    "recipe_id": "rec_04",
+    "name": "Poção de Cura",
+    "slot": "Consumível",
+    "branch": "Alquimia",
+    "gender": "f",
+    "min_workshop_level": 1,
+    "base_power": 0,
+    "energy_restore": 25,
+    "charges": 3,
+    "market_value_base": 120,
+    "unlock": {
+      "method": "start"
+    }
+  },
+  "rec_05": {
+    "recipe_id": "rec_05",
+    "name": "Ração de Batalha",
+    "slot": "Consumível",
+    "branch": "Culinária",
+    "gender": "f",
+    "min_workshop_level": 1,
+    "base_power": 5,
+    "energy_restore": 35,
+    "charges": 3,
+    "market_value_base": 140,
+    "unlock": {
+      "method": "start"
+    }
+  },
+  "rec_06": {
+    "recipe_id": "rec_06",
+    "name": "Runa de Proteção",
+    "slot": "Inscrição",
+    "branch": "Alquimia",
+    "gender": "f",
+    "min_workshop_level": 1,
+    "base_power": 12,
+    "market_value_base": 210,
+    "unlock": {
+      "method": "start"
+    }
+  }
+}

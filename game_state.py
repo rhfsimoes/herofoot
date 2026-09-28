@@ -8,7 +8,10 @@ import json
 from constants import normalize_branch, normalize_slot
 from balance import get_balance
 
+import copy
+
 SERIALIZED_FIELDS = [
+    "world_seed",
     "day",
     "week",
     "gold",
@@ -28,11 +31,13 @@ TRANSIENT_FIELDS = [
     "last_match_result",
     "last_round_results",
     "current_dungeon",
+    "active_save_slot",
 ]
 
 
 class GameState:
-    def __init__(self):
+    def __init__(self, world_seed: int = 1337):
+        self.world_seed = world_seed
         self.day = 1               # Rodada / Semana do campeonato
         self.week = 1              # Sinônimo canônico de rodada
         self.gold = 1000
@@ -62,7 +67,29 @@ class GameState:
         }
         self.materials = {}        # {"mat_id": quantidade}
 
+        # Campos transientes de execução
+        self.last_match_result = None
+        self.last_round_results = None
+        self.current_dungeon = None
+        self.active_save_slot = None
+
         self.load_initial_data()
+
+    def to_dict(self) -> dict:
+        """Serializa todos os campos de SERIALIZED_FIELDS."""
+        data = {}
+        for field in SERIALIZED_FIELDS:
+            data[field] = copy.deepcopy(getattr(self, field, None))
+        return data
+
+    def from_dict(self, data: dict):
+        """Restaura todos os campos de SERIALIZED_FIELDS a partir de um dicionário."""
+        if not isinstance(data, dict):
+            return self
+        for field in SERIALIZED_FIELDS:
+            if field in data:
+                setattr(self, field, copy.deepcopy(data[field]))
+        return self
 
     def load_initial_data(self):
         """Carrega dados iniciais a partir dos arquivos JSON na pasta data/."""

@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from controller import GameController
+import save_system
 
 PORT = 8000
 FRONTEND_DIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'frontend', 'dist')
@@ -58,6 +59,11 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
                 "last_matches": controller.league_engine.last_round_matches,
                 "current_fixture": controller.league_engine.get_player_match(controller.state.day)
             })
+        elif path == '/api/saves':
+            self._send_json({
+                "success": True,
+                "saves": save_system.list_saves()
+            })
         elif path.startswith('/api/'):
             self._send_json({"error": "Endpoint não encontrado"}, status=404)
         else:
@@ -72,6 +78,11 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
 
         if path == '/api/advance_phase':
             result = controller.advance_phase()
+            # Autosave corporativo automático ao término da fase
+            try:
+                controller.save(controller.active_slot or "autosave")
+            except Exception:
+                pass
             self._send_json({
                 "result": result,
                 "state": controller.get_state()
@@ -138,6 +149,57 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
                 "result": result,
                 "state": controller.get_state()
             })
+        elif path == '/api/save':
+            body = self._read_json_body()
+            slot = body.get('slot', 'autosave')
+            try:
+                save_res = controller.save(slot)
+                self._send_json({
+                    "success": True,
+                    "message": save_res.get("message", "Registro corporativo arquivado com êxito."),
+                    "slot": save_res.get("slot"),
+                    "saves": save_system.list_saves()
+                })
+            except Exception as err:
+                self._send_json({
+                    "success": False,
+                    "error": f"Falha no arquivamento corporativo: {str(err)}"
+                }, status=400)
+        elif path == '/api/load':
+            body = self._read_json_body()
+            slot = body.get('slot')
+            if not slot:
+                self._send_json({
+                    "success": False,
+                    "error": "Compartimento de arquivamento não informado na requisição corporativa."
+                }, status=400)
+                return
+
+            try:
+                controller.load(slot)
+                self._send_json({
+                    "success": True,
+                    "state": controller.get_state()
+                })
+            except Exception as err:
+                self._send_json({
+                    "success": False,
+                    "error": f"Falha ao carregar registro corporativo: {str(err)}"
+                }, status=400)
+        elif path == '/api/new_game':
+            body = self._read_json_body()
+            slot = body.get('slot')
+            try:
+                controller.new_game(slot=slot)
+                self._send_json({
+                    "success": True,
+                    "state": controller.get_state()
+                })
+            except Exception as err:
+                self._send_json({
+                    "success": False,
+                    "error": f"Falha ao instaurar novo ciclo corporativo: {str(err)}"
+                }, status=400)
         else:
             self._send_json({"error": "Endpoint POST desconhecido"}, status=404)
 

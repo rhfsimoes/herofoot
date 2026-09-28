@@ -240,3 +240,40 @@ class LeagueEngine:
             item["rank"] = idx
             ranked.append(item)
         return ranked
+
+    def to_dict(self) -> dict:
+        """Serializa o estado da Liga omitindo logs de combate detalhados."""
+        import copy
+        cleaned_matches = []
+        for m in self.last_round_matches:
+            if isinstance(m, dict):
+                # Guarda apenas metadados e placar, sem match_log nem room_events
+                cleaned = {k: copy.deepcopy(v) for k, v in m.items() if k not in ("match_log", "room_events")}
+                cleaned_matches.append(cleaned)
+            else:
+                cleaned_matches.append(m)
+
+        return {
+            "table": copy.deepcopy(self.table),
+            "current_round": self.current_round,
+            "last_round_matches": cleaned_matches,
+            "_schedule": copy.deepcopy(self._schedule),
+            "guilds": copy.deepcopy(self.guilds),
+        }
+
+    def from_dict(self, data: dict):
+        """Restaura o estado da Liga a partir de um dicionário serializado."""
+        import copy
+        if not isinstance(data, dict):
+            return self
+        if "table" in data:
+            self.table = copy.deepcopy(data["table"])
+        if "current_round" in data:
+            self.current_round = data["current_round"]
+        if "last_round_matches" in data:
+            self.last_round_matches = copy.deepcopy(data["last_round_matches"])
+        if "_schedule" in data:
+            self._schedule = copy.deepcopy(data["_schedule"])
+        if "guilds" in data:
+            self.guilds = copy.deepcopy(data["guilds"])
+        return self

@@ -10,6 +10,7 @@ from crafting import CraftingEngine
 from counter_sales import CounterSales
 from league_engine import LeagueEngine
 from market_engine import MarketEngine
+import save_system
 
 try:
     import match_engine
@@ -40,6 +41,7 @@ class GameController:
     def __init__(self):
         self.state = GameState()
         self.running = True
+        self.active_slot = None
         self.crafting_engine = CraftingEngine()
         self.counter_sales = CounterSales()
         self.league_engine = LeagueEngine()
@@ -54,6 +56,18 @@ class GameController:
         self.crafting_service = CraftingService(self.state, self.crafting_engine)
         self.sales_service = SalesService(self.state, self.counter_sales, self.market_engine)
         self.market_service = MarketService(self.state, self.market_engine)
+
+    def _rebind_services(self):
+        """Reatualiza as referências do estado e motores nos serviços após operações in-place."""
+        self.tactics_service.state = self.state
+        self.phase_service.state = self.state
+        self.phase_service.league_engine = self.league_engine
+        self.phase_service.market_engine = self.market_engine
+        self.crafting_service.state = self.state
+        self.sales_service.state = self.state
+        self.sales_service.market_engine = self.market_engine
+        self.market_service.state = self.state
+        self.market_service.market_engine = self.market_engine
 
     def _load_dungeons(self):
         dungeons_path = os.path.join(os.path.dirname(__file__), 'data', 'dungeons_seed.json')
@@ -110,6 +124,49 @@ class GameController:
             "current_fixture": self.league_engine.get_player_match(self.state.day),
             "market": self.market_engine.get_market_data(),
             "recipes": self.crafting_engine.recipe_db if self.crafting_engine else {},
+            "active_slot": self.active_slot,
+        }
+
+    # Operações de persistência corporativa
+    def save(self, slot: str = None) -> dict:
+        target_slot = slot if slot is not None else (self.active_slot or "autosave")
+        res = save_system.save_bundle(self.state, self.league_engine, self.market_engine, slot=target_slot)
+        self.active_slot = res["slot"]
+        self.state.active_save_slot = res["slot"]
+        return res
+
+    def load(self, slot: str) -> dict:
+        bundle = save_system.load_bundle(slot)
+        norm_slot = save_system.normalize_slot(slot)
+        if "game_state" in bundle:
+            self.state.from_dict(bundle["game_state"])
+        if "league_engine" in bundle:
+            self.league_engine.from_dict(bundle["league_engine"])
+        if "market_engine" in bundle:
+            self.market_engine.from_dict(bundle["market_engine"])
+
+        self.active_slot = norm_slot
+        self.state.active_save_slot = norm_slot
+        self._rebind_services()
+        return {
+            "success": True,
+            "slot": norm_slot,
+            "message": f"Registro corporativo '{norm_slot}' carregado com êxito.",
+        }
+
+    def new_game(self, slot: str = None) -> dict:
+        new_st, new_le, new_me = save_system.new_game(slot=slot)
+        self.state = new_st
+        self.league_engine = new_le
+        self.market_engine = new_me
+        norm_slot = save_system.normalize_slot(slot) if slot is not None else None
+        self.active_slot = norm_slot
+        self.state.active_save_slot = norm_slot
+        self._rebind_services()
+        return {
+            "success": True,
+            "slot": norm_slot,
+            "message": "Novo ciclo corporativo iniciado para a guilda.",
         }
 
     # Operações de delegação

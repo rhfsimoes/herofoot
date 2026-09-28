@@ -1,0 +1,42 @@
+[
+  {
+    "recipe_id": "rec_01",
+    "material_id": "mat_iron_ore",
+    "quantity": 3
+  },
+  {
+    "recipe_id": "rec_02",
+    "material_id": "mat_mana_crystal",
+    "quantity": 2
+  },
+  {
+    "recipe_id": "rec_03",
+    "material_id": "mat_scaly_leather",
+    "quantity": 3
+  },
+  {
+    "recipe_id": "rec_03",
+    "material_id": "mat_iron_ore",
+    "quantity": 1
+  },
+  {
+    "recipe_id": "rec_04",
+    "material_id": "mat_eucalyptus_herb",
+    "quantity": 2
+  },
+  {
+    "recipe_id": "rec_05",
+    "material_id": "mat_flour",
+    "quantity": 3
+  },
+  {
+    "recipe_id": "rec_06",
+    "material_id": "mat_eucalyptus_herb",
+    "quantity": 2
+  },
+  {
+    "recipe_id": "rec_06",
+    "material_id": "mat_mana_crystal",
+    "quantity": 1
+  }
+]

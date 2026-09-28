@@ -1,0 +1,175 @@
+[
+  {
+    "material_id": "mat_iron_ore",
+    "slot": "Arma",
+    "affix_id": "pref_afiada",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_ember_coal",
+    "slot": "Arma",
+    "affix_id": "pref_temperada",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_iron_ore",
+    "slot": "Armadura",
+    "affix_id": "pref_reforcada",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_granite_dust",
+    "slot": "Armadura",
+    "affix_id": "pref_reforcada",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_scaly_leather",
+    "slot": "Armadura",
+    "affix_id": "pref_escamada",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_granite_dust",
+    "slot": "Armadura",
+    "affix_id": "pref_robusta",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_mana_crystal",
+    "slot": "Joia",
+    "affix_id": "pref_encantada",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_wild_honey",
+    "slot": "Joia",
+    "affix_id": "pref_vigorosa",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_eucalyptus_herb",
+    "slot": "Consumível",
+    "affix_id": "pref_concentrada",
+    "quantity": 1,
+    "recipe_id": "rec_04"
+  },
+  {
+    "material_id": "mat_flour",
+    "slot": "Consumível",
+    "affix_id": "pref_nutritiva",
+    "quantity": 1,
+    "recipe_id": "rec_05"
+  },
+  {
+    "material_id": "mat_wild_honey",
+    "slot": "Consumível",
+    "affix_id": "pref_saborosa",
+    "quantity": 1,
+    "recipe_id": "rec_05"
+  },
+  {
+    "material_id": "mat_flour",
+    "slot": "Consumível",
+    "affix_id": "pref_farta",
+    "quantity": 2
+  },
+  {
+    "material_id": "mat_eucalyptus_herb",
+    "slot": "Inscrição",
+    "affix_id": "pref_purificada",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_ember_coal",
+    "slot": "Inscrição",
+    "affix_id": "pref_ignea",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_granite_dust",
+    "slot": "Inscrição",
+    "affix_id": "pref_firme",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_iron_ore",
+    "slot": "Arma",
+    "affix_id": "suf_acidente_trabalho",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_iron_ore",
+    "slot": "Arma",
+    "affix_id": "suf_termo_responsabilidade",
+    "quantity": 2
+  },
+  {
+    "material_id": "mat_ember_coal",
+    "slot": "Arma",
+    "affix_id": "suf_rescisao",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_scaly_leather",
+    "slot": "Armadura",
+    "affix_id": "suf_laudo_pericial",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_mana_crystal",
+    "slot": "Armadura",
+    "affix_id": "suf_seguro_vida",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_mana_crystal",
+    "slot": "Joia",
+    "affix_id": "suf_insalubridade",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_wild_honey",
+    "slot": "Joia",
+    "affix_id": "suf_adicional_noturno",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_eucalyptus_herb",
+    "slot": "Consumível",
+    "affix_id": "suf_prontuario",
+    "quantity": 1,
+    "recipe_id": "rec_04"
+  },
+  {
+    "material_id": "mat_flour",
+    "slot": "Consumível",
+    "affix_id": "suf_produtividade",
+    "quantity": 1,
+    "recipe_id": "rec_05"
+  },
+  {
+    "material_id": "mat_wild_honey",
+    "slot": "Consumível",
+    "affix_id": "suf_evacuacao",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_mana_crystal",
+    "slot": "Inscrição",
+    "affix_id": "suf_alvara",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_eucalyptus_herb",
+    "slot": "Inscrição",
+    "affix_id": "suf_antidoto_eucalipto",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_ember_coal",
+    "slot": "Inscrição",
+    "affix_id": "suf_prevencao_hipotermia",
+    "quantity": 1
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "mat_iron_ore",
+    "name": "Minério de Ferro",
+    "category": "mineral",
+    "is_raw": true
+  },
+  {
+    "id": "mat_scaly_leather",
+    "name": "Couro Escamoso",
+    "category": "animal",
+    "is_raw": true
+  },
+  {
+    "id": "mat_mana_crystal",
+    "name": "Cristal de Mana",
+    "category": "arcano",
+    "is_raw": true
+  },
+  {
+    "id": "mat_eucalyptus_herb",
+    "name": "Erva de Eucalipto",
+    "category": "herbal",
+    "is_raw": true
+  },
+  {
+    "id": "mat_flour",
+    "name": "Farinha de Trigo",
+    "category": "alimento",
+    "is_raw": true
+  },
+  {
+    "id": "mat_ember_coal",
+    "name": "Brasa de Carvão",
+    "category": "mineral",
+    "is_raw": true
+  },
+  {
+    "id": "mat_granite_dust",
+    "name": "Pó de Granito",
+    "category": "mineral",
+    "is_raw": true
+  },
+  {
+    "id": "mat_wild_honey",
+    "name": "Mel Silvestre",
+    "category": "alimento",
+    "is_raw": true
+  }
+]

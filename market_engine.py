@@ -164,3 +164,25 @@ class MarketEngine:
             "bulletin": self.bulletin,
         }
 
+    def to_dict(self) -> dict:
+        """Serializa o catálogo e boletim do mercado para persistência."""
+        import copy
+        return {
+            "materials_for_sale": copy.deepcopy(self.materials_for_sale),
+            "ready_items_for_sale": copy.deepcopy(self.ready_items_for_sale),
+            "bulletin": copy.deepcopy(self.bulletin),
+        }
+
+    def from_dict(self, data: dict):
+        """Restaura o estado do mercado a partir de um dicionário serializado."""
+        import copy
+        if not isinstance(data, dict):
+            return self
+        if "materials_for_sale" in data:
+            self.materials_for_sale = copy.deepcopy(data["materials_for_sale"])
+        if "ready_items_for_sale" in data:
+            self.ready_items_for_sale = copy.deepcopy(data["ready_items_for_sale"])
+        if "bulletin" in data:
+            self.bulletin = copy.deepcopy(data["bulletin"])
+        return self
+
