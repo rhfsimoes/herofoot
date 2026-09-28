@@ -53,17 +53,17 @@ export async function advancePhaseBackend(): Promise<ApiResponse | null> {
 
 export async function saveTacticsBackend(
   starters: string[],
-  loadout: Record<string, any>
+  loadout: Record<string, string | null>,
+  reserves: string[] = []
 ): Promise<ApiResponse | null> {
   try {
     const res = await fetch(`${API_BASE}/tactics`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ starters, loadout }),
+      body: JSON.stringify({ starters, reserves, loadout }),
     })
-    if (res.ok) {
-      return (await res.json()) as ApiResponse
-    }
+    const data = await res.json()
+    return data as ApiResponse
   } catch (err) {
     console.error('[HeroFoot API] Erro ao salvar tática:', err)
   }
@@ -82,6 +82,20 @@ export async function craftItemBackend(recipeId: string): Promise<ApiResponse<{ 
     }
   } catch (err) {
     console.error('[HeroFoot API] Erro ao produzir item:', err)
+  }
+  return null
+}
+
+export async function upgradeWorkshopBackend(branch: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/upgrade_workshop`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ branch }),
+    })
+    return (await res.json()) as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao aprimorar oficina:', err)
   }
   return null
 }
@@ -120,14 +134,13 @@ export async function buyItemBackend(marketItemId: string): Promise<ApiResponse 
 
 export async function sellItemBackend(
   itemInstanceId: string,
-  basePrice: number,
   marginType: string
 ): Promise<ApiResponse | null> {
   try {
     const res = await fetch(`${API_BASE}/sell`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ item_instance_id: itemInstanceId, base_price: basePrice, margin_type: marginType }),
+      body: JSON.stringify({ item_instance_id: itemInstanceId, margin_type: marginType }),
     })
     if (res.ok) {
       return (await res.json()) as ApiResponse
@@ -153,3 +166,68 @@ export async function resolveOfferBackend(offerId: string, accept: boolean): Pro
   }
   return null
 }
+
+// ─────────────────────────────────────────────
+// ENDPOINTS DE ARQUIVAMENTO E PERSISTÊNCIA (SAVES)
+// ─────────────────────────────────────────────
+
+export async function fetchSavesBackend(): Promise<any[] | null> {
+  try {
+    const res = await fetch(`${API_BASE}/saves`, { signal: AbortSignal.timeout(2000) })
+    if (res.ok) {
+      return (await res.json()) as any[]
+    }
+  } catch (err) {
+    console.warn('[HeroFoot API] Erro ao consultar lista de saves:', err)
+  }
+  return null
+}
+
+export async function saveGameBackend(slot: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slot }),
+    })
+    const data = await res.json()
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao salvar jogo:', err)
+  }
+  return null
+}
+
+export async function loadGameBackend(slot: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/load`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slot }),
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      return { success: false, error: data.error || 'Falha ao carregar save', message: data.message }
+    }
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao carregar jogo:', err)
+    return { success: false, error: 'Servidor inacessível ou falha de rede.' }
+  }
+}
+
+export async function newGameBackend(slot?: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/new_game`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slot: slot || 'autosave' }),
+    })
+    const data = await res.json()
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao iniciar novo jogo:', err)
+  }
+  return null
+}
+

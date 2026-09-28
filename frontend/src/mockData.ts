@@ -112,22 +112,62 @@ export interface DungeonInfo {
   recommended_power: number
 }
 
+export interface SaveSlotInfo {
+  slot: string
+  label: string
+  exists: boolean
+  corrupted?: boolean
+  error?: string
+  save_version?: number
+  timestamp?: string
+  day?: number
+  week?: number
+  gold?: number
+  team_size?: number
+}
+
+export interface DungeonRoomEvent {
+  room: number
+  is_final_boss: boolean
+  energy_t1: number
+  energy_t2: number
+  t1_present: boolean
+  t2_present: boolean
+  event: string
+}
+
+export interface ExpeditionSummary {
+  player_guild: string
+  rival_guild: string
+  player_pe: number
+  rival_pe: number
+  match_log: string[]
+  room_events: DungeonRoomEvent[]
+  rooms_explored_player: number
+  rooms_explored_rival: number
+  exit_reason_player: string
+  exit_reason_rival: string
+}
+
 export interface GameState {
   day: number
   week: number
   gold: number
   current_phase: number
+  active_slot?: string | null
   workshop_levels: Record<string, number>
   materials: Record<string, number>
   inventory: InventoryItem[]
   team: Hero[]
   tactics?: {
     starters: string[]
-    loadout: Record<string, InventoryItem | null>
+    reserves?: string[]
+    loadout: Record<string, InventoryItem | string | null>
   }
   current_dungeon?: DungeonInfo
   league_table: LeagueEntry[]
   last_round_matches?: MatchResult[]
+  last_expedition?: ExpeditionSummary
   current_fixture?: {
     home_name: string
     away_name: string
@@ -137,6 +177,11 @@ export interface GameState {
   market?: {
     materials_for_sale: MarketMaterial[]
     ready_items_for_sale: MarketReadyItem[]
+    bulletin?: {
+      target: string
+      multiplier: number
+      headline: string
+    } | null
   }
   recipes?: Record<string, Recipe>
 }
@@ -240,6 +285,17 @@ export const MOCK_STATE: GameState = {
     { rank: 7, guild_name: 'Vigia de Pedra', is_player: false, played: 0, wins: 0, draws: 0, losses: 0, points: 0, pe_for: 0, pe_against: 0, pe_diff: 0 },
     { rank: 8, guild_name: 'Legião do Crepúsculo', is_player: false, played: 0, wins: 0, draws: 0, losses: 0, points: 0, pe_for: 0, pe_against: 0, pe_diff: 0 },
   ],
+  tactics: {
+    starters: ['hero_01', 'hero_02', 'hero_03', 'hero_05'],
+    reserves: [],
+    loadout: {
+      Arma: 'item_001',
+      Armadura: null,
+      Joia: null,
+      Inscrição: null,
+      Consumível: 'item_002',
+    },
+  },
   market: {
     materials_for_sale: [
       { material_id: 'mat_iron_ore', name: 'Minério de Ferro', unit_price: 20, available_quantity: 6 },
@@ -253,6 +309,12 @@ export const MOCK_STATE: GameState = {
       { market_item_id: 'mkt_02', name: 'Gibão de Couro Endurecido', slot_type: 'Armadura', quality: 'Ótimo', power_bonus: 24, price: 360 },
       { market_item_id: 'mkt_03', name: 'Anel de Prata Encantado', slot_type: 'Joia', quality: 'Normal', power_bonus: 10, price: 180 },
       { market_item_id: 'mkt_04', name: 'Ração Militar Fortificada', slot_type: 'Consumível', quality: 'Normal', power_bonus: 5, energy_bonus: 25, price: 95 },
-    ]
-  }
+    ],
+    bulletin: {
+      target: 'Armadura',
+      multiplier: 2.2,
+      headline: 'Ruptura de fornecimento eleva a demanda por Armaduras junto à Câmara dos Mercadores.',
+    },
+  },
 }
+

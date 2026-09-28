@@ -83,7 +83,7 @@ export default function Phase1HR({ team: initialTeam, onAdvance }: Phase1HRProps
         </button>
       </div>
 
-      {/* Tabela de Elenco (Estilo Brasfoot Rústico) */}
+      {/* Tabela de Elenco da Guilda */}
       <div className="bg-[#1c1917] border border-amber-950/40 rounded-xl overflow-hidden shadow-2xl">
         <div className="px-5 py-3.5 bg-stone-950/80 border-b border-stone-800 flex justify-between items-center flex-wrap gap-2">
           <div className="flex items-center gap-2">

@@ -105,7 +105,7 @@ export default function Dashboard({ state, onAdvancePhase }: DashboardProps) {
         />
       </div>
 
-      {/* Tabela da Liga Estilo Brasfoot Rústico */}
+      {/* Tabela de Classificação da Liga das Guildas */}
       <div className="bg-[#1c1917] border border-amber-950/40 rounded-xl p-5 shadow-2xl">
         <div className="flex items-center justify-between mb-4 border-b border-stone-800/80 pb-2">
           <div className="flex items-center gap-2">

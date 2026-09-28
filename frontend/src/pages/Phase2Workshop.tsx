@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Hammer,
   FlaskConical,
@@ -8,6 +8,10 @@ import {
   ArrowRight,
   Layers,
   Coins,
+  Newspaper,
+  ArrowUpCircle,
+  Lock,
+  X,
 } from 'lucide-react'
 import {
   MOCK_RECIPES,
@@ -20,15 +24,16 @@ import {
   type MarketMaterial,
   type MarketReadyItem,
 } from '../mockData'
-import { RARITY_CARD_STYLES, RARITY_BADGE_STYLES, GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
+import { RARITY_CARD_STYLES, RARITY_BADGE_STYLES } from '../utils/rarityStyles'
 
 interface Phase2WorkshopProps {
   state: GameState
   onAdvance: () => void
   onCraft?: (recipeId: string) => Promise<any>
+  onUpgradeWorkshop?: (branch: string) => Promise<any>
   onBuyMaterial?: (matId: string, qty: number) => Promise<any>
   onBuyItem?: (marketItemId: string) => Promise<any>
-  onSellItem?: (instanceId: string, basePrice: number, margin: string) => Promise<any>
+  onSellItem?: (instanceId: string, margin: string) => Promise<any>
   onResolveOffer?: (offerId: string, accept: boolean) => Promise<any>
 }
 
@@ -41,6 +46,21 @@ const BRANCHES: { name: WorkshopBranch; icon: any; key: string }[] = [
   { name: 'Joalheria', icon: Gem, key: 'Joalheria' },
   { name: 'Culinária', icon: UtensilsCrossed, key: 'Culinária' },
 ]
+
+const TERRAIN_NAMES: Record<string, string> = {
+  neutral: 'Campo Aberto Verdejante',
+  toxic_swamp: 'Pântano Tóxico',
+  glacier_frost: 'Geleira Eterna',
+  unstable_mine: 'Mina Instável',
+}
+
+const UPGRADE_COSTS: Record<number, number> = {
+  1: 500,
+  2: 900,
+  3: 1600,
+  4: 2800,
+  5: 5000,
+}
 
 function rollQuality(workshopLevel: number): ItemQuality {
   const roll = Math.random() * 100
@@ -63,6 +83,7 @@ export default function Phase2Workshop({
   state,
   onAdvance,
   onCraft,
+  onUpgradeWorkshop,
   onBuyMaterial,
   onBuyItem,
   onSellItem,
@@ -88,7 +109,18 @@ export default function Phase2Workshop({
   } | null>(null)
 
   // Modal de contraproposta comercial
-  const [counterModal, setCounterModal] = useState<{ item: InventoryItem; offer: number; offerId?: string } | null>(null)
+  const [counterModal, setCounterModal] = useState<{
+    item: InventoryItem
+    offer: number
+    offerId?: string
+    referencePrice?: number
+    askedPrice?: number
+    demandMultiplier?: number
+  } | null>(null)
+
+  // Boletim de Mercado Pop-up Semanal
+  const [bulletinModalOpen, setBulletinModalOpen] = useState<boolean>(false)
+  const [isUpgrading, setIsUpgrading] = useState<boolean>(false)
   const [transactionLog, setTransactionLog] = useState<string[]>([])
 
   const [marketMaterials, setMarketMaterials] = useState<MarketMaterial[]>(
@@ -98,10 +130,37 @@ export default function Phase2Workshop({
     state.market?.ready_items_for_sale ?? []
   )
 
+  const bulletin = state.market?.bulletin
+
+  useEffect(() => {
+    if (bulletin && bulletin.headline) {
+      const weekKey = `bulletin_dismissed_w${state.week || state.day}`
+      if (!sessionStorage.getItem(weekKey)) {
+        setBulletinModalOpen(true)
+      }
+    }
+  }, [state.week, state.day, bulletin])
+
+  function dismissBulletin() {
+    const weekKey = `bulletin_dismissed_w${state.week || state.day}`
+    sessionStorage.setItem(weekKey, 'true')
+    setBulletinModalOpen(false)
+  }
+
+  function isItemEquipped(itemInstanceId: string): boolean {
+    if (!state.tactics?.loadout) return false
+    return Object.values(state.tactics.loadout).some(val => {
+      if (!val) return false
+      if (typeof val === 'string') return val === itemInstanceId
+      return (val as any).item_instance_id === itemInstanceId
+    })
+  }
+
   const recipesList: Recipe[] = state.recipes ? Object.values(state.recipes) : MOCK_RECIPES
   const branchRecipes = recipesList.filter(r => r.branch === selectedBranch)
   const activeBranchInfo = BRANCHES.find(b => b.name === selectedBranch)!
   const currentBranchLevel = state.workshop_levels[activeBranchInfo.key] ?? 1
+
 
   // ─────────────────────────────────────────────
   // AÇÕES DE CRAFTING
@@ -248,40 +307,137 @@ export default function Phase2Workshop({
   }
 
   // ─────────────────────────────────────────────
+  // AÇÕES DE UPGRADE DE OFICINA
+  // ─────────────────────────────────────────────
+  async function handleUpgradeWorkshop(branch: WorkshopBranch) {
+    const curLevel = state.workshop_levels[branch] ?? 1
+    if (curLevel >= 6) {
+      alert(`A filial de ${branch} já atingiu o nível máximo (Nível 6).`)
+      return
+    }
+
+    const nextLevel = curLevel + 1
+    const cost = UPGRADE_COSTS[curLevel] ?? 1000
+
+    if (gold < cost) {
+      alert(
+        `Recursos financeiros insuficientes em tesouraria.\nCusto orçado: ${cost} Ouro. Saldo disponível: ${gold} Ouro.`
+      )
+      return
+    }
+
+    const confirmed = window.confirm(
+      `Ordem de Serviço de Expansão:\nHomologar ampliação da filial de ${branch} para o Nível ${nextLevel} pelo valor de ⬡ ${cost} Ouro?`
+    )
+    if (!confirmed) return
+
+    setIsUpgrading(true)
+    if (onUpgradeWorkshop) {
+      try {
+        const res = await onUpgradeWorkshop(branch)
+        setIsUpgrading(false)
+        if (res && res.result && res.result.success) {
+          if (res.state) {
+            setGold(res.state.gold)
+          }
+          setTransactionLog(l => [`[Oficina] ${res.result.message}`, ...l])
+          return
+        } else {
+          alert(res?.result?.message || 'Falha ao processar homologação de expansão da oficina.')
+          return
+        }
+      } catch (err) {
+        setIsUpgrading(false)
+        console.warn('Erro ao atualizar oficina:', err)
+      }
+    }
+
+    // Fallback local
+    setGold(g => g - cost)
+    state.workshop_levels[branch] = nextLevel
+    setIsUpgrading(false)
+    setTransactionLog(l => [
+      `[Oficina] Filial de ${branch} promovida para o Nível ${nextLevel} (-⬡ ${cost} Ouro).`,
+      ...l,
+    ])
+  }
+
+  // ─────────────────────────────────────────────
   // AÇÕES DE VENDA NO BALCÃO
   // ─────────────────────────────────────────────
-  async function handleSell(item: InventoryItem, marginType: string) {
-    const mult = marginType === 'Promoção' ? 0.8 : marginType === 'Preço Justo' ? 1.0 : 1.35
-    const finalPrice = Math.round(item.market_value_base * mult)
+  async function handleSell(item: InventoryItem, marginType: 'Promoção' | 'Preço Justo' | 'Preço Abusivo') {
+    if (isItemEquipped(item.item_instance_id)) {
+      alert('Ativo atualmente alocado no loadout de expedição não pode ser alienado.')
+      return
+    }
 
     if (onSellItem) {
-      const res = await onSellItem(item.item_instance_id, item.market_value_base, marginType)
+      const res = await onSellItem(item.item_instance_id, marginType)
       if (res && res.result) {
-        const { status, offer_id, counter_offer, message } = res.result
+        const {
+          status,
+          offer_id,
+          counter_offer,
+          message,
+          reference_price,
+          asked_price,
+          demand_multiplier,
+        } = res.result
+
         if (status === 'vendido') {
-          setInventory(res.state.inventory)
-          setGold(res.state.gold)
-          setTransactionLog(l => [`[Balcão] ${message}`, ...l])
+          if (res.state) {
+            setInventory(res.state.inventory)
+            setGold(res.state.gold)
+          }
+          setTransactionLog(l => [
+            `[Balcão] ${message} (Ref: ⬡ ${reference_price}, Pedido: ⬡ ${asked_price}, Demanda: x${demand_multiplier})`,
+            ...l,
+          ])
         } else if (status === 'contraproposta') {
-          setInventory(res.state.inventory)
-          setCounterModal({ item, offer: counter_offer, offerId: offer_id })
+          if (res.state) {
+            setInventory(res.state.inventory)
+          }
+          setCounterModal({
+            item,
+            offer: counter_offer,
+            offerId: offer_id,
+            referencePrice: reference_price,
+            askedPrice: asked_price,
+            demandMultiplier: demand_multiplier,
+          })
+          setTransactionLog(l => [
+            `[Balcão] Contraproposta recebida para "${item.name}": ⬡ ${counter_offer} Ouro (Pedido: ⬡ ${asked_price}).`,
+            ...l,
+          ])
         } else {
-          setTransactionLog(l => [`[Balcão] ${message}`, ...l])
+          setTransactionLog(l => [
+            `[Balcão] ${message} (Pedido: ⬡ ${asked_price} G, Ref: ⬡ ${reference_price} G).`,
+            ...l,
+          ])
         }
         return
       }
     }
 
-    const ratio = finalPrice / item.market_value_base
-    if (ratio >= 1.5) {
-      setTransactionLog(l => [`[Balcão] Sem compradores para "${item.name}" ao preço solicitado.`, ...l])
-    } else if (ratio <= 1.0) {
-      setInventory(prev => prev.filter(i => i.item_instance_id !== item.item_instance_id))
-      setGold(g => g + finalPrice)
-      setTransactionLog(l => [`[Balcão] Ativo "${item.name}" liquidado a preço de tabela (+⬡ ${finalPrice} Ouro).`, ...l])
+    // Fallback local
+    const mult = marginType === 'Promoção' ? 0.8 : marginType === 'Preço Justo' ? 1.0 : 1.35
+    const asked = Math.round(item.market_value_base * mult)
+    if (marginType === 'Preço Abusivo') {
+      const offer = Math.round(asked * 0.85)
+      setCounterModal({
+        item,
+        offer,
+        referencePrice: item.market_value_base,
+        askedPrice: asked,
+        demandMultiplier: 1.0,
+      })
     } else {
-      const offer = Math.round(finalPrice * 0.9)
-      setCounterModal({ item, offer })
+      setInventory(prev => prev.filter(i => i.item_instance_id !== item.item_instance_id))
+      setGold(g => g + asked)
+      setTransactionLog(l => [
+        `[Balcão] Ativo "${item.name}" liquidado ao preço de ⬡ ${asked} Ouro (${marginType}).`,
+        ...l,
+      ])
     }
   }
 
@@ -291,8 +447,10 @@ export default function Phase2Workshop({
     if (onResolveOffer && counterModal.offerId) {
       const res = await onResolveOffer(counterModal.offerId, accept)
       if (res && res.result) {
-        setGold(res.state.gold)
-        setInventory(res.state.inventory)
+        if (res.state) {
+          setGold(res.state.gold)
+          setInventory(res.state.inventory)
+        }
         setTransactionLog(l => [`[Balcão] ${res.result.message}`, ...l])
         setCounterModal(null)
         return
@@ -302,9 +460,16 @@ export default function Phase2Workshop({
     if (accept) {
       setGold(g => g + counterModal.offer)
       setInventory(prev => prev.filter(i => i.item_instance_id !== counterModal.item.item_instance_id))
-      setTransactionLog(l => [`[Balcão] Contrato firmado: "${counterModal.item.name}" vendido por ⬡ ${counterModal.offer} Ouro.`, ...l])
+      setTransactionLog(l => [
+        `[Balcão] Contrato firmado: "${counterModal.item.name}" vendido por ⬡ ${counterModal.offer} Ouro.`,
+        ...l,
+      ])
     } else {
-      setTransactionLog(l => [`[Balcão] Contraproposta rejeitada para "${counterModal.item.name}". Ativo retido.`, ...l])
+      setInventory(prev => [...prev, counterModal.item])
+      setTransactionLog(l => [
+        `[Balcão] Contraproposta rejeitada para "${counterModal.item.name}". Ativo retido no almoxarifado.`,
+        ...l,
+      ])
     }
     setCounterModal(null)
   }
@@ -436,6 +601,46 @@ export default function Phase2Workshop({
             </div>
           </div>
 
+          {/* Card de Gestão e Modernização da Bancada Ativa */}
+          <div className="bg-[#1c1917] border border-amber-950/60 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="text-amber-200 text-xs font-black uppercase tracking-wider">
+                  Bancada de {selectedBranch} (Escalão Nível {currentBranchLevel}/6)
+                </h4>
+                {currentBranchLevel >= 6 && (
+                  <span className="text-[9px] bg-amber-950 text-amber-300 border border-amber-700 px-2 py-0.5 rounded font-mono font-bold">
+                    HOMOLOGAÇÃO MÁXIMA
+                  </span>
+                )}
+              </div>
+              <p className="text-stone-400 text-xs mt-1">
+                {currentBranchLevel < 6
+                  ? `Nível ${currentBranchLevel + 1} desbloqueia novas receitas e eleva probabilidade de qualidades Ótimo e Lendário.`
+                  : 'Esta filial atingiu a graduação máxima homologada pela Câmara de Ofícios.'}
+              </p>
+            </div>
+
+            {currentBranchLevel < 6 && (
+              <div className="flex items-center gap-3 shrink-0">
+                <div className="text-right">
+                  <span className="text-[10px] text-stone-400 uppercase tracking-wider block">Custo de Ampliação</span>
+                  <span className="text-amber-400 font-mono font-bold text-sm">
+                    ⬡ {(UPGRADE_COSTS[currentBranchLevel] ?? 1000).toLocaleString('pt-BR')} Ouro
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleUpgradeWorkshop(selectedBranch)}
+                  disabled={isUpgrading || gold < (UPGRADE_COSTS[currentBranchLevel] ?? 1000)}
+                  className="bg-gradient-to-r from-amber-600 to-amber-500 hover:brightness-110 text-stone-950 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-amber-950/40 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ArrowUpCircle className="w-4 h-4 text-stone-950" />
+                  <span>{isUpgrading ? 'Ampliando...' : 'Modernizar Bancada'}</span>
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Receitas da Bancada Ativa */}
           <div className="space-y-3">
             <div className="flex justify-between items-center">
@@ -525,6 +730,26 @@ export default function Phase2Workshop({
          ───────────────────────────────────────────── */}
       {mainTab === 'balcao' && (
         <div className="space-y-6">
+          {/* Banner do Boletim de Mercado Semanal */}
+          {bulletin && bulletin.headline && (
+            <div className="bg-amber-950/40 border border-amber-600/70 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg animate-in fade-in duration-200">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-amber-900/60 border border-amber-600/50 flex items-center justify-center shrink-0">
+                  <Newspaper className="w-4 h-4 text-amber-300" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400 block -mb-0.5">
+                    Boletim de Mercado Oficial da Liga
+                  </span>
+                  <p className="text-xs text-stone-200 font-semibold">{bulletin.headline}</p>
+                </div>
+              </div>
+              <div className="shrink-0 bg-amber-500 text-stone-950 px-2.5 py-1 rounded-lg text-xs font-black uppercase font-mono shadow self-start sm:self-center">
+                {bulletin.target}: Demanda x{bulletin.multiplier}
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-2 border-b border-stone-800 pb-2">
             <button
               onClick={() => setMarketSubTab('vender')}
@@ -534,7 +759,7 @@ export default function Phase2Workshop({
                   : 'bg-stone-900 text-stone-400 hover:text-stone-200'
               }`}
             >
-              1. Liquidar Ativos
+              1. Liquidar Ativos ({inventory.length})
             </button>
             <button
               onClick={() => setMarketSubTab('comprar_prontos')}
@@ -566,47 +791,81 @@ export default function Phase2Workshop({
                   Almoxarifado sem ativos sobressalentes.
                 </div>
               ) : (
-                inventory.map(item => (
-                  <div
-                    key={item.item_instance_id}
-                    className={`rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-md ${RARITY_CARD_STYLES[item.quality]}`}
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-stone-100">{item.name}</span>
-                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold ${RARITY_BADGE_STYLES[item.quality]}`}>
-                          {item.quality}
-                        </span>
-                      </div>
-                      <div className="text-xs text-stone-400 mt-1 flex gap-3 font-mono">
-                        <span>Slot: {item.slot_type}</span>
-                        <span>Poder: +{item.power_bonus}</span>
-                        <span>Referência: ⬡ {item.market_value_base}</span>
-                      </div>
-                    </div>
+                inventory.map(item => {
+                  const equipped = isItemEquipped(item.item_instance_id)
+                  const isBulletinTarget = bulletin && bulletin.target === item.slot_type
+                  const demandMult = isBulletinTarget ? bulletin.multiplier : 1.0
 
-                    <div className="flex gap-2 shrink-0">
-                      <button
-                        onClick={() => handleSell(item, 'Promoção')}
-                        className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs rounded-lg border border-stone-700 transition"
-                      >
-                        Promoção (⬡ {Math.round(item.market_value_base * 0.8)})
-                      </button>
-                      <button
-                        onClick={() => handleSell(item, 'Preço Justo')}
-                        className="px-3 py-1.5 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 text-xs rounded-lg border border-emerald-800 transition font-bold"
-                      >
-                        Preço Justo (⬡ {item.market_value_base})
-                      </button>
-                      <button
-                        onClick={() => handleSell(item, 'Abusivo')}
-                        className="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 text-amber-300 text-xs rounded-lg border border-amber-800 transition font-bold"
-                      >
-                        Acima do Mercado (⬡ {Math.round(item.market_value_base * 1.35)})
-                      </button>
+                  const promoPrice = Math.round(item.market_value_base * 0.8 * demandMult)
+                  const fairPrice = Math.round(item.market_value_base * 1.0 * demandMult)
+                  const abusivePrice = Math.round(item.market_value_base * 1.35 * demandMult)
+
+                  return (
+                    <div
+                      key={item.item_instance_id}
+                      className={`rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-md ${
+                        RARITY_CARD_STYLES[item.quality]
+                      } ${equipped ? 'opacity-75 ring-1 ring-amber-600/40' : ''}`}
+                    >
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-sm text-stone-100">{item.name}</span>
+                          <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold ${RARITY_BADGE_STYLES[item.quality]}`}>
+                            {item.quality}
+                          </span>
+                          {equipped && (
+                            <span className="text-[10px] bg-amber-950 text-amber-300 border border-amber-600 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                              <Lock className="w-3 h-3 text-amber-400" />
+                              Equipado no Loadout
+                            </span>
+                          )}
+                          {isBulletinTarget && (
+                            <span className="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-700 px-2 py-0.5 rounded-full font-bold">
+                              📈 Alta Demanda x{bulletin.multiplier}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-stone-400 mt-1 flex gap-3 font-mono flex-wrap">
+                          <span>Slot: {item.slot_type}</span>
+                          <span>Poder: +{item.power_bonus}</span>
+                          <span>Valor Contábil: ⬡ {item.market_value_base}</span>
+                        </div>
+                      </div>
+
+                      {equipped ? (
+                        <div className="text-right">
+                          <span className="text-[11px] text-amber-400/90 font-mono italic block">
+                            Ativo alocado na expedição — Venda bloqueada
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2 shrink-0 flex-wrap">
+                          <button
+                            onClick={() => handleSell(item, 'Promoção')}
+                            className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs rounded-lg border border-stone-700 transition"
+                            title="Margem Promoção (Taxa 0.8x)"
+                          >
+                            Promoção (⬡ {promoPrice})
+                          </button>
+                          <button
+                            onClick={() => handleSell(item, 'Preço Justo')}
+                            className="px-3 py-1.5 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 text-xs rounded-lg border border-emerald-800 transition font-bold"
+                            title="Margem Preço Justo (Taxa 1.0x)"
+                          >
+                            Preço Justo (⬡ {fairPrice})
+                          </button>
+                          <button
+                            onClick={() => handleSell(item, 'Preço Abusivo')}
+                            className="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 text-amber-300 text-xs rounded-lg border border-amber-800 transition font-bold"
+                            title="Margem Preço Abusivo (Taxa 1.35x)"
+                          >
+                            Preço Abusivo (⬡ {abusivePrice})
+                          </button>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))
+                  )
+                })
               )}
             </div>
           )}
@@ -630,7 +889,9 @@ export default function Phase2Workshop({
                       <span>Slot: {item.slot_type}</span>
                       <span className="text-emerald-400 font-bold">+{item.power_bonus} Poder</span>
                       {item.terrain_mitigation && (
-                        <span className="text-cyan-400">🛡 Proteção: {item.terrain_mitigation}</span>
+                        <span className="text-cyan-400">
+                          🛡 Mitiga: {TERRAIN_NAMES[item.terrain_mitigation] || item.terrain_mitigation}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -706,6 +967,57 @@ export default function Phase2Workshop({
       )}
 
       {/* ─────────────────────────────────────────────
+          POP-UP DO BOLETIM DE MERCADO SEMANAL
+         ───────────────────────────────────────────── */}
+      {bulletinModalOpen && bulletin && (
+        <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="bg-stone-900 border-2 border-amber-600 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-lg bg-amber-950 border border-amber-600/50 flex items-center justify-center text-amber-400">
+                  <Newspaper className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-amber-100 font-black text-sm uppercase tracking-wide">
+                    Gazeta Comercial da Liga
+                  </h3>
+                  <p className="text-[10px] text-stone-400 font-mono">
+                    Edição Extraordinária — Semana R-{state.week || state.day}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={dismissBulletin}
+                className="text-stone-400 hover:text-stone-200 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="bg-stone-950 border border-amber-900/40 rounded-xl p-4 space-y-3">
+              <span className="text-xs uppercase font-mono tracking-widest text-amber-400 font-bold block">
+                Manchete do Mercado
+              </span>
+              <p className="text-sm font-semibold text-stone-100 leading-relaxed">
+                "{bulletin.headline}"
+              </p>
+              <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between text-xs font-mono">
+                <span className="text-stone-400">Alvo da Portaria: <strong className="text-stone-200">{bulletin.target}</strong></span>
+                <span className="text-amber-400 font-bold">Multiplicador de Demanda: x{bulletin.multiplier}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={dismissBulletin}
+              className="w-full bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-xs uppercase tracking-wider py-3 rounded-xl shadow-lg hover:brightness-110 transition"
+            >
+              Ciente das Diretrizes de Mercado
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────
           THE SMITHING REVEAL MODAL (CRAFT LENDÁRIO)
          ───────────────────────────────────────────── */}
       {legendaryItem && (
@@ -732,35 +1044,39 @@ export default function Phase2Workshop({
         </div>
       )}
 
-      {/* Modal de Contraproposta Comercial */}
+      {/* Modal de Contraproposta Comercial com estatísticas completas */}
       {counterModal && (
         <div className="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <div className="bg-stone-900 border-2 border-amber-600 rounded-2xl p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-amber-400 font-black text-base mb-1">Contraproposta de Balcão</h3>
-            <p className="text-stone-300 text-xs">
-              A comissão de compras da guilda cliente solicitou ajuste no preço cobrado para fechar o contrato.
-            </p>
-            <div className="my-3 p-3 bg-stone-950 rounded-xl border border-stone-800">
-              <p className="text-stone-400 text-xs">Ativo: <strong className="text-stone-200">{counterModal.item.name}</strong></p>
-              <p className="text-xs text-stone-400 mt-1">
-                Oferta Final:{' '}
-                <strong className={`${GOLD_GRADIENT_TEXT} text-sm font-mono`}>
-                  ⬡ {counterModal.offer} Moedas de Ouro
-                </strong>
+          <div className="bg-stone-900 border-2 border-amber-600 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <div>
+              <h3 className="text-amber-400 font-black text-base mb-1">Contraproposta de Balcão</h3>
+              <p className="text-stone-300 text-xs">
+                A comissão de compras da guilda cliente solicitou ajuste no preço cobrado para fechar o contrato.
               </p>
             </div>
+
+            <div className="p-3.5 bg-stone-950 rounded-xl border border-stone-800 space-y-2 text-xs">
+              <p className="text-stone-400">Ativo: <strong className="text-stone-200">{counterModal.item.name}</strong></p>
+              <div className="grid grid-cols-2 gap-2 text-[11px] font-mono border-t border-stone-800/80 pt-2 text-stone-400">
+                <span>Referência: ⬡ {counterModal.referencePrice ?? counterModal.item.market_value_base}</span>
+                <span>Preço Pedido: ⬡ {counterModal.askedPrice ?? '—'}</span>
+                <span>Demanda: x{counterModal.demandMultiplier ?? 1.0}</span>
+                <span className="text-amber-300 font-bold">Oferta: ⬡ {counterModal.offer}</span>
+              </div>
+            </div>
+
             <div className="flex gap-3">
               <button
                 onClick={() => handleResolveOffer(true)}
                 className="flex-1 py-2.5 bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-xs uppercase tracking-wider rounded-xl shadow hover:brightness-110 transition"
               >
-                Aceitar Oferta
+                Aceitar Oferta (⬡ {counterModal.offer})
               </button>
               <button
                 onClick={() => handleResolveOffer(false)}
                 className="flex-1 py-2.5 bg-stone-800 text-stone-300 font-bold text-xs uppercase tracking-wider rounded-xl border border-stone-700 hover:bg-stone-700 transition"
               >
-                Recusar
+                Recusar Proposta
               </button>
             </div>
           </div>
@@ -769,3 +1085,4 @@ export default function Phase2Workshop({
     </div>
   )
 }
+

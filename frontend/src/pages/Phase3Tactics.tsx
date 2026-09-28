@@ -13,23 +13,47 @@ import { RARITY_CARD_STYLES, RARITY_BADGE_STYLES, GOLD_GRADIENT_TEXT } from '../
 interface Phase3TacticsProps {
   state: GameState
   onAdvance: () => void
-  onSaveTactics?: (starters: string[], loadout: Record<string, any>) => Promise<any>
+  onSaveTactics?: (starters: string[], loadout: Record<string, string | null>, reserves?: string[]) => Promise<any>
 }
 
 const SLOTS = ['Arma', 'Armadura', 'Joia', 'Inscrição', 'Consumível'] as const
 type Slot = typeof SLOTS[number]
 
 export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase3TacticsProps) {
+  // Inicialização segura de Titulares (até 6)
   const initialStarters = state.tactics?.starters?.length
     ? state.team.filter(h => state.tactics!.starters.includes(h.id))
-    : state.team.filter(h => h.status === 'Apto').slice(0, 5)
+    : state.team.filter(h => h.status === 'Apto' && !h.injured).slice(0, 6)
+
+  // Inicialização segura de Reservas (até 3)
+  const starterIds = new Set(initialStarters.map(h => h.id))
+  const initialReserves = state.tactics?.reserves?.length
+    ? state.team.filter(h => state.tactics!.reserves!.includes(h.id) && !starterIds.has(h.id))
+    : state.team.filter(h => h.status === 'Apto' && !h.injured && !starterIds.has(h.id)).slice(0, 3)
 
   const [starters, setStarters] = useState<Hero[]>(initialStarters)
-  const [loadout, setLoadout] = useState<Partial<Record<Slot, InventoryItem>>>(
-    (state.tactics?.loadout as Partial<Record<Slot, InventoryItem>>) || {}
-  )
+  const [reserves, setReserves] = useState<Hero[]>(initialReserves)
+
+  // Resolução do loadout garantindo mapeamento de objetos para itens do inventário
+  const initialLoadout: Partial<Record<Slot, InventoryItem>> = {}
+  if (state.tactics?.loadout) {
+    SLOTS.forEach(slot => {
+      const val = state.tactics!.loadout[slot]
+      if (val) {
+        if (typeof val === 'object' && 'item_instance_id' in val) {
+          initialLoadout[slot] = val as InventoryItem
+        } else if (typeof val === 'string') {
+          const found = state.inventory.find(i => i.item_instance_id === val)
+          if (found) initialLoadout[slot] = found
+        }
+      }
+    })
+  }
+
+  const [loadout, setLoadout] = useState<Partial<Record<Slot, InventoryItem>>>(initialLoadout)
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
 
   const dungeon: DungeonInfo = state.current_dungeon || {
     id: 'dungeon_01',
@@ -45,24 +69,46 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
     recommended_power: 55,
   }
 
-  const availableHeroes = state.team.filter(h => !starters.find(s => s.id === h.id))
+  const starterSet = new Set(starters.map(s => s.id))
+  const reserveSet = new Set(reserves.map(r => r.id))
+  const availableHeroes = state.team.filter(h => !starterSet.has(h.id) && !reserveSet.has(h.id))
 
-  function toggleStarter(hero: Hero) {
-    if (starters.find(s => s.id === hero.id)) {
-      setStarters(prev => prev.filter(s => s.id !== hero.id))
-    } else if (starters.length < 6) {
-      setStarters(prev => [...prev, hero])
-    }
+  function addStarter(hero: Hero) {
+    if (hero.injured || hero.status === 'Afastado') return
+    if (starters.length >= 6) return
+    setReserves(prev => prev.filter(r => r.id !== hero.id))
+    setStarters(prev => [...prev, hero])
+    setServerError(null)
+  }
+
+  function removeStarter(hero: Hero) {
+    setStarters(prev => prev.filter(s => s.id !== hero.id))
+    setServerError(null)
+  }
+
+  function addReserve(hero: Hero) {
+    if (hero.injured || hero.status === 'Afastado') return
+    if (reserves.length >= 3) return
+    setStarters(prev => prev.filter(s => s.id !== hero.id))
+    setReserves(prev => [...prev, hero])
+    setServerError(null)
+  }
+
+  function removeReserve(hero: Hero) {
+    setReserves(prev => prev.filter(r => r.id !== hero.id))
+    setServerError(null)
   }
 
   function equipItem(item: InventoryItem) {
     if (!selectedSlot) return
     setLoadout(prev => ({ ...prev, [selectedSlot]: item }))
     setSelectedSlot(null)
+    setServerError(null)
   }
 
   function unequipItem(slot: Slot) {
     setLoadout(prev => ({ ...prev, [slot]: undefined }))
+    setServerError(null)
   }
 
   // Verifica mitigação do terreno
@@ -71,7 +117,7 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
     ? Object.values(loadout).some(item => item?.terrain_mitigation === requiredMitigation)
     : true
 
-  // Verificação de Sinergia Total (Overgeared Loadout): Todos os 5 slots com Ótimo ou Lendário!
+  // Verificação de Sinergia Total (Overgeared Loadout)
   const allFiveFilled = SLOTS.every(s => loadout[s] !== undefined && loadout[s] !== null)
   const isOvergearedElite =
     allFiveFilled &&
@@ -89,19 +135,40 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
   // Salvar tática
   async function handleConfirm() {
     setIsSaving(true)
+    setServerError(null)
+
+    // Enviar apenas os IDs dos itens nos slots
+    const payloadLoadout: Record<string, string | null> = {
+      Arma: loadout.Arma ? loadout.Arma.item_instance_id : null,
+      Armadura: loadout.Armadura ? loadout.Armadura.item_instance_id : null,
+      Joia: loadout.Joia ? loadout.Joia.item_instance_id : null,
+      Inscrição: loadout.Inscrição ? loadout.Inscrição.item_instance_id : null,
+      Consumível: loadout.Consumível ? loadout.Consumível.item_instance_id : null,
+    }
+
     if (onSaveTactics) {
       try {
-        await onSaveTactics(
+        const res = await onSaveTactics(
           starters.map(h => h.id),
-          loadout
+          payloadLoadout,
+          reserves.map(h => h.id)
         )
+        if (res && res.result && res.result.success === false) {
+          setServerError(res.result.message || 'Escalação rejeitada pela autoridade tática da Liga.')
+          setIsSaving(false)
+          return
+        }
       } catch (err) {
         console.warn('Erro ao salvar tática:', err)
+        setServerError('Falha de comunicação com o servidor da guilda ao homologar tática.')
+        setIsSaving(false)
+        return
       }
     }
     setIsSaving(false)
     onAdvance()
   }
+
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
@@ -356,107 +423,259 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
         )}
       </div>
 
-      {/* Titulares e Reservas */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Titulares Escalados */}
-        <div className="bg-[#1c1917] border border-amber-950/40 rounded-xl p-4 space-y-3 shadow-lg">
-          <div className="flex justify-between items-center border-b border-stone-800 pb-2">
-            <h3 className="text-amber-200 text-xs font-bold uppercase tracking-wider">
-              Party (6) ({starters.length}/6)
-            </h3>
-            <span className="text-stone-400 text-xs">
-              Poder dos Membros: <strong className="text-amber-300 font-mono">{teamBasePower}</strong>
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            {starters.map(hero => (
-              <div
-                key={hero.id}
-                className="bg-stone-900 border border-amber-950/50 rounded-lg p-2.5 flex items-center justify-between gap-3"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-lg bg-stone-800 text-amber-400 font-bold flex items-center justify-center text-xs">
-                    {hero.name[0]}
-                  </div>
-                  <div>
-                    <span className="text-stone-200 text-xs font-semibold block">{hero.name}</span>
-                    <span className="text-stone-500 text-[10px]">{hero.class_name ?? hero.class ?? 'Combatente'}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-amber-400 font-mono text-xs font-bold">
-                    Poder {hero.current_power ?? hero.power ?? 50}
-                  </span>
-                  <button
-                    onClick={() => toggleStarter(hero)}
-                    className="text-stone-500 hover:text-rose-400 text-xs font-bold px-2 py-0.5"
-                  >
-                    Remover
-                  </button>
-                </div>
-              </div>
-            ))}
+      {/* Alerta de Erro Corporativo do Servidor */}
+      {serverError && (
+        <div className="bg-rose-950/90 border border-rose-600/80 p-4 rounded-xl flex items-start gap-3 text-xs text-rose-200 shadow-xl animate-in fade-in duration-200">
+          <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <strong className="block font-bold text-sm text-rose-100 uppercase tracking-wide">
+              Parecer Negativo do Departamento de Auditoria Tática
+            </strong>
+            <p className="text-rose-200 font-mono">{serverError}</p>
           </div>
         </div>
+      )}
 
-        {/* Reservas Disponíveis */}
-        <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 space-y-3 shadow-lg">
-          <div className="flex justify-between items-center border-b border-stone-800 pb-2">
-            <h3 className="text-stone-400 text-xs font-bold uppercase tracking-wider">
-              Reserva (3)
-            </h3>
-            <span className="text-stone-500 text-xs">{availableHeroes.length} aguardando convocação</span>
-          </div>
+      {/* Grid com 3 Colunas: Titulares (Party 6), Reservas (3) e Quadro de Pessoal */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* COLUNA 1: Titulares (Party 6) */}
+        <div className="bg-[#1c1917] border border-amber-950/60 rounded-xl p-4 space-y-3 shadow-lg flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-center border-b border-stone-800 pb-2 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                <h3 className="text-amber-200 text-xs font-black uppercase tracking-wider">
+                  Party Operacional ({starters.length}/6)
+                </h3>
+              </div>
+              <span className="text-stone-400 text-xs font-mono">
+                Poder: <strong className="text-amber-300">{teamBasePower}</strong>
+              </span>
+            </div>
 
-          <div className="space-y-2">
-            {availableHeroes.length === 0 ? (
-              <p className="text-stone-500 text-xs italic py-4 text-center">Nenhum reserva no alojamento.</p>
-            ) : (
-              availableHeroes.map(hero => {
-                const isInjured = hero.status === 'Afastado'
-                return (
+            <div className="space-y-2">
+              {starters.length === 0 ? (
+                <p className="text-stone-500 text-xs italic py-6 text-center">
+                  Nenhum titular escalado. Aloque combatentes aptos abaixo.
+                </p>
+              ) : (
+                starters.map(hero => (
                   <div
                     key={hero.id}
-                    onClick={() => !isInjured && toggleStarter(hero)}
-                    className={`bg-stone-900/60 border border-stone-800 rounded-lg p-2.5 flex items-center justify-between gap-3 transition ${
-                      isInjured ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:border-stone-700'
-                    }`}
+                    className="bg-stone-900 border border-amber-950/60 hover:border-amber-700/60 rounded-lg p-2.5 flex items-center justify-between gap-3 shadow-sm transition"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-stone-800 text-stone-400 font-bold flex items-center justify-center text-xs">
+                    <div className="flex items-center gap-2.5 overflow-hidden">
+                      <div className="w-7 h-7 rounded-lg bg-amber-950/80 text-amber-300 border border-amber-700/50 font-black flex items-center justify-center text-xs shrink-0">
                         {hero.name[0]}
                       </div>
-                      <div>
-                        <span className="text-stone-300 text-xs font-medium block">{hero.name}</span>
-                        <span className="text-stone-500 text-[10px]">
-                          {hero.class_name ?? hero.class ?? 'Combatente'} · {hero.status}
+                      <div className="truncate">
+                        <span className="text-stone-100 text-xs font-bold block truncate">{hero.name}</span>
+                        <span className="text-stone-400 text-[10px] block truncate">
+                          {hero.specialization_name ?? hero.class_name ?? hero.class ?? 'Combatente'}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className="text-stone-400 font-mono text-xs">
-                        Poder {hero.current_power ?? hero.power ?? 50}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-amber-400 font-mono text-xs font-bold">
+                        P.{hero.current_power ?? hero.power ?? 50}
                       </span>
-                      {starters.length < 6 && !isInjured && (
-                        <span className="text-amber-500 text-xs font-bold">+ Escalar</span>
-                      )}
+                      <button
+                        onClick={() => removeStarter(hero)}
+                        className="text-stone-500 hover:text-rose-400 text-xs px-1.5 py-0.5 rounded hover:bg-stone-800 transition"
+                        title="Remover da Party"
+                      >
+                        ✕
+                      </button>
                     </div>
                   </div>
-                )
-              })
-            )}
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-stone-800/60 text-[10px] text-stone-500 flex justify-between">
+            <span>Capacidade máxima regulamentar</span>
+            <span className="font-mono font-bold text-amber-400">{starters.length} de 6 vagas</span>
+          </div>
+        </div>
+
+        {/* COLUNA 2: Reserva Estratégica (3) */}
+        <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 space-y-3 shadow-lg flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-center border-b border-stone-800 pb-2 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-cyan-500"></span>
+                <h3 className="text-stone-300 text-xs font-black uppercase tracking-wider">
+                  Reserva de Apoio ({reserves.length}/3)
+                </h3>
+              </div>
+              <span className="text-stone-500 text-xs font-mono">
+                {reserves.length}/3 alocados
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {reserves.length === 0 ? (
+                <p className="text-stone-500 text-xs italic py-6 text-center">
+                  Nenhum combatente em reserva de contingência.
+                </p>
+              ) : (
+                reserves.map(hero => (
+                  <div
+                    key={hero.id}
+                    className="bg-stone-900 border border-stone-800 hover:border-cyan-800/60 rounded-lg p-2.5 flex items-center justify-between gap-3 shadow-sm transition"
+                  >
+                    <div className="flex items-center gap-2.5 overflow-hidden">
+                      <div className="w-7 h-7 rounded-lg bg-stone-800 text-cyan-300 font-bold flex items-center justify-center text-xs shrink-0">
+                        {hero.name[0]}
+                      </div>
+                      <div className="truncate">
+                        <span className="text-stone-200 text-xs font-semibold block truncate">{hero.name}</span>
+                        <span className="text-stone-500 text-[10px] block truncate">
+                          {hero.specialization_name ?? hero.class_name ?? hero.class ?? 'Combatente'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-cyan-400 font-mono text-xs font-bold">
+                        P.{hero.current_power ?? hero.power ?? 50}
+                      </span>
+                      {starters.length < 6 && (
+                        <button
+                          onClick={() => addStarter(hero)}
+                          className="text-[10px] bg-amber-950 text-amber-300 border border-amber-800 px-1.5 py-0.5 rounded font-bold hover:bg-amber-900 transition"
+                          title="Promover a Titular"
+                        >
+                          Party
+                        </button>
+                      )}
+                      <button
+                        onClick={() => removeReserve(hero)}
+                        className="text-stone-500 hover:text-rose-400 text-xs px-1.5 py-0.5 rounded hover:bg-stone-800 transition"
+                        title="Liberar para o Alojamento"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-stone-800/60 text-[10px] text-stone-500 flex justify-between">
+            <span>Regulamento da Liga</span>
+            <span className="font-mono font-bold text-cyan-400">{reserves.length} de 3 reservas</span>
+          </div>
+        </div>
+
+        {/* COLUNA 3: Quadro de Pessoal do Alojamento / Bloqueio de Feridos */}
+        <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 space-y-3 shadow-lg flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-center border-b border-stone-800 pb-2 mb-3">
+              <h3 className="text-stone-400 text-xs font-black uppercase tracking-wider">
+                Quartel & Alojamento
+              </h3>
+              <span className="text-stone-500 text-xs">
+                {availableHeroes.length} no alojamento
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {availableHeroes.length === 0 ? (
+                <p className="text-stone-500 text-xs italic py-6 text-center">
+                  Todos os colaboradores da guilda foram designados.
+                </p>
+              ) : (
+                availableHeroes.map(hero => {
+                  const isInjured = Boolean(hero.injured || hero.status === 'Afastado')
+
+                  if (isInjured) {
+                    return (
+                      <div
+                        key={hero.id}
+                        className="bg-stone-950/80 border border-rose-900/50 rounded-lg p-2.5 flex items-center justify-between gap-3 opacity-60 cursor-not-allowed"
+                        title={`Colaborador em licença médica compulsória: ${hero.injury_weeks_left ?? 1} semana(s) restante(s).`}
+                      >
+                        <div className="flex items-center gap-2.5 overflow-hidden">
+                          <div className="w-7 h-7 rounded-lg bg-rose-950/80 text-rose-400 border border-rose-800/50 font-bold flex items-center justify-center text-xs shrink-0">
+                            ✕
+                          </div>
+                          <div className="truncate">
+                            <span className="text-stone-300 text-xs font-medium block truncate line-through">
+                              {hero.name}
+                            </span>
+                            <span className="text-rose-400 text-[10px] font-bold block truncate">
+                              Afastado por Lesão ({hero.injury_weeks_left ?? 1} sem.)
+                            </span>
+                          </div>
+                        </div>
+
+                        <span className="text-[9px] bg-rose-950 text-rose-300 border border-rose-800 px-1.5 py-0.5 rounded font-bold uppercase shrink-0">
+                          Bloqueado
+                        </span>
+                      </div>
+                    )
+                  }
+
+                  return (
+                    <div
+                      key={hero.id}
+                      className="bg-stone-900/80 border border-stone-800 hover:border-stone-700 rounded-lg p-2.5 flex items-center justify-between gap-3 transition"
+                    >
+                      <div className="flex items-center gap-2.5 overflow-hidden">
+                        <div className="w-7 h-7 rounded-lg bg-stone-800 text-stone-300 font-bold flex items-center justify-center text-xs shrink-0">
+                          {hero.name[0]}
+                        </div>
+                        <div className="truncate">
+                          <span className="text-stone-200 text-xs font-medium block truncate">{hero.name}</span>
+                          <span className="text-stone-500 text-[10px] block truncate">
+                            {hero.specialization_name ?? hero.class_name ?? hero.class ?? 'Combatente'} · P.{hero.current_power ?? hero.power ?? 50}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {starters.length < 6 && (
+                          <button
+                            onClick={() => addStarter(hero)}
+                            className="text-[10px] bg-amber-600 hover:bg-amber-500 text-stone-950 font-black px-2 py-1 rounded transition"
+                            title="Escalar na Party Titular"
+                          >
+                            + Party
+                          </button>
+                        )}
+                        {reserves.length < 3 && (
+                          <button
+                            onClick={() => addReserve(hero)}
+                            className="text-[10px] bg-stone-800 hover:bg-cyan-950 text-stone-300 hover:text-cyan-300 border border-stone-700 hover:border-cyan-800 px-2 py-1 rounded font-bold transition"
+                            title="Alocar na Reserva de Apoio"
+                          >
+                            + Reserva
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-stone-800/60 text-[10px] text-stone-500 flex justify-between">
+            <span>Total da guilda: {state.team.length}</span>
+            <span>Afastados são impedidos por portaria médica</span>
           </div>
         </div>
       </div>
 
-      {/* Resumo Consolidado de Poder Efetivo */}
+      {/* Resumo Consolidado de Poder Efetivo & Botão de Confirmação */}
       <div className="bg-[#1c1917] border border-amber-950/60 rounded-xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
         <div className="space-y-1 text-xs text-stone-300">
           <div className="flex items-center gap-2 flex-wrap font-mono">
-            <span>Titulares: <strong className="text-amber-100">{teamBasePower}</strong></span>
+            <span>Titulares ({starters.length}/6): <strong className="text-amber-100">{teamBasePower}</strong></span>
             <span className="text-stone-600">+</span>
             <span>Bônus Loadout: <strong className="text-emerald-400">+{loadoutBonus}</strong></span>
             <span className="text-stone-600">-</span>
@@ -478,9 +697,10 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
           disabled={isSaving || starters.length === 0}
           className="bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-xs uppercase tracking-wider px-6 py-3 rounded-xl shadow-lg shadow-amber-950/40 hover:brightness-110 transition disabled:opacity-40 shrink-0"
         >
-          {isSaving ? 'Protocolando...' : 'Assinar Memorando & Iniciar Expedição →'}
+          {isSaving ? 'Protocolando...' : 'Assinar Memorando & Despachar Expedição →'}
         </button>
       </div>
     </div>
   )
 }
+

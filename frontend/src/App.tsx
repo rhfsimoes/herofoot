@@ -15,6 +15,7 @@ import {
   advancePhaseBackend,
   saveTacticsBackend,
   craftItemBackend,
+  upgradeWorkshopBackend,
   buyMaterialBackend,
   buyItemBackend,
   sellItemBackend,
@@ -49,6 +50,17 @@ function AppContent() {
     init()
   }, [])
 
+  function handleStateChange(newState: GameState) {
+    setGameState(prev => ({
+      ...prev,
+      ...newState,
+      day: newState.day || newState.week || prev.day,
+      current_phase: newState.current_phase || prev.current_phase,
+    }))
+    const targetPhase = newState.current_phase || 1
+    navigate(PHASE_PATHS[targetPhase] || '/')
+  }
+
   // Avanço de fases integrado
   async function advancePhase() {
     if (isBackendOnline) {
@@ -77,10 +89,40 @@ function AppContent() {
     navigate(PHASE_PATHS[next])
   }
 
-  // Handler para salvar tática
-  async function handleSaveTactics(starters: string[], loadout: Record<string, any>) {
+  // Execução de Expedição na Fase 4 (Chama avanço no backend que simula a masmorra e devolve room_events)
+  async function handleExecuteExpedition() {
     if (isBackendOnline) {
-      const res = await saveTacticsBackend(starters, loadout)
+      const res = await advancePhaseBackend()
+      if (res && res.state) {
+        const stateData = res.state
+        setGameState(prev => ({
+          ...prev,
+          ...stateData,
+          day: stateData.day || stateData.week || prev.day,
+          current_phase: stateData.current_phase,
+        }))
+      }
+      return res
+    }
+    return null
+  }
+
+  function handleAdvanceFromPhase4() {
+    if (gameState.current_phase === 5) {
+      navigate('/phase5')
+    } else {
+      advancePhase()
+    }
+  }
+
+  // Handler para salvar tática (titulares, reservas e loadout com IDs)
+  async function handleSaveTactics(
+    starters: string[],
+    loadout: Record<string, string | null>,
+    reserves?: string[]
+  ) {
+    if (isBackendOnline) {
+      const res = await saveTacticsBackend(starters, loadout, reserves)
       if (res && res.state) {
         setGameState(prev => ({ ...prev, ...res.state }))
       }
@@ -88,7 +130,7 @@ function AppContent() {
     }
     setGameState(prev => ({
       ...prev,
-      tactics: { starters, loadout: loadout as any }
+      tactics: { starters, reserves: reserves || [], loadout: loadout as any },
     }))
     return null
   }
@@ -97,6 +139,17 @@ function AppContent() {
   async function handleCraft(recipeId: string) {
     if (isBackendOnline) {
       const res = await craftItemBackend(recipeId)
+      if (res && res.state) {
+        setGameState(prev => ({ ...prev, ...res.state }))
+      }
+      return res
+    }
+    return null
+  }
+
+  async function handleUpgradeWorkshop(branch: string) {
+    if (isBackendOnline) {
+      const res = await upgradeWorkshopBackend(branch)
       if (res && res.state) {
         setGameState(prev => ({ ...prev, ...res.state }))
       }
@@ -127,9 +180,9 @@ function AppContent() {
     return null
   }
 
-  async function handleSellItem(instanceId: string, basePrice: number, margin: string) {
+  async function handleSellItem(instanceId: string, margin: string) {
     if (isBackendOnline) {
-      const res = await sellItemBackend(instanceId, basePrice, margin)
+      const res = await sellItemBackend(instanceId, margin)
       if (res && res.state) {
         setGameState(prev => ({ ...prev, ...res.state }))
       }
@@ -158,7 +211,11 @@ function AppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-stone-950 text-stone-100">
-      <Header state={gameState} isBackendOnline={isBackendOnline} />
+      <Header
+        state={gameState}
+        isBackendOnline={isBackendOnline}
+        onStateChange={handleStateChange}
+      />
       <PhaseStepper currentPhase={gameState.current_phase} />
       <main className="flex-1 overflow-y-auto">
         <Routes>
@@ -181,6 +238,7 @@ function AppContent() {
                 state={gameState}
                 onAdvance={advancePhase}
                 onCraft={handleCraft}
+                onUpgradeWorkshop={handleUpgradeWorkshop}
                 onBuyMaterial={handleBuyMaterial}
                 onBuyItem={handleBuyItem}
                 onSellItem={handleSellItem}
@@ -202,7 +260,8 @@ function AppContent() {
             path="/phase4"
             element={
               <Phase4Dungeon
-                onAdvance={advancePhase}
+                onAdvance={handleAdvanceFromPhase4}
+                onExecuteExpedition={handleExecuteExpedition}
                 day={gameState.day}
                 rivalGuildName={rivalGuild}
                 lastRoundResults={gameState.last_round_matches}
