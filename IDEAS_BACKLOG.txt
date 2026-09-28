@@ -1,0 +1,19 @@
+=============================================================
+IDEIAS E BACKLOG DE ATUALIZAÇÕES FUTURAS - HEROFOOT MVP
+=============================================================
+
+1. FASE 1: RECURSOS HUMANOS E CURA
+- Atestados Médicos Suspeitos: Heróis fingindo lesão por falta de motivação. Exige pagamento de bônus salarial ou pacote extra de benefícios para voltarem à ativa.
+- Dinâmicas de Descompressão: Treinamentos corporativos que reduzem a fadiga de toda a equipe, porém geram alto custo no fluxo de caixa do turno.
+
+2. FASE 2: MERCADO E ECONOMIA
+- Temporizador do Balcão de Vendas: Preços muito abusivos não são recusados instantaneamente, mas podem levar múltiplas semanas (turnos) para encontrar um comprador excêntrico, prendendo o ativo e travando o capital de giro da guilda.
+- Especulação Sazonal Ampliada: Tendências de mercado dinâmicas (ex: Alta procura por Capas Impermeáveis gerando lucro 3x).
+
+3. FASE 3: PREPARAÇÃO TÁTICA E ATRIBUTOS
+- Sinergia Departamental (Bônus de Setup): Times focados em especialidades (ex: apenas Magos de Escritório de Guerra e Guerreiros de Vanguarda) geram gatilhos ocultos de bônus ou penalidades de terreno.
+- Integração de `classes_seed.json`: Usar os multiplicadores reais de atributos na escalação.
+
+4. FASE 5: TABELA E RESULTADOS
+- NPCs de Guildas Concorrentes (Os "concorrentes de mercado").
+- Metas trimestrais ditadas pelo Rei (O CEO do Reino), com punições se os KPIs não forem atingidos.

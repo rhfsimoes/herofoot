@@ -1,0 +1,163 @@
+[
+  {
+    "id": "item_wep_01",
+    "name": "Espada Longa de Aço",
+    "slot": "Arma",
+    "power_bonus": 15,
+    "terrain_mitigation": null,
+    "energy_bonus": 0,
+    "description": "Uma arma de aço de boa extensão e fio afiado."
+  },
+  {
+    "id": "item_wep_02",
+    "name": "Cajado do Pântano",
+    "slot": "Arma",
+    "power_bonus": 25,
+    "terrain_mitigation": "toxic_swamp",
+    "energy_bonus": 0,
+    "description": "Canaliza preces purificadoras contra toxinas de charcos."
+  },
+  {
+    "id": "item_arm_01",
+    "name": "Armadura de Couro Básica",
+    "slot": "Armadura",
+    "power_bonus": 10,
+    "terrain_mitigation": null,
+    "energy_bonus": 0,
+    "description": "Proteção leve e flexível de couro batido."
+  },
+  {
+    "id": "item_arm_02",
+    "name": "Manto Anti-Toxina",
+    "slot": "Armadura",
+    "power_bonus": 15,
+    "terrain_mitigation": "toxic_swamp",
+    "energy_bonus": 0,
+    "description": "Tecido denso impermeabilizado contra venenos e vapores nocivos."
+  },
+  {
+    "id": "item_arm_03",
+    "name": "Cota de Malha",
+    "slot": "Armadura",
+    "power_bonus": 20,
+    "terrain_mitigation": null,
+    "energy_bonus": 0,
+    "description": "Entrelaçado de anéis de ferro para absorção de impacto físico."
+  },
+  {
+    "id": "item_jwl_01",
+    "name": "Anel da Força Menor",
+    "slot": "Joia",
+    "power_bonus": 5,
+    "terrain_mitigation": null,
+    "energy_bonus": 0,
+    "description": "Leve indução de vigor muscular."
+  },
+  {
+    "id": "item_jwl_02",
+    "name": "Amuleto do Vigor",
+    "slot": "Joia",
+    "power_bonus": 8,
+    "terrain_mitigation": null,
+    "energy_bonus": 5,
+    "description": "Canalizador que atenua o desgaste em marcha."
+  },
+  {
+    "id": "item_jwl_03",
+    "name": "Amuleto de Guarda-Alma",
+    "slot": "Joia",
+    "power_bonus": 15,
+    "terrain_mitigation": null,
+    "energy_bonus": 0,
+    "description": "Pingente de cristal consagrado para proteção de essência vital."
+  },
+  {
+    "id": "item_ins_01",
+    "name": "Inscrição da Coragem",
+    "slot": "Inscrição",
+    "power_bonus": 20,
+    "terrain_mitigation": null,
+    "energy_bonus": 0,
+    "description": "Glifo de disciplina marcial aplicada sobre equipamento."
+  },
+  {
+    "id": "item_ins_02",
+    "name": "Runa de Adaptação (Pântano)",
+    "slot": "Inscrição",
+    "power_bonus": 10,
+    "terrain_mitigation": "toxic_swamp",
+    "energy_bonus": 0,
+    "description": "Adapta o portador aos perigos de terrenos pantanosos e miasmas."
+  },
+  {
+    "id": "item_ins_03",
+    "name": "Runa de Proteção",
+    "slot": "Inscrição",
+    "power_bonus": 12,
+    "terrain_mitigation": "toxic_swamp",
+    "energy_bonus": 0,
+    "description": "Glifo pericial repelente de toxinas corrosivas."
+  },
+  {
+    "id": "item_ins_04",
+    "name": "Inscrição Térmica",
+    "slot": "Inscrição",
+    "power_bonus": 12,
+    "terrain_mitigation": "glacier_frost",
+    "energy_bonus": 0,
+    "description": "Inscrição arcana geradora de calor constante."
+  },
+  {
+    "id": "item_ins_05",
+    "name": "Selo de Firmeza Estrutural",
+    "slot": "Inscrição",
+    "power_bonus": 12,
+    "terrain_mitigation": "unstable_mine",
+    "energy_bonus": 0,
+    "description": "Selo de estabilização contra abalos de galerias e colapsos de túneis."
+  },
+  {
+    "id": "item_cons_01",
+    "name": "Poção de Energia Pequena",
+    "slot": "Consumível",
+    "power_bonus": 0,
+    "terrain_mitigation": null,
+    "energy_bonus": 20,
+    "charges": 3,
+    "max_charges": 3,
+    "description": "Restaura suprimentos da party em incursão."
+  },
+  {
+    "id": "item_cons_02",
+    "name": "Antídoto do Pântano",
+    "slot": "Consumível",
+    "power_bonus": 0,
+    "terrain_mitigation": "toxic_swamp",
+    "energy_bonus": 10,
+    "charges": 3,
+    "max_charges": 3,
+    "description": "Purga toxinas e restaura suprimentos."
+  },
+  {
+    "id": "item_cons_03",
+    "name": "Poção de Cura",
+    "slot": "Consumível",
+    "power_bonus": 0,
+    "terrain_mitigation": null,
+    "energy_bonus": 25,
+    "charges": 3,
+    "max_charges": 3,
+    "description": "Mistura fitoterápica padronizada para primeiros socorros de campo."
+  },
+  {
+    "id": "item_cons_04",
+    "name": "Ração de Batalha",
+    "slot": "Consumível",
+    "power_bonus": 5,
+    "terrain_mitigation": null,
+    "energy_bonus": 35,
+    "charges": 3,
+    "max_charges": 3,
+    "description": "Provisão concentrada de alta caloria e durabilidade estendida."
+  }
+]

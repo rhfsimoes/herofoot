@@ -1,0 +1,18 @@
+{
+  "shop_gold": 1000,
+  "workshop_levels": {
+    "Ferragem": 1,
+    "Alquimia": 1,
+    "Joalheria": 1,
+    "Culinária": 1
+  },
+  "materials_inventory": {
+    "mat_iron_ore": 10,
+    "mat_scaly_leather": 6,
+    "mat_mana_crystal": 4,
+    "mat_eucalyptus_herb": 5,
+    "mat_flour": 8
+  },
+  "crafted_items_inventory": [],
+  "counter_showcase": []
+}

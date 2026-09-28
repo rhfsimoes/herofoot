@@ -1,0 +1,50 @@
+[
+  {
+    "id": "dungeon_01",
+    "name": "Vale dos Ecos Verdejantes",
+    "terrain": "neutral",
+    "terrain_label": "Campo Aberto Verdejante",
+    "description": "Terreno padrão da Liga, sem penalidades ambientais. Trilha seca em campo aberto verdejante.",
+    "power_penalty_pct": 0.0,
+    "energy_cost_extra": 0,
+    "mitigation_required": null,
+    "mitigation_label": "Nenhuma mitigação necessária",
+    "recommended_power": 55
+  },
+  {
+    "id": "dungeon_02",
+    "name": "Pântano Pútrido do Vale Baixo",
+    "terrain": "toxic_swamp",
+    "terrain_label": "Terreno Alagado & Emanações Venenosas",
+    "description": "Lama densa e miasma tóxico. Drena suprimentos e reduz a capacidade de combate sem proteção respiratória.",
+    "power_penalty_pct": 0.12,
+    "energy_cost_extra": 5,
+    "mitigation_required": "toxic_swamp",
+    "mitigation_label": "EPI Anti-Tóxico ou Runa do Pântano",
+    "recommended_power": 72
+  },
+  {
+    "id": "dungeon_03",
+    "name": "Cripta do Pico Glacial",
+    "terrain": "glacier_frost",
+    "terrain_label": "Frio Extremo & Solo Escorregadio",
+    "description": "Gelo cristalizado e ventos cortantes. Causa dormência muscular e congelamento rápido de rações.",
+    "power_penalty_pct": 0.12,
+    "energy_cost_extra": 5,
+    "mitigation_required": "glacier_frost",
+    "mitigation_label": "Cota Térmica ou Inscrição do Fogo",
+    "recommended_power": 77
+  },
+  {
+    "id": "dungeon_04",
+    "name": "Mina Profunda dos Desabamentos",
+    "terrain": "unstable_mine",
+    "terrain_label": "Solo Sísmico & Risco de Queda de Rochas",
+    "description": "Estrutura geológica frágil. Exige equipamentos reforçados contra impacto de estalactites.",
+    "power_penalty_pct": 0.12,
+    "energy_cost_extra": 5,
+    "mitigation_required": "unstable_mine",
+    "mitigation_label": "Armadura Reforçada ou Amuleto Sísmico",
+    "recommended_power": 83
+  }
+]

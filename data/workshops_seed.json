@@ -1,0 +1,29 @@
+{
+  "branches": [
+    { "id": "blacksmithing", "label": "Ferragem" },
+    { "id": "alchemy", "label": "Alquimia" },
+    { "id": "jewelry", "label": "Joalheria" },
+    { "id": "cooking", "label": "Culinária" }
+  ],
+  "levels": {
+    "1": { "Fraco": 50, "Normal": 40, "Ótimo": 10, "Lendário": 0 },
+    "2": { "Fraco": 30, "Normal": 50, "Ótimo": 20, "Lendário": 0 },
+    "3": { "Fraco": 0, "Normal": 50, "Ótimo": 45, "Lendário": 5 },
+    "4": { "Fraco": 0, "Normal": 30, "Ótimo": 50, "Lendário": 20 },
+    "5": { "Fraco": 0, "Normal": 10, "Ótimo": 60, "Lendário": 30 },
+    "6": { "Fraco": 0, "Normal": 0, "Ótimo": 40, "Lendário": 60 }
+  },
+  "quality_multipliers": {
+    "Fraco": 0.70,
+    "Normal": 1.00,
+    "Ótimo": 1.35,
+    "Lendário": 1.80
+  },
+  "upgrade_costs": {
+    "2": 500,
+    "3": 900,
+    "4": 1600,
+    "5": 2800,
+    "6": 5000
+  }
+}

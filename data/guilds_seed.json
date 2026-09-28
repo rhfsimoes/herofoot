@@ -1,0 +1,17 @@
+{
+  "player_guild": {
+    "id": "g_player",
+    "name": "Guilda do Jogador",
+    "is_player": true,
+    "power_rating": 61
+  },
+  "rival_guilds": [
+    { "id": "g_grifo", "name": "Ordem do Grifo Dourado", "is_player": false, "power_rating": 74 },
+    { "id": "g_aco", "name": "Irmandade do Aço Negro", "is_player": false, "power_rating": 69 },
+    { "id": "g_alvorada", "name": "Lança da Alvorada", "is_player": false, "power_rating": 63 },
+    { "id": "g_corvo", "name": "Corvo e Osso", "is_player": false, "power_rating": 58 },
+    { "id": "g_prata", "name": "Sentinelas da Prata", "is_player": false, "power_rating": 55 },
+    { "id": "g_pedra", "name": "Vigia de Pedra", "is_player": false, "power_rating": 52 },
+    { "id": "g_crepusculo", "name": "Legião do Crepúsculo", "is_player": false, "power_rating": 50 }
+  ]
+}

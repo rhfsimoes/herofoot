@@ -1,0 +1,258 @@
+export type HeroStatus = 'Apto' | 'Fatigado' | 'Afastado'
+export type ItemQuality = 'Fraco' | 'Normal' | 'Ótimo' | 'Lendário'
+export type SaleStatus = 'vendido' | 'não vendido' | 'contraproposta'
+export type WorkshopBranch = 'Ferragem' | 'Alquimia' | 'Joalheria' | 'Culinária'
+export type MarginType = 'Promoção' | 'Preço Justo' | 'Preço Abusivo'
+
+export interface Hero {
+  id: string
+  name: string
+  class_name?: string
+  specialization_name?: string
+  class?: string
+  current_power?: number
+  power?: number
+  fatigue: number     // 0–100
+  status: HeroStatus
+  salary: number
+  injured?: boolean
+  injury_weeks_left?: number
+  age?: number
+  level?: number
+}
+
+export interface InventoryItem {
+  item_instance_id: string
+  name: string
+  quality: ItemQuality
+  slot_type: 'Arma' | 'Armadura' | 'Joia' | 'Inscrição' | 'Consumível'
+  power_bonus: number
+  energy_bonus?: number
+  terrain_mitigation?: string | null
+  charges?: number
+  max_charges?: number
+  market_value_base: number
+  branch?: string
+}
+
+export interface Recipe {
+  recipe_id?: string
+  id?: string
+  name: string
+  branch: WorkshopBranch
+  slot: string
+  prefix_component?: string
+  prefix?: string
+  base_item: string
+  base_item_id?: string
+  suffix_component?: string
+  suffix?: string
+  min_workshop_level?: number
+  ingredients: { item_id?: string; label?: string; quantity: number }[]
+  base_power?: number
+  market_value_base?: number
+  charges?: number
+  terrain_mitigation?: string | null
+}
+
+export interface LeagueEntry {
+  rank: number
+  id?: string
+  guild_name: string
+  is_player?: boolean
+  played: number
+  wins: number
+  draws: number
+  losses: number
+  points: number
+  pe_for: number
+  pe_against: number
+  pe_diff: number
+}
+
+export interface MatchResult {
+  home_name: string
+  home_score: number
+  away_name: string
+  away_score: number
+  is_player_match?: boolean
+}
+
+export interface MarketMaterial {
+  material_id: string
+  name: string
+  unit_price: number
+  available_quantity: number
+}
+
+export interface MarketReadyItem {
+  market_item_id: string
+  name: string
+  slot_type: 'Arma' | 'Armadura' | 'Joia' | 'Inscrição' | 'Consumível'
+  quality: ItemQuality
+  power_bonus: number
+  energy_bonus?: number
+  terrain_mitigation?: string | null
+  price: number
+  charges?: number
+  max_charges?: number
+}
+
+export interface DungeonInfo {
+  id: string
+  name: string
+  terrain: string
+  terrain_label: string
+  description: string
+  power_penalty_pct?: number
+  power_penalty?: number
+  energy_cost_extra: number
+  mitigation_required: string | null
+  mitigation_label: string
+  recommended_power: number
+}
+
+export interface GameState {
+  day: number
+  week: number
+  gold: number
+  current_phase: number
+  workshop_levels: Record<string, number>
+  materials: Record<string, number>
+  inventory: InventoryItem[]
+  team: Hero[]
+  tactics?: {
+    starters: string[]
+    loadout: Record<string, InventoryItem | null>
+  }
+  current_dungeon?: DungeonInfo
+  league_table: LeagueEntry[]
+  last_round_matches?: MatchResult[]
+  current_fixture?: {
+    home_name: string
+    away_name: string
+    home_is_player: boolean
+    away_is_player: boolean
+  }
+  market?: {
+    materials_for_sale: MarketMaterial[]
+    ready_items_for_sale: MarketReadyItem[]
+  }
+  recipes?: Record<string, Recipe>
+}
+
+export const MATERIAL_LABELS: Record<string, string> = {
+  mat_iron_ore: 'Minério de Ferro',
+  mat_scaly_leather: 'Couro Escamoso',
+  mat_mana_crystal: 'Cristal de Mana',
+  mat_eucalyptus_herb: 'Erva de Eucalipto',
+  mat_flour: 'Farinha de Trigo',
+}
+
+export const MOCK_RECIPES: Recipe[] = [
+  {
+    id: 'rec_01', recipe_id: 'rec_01', name: 'Espada Longa de Aço', branch: 'Ferragem',
+    slot: 'Arma', prefix: 'Afiada', base_item: 'Espada Longa de Aço', base_item_id: 'item_wep_01',
+    suffix: 'do Acidente de Trabalho',
+    ingredients: [{ item_id: 'mat_iron_ore', label: 'Minério de Ferro', quantity: 3 }],
+    base_power: 25, market_value_base: 250,
+  },
+  {
+    id: 'rec_03', recipe_id: 'rec_03', name: 'Cota de Malha Reforçada', branch: 'Ferragem',
+    slot: 'Armadura', prefix: 'Reforçada', base_item: 'Cota de Malha', base_item_id: 'item_arm_03',
+    suffix: 'do Laudo Pericial Aprovado',
+    ingredients: [
+      { item_id: 'mat_scaly_leather', label: 'Couro Escamoso', quantity: 3 },
+      { item_id: 'mat_iron_ore', label: 'Minério de Ferro', quantity: 1 }
+    ],
+    base_power: 20, market_value_base: 220,
+  },
+  {
+    id: 'rec_04', recipe_id: 'rec_04', name: 'Poção de Cura Concentrada', branch: 'Alquimia',
+    slot: 'Consumível', prefix: 'Concentrada', base_item: 'Poção de Cura', base_item_id: 'item_cons_03',
+    suffix: 'do Prontuário Médico Padrão',
+    ingredients: [{ item_id: 'mat_eucalyptus_herb', label: 'Erva de Eucalipto', quantity: 2 }],
+    base_power: 0, market_value_base: 120,
+  },
+  {
+    id: 'rec_02', recipe_id: 'rec_02', name: 'Amuleto de Guarda-Alma', branch: 'Joalheria',
+    slot: 'Joia', prefix: 'Encantado', base_item: 'Amuleto de Guarda-Alma', base_item_id: 'item_jwl_03',
+    suffix: 'do Adicional de Insalubridade',
+    ingredients: [{ item_id: 'mat_mana_crystal', label: 'Cristal de Mana', quantity: 2 }],
+    base_power: 15, market_value_base: 180,
+  },
+  {
+    id: 'rec_05', recipe_id: 'rec_05', name: 'Ração de Batalha Gourmet', branch: 'Culinária',
+    slot: 'Consumível', prefix: 'Nutritiva', base_item: 'Ração de Batalha', base_item_id: 'item_cons_04',
+    suffix: 'da Produtividade Sem Pausa',
+    ingredients: [{ item_id: 'mat_flour', label: 'Farinha de Trigo', quantity: 3 }],
+    base_power: 5, market_value_base: 140,
+  },
+]
+
+export const MOCK_STATE: GameState = {
+  day: 1,
+  week: 1,
+  gold: 1000,
+  current_phase: 1,
+  workshop_levels: { Ferragem: 1, Alquimia: 1, Joalheria: 1, Culinária: 1 },
+  materials: {
+    mat_iron_ore: 10,
+    mat_scaly_leather: 6,
+    mat_mana_crystal: 4,
+    mat_eucalyptus_herb: 5,
+    mat_flour: 8,
+  },
+  inventory: [
+    {
+      item_instance_id: 'item_001',
+      name: 'Afiada Espada Longa de Aço do Acidente de Trabalho',
+      quality: 'Ótimo',
+      slot_type: 'Arma',
+      power_bonus: 34,
+      market_value_base: 350,
+    },
+    {
+      item_instance_id: 'item_002',
+      name: 'Concentrada Poção de Cura do Prontuário Médico Padrão',
+      quality: 'Normal',
+      slot_type: 'Consumível',
+      power_bonus: 0,
+      market_value_base: 80,
+      charges: 3,
+      max_charges: 3,
+    },
+  ],
+  team: [
+    { id: 'hero_01', name: 'Valdris, o Escudeiro Sênior', class_name: 'Guerreiro', specialization_name: 'Espadachim', current_power: 66, fatigue: 20, status: 'Apto', salary: 60 },
+    { id: 'hero_02', name: 'Seren Ironthorn, a Berserker', class_name: 'Guerreiro', specialization_name: 'Berserker', current_power: 52, fatigue: 65, status: 'Fatigado', salary: 50 },
+    { id: 'hero_03', name: 'Magister Vorn (Especialista em Fogo)', class_name: 'Mago', specialization_name: 'Piromante', current_power: 63, fatigue: 0, status: 'Apto', salary: 75 },
+    { id: 'hero_04', name: 'Reva, a Aprendiz de Alquimia', class_name: 'Clérigo', specialization_name: 'Clérigo de Apoio', current_power: 36, fatigue: 0, status: 'Afastado', salary: 35, injury_weeks_left: 1 },
+    { id: 'hero_05', name: 'Dorath Pedra-Cinza (Bárbaro Contratado)', class_name: 'Guerreiro', specialization_name: 'Berserker', current_power: 80, fatigue: 15, status: 'Apto', salary: 85 },
+  ],
+  league_table: [
+    { rank: 1, guild_name: 'Ordem do Grifo Dourado', is_player: false, played: 0, wins: 0, draws: 0, losses: 0, points: 0, pe_for: 0, pe_against: 0, pe_diff: 0 },
+    { rank: 2, guild_name: 'Irmandade do Aço Negro', is_player: false, played: 0, wins: 0, draws: 0, losses: 0, points: 0, pe_for: 0, pe_against: 0, pe_diff: 0 },
+    { rank: 3, guild_name: 'Lança da Alvorada', is_player: false, played: 0, wins: 0, draws: 0, losses: 0, points: 0, pe_for: 0, pe_against: 0, pe_diff: 0 },
+    { rank: 4, guild_name: 'Guilda do Jogador', is_player: true, played: 0, wins: 0, draws: 0, losses: 0, points: 0, pe_for: 0, pe_against: 0, pe_diff: 0 },
+    { rank: 5, guild_name: 'Corvo e Osso', is_player: false, played: 0, wins: 0, draws: 0, losses: 0, points: 0, pe_for: 0, pe_against: 0, pe_diff: 0 },
+    { rank: 6, guild_name: 'Sentinelas da Prata', is_player: false, played: 0, wins: 0, draws: 0, losses: 0, points: 0, pe_for: 0, pe_against: 0, pe_diff: 0 },
+    { rank: 7, guild_name: 'Vigia de Pedra', is_player: false, played: 0, wins: 0, draws: 0, losses: 0, points: 0, pe_for: 0, pe_against: 0, pe_diff: 0 },
+    { rank: 8, guild_name: 'Legião do Crepúsculo', is_player: false, played: 0, wins: 0, draws: 0, losses: 0, points: 0, pe_for: 0, pe_against: 0, pe_diff: 0 },
+  ],
+  market: {
+    materials_for_sale: [
+      { material_id: 'mat_iron_ore', name: 'Minério de Ferro', unit_price: 20, available_quantity: 6 },
+      { material_id: 'mat_scaly_leather', name: 'Couro Escamoso', unit_price: 35, available_quantity: 4 },
+      { material_id: 'mat_mana_crystal', name: 'Cristal de Mana', unit_price: 55, available_quantity: 2 },
+      { material_id: 'mat_eucalyptus_herb', name: 'Erva de Eucalipto', unit_price: 25, available_quantity: 5 },
+      { material_id: 'mat_flour', name: 'Farinha de Trigo', unit_price: 15, available_quantity: 8 },
+    ],
+    ready_items_for_sale: [
+      { market_item_id: 'mkt_01', name: 'Espada de Cavalaria', slot_type: 'Arma', quality: 'Normal', power_bonus: 18, price: 220 },
+      { market_item_id: 'mkt_02', name: 'Gibão de Couro Endurecido', slot_type: 'Armadura', quality: 'Ótimo', power_bonus: 24, price: 360 },
+      { market_item_id: 'mkt_03', name: 'Anel de Prata Encantado', slot_type: 'Joia', quality: 'Normal', power_bonus: 10, price: 180 },
+      { market_item_id: 'mkt_04', name: 'Ração Militar Fortificada', slot_type: 'Consumível', quality: 'Normal', power_bonus: 5, energy_bonus: 25, price: 95 },
+    ]
+  }
+}

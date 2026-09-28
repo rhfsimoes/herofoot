@@ -1,0 +1,137 @@
+[
+  {
+    "id": "hero_01",
+    "name": "Valdris, o Escudeiro Sênior",
+    "class_id": "class_warrior",
+    "specialization_id": "spec_warrior_swordsman",
+    "age": 33,
+    "level": 3,
+    "xp": 0,
+    "current_power": 66,
+    "fatigue": 20,
+    "status": "Apto",
+    "salary": 60,
+    "injured": false,
+    "injury_weeks_left": 0,
+    "hidden_attributes": {
+      "str": 36,
+      "agi": 36,
+      "vit": 36,
+      "int": 1,
+      "wis": 1,
+      "lck": 12
+    },
+    "potential": {
+      "star_potential": 4,
+      "is_potential_revealed": true
+    }
+  },
+  {
+    "id": "hero_02",
+    "name": "Seren Ironthorn, a Berserker",
+    "class_id": "class_warrior",
+    "specialization_id": "spec_warrior_berserker",
+    "age": 24,
+    "level": 2,
+    "xp": 0,
+    "current_power": 52,
+    "fatigue": 65,
+    "status": "Fatigado",
+    "salary": 50,
+    "injured": false,
+    "injury_weeks_left": 0,
+    "hidden_attributes": {
+      "str": 47,
+      "agi": 19,
+      "vit": 10,
+      "int": 1,
+      "wis": 1,
+      "lck": 19
+    },
+    "potential": {
+      "star_potential": 3,
+      "is_potential_revealed": true
+    }
+  },
+  {
+    "id": "hero_03",
+    "name": "Magister Vorn (Especialista em Fogo)",
+    "class_id": "class_mage",
+    "specialization_id": "spec_mage_pyromancer",
+    "age": 29,
+    "level": 3,
+    "xp": 0,
+    "current_power": 63,
+    "fatigue": 0,
+    "status": "Apto",
+    "salary": 75,
+    "injured": false,
+    "injury_weeks_left": 0,
+    "hidden_attributes": {
+      "str": 1,
+      "agi": 11,
+      "vit": 11,
+      "int": 69,
+      "wis": 12,
+      "lck": 12
+    },
+    "potential": {
+      "star_potential": 5,
+      "is_potential_revealed": true
+    }
+  },
+  {
+    "id": "hero_04",
+    "name": "Reva, a Aprendiz de Alquimia",
+    "class_id": "class_cleric",
+    "specialization_id": "spec_cleric_support",
+    "age": 19,
+    "level": 1,
+    "xp": 0,
+    "current_power": 36,
+    "fatigue": 0,
+    "status": "Afastado",
+    "salary": 35,
+    "injured": true,
+    "injury_weeks_left": 1,
+    "hidden_attributes": {
+      "str": 6,
+      "agi": 6,
+      "vit": 13,
+      "int": 13,
+      "wis": 27,
+      "lck": 1
+    },
+    "potential": {
+      "star_potential": 4,
+      "is_potential_revealed": true
+    }
+  },
+  {
+    "id": "hero_05",
+    "name": "Dorath Pedra-Cinza (Bárbaro Contratado)",
+    "class_id": "class_warrior",
+    "specialization_id": "spec_warrior_berserker",
+    "age": 31,
+    "level": 4,
+    "xp": 0,
+    "current_power": 80,
+    "fatigue": 15,
+    "status": "Apto",
+    "salary": 85,
+    "injured": false,
+    "injury_weeks_left": 0,
+    "hidden_attributes": {
+      "str": 72,
+      "agi": 29,
+      "vit": 15,
+      "int": 1,
+      "wis": 1,
+      "lck": 29
+    },
+    "potential": {
+      "star_potential": 3,
+      "is_potential_revealed": false
+    }
+  }
+]

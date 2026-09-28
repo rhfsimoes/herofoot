@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "recipe_id": { "type": "string" },
+    "name": { "type": "string" },
+    "slot": { "type": "string", "enum": ["Arma", "Armadura", "Joia", "Inscrição", "Consumível"] },
+    "branch": { "type": "string", "enum": ["Ferragem", "Alquimia", "Joalheria", "Culinária"] },
+    "prefix_component": { "type": "string" },
+    "base_item": { "type": "string" },
+    "suffix_component": { "type": "string" }
+  },
+  "required": ["recipe_id", "name", "slot", "branch", "prefix_component", "base_item", "suffix_component"]
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Hero",
+  "description": "Schema canônico para aventureiros no HeroFoot",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Identificador único do herói"
+    },
+    "name": {
+      "type": "string",
+      "description": "Nome completo do aventureiro"
+    },
+    "class_id": {
+      "type": "string",
+      "description": "Referência à classe base (ex: class_warrior)"
+    },
+    "specialization_id": {
+      "type": "string",
+      "description": "Referência à especialização (ex: spec_warrior_berserker)"
+    },
+    "age": {
+      "type": "integer",
+      "minimum": 16,
+      "maximum": 45,
+      "description": "Idade em anos do aventureiro"
+    },
+    "level": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "xp": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0
+    },
+    "current_power": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 100,
+      "description": "Poder total calculado do herói (1 a 100)"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["Apto", "Fatigado", "Afastado"],
+      "description": "Status pericial canônico do herói"
+    },
+    "fatigue": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Nível de desgaste e fadiga acumulada (0 a 100)"
+    },
+    "salary": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Custo salarial por expedição/semana"
+    },
+    "injured": {
+      "type": "boolean",
+      "description": "Indica se o aventureiro está sob laudo de afastamento médico"
+    },
+    "injury_weeks_left": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Semanas restantes de licença médica pericial"
+    },
+    "hidden_attributes": {
+      "type": "object",
+      "description": "Atributos internos ocultos (cada um de 1 a 100)",
+      "properties": {
+        "str": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Força" },
+        "agi": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Agilidade" },
+        "vit": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Vitalidade" },
+        "int": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Inteligência" },
+        "wis": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Sabedoria" },
+        "lck": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Sorte" }
+      },
+      "required": ["str", "agi", "vit", "int", "wis", "lck"],
+      "additionalProperties": false
+    },
+    "potential": {
+      "type": "object",
+      "properties": {
+        "star_potential": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Potencial máximo em estrelas"
+        },
+        "is_potential_revealed": {
+          "type": "boolean",
+          "default": false,
+          "description": "Se verdadeiro, o potencial é visível na Academia"
+        }
+      },
+      "required": ["star_potential", "is_potential_revealed"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "class_id",
+    "specialization_id",
+    "age",
+    "level",
+    "xp",
+    "current_power",
+    "status",
+    "fatigue",
+    "salary",
+    "injured",
+    "injury_weeks_left",
+    "hidden_attributes",
+    "potential"
+  ],
+  "additionalProperties": false
+}
