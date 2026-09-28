@@ -8,6 +8,10 @@ import json
 import random
 import uuid
 
+from constants import SLOTS
+from balance import get_balance
+
+
 def load_materials():
     data_path = os.path.join(os.path.dirname(__file__), 'data', 'materials_seed.json')
     if os.path.exists(data_path):
@@ -23,6 +27,7 @@ def load_materials():
         {"id": "mat_eucalyptus_herb", "name": "Erva de Eucalipto", "unit_price": 25, "min_qty": 2, "max_qty": 8},
         {"id": "mat_flour", "name": "Farinha de Trigo", "unit_price": 15, "min_qty": 4, "max_qty": 12},
     ]
+
 
 def load_ready_templates():
     data_path = os.path.join(os.path.dirname(__file__), 'data', 'market_templates_seed.json')
@@ -48,22 +53,64 @@ def load_ready_templates():
         {"name": "Elixir do Fôlego Ártico", "slot_type": "Consumível", "quality": "Normal", "power_bonus": 0, "energy_bonus": 25, "terrain_mitigation": "glacier_frost", "charges": 3, "base_price": 130},
     ]
 
+
+def load_bulletins():
+    data_path = os.path.join(os.path.dirname(__file__), 'data', 'bulletins_seed.json')
+    if os.path.exists(data_path):
+        try:
+            with open(data_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return []
+
+
+SLOT_PLURALS = {
+    "Arma": "Armas",
+    "Armadura": "Armaduras",
+    "Joia": "Joias",
+    "Inscrição": "Inscrições",
+    "Consumível": "Consumíveis",
+}
+
+
+def _pick_bulletin_headline(slot: str, rng: random.Random) -> str:
+    bulletins = load_bulletins()
+    slot_label = SLOT_PLURALS.get(slot, slot)
+    if bulletins:
+        entry = rng.choice(bulletins)
+        if isinstance(entry, dict):
+            tmpl = entry.get("headline", entry.get("text", ""))
+        else:
+            tmpl = str(entry)
+        try:
+            return tmpl.format(slot=slot_label, slot_singular=slot)
+        except Exception:
+            return tmpl
+    return f"Ruptura de fornecimento eleva a demanda por {slot_label} junto à Câmara dos Mercadores."
+
+
 AVAILABLE_MATERIALS = load_materials()
 READY_ITEM_TEMPLATES = load_ready_templates()
 
+
 class MarketEngine:
-    def __init__(self):
+    def __init__(self, rng=None):
         self.materials_for_sale = []
         self.ready_items_for_sale = []
-        self.refresh_market(round_number=1)
+        self.bulletin = None
+        self.refresh_market(round_number=1, rng=rng)
 
-    def refresh_market(self, round_number=1):
+    def refresh_market(self, round_number=1, rng=None):
         """Gera um estoque rotativo de insumos e itens prontos para a rodada especificada."""
+        if rng is None:
+            rng = random.Random()
+
         self.materials_for_sale = []
         for mat in AVAILABLE_MATERIALS:
-            if random.random() < 0.85:
-                qty = random.randint(mat["min_qty"], mat["max_qty"])
-                price_mult = random.uniform(0.9, 1.2)
+            if rng.random() < 0.85:
+                qty = rng.randint(mat["min_qty"], mat["max_qty"])
+                price_mult = rng.uniform(0.9, 1.2)
                 price = int(mat["unit_price"] * price_mult)
                 self.materials_for_sale.append({
                     "material_id": mat["id"],
@@ -73,9 +120,9 @@ class MarketEngine:
                 })
 
         self.ready_items_for_sale = []
-        sampled_templates = random.sample(READY_ITEM_TEMPLATES, k=min(5, len(READY_ITEM_TEMPLATES)))
+        sampled_templates = rng.sample(READY_ITEM_TEMPLATES, k=min(5, len(READY_ITEM_TEMPLATES)))
         for tpl in sampled_templates:
-            final_price = int(tpl["base_price"] * random.uniform(0.95, 1.15))
+            final_price = int(tpl["base_price"] * rng.uniform(0.95, 1.15))
             item_data = {
                 "market_item_id": str(uuid.uuid4()),
                 "name": tpl["name"],
@@ -91,8 +138,29 @@ class MarketEngine:
                 item_data["max_charges"] = tpl.get("charges", 3)
             self.ready_items_for_sale.append(item_data)
 
+        # Boletim de Mercado semanal
+        balance = get_balance()
+        sales_cfg = balance.get("sales", {})
+        bulletin_chance = float(sales_cfg.get("bulletin_chance", 0.35))
+        b_min = float(sales_cfg.get("bulletin_multiplier_min", 1.5))
+        b_max = float(sales_cfg.get("bulletin_multiplier_max", 3.0))
+
+        if rng.random() < bulletin_chance:
+            slot = rng.choice(SLOTS)
+            mult = round(rng.uniform(b_min, b_max), 2)
+            headline = _pick_bulletin_headline(slot, rng)
+            self.bulletin = {
+                "target": slot,
+                "multiplier": mult,
+                "headline": headline
+            }
+        else:
+            self.bulletin = None
+
     def get_market_data(self):
         return {
             "materials_for_sale": self.materials_for_sale,
             "ready_items_for_sale": self.ready_items_for_sale,
+            "bulletin": self.bulletin,
         }
+

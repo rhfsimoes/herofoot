@@ -123,9 +123,8 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
         elif path == '/api/sell':
             body = self._read_json_body()
             item_id = body.get('item_instance_id')
-            base_price = int(body.get('base_price', 100))
             margin_type = body.get('margin_type', 'Preço Justo')
-            result = controller.list_item_for_sale(item_id, base_price, margin_type)
+            result = controller.list_item_for_sale(item_id, margin_type=margin_type)
             self._send_json({
                 "result": result,
                 "state": controller.get_state()

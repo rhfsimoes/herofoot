@@ -52,7 +52,7 @@ class GameController:
             self.state, self.dungeons, self.league_engine, self.market_engine, match_engine
         )
         self.crafting_service = CraftingService(self.state, self.crafting_engine)
-        self.sales_service = SalesService(self.state, self.counter_sales)
+        self.sales_service = SalesService(self.state, self.counter_sales, self.market_engine)
         self.market_service = MarketService(self.state, self.market_engine)
 
     def _load_dungeons(self):
@@ -131,8 +131,10 @@ class GameController:
     def buy_ready_item(self, market_item_id: str) -> dict:
         return self.market_service.buy_ready_item(market_item_id)
 
-    def list_item_for_sale(self, item_instance_id: str, base_price: int, margin_type: str) -> dict:
-        return self.sales_service.list_item_for_sale(item_instance_id, base_price, margin_type)
+    def list_item_for_sale(self, item_instance_id: str, *args, margin_type: str = None, rng=None, **kwargs) -> dict:
+        return self.sales_service.list_item_for_sale(
+            item_instance_id, *args, margin_type=margin_type, rng=rng, **kwargs
+        )
 
     def resolve_counter_offer(self, offer_id: str, accept: bool) -> dict:
         return self.sales_service.resolve_counter_offer(offer_id, accept)
