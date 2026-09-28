@@ -97,6 +97,7 @@ class GameController:
             "team_size": len(self.state.team),
             "tactics": {
                 "starters": self.state.starters,
+                "reserves": self.state.reserves,
                 "loadout": self.state.loadout,
             },
             "current_dungeon": dungeon,
@@ -115,8 +116,8 @@ class GameController:
     def advance_phase(self) -> dict:
         return self.phase_service.advance_phase()
 
-    def save_tactics(self, starters: list, loadout: dict) -> dict:
-        return self.tactics_service.save_tactics(starters, loadout)
+    def save_tactics(self, starters: list, loadout: dict, reserves: list = None) -> dict:
+        return self.tactics_service.save_tactics(starters, loadout, reserves=reserves)
 
     def ui_request_craft(self, recipe_id: str, branch: str = "Ferragem") -> dict:
         return self.crafting_service.craft_item(recipe_id, branch)

@@ -4,6 +4,7 @@ Gerencia a execução e transição das 5 fases do ciclo semanal.
 """
 
 from balance import get_balance
+from constants import normalize_slot
 
 
 class PhaseService:
@@ -80,6 +81,40 @@ class PhaseService:
                     hero["injured"] = False
                     hero["status"] = "Apto"
                     report.append(f"{hero.get('name', 'Herói')} recebeu alta pericial e está apto para expedições.")
+
+        # Auditoria de conformidade tática: saneamento de heróis inaptos da titularidade
+        for hid in list(self.state.starters):
+            hero = self.state.hero_by_id(hid)
+            if not hero or hero.get("injured", False) or hero.get("status") == "Afastado":
+                self.state.starters.remove(hid)
+                hname = hero.get("name", hid) if hero else hid
+                report.append(f"Ajuste na escala: colaborador '{hname}' desconvocado da titularidade por incapacidade funcional ou rescisão contratual.")
+
+        # Auditoria de conformidade tática: saneamento de heróis inaptos da reserva
+        for hid in list(getattr(self.state, "reserves", [])):
+            hero = self.state.hero_by_id(hid)
+            if not hero or hero.get("injured", False) or hero.get("status") == "Afastado":
+                self.state.reserves.remove(hid)
+                hname = hero.get("name", hid) if hero else hid
+                report.append(f"Ajuste na escala: colaborador '{hname}' desconvocado da reserva por incapacidade funcional ou rescisão contratual.")
+
+        # Auditoria patrimonial: saneamento do loadout de compartimentos
+        for slot, item in list(self.state.loadout.items()):
+            if item:
+                item_id = item.get("item_instance_id") if isinstance(item, dict) else item
+                matching = next((i for i in self.state.inventory if i.get("item_instance_id") == item_id), None)
+                item_name = matching.get("name", item_id) if matching else (item.get("name", item_id) if isinstance(item, dict) else item_id)
+                norm_slot = normalize_slot(slot)
+
+                if not matching:
+                    self.state.loadout[slot] = None
+                    report.append(f"Auditoria patrimonial: item '{item_name}' desvinculado do compartimento '{slot}' por indisponibilidade no almoxarifado.")
+                else:
+                    matching_slot = normalize_slot(matching.get("slot_type", matching.get("slot", "")))
+                    if matching_slot != norm_slot:
+                        self.state.loadout[slot] = None
+                        report.append(f"Auditoria patrimonial: item '{item_name}' desvinculado do compartimento '{slot}' por incompatibilidade de categoria.")
+
         return {"phase": 1, "report": report}
 
     def phase_3_tactics(self) -> dict:

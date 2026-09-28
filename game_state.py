@@ -6,6 +6,7 @@ Contém a classe GameState e o rastreamento de campos serializáveis e transient
 import os
 import json
 from constants import normalize_branch, normalize_slot
+from balance import get_balance
 
 SERIALIZED_FIELDS = [
     "day",
@@ -17,6 +18,7 @@ SERIALIZED_FIELDS = [
     "pending_offers",
     "current_phase",
     "starters",
+    "reserves",
     "loadout",
     "workshop_levels",
     "materials",
@@ -42,6 +44,7 @@ class GameState:
 
         # Tática e Loadout dos 5 Slots da Expedição
         self.starters = []         # IDs dos heróis titulares (máx 6)
+        self.reserves = []         # IDs dos heróis reservas (máx 3)
         self.loadout = {
             "Arma": None,
             "Armadura": None,
@@ -71,8 +74,21 @@ class GameState:
             with open(team_file, 'r', encoding='utf-8') as f:
                 try:
                     self.team = json.load(f)
-                    apt_heroes = [h["id"] for h in self.team if h.get("status") == "Apto"]
-                    self.starters = apt_heroes[:6]
+                    balance = get_balance()
+                    party_cfg = balance.get("party", {})
+                    max_starters = party_cfg.get("starters", 6)
+                    max_reserves = party_cfg.get("reserves", 3)
+
+                    apt_heroes = [
+                        h for h in self.team
+                        if h.get("status") == "Apto" and not h.get("injured", False)
+                    ]
+                    apt_heroes.sort(
+                        key=lambda h: h.get("current_power", h.get("power", 0)),
+                        reverse=True
+                    )
+                    self.starters = [h["id"] for h in apt_heroes[:max_starters]]
+                    self.reserves = [h["id"] for h in apt_heroes[max_starters:max_starters + max_reserves]]
                 except Exception:
                     pass
 

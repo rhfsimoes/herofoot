@@ -79,8 +79,9 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
         elif path == '/api/tactics':
             body = self._read_json_body()
             starters = body.get('starters', [])
+            reserves = body.get('reserves', [])
             loadout = body.get('loadout', {})
-            result = controller.save_tactics(starters, loadout)
+            result = controller.save_tactics(starters, loadout, reserves=reserves)
             self._send_json({
                 "result": result,
                 "state": controller.get_state()

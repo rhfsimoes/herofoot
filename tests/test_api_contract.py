@@ -63,8 +63,9 @@ class TestApiContract(unittest.TestCase):
     def test_market_buy_material_and_item(self):
         """Verifica compras de insumos e itens prontos."""
         initial_gold = self.controller.state.gold
-        mat_res = self.controller.buy_material("mat_iron_ore", quantity=1)
         if self.controller.market_engine.materials_for_sale:
+            target_mat = self.controller.market_engine.materials_for_sale[0]
+            mat_res = self.controller.buy_material(target_mat["material_id"], quantity=1)
             self.assertTrue(mat_res["success"])
             self.assertLess(self.controller.state.gold, initial_gold)
 
