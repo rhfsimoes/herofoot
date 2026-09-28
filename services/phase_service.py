@@ -3,6 +3,9 @@ HeroFoot Phase Service.
 Gerencia a execução e transição das 5 fases do ciclo semanal.
 """
 
+import os
+import json
+import random
 from balance import get_balance
 from constants import normalize_slot
 
@@ -17,18 +20,14 @@ class PhaseService:
 
     def get_current_dungeon(self) -> dict:
         if not self.dungeons:
-            return {
-                "id": "dungeon_01",
-                "name": "Vale dos Ecos Verdejantes",
-                "terrain": "neutral",
-                "terrain_label": "Campo Aberto Verdejante",
-                "description": "Terreno padrão da Liga, sem penalidades ambientais.",
-                "power_penalty_pct": 0.0,
-                "energy_cost_extra": 0,
-                "mitigation_required": None,
-                "mitigation_label": "Nenhuma mitigação necessária",
-                "recommended_power": 55,
-            }
+            dungeons_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'dungeons_seed.json')
+            if os.path.exists(dungeons_path):
+                with open(dungeons_path, 'r', encoding='utf-8') as f:
+                    self.dungeons = json.load(f)
+            else:
+                self.dungeons = []
+        if not self.dungeons:
+            return {}
         idx = (self.state.day - 1) % len(self.dungeons)
         return self.dungeons[idx]
 
@@ -130,77 +129,91 @@ class PhaseService:
         Fase 4: Simulação da masmorra com cálculo real de Poder Efetivo, 5 Slots,
         mitigação de terreno da rodada e consumo de cargas de consumíveis.
         """
+        from match_engine import (
+            calculate_team_base_power,
+            calculate_slot_bonus,
+            check_terrain_mitigation,
+            calculate_average_agi,
+        )
+
         dungeon = self.get_current_dungeon()
         dungeon_name = dungeon.get("name", "Masmorra Desconhecida")
         required_mitigation = dungeon.get("mitigation_required")
+
+        # Determinismo baseado no seed global da campanha e rodada
+        world_seed = getattr(self.state, "world_seed", 42)
+        if not hasattr(self.state, "world_seed"):
+            self.state.world_seed = world_seed
+        week = getattr(self.state, "week", self.state.day)
+        round_seed = hash((world_seed, week, "expedition"))
+        round_rng = random.Random(round_seed)
+
+        balance = get_balance()
 
         fixture = self.league_engine.get_player_match(self.state.day)
         rival_name = "Guilda Rival"
         if fixture:
             rival_name = fixture["away_name"] if fixture["home_is_player"] else fixture["home_name"]
 
-        # 1. Poder Base da equipe (heróis titulares escalados)
+        # 1. Poder Base e AGI média da equipe titular escalada
+        starters_limit = balance.get("party", {}).get("starters", 6)
         starter_heroes = [h for h in self.state.team if h["id"] in self.state.starters]
         if not starter_heroes:
-            starter_heroes = [h for h in self.state.team if h.get("status") == "Apto"][:6]
+            starter_heroes = [h for h in self.state.team if h.get("status") == "Apto"][:starters_limit]
 
-        base_power = sum(h.get("current_power", h.get("power", 50)) for h in starter_heroes)
+        base_power = calculate_team_base_power(starter_heroes, balance)
+        player_agi = calculate_average_agi(starter_heroes)
 
-        # 2. Bônus de Loadout dos 5 Slots
-        bonus_slots_power = 0
+        # 2. Bônus de Loadout dos 5 Slots e Mitigação de Terreno
+        bonus_slots_power = calculate_slot_bonus(self.state.loadout, balance)
+        has_terrain_mitigation = check_terrain_mitigation(self.state.loadout, required_mitigation)
+
+        consumable_item = self.state.loadout.get("Consumível")
         consumable_energy_bonus = 0
-        has_terrain_mitigation = False
+        if consumable_item and isinstance(consumable_item, dict):
+            consumable_energy_bonus = consumable_item.get("energy_bonus", consumable_item.get("energy_restore", 0))
 
-        for slot_name, item in self.state.loadout.items():
-            if item and isinstance(item, dict):
-                bonus_slots_power += item.get("power_bonus", 0)
-                if slot_name == "Consumível":
-                    consumable_energy_bonus += item.get("energy_bonus", item.get("energy_restore", 25))
-
-                item_mitigation = item.get("terrain_mitigation")
-                if required_mitigation and item_mitigation == required_mitigation:
-                    has_terrain_mitigation = True
-
-        # 3. Penalidades de Terreno usando power_penalty_pct
-        pct = dungeon.get("power_penalty_pct", 0.0)
-        terrain_power_penalty = 0
-        energy_cost_extra = 0
-
-        if required_mitigation and not has_terrain_mitigation:
-            terrain_power_penalty = round(pct * (base_power + bonus_slots_power))
-            energy_cost_extra = dungeon.get("energy_cost_extra", 5)
-
-        # Poder do rival com flutuação da liga
+        # 3. Parâmetros da equipe Rival
         rival_guild_info = next((g for g in self.league_engine.guilds if g["name"] == rival_name), None)
         rival_base_power = rival_guild_info["power_rating"] if rival_guild_info else 60
-        rival_penalty = round(pct * rival_base_power) if required_mitigation else 0
+        rival_cfg = balance.get("rival", {})
+        rival_slot_bonus = rival_cfg.get("default_slot_bonus", 6)
+        rival_mit_prob = rival_cfg.get("mitigation_probability", 0.5)
+        rival_has_mitigation = (round_rng.random() < rival_mit_prob) if required_mitigation else True
+        rival_agi = rival_base_power
 
         player_pe = 0
         rival_pe = 0
         match_log = []
         room_events = []
+        sim_result = {}
 
         if self.match_engine:
             t1 = self.match_engine.Team(
                 "Guilda do Jogador",
                 base_power=base_power,
                 bonus_slots=bonus_slots_power,
-                consumable_energy_bonus=consumable_energy_bonus
+                consumable_energy_bonus=consumable_energy_bonus,
+                agi=player_agi,
+                has_terrain_mitigation=has_terrain_mitigation,
+                balance=balance,
             )
             t2 = self.match_engine.Team(
                 rival_name,
                 base_power=rival_base_power,
-                bonus_slots=6,
-                consumable_energy_bonus=0
+                bonus_slots=rival_slot_bonus,
+                consumable_energy_bonus=0,
+                agi=rival_agi,
+                has_terrain_mitigation=rival_has_mitigation,
+                balance=balance,
             )
             engine = self.match_engine.MatchEngine(
                 t1,
                 t2,
-                terrain_penalty_t1=terrain_power_penalty,
-                terrain_penalty_t2=rival_penalty,
-                energy_cost_extra_t1=energy_cost_extra,
-                energy_cost_extra_t2=dungeon.get("energy_cost_extra", 5) if required_mitigation else 0,
-                terrain_name=dungeon_name,
+                dungeon=dungeon,
+                rng=round_rng,
+                fast_mode=False,
+                balance=balance,
             )
             sim_result = engine.simulate()
             player_pe = sim_result["player_score"]
@@ -208,11 +221,17 @@ class PhaseService:
             match_log = sim_result["match_log"]
             room_events = sim_result["room_events"]
         else:
+            sim_result = {
+                "rooms_explored_player": 0,
+                "rooms_explored_rival": 0,
+                "exit_reason_player": "Boss resolvido",
+                "exit_reason_rival": "Boss resolvido",
+            }
             player_pe = 2
             rival_pe = 1
             match_log = [f"Expedição em {dungeon_name} concluída com sucesso."]
 
-        # 4. Regra das Cargas do Consumível (Slot 5 consome 1 de 3 cargas)
+        # 4. Regra das Cargas do Consumível (usa max_charges configurado no item)
         consumable_report = None
         equipped_consumable = self.state.loadout.get("Consumível")
         if equipped_consumable and isinstance(equipped_consumable, dict):
@@ -220,23 +239,24 @@ class PhaseService:
             inv_item = next((i for i in self.state.inventory if i.get("item_instance_id") == instance_id), None)
             target = inv_item if inv_item else equipped_consumable
 
-            current_charges = target.get("charges", 3) - 1
+            max_charges = target.get("max_charges", target.get("charges", 3))
+            current_charges = target.get("charges", max_charges) - 1
             target["charges"] = current_charges
 
             if current_charges <= 0:
                 self.state.loadout["Consumível"] = None
                 if inv_item in self.state.inventory:
                     self.state.inventory.remove(inv_item)
-                consumable_report = f"O consumível '{target['name']}' esgotou todas as suas cargas e foi descartado."
+                consumable_report = f"O consumível '{target.get('name', 'Consumível')}' esgotou todas as suas rações operacionais e foi descartado."
                 match_log.append(f"[Logística] {consumable_report}")
             else:
-                consumable_report = f"O consumível '{target['name']}' gastou 1 carga ({current_charges}/3 cargas restantes)."
+                consumable_report = f"O consumível '{target.get('name', 'Consumível')}' utilizou 1 carga ({current_charges}/{max_charges} cargas restantes)."
                 match_log.append(f"[Logística] {consumable_report}")
 
         # 5. Adiciona fadiga aos titulares que exploraram a masmorra
-        balance = get_balance()
-        gain_val = balance.get("fatigue", {}).get("gain_per_expedition", 20)
-        fatigued_thresh = balance.get("fatigue", {}).get("fatigued_threshold", 70)
+        fatigue_cfg = balance.get("fatigue", {})
+        gain_val = fatigue_cfg.get("gain_per_expedition", 20)
+        fatigued_thresh = fatigue_cfg.get("fatigued_threshold", 70)
 
         for h in starter_heroes:
             h["fatigue"] = min(100, h.get("fatigue", 0) + gain_val)
@@ -247,7 +267,9 @@ class PhaseService:
         round_results = self.league_engine.process_round_simulations(
             round_num=self.state.day,
             player_pe_for=player_pe,
-            player_pe_against=rival_pe
+            player_pe_against=rival_pe,
+            dungeon=dungeon,
+            rng=round_rng,
         )
 
         return {
@@ -261,6 +283,10 @@ class PhaseService:
                 "rival_pe": rival_pe,
                 "match_log": match_log,
                 "room_events": room_events,
+                "rooms_explored_player": sim_result.get("rooms_explored_player", 0),
+                "rooms_explored_rival": sim_result.get("rooms_explored_rival", 0),
+                "exit_reason_player": sim_result.get("exit_reason_player", ""),
+                "exit_reason_rival": sim_result.get("exit_reason_rival", ""),
             },
             "consumable_report": consumable_report,
             "round_results": round_results,

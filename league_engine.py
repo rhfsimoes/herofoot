@@ -1,6 +1,6 @@
 """
 HeroFoot League Engine
-Gerencia as guildas da Liga, geração de confrontos e simulação dos jogos dos adversários (estilo Brasfoot).
+Gerencia as guildas da Liga, geração de confrontos e simulação dos jogos das equipes adversárias.
 """
 
 import os
@@ -98,49 +98,61 @@ class LeagueEngine:
                 return fix
         return None
 
-    def simulate_ai_match(self, home_id, away_id):
+    def simulate_ai_match(self, home_id, away_id, dungeon=None, rng=None):
         """
-        Simula o confronto entre duas guildas rivais (estilo Brasfoot).
-        Baseado na diferença de poder efetivo + variação de sorte, gera Pontos de Expedição.
+        Simula o confronto entre duas guildas rivais utilizando o MatchEngine em modo rápido.
+        A masmorra da rodada governa as condições ambientais para ambas as expedições.
         """
+        from match_engine import Team, MatchEngine
+        from balance import get_balance
+
+        if rng is None:
+            rng = random.Random()
+
+        balance = get_balance()
+        rival_cfg = balance.get("rival", {})
+        default_slot_bonus = rival_cfg.get("default_slot_bonus", 6)
+        mit_prob = rival_cfg.get("mitigation_probability", 0.5)
+
         home = self.table[home_id]
         away = self.table[away_id]
 
-        p_home = home["power_rating"] + random.randint(-15, 15)
-        p_away = away["power_rating"] + random.randint(-15, 15)
+        p_home = home.get("power_rating", 60)
+        p_away = away.get("power_rating", 60)
 
-        diff = p_home - p_away
+        req_mit = dungeon.get("mitigation_required") if dungeon else None
+        mit_home = (rng.random() < mit_prob) if req_mit else True
+        mit_away = (rng.random() < mit_prob) if req_mit else True
 
-        # Salas exploradas / Mini-Bosses (0 a 3 PE)
-        pe_home = 0
-        pe_away = 0
+        t_home = Team(
+            name=home.get("guild_name", home_id),
+            base_power=p_home,
+            bonus_slots=default_slot_bonus,
+            consumable_energy_bonus=0,
+            agi=p_home,
+            has_terrain_mitigation=mit_home,
+            balance=balance,
+        )
+        t_away = Team(
+            name=away.get("guild_name", away_id),
+            base_power=p_away,
+            bonus_slots=default_slot_bonus,
+            consumable_energy_bonus=0,
+            agi=p_away,
+            has_terrain_mitigation=mit_away,
+            balance=balance,
+        )
 
-        # Mini-bosses
-        if diff > 10:
-            pe_home += random.choice([1, 2])
-        elif diff < -10:
-            pe_away += random.choice([1, 2])
-        else:
-            if random.random() < 0.5:
-                pe_home += 1
-            if random.random() < 0.5:
-                pe_away += 1
-
-        # Boss final (diferença de 15% de poder dá +2 PE, empate/próximo dá +1 para ambos)
-        higher = max(p_home, p_away)
-        percent_diff = (abs(diff) / higher) * 100 if higher > 0 else 0
-
-        if percent_diff > 15:
-            if p_home > p_away:
-                pe_home += 2
-            else:
-                pe_away += 2
-        else:
-            # Abate conjunto
-            pe_home += 1
-            pe_away += 1
-
-        return pe_home, pe_away
+        engine = MatchEngine(
+            t_home,
+            t_away,
+            dungeon=dungeon,
+            rng=rng,
+            fast_mode=True,
+            balance=balance,
+        )
+        result = engine.simulate()
+        return result["player_score"], result["rival_score"]
 
     def record_match_result(self, home_id, away_id, pe_home, pe_away):
         """Atualiza a pontuação, estatísticas e saldo de duas equipes."""
@@ -172,10 +184,13 @@ class LeagueEngine:
             a["draws"] += 1
             a["points"] += 1
 
-    def process_round_simulations(self, round_num, player_pe_for, player_pe_against):
+    def process_round_simulations(self, round_num, player_pe_for, player_pe_against, dungeon=None, rng=None):
         """
-        Executa a rodada completa: registra o jogo do jogador e simula todas as outras partidas.
+        Executa a rodada completa: registra o confronto do jogador e simula todas as outras partidas da Liga.
         """
+        if rng is None:
+            rng = random.Random()
+
         fixtures = self.get_fixtures_for_round(round_num)
         results = []
 
@@ -190,7 +205,7 @@ class LeagueEngine:
                 score_h = player_pe_against
                 score_a = player_pe_for
             else:
-                score_h, score_a = self.simulate_ai_match(h_id, a_id)
+                score_h, score_a = self.simulate_ai_match(h_id, a_id, dungeon=dungeon, rng=rng)
 
             self.record_match_result(h_id, a_id, score_h, score_a)
 
