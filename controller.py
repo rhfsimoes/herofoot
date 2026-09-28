@@ -119,8 +119,11 @@ class GameController:
     def save_tactics(self, starters: list, loadout: dict, reserves: list = None) -> dict:
         return self.tactics_service.save_tactics(starters, loadout, reserves=reserves)
 
-    def ui_request_craft(self, recipe_id: str, branch: str = "Ferragem") -> dict:
-        return self.crafting_service.craft_item(recipe_id, branch)
+    def ui_request_craft(self, recipe_id: str, branch: str = "Ferragem", rng=None) -> dict:
+        return self.crafting_service.craft_item(recipe_id, branch, rng=rng)
+
+    def upgrade_workshop(self, branch: str = "Ferragem") -> dict:
+        return self.crafting_service.upgrade_workshop(branch)
 
     def buy_material(self, material_id: str, quantity: int) -> dict:
         return self.market_service.buy_material(material_id, quantity)

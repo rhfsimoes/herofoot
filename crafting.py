@@ -7,7 +7,7 @@ from counter_sales import CounterSales
 
 _WORKSHOPS_CACHE = None
 
-def _get_workshops_data():
+def get_workshops_data():
     global _WORKSHOPS_CACHE
     if _WORKSHOPS_CACHE is None:
         path = os.path.join(os.path.dirname(__file__), 'data', 'workshops_seed.json')
@@ -19,33 +19,57 @@ def _get_workshops_data():
     return _WORKSHOPS_CACHE
 
 
+_get_workshops_data = get_workshops_data
+
+
+def create_gororoba() -> dict:
+    """Fallback para ordem de produção sem receita homologada ('Cozinhando no Escuro')."""
+    data = get_workshops_data()
+    multipliers = data.get("quality_multipliers", {})
+    return {
+        "name": "Gororoba",
+        "quality": "Fraco",
+        "multiplier": multipliers.get("Fraco", 1.0),
+        "special_suffix_active": False
+    }
+
+
+def determine_quality(level: int, rng=None) -> str:
+    """
+    Determina a qualidade do item com base estrita no nível da oficina (1 a 6).
+    As probabilidades são lidas de workshops_seed.json.
+    Aleatoriedade exclusivamente via random.Random injetável.
+    Comparação estrita por '<', ignorando faixas com 0% de probabilidade.
+    """
+    if rng is None:
+        rng = random.Random()
+
+    data = get_workshops_data()
+    levels_map = data.get("levels", {})
+    q_probs = levels_map.get(str(level))
+    if not q_probs:
+        q_probs = levels_map.get("1", {})
+
+    roll = rng.uniform(0, 100)
+
+    cumulative = 0.0
+    last_valid_quality = "Normal"
+    for quality in ["Fraco", "Normal", "Ótimo", "Lendário"]:
+        weight = q_probs.get(quality, 0)
+        if weight <= 0:
+            continue
+        last_valid_quality = quality
+        cumulative += weight
+        if roll < cumulative:
+            return quality
+
+    return last_valid_quality
+
+
 class Workshop:
     @staticmethod
-    def determine_quality(level):
-        """
-        Determines the item quality deterministically based on workshop level.
-        Levels range from 1 to 6. Probabilities read from workshops_seed.json.
-        """
-        roll = random.uniform(0, 100)
-        data = _get_workshops_data()
-        levels_map = data.get("levels", {})
-
-        # Default fallback if level not found
-        default_probs = {"Fraco": 50, "Normal": 40, "Ótimo": 10, "Lendário": 0}
-        q_probs = levels_map.get(str(level), default_probs)
-
-        fraco_pct = q_probs.get("Fraco", 0)
-        normal_pct = q_probs.get("Normal", 0)
-        otimo_pct = q_probs.get("Ótimo", 0)
-
-        if roll <= fraco_pct:
-            return "Fraco"
-        elif roll <= fraco_pct + normal_pct:
-            return "Normal"
-        elif roll <= fraco_pct + normal_pct + otimo_pct:
-            return "Ótimo"
-        else:
-            return "Lendário"
+    def determine_quality(level, rng=None):
+        return determine_quality(level, rng=rng)
 
 
 class CraftingEngine:
@@ -63,34 +87,23 @@ class CraftingEngine:
         except Exception:
             return {}
 
-    def craft_item(self, recipe_id, workshop_level):
+    def craft_item(self, recipe_id, workshop_level, rng=None):
         """
-        Main method to craft an item using a recipe ID and workshop level.
-        Returns a dictionary with the final generated name, quality, and multipliers.
+        Executa a ordem de fabricação de um item usando recipe_id e o nível da oficina.
+        Retorna dicionário com o item gerado, sua qualidade e multiplicadores de auditoria.
         """
         recipe = self.recipe_db.get(recipe_id)
 
         if not recipe:
-            # Fallback for unknown recipe ('Cozinhando no Escuro')
-            return {
-                "name": "Gororoba",
-                "quality": "Fraco",
-                "multiplier": 0.5,
-                "special_suffix_active": False
-            }
+            return create_gororoba()
 
         prefix = recipe.get("prefix_component", "Prefixo Desconhecido")
         base = recipe.get("base_item", "Item Base")
         suffix = recipe.get("suffix_component", "Sufixo Desconhecido")
 
-        quality = Workshop.determine_quality(workshop_level)
-        data = _get_workshops_data()
-        multipliers = data.get("quality_multipliers", {
-            "Fraco": 0.70,
-            "Normal": 1.0,
-            "Ótimo": 1.35,
-            "Lendário": 1.80
-        })
+        quality = Workshop.determine_quality(workshop_level, rng=rng)
+        data = get_workshops_data()
+        multipliers = data.get("quality_multipliers", {})
         multiplier = multipliers.get(quality, 1.0)
 
         final_name = f"{prefix} {base} {suffix}"

@@ -95,6 +95,14 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
                 "result": result,
                 "state": controller.get_state()
             })
+        elif path == '/api/upgrade_workshop':
+            body = self._read_json_body()
+            branch = body.get('branch', 'Ferragem')
+            result = controller.upgrade_workshop(branch)
+            self._send_json({
+                "result": result,
+                "state": controller.get_state()
+            })
         elif path == '/api/buy_material':
             body = self._read_json_body()
             material_id = body.get('material_id')
