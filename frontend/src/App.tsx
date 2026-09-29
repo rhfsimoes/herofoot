@@ -334,7 +334,7 @@ function AppContent() {
     : 'Ordem do Grifo Dourado'
 
   return (
-    <div className="min-h-screen flex flex-col bg-stone-950 text-stone-100">
+    <div className="min-h-screen flex flex-col guild-hall-atmosphere text-stone-100 selection:bg-amber-900 selection:text-amber-100">
       <Header
         state={gameState}
         isBackendOnline={isBackendOnline}
@@ -399,6 +399,7 @@ function AppContent() {
                 day={gameState.day}
                 rivalGuildName={rivalGuild}
                 lastRoundResults={gameState.last_round_matches}
+                currentDungeon={gameState.current_dungeon}
               />
             }
           />

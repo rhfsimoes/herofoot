@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import type { GameState, Hero, InventoryItem, DungeonInfo } from '../mockData'
 import { RARITY_CARD_STYLES, RARITY_BADGE_STYLES, GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
+import { BiomeBanner } from '../components/art'
 
 interface Phase3TacticsProps {
   state: GameState
@@ -220,12 +221,16 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
         </div>
       )}
 
-      {/* Card: Condição do Campo / Masmorra da Rodada */}
-      <div className="bg-[#1c1917] border border-amber-950/50 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-stone-900 border border-stone-800 flex items-center justify-center shrink-0">
-            <span className="text-xl">🏟</span>
-          </div>
+      {/* Card: Condição do Campo / Masmorra da Rodada com Banner Ilustrado */}
+      <div className="bg-[#1c1917] border border-amber-950/50 rounded-xl overflow-hidden shadow-lg">
+        <BiomeBanner
+          terrain={dungeon.terrain}
+          name={dungeon.name}
+          compact={true}
+          height={65}
+          showBadge={false}
+        />
+        <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] uppercase font-mono tracking-widest text-stone-400">Condições Ambientais / Terreno</span>
@@ -234,7 +239,6 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
             </div>
             <p className="text-stone-300 text-xs mt-0.5">{dungeon.terrain_label} — {dungeon.description}</p>
           </div>
-        </div>
 
         <div>
           {requiredMitigation ? (
@@ -256,6 +260,7 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
           )}
         </div>
       </div>
+    </div>
 
       {/* ─────────────────────────────────────────────
           OS 5 SLOTS DO GROUP LOADOUT (CAIXAS MEDIEVAIS)

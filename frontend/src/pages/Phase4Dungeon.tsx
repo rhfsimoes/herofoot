@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Swords, ArrowRight, Newspaper, Compass } from 'lucide-react'
-import type { MatchResult, DungeonRoomEvent } from '../mockData'
+import type { MatchResult, DungeonRoomEvent, DungeonInfo } from '../mockData'
+import { BiomeBanner } from '../components/art'
 
 interface Phase4DungeonProps {
   onAdvance: () => void
@@ -8,6 +9,15 @@ interface Phase4DungeonProps {
   day?: number
   rivalGuildName?: string
   lastRoundResults?: MatchResult[]
+  currentDungeon?: DungeonInfo
+}
+
+const BIOME_BY_DAY: Record<number, { terrain: string; name: string }> = {
+  1: { terrain: 'campo_verdejante', name: 'Planície dos Ecos — Campo Verdejante' },
+  2: { terrain: 'pantano_putrido', name: 'Pântano dos Murmúrios — Limo & Névoa Ácida' },
+  3: { terrain: 'cripta_glacial', name: 'Cripta dos Reis Esquecidos — Gelo Eterno' },
+  4: { terrain: 'mina_profunda', name: 'Mina do Abismo de Ferro — Caverna Profunda' },
+  0: { terrain: 'caldeira_vulcanica', name: 'Caldeira de Enxofre — Magma & Basalto' },
 }
 
 export default function Phase4Dungeon({
@@ -16,6 +26,7 @@ export default function Phase4Dungeon({
   day = 1,
   rivalGuildName = 'Ordem do Grifo Dourado',
   lastRoundResults,
+  currentDungeon,
 }: Phase4DungeonProps) {
   const [running, setRunning] = useState(false)
   const [done, setDone] = useState(false)
@@ -229,6 +240,13 @@ export default function Phase4Dungeon({
           <strong className="text-amber-300 text-xs font-mono font-bold">vs {rivalGuildName}</strong>
         </div>
       </div>
+
+      {/* Banner Ilustrado do Bioma da Masmorra */}
+      <BiomeBanner
+        terrain={currentDungeon?.terrain || BIOME_BY_DAY[day % 5]?.terrain}
+        name={currentDungeon?.name || BIOME_BY_DAY[day % 5]?.name}
+        height={95}
+      />
 
       {/* ─────────────────────────────────────────────
           MOLDURA DE PLACAR ESTILO MADEIRA E LATÃO

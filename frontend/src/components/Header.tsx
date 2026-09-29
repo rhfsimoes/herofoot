@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  Shield,
   Coins,
   Trophy,
   Star,
@@ -22,6 +21,7 @@ import {
   loadGameBackend,
   newGameBackend,
 } from '../api'
+import { GuildCrest } from './art'
 
 interface HeaderProps {
   state: GameState
@@ -231,10 +231,10 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
   return (
     <header className="sticky top-0 z-40 bg-stone-950/90 backdrop-blur border-b border-stone-800 px-6 py-3 transition-colors">
       <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-4">
-        {/* Nome da Loja / Guilda */}
+        {/* Nome da Loja / Guilda com Brasão Heráldico */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-amber-900 border border-amber-500/50 flex items-center justify-center shadow-lg shadow-amber-950/50">
-            <Shield className="w-5 h-5 text-amber-200" />
+          <div className="relative group cursor-pointer" title="Brasão Heráldico da Guilda">
+            <GuildCrest size={46} guildName="HEROFOOT" variant="full" interactive />
           </div>
           <div>
             <div className="flex items-center gap-2">

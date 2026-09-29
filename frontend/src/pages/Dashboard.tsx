@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { Swords, ArrowRight, Trophy } from 'lucide-react'
 import type { GameState } from '../mockData'
 import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
+import { CrownSeal } from '../components/art'
 
 interface DashboardProps {
   state: GameState
@@ -104,6 +105,81 @@ export default function Dashboard({ state, onAdvancePhase }: DashboardProps) {
           sub="Ferragem"
         />
       </div>
+
+      {/* Card Oficial das Metas da Coroa Imperial com Selo de Cera */}
+      {state.crown_goals && (
+        <div className="bg-[#1c1917] border border-amber-900/40 rounded-xl p-5 shadow-2xl relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-800/80">
+            <div className="flex items-center gap-4">
+              <CrownSeal size={58} withRibbon={true} withGlow={state.crown_goals.is_audit_week} />
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-amber-200 text-sm font-black uppercase tracking-wider">
+                    Decretos Fiscais & Metas da Coroa
+                  </h3>
+                  <span className="text-[10px] font-mono bg-amber-950/80 border border-amber-800/70 text-amber-300 px-2 py-0.5 rounded font-bold">
+                    Trimestre {state.crown_goals.current_cycle}
+                  </span>
+                </div>
+                <p className="text-stone-400 text-xs mt-1">
+                  Avaliação da Junta Real: Semanas {state.crown_goals.cycle_start_week} a {state.crown_goals.cycle_deadline_week} ·{' '}
+                  <span className="text-amber-300 font-mono font-semibold">
+                    {state.crown_goals.weeks_remaining} semana(s) restante(s)
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="bg-stone-950/80 border border-stone-800 px-3 py-1.5 rounded-lg text-right font-mono">
+                <span className="text-[10px] uppercase text-stone-500 block">Homologação</span>
+                <span className="text-sm font-bold text-amber-400">
+                  {state.crown_goals.goals_completed_count} de {state.crown_goals.goals.length} Metas
+                </span>
+              </div>
+              <div
+                className={`px-3 py-2 rounded-lg border text-xs font-bold font-mono ${
+                  state.crown_goals.goals_completed_count >= state.crown_goals.min_goals_to_pass
+                    ? 'bg-emerald-950/60 border-emerald-800/60 text-emerald-300'
+                    : 'bg-amber-950/60 border-amber-800/60 text-amber-300'
+                }`}
+              >
+                {state.crown_goals.goals_completed_count >= state.crown_goals.min_goals_to_pass
+                  ? '✓ Apto ao Subsídio'
+                  : '⚠ Alerta Fiscal'}
+              </div>
+            </div>
+          </div>
+
+          {/* Mini-grid de metas no Dashboard */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+            {state.crown_goals.goals.map(g => (
+              <div
+                key={g.id}
+                className="bg-stone-950/60 border border-stone-800/80 p-3 rounded-lg flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span className="font-bold text-stone-200">{g.title}</span>
+                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded font-bold ${
+                      g.completed ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-stone-800 text-stone-400'
+                    }`}>
+                      {g.completed ? 'Cumprida' : 'Pendente'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-400 leading-snug">{g.description}</p>
+                </div>
+                <div className="mt-2.5 pt-2 border-t border-stone-800/60 flex items-center justify-between text-[11px] font-mono">
+                  <span className="text-stone-500">Progresso</span>
+                  <span className="text-amber-300 font-bold">
+                    {g.current} / {g.target} {g.unit || ''}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Tabela de Classificação da Liga das Guildas */}
       <div className="bg-[#1c1917] border border-amber-950/40 rounded-xl p-5 shadow-2xl">

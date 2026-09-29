@@ -9,10 +9,48 @@
   --font-family-display: 'Georgia', serif;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   FUNDO ATMOSFÉRICO DE SALÃO DE GUILDA & CÂMARA DE REGISTROS
+   Pedra polida antiga, iluminação âmbar difusa de tochas e vinheta
+   ───────────────────────────────────────────────────────────── */
+
 body {
-  background-color: var(--color-brand-dark);
+  background-color: #0c0a09;
   color: #e7e5e4;
   font-family: 'Georgia', serif;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Textura e Iluminação do Salão da Guilda */
+.guild-hall-atmosphere {
+  background-color: #0c0a09;
+  background-image:
+    /* Luz difusa da tocha esquerda */
+    radial-gradient(circle at 8% 12%, rgba(217, 119, 6, 0.12) 0%, rgba(180, 83, 9, 0.05) 28%, transparent 52%),
+    /* Luz difusa da tocha direita */
+    radial-gradient(circle at 92% 14%, rgba(245, 158, 11, 0.10) 0%, rgba(180, 83, 9, 0.04) 25%, transparent 48%),
+    /* Calor de braseiro central ao fundo */
+    radial-gradient(circle at 50% 88%, rgba(180, 83, 9, 0.06) 0%, rgba(120, 53, 15, 0.02) 40%, transparent 65%),
+    /* Vinheta atmosférica profunda nas bordas */
+    radial-gradient(ellipse at 50% 35%, transparent 45%, rgba(6, 5, 5, 0.85) 100%),
+    /* Padrão geométrico suave de cantaria de pedra medieval */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cpath d='M0 0h64v64H0z' fill='%230c0a09'/%3E%3Cpath d='M0 32h64M32 0v32M0 64h64M0 32v32M64 32v32' stroke='%2344403c' stroke-width='0.9' stroke-opacity='0.16' fill='none'/%3E%3Ccircle cx='14' cy='15' r='1' fill='%23d97706' fill-opacity='0.04'/%3E%3Ccircle cx='46' cy='20' r='1' fill='%23d97706' fill-opacity='0.03'/%3E%3Ccircle cx='22' cy='48' r='1' fill='%23d97706' fill-opacity='0.04'/%3E%3Ccircle cx='52' cy='50' r='1' fill='%23d97706' fill-opacity='0.03'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+  background-size: auto, auto, auto, auto, 64px 64px;
+}
+
+/* Efeito de Pergaminho e Ouro nos Destaques */
+.parchment-gold-border {
+  border: 1px solid rgba(217, 119, 6, 0.28);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(245, 158, 11, 0.12);
+}
+
+.guild-card-panel {
+  background: linear-gradient(180deg, rgba(28, 25, 23, 0.94) 0%, rgba(20, 18, 16, 0.96) 100%);
+  border: 1px solid rgba(68, 64, 60, 0.45);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
 }
 
 ::-webkit-scrollbar { width: 6px; }
