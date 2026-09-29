@@ -4,137 +4,81 @@
     "name": "Espada Longa de Aço",
     "slot": "Arma",
     "branch": "Ferragem",
-    "prefix_component": "Afiada",
-    "base_item_id": "item_wep_01",
-    "base_item": "Espada Longa de Aço",
-    "suffix_component": "do Acidente de Trabalho",
+    "gender": "f",
     "min_workshop_level": 1,
-    "ingredients": [
-      { "item_id": "mat_iron_ore", "quantity": 3 }
-    ],
     "base_power": 25,
-    "market_value_base": 250
+    "market_value_base": 250,
+    "unlock": {
+      "method": "start"
+    }
   },
   "rec_02": {
     "recipe_id": "rec_02",
     "name": "Amuleto de Guarda-Alma",
     "slot": "Joia",
     "branch": "Joalheria",
-    "prefix_component": "Encantado",
-    "base_item_id": "item_jwl_03",
-    "base_item": "Amuleto de Guarda-Alma",
-    "suffix_component": "do Adicional de Insalubridade",
+    "gender": "m",
     "min_workshop_level": 1,
-    "ingredients": [
-      { "item_id": "mat_mana_crystal", "quantity": 2 }
-    ],
     "base_power": 15,
-    "market_value_base": 180
+    "market_value_base": 180,
+    "unlock": {
+      "method": "start"
+    }
   },
   "rec_03": {
     "recipe_id": "rec_03",
-    "name": "Cota de Malha Reforçada",
+    "name": "Cota de Malha",
     "slot": "Armadura",
     "branch": "Ferragem",
-    "prefix_component": "Reforçada",
-    "base_item_id": "item_arm_03",
-    "base_item": "Cota de Malha",
-    "suffix_component": "do Laudo Pericial Aprovado",
+    "gender": "f",
     "min_workshop_level": 1,
-    "ingredients": [
-      { "item_id": "mat_scaly_leather", "quantity": 3 },
-      { "item_id": "mat_iron_ore", "quantity": 1 }
-    ],
     "base_power": 20,
-    "market_value_base": 220
+    "market_value_base": 220,
+    "unlock": {
+      "method": "start"
+    }
   },
   "rec_04": {
     "recipe_id": "rec_04",
-    "name": "Poção de Cura Concentrada",
+    "name": "Poção de Cura",
     "slot": "Consumível",
     "branch": "Alquimia",
-    "prefix_component": "Concentrada",
-    "base_item_id": "item_cons_03",
-    "base_item": "Poção de Cura",
-    "suffix_component": "do Prontuário Médico Padrão",
+    "gender": "f",
     "min_workshop_level": 1,
-    "ingredients": [
-      { "item_id": "mat_eucalyptus_herb", "quantity": 2 }
-    ],
     "base_power": 0,
-    "energy_bonus": 25,
+    "energy_restore": 25,
     "charges": 3,
-    "market_value_base": 120
+    "market_value_base": 120,
+    "unlock": {
+      "method": "start"
+    }
   },
   "rec_05": {
     "recipe_id": "rec_05",
-    "name": "Ração de Batalha Gourmet",
+    "name": "Ração de Batalha",
     "slot": "Consumível",
     "branch": "Culinária",
-    "prefix_component": "Nutritiva",
-    "base_item_id": "item_cons_04",
-    "base_item": "Ração de Batalha",
-    "suffix_component": "da Produtividade Sem Pausa",
+    "gender": "f",
     "min_workshop_level": 1,
-    "ingredients": [
-      { "item_id": "mat_flour", "quantity": 3 }
-    ],
     "base_power": 5,
-    "energy_bonus": 35,
+    "energy_restore": 35,
     "charges": 3,
-    "market_value_base": 140
+    "market_value_base": 140,
+    "unlock": {
+      "method": "start"
+    }
   },
   "rec_06": {
     "recipe_id": "rec_06",
-    "name": "Runa Anti-Tóxica do Pântano",
+    "name": "Runa de Proteção",
     "slot": "Inscrição",
     "branch": "Alquimia",
-    "prefix_component": "Purificada",
-    "base_item_id": "item_ins_03",
-    "base_item": "Runa de Proteção",
-    "suffix_component": "do Antídoto de Eucalipto",
-    "min_workshop_level": 2,
-    "ingredients": [
-      { "item_id": "mat_eucalyptus_herb", "quantity": 2 },
-      { "item_id": "mat_mana_crystal", "quantity": 1 }
-    ],
+    "gender": "f",
+    "min_workshop_level": 1,
     "base_power": 12,
-    "terrain_mitigation": "toxic_swamp",
-    "market_value_base": 210
-  },
-  "rec_07": {
-    "recipe_id": "rec_07",
-    "name": "Inscrição Térmica do Fogo Sagrado",
-    "slot": "Inscrição",
-    "branch": "Alquimia",
-    "prefix_component": "Ígnea",
-    "base_item_id": "item_ins_04",
-    "base_item": "Inscrição Térmica",
-    "suffix_component": "da Prevenção à Hipotermia",
-    "min_workshop_level": 2,
-    "ingredients": [
-      { "item_id": "mat_mana_crystal", "quantity": 2 }
-    ],
-    "base_power": 12,
-    "terrain_mitigation": "glacier_frost",
-    "market_value_base": 230
-  },
-  "rec_08": {
-    "recipe_id": "rec_08",
-    "name": "Selo de Firmeza Estrutural das Galerias",
-    "slot": "Inscrição",
-    "branch": "Alquimia",
-    "prefix_component": "Firme",
-    "base_item_id": "item_ins_05",
-    "base_item": "Selo de Firmeza Estrutural",
-    "suffix_component": "da Estabilização Pericial",
-    "min_workshop_level": 2,
-    "ingredients": [
-      { "item_id": "mat_iron_ore", "quantity": 2 },
-      { "item_id": "mat_mana_crystal", "quantity": 1 }
-    ],
-    "base_power": 12,
-    "terrain_mitigation": "unstable_mine",
-    "market_value_base": 220
+    "market_value_base": 210,
+    "unlock": {
+      "method": "start"
+    }
   }
 }

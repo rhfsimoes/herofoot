@@ -13,11 +13,28 @@ from balance import get_balance
 
 
 def load_materials():
-    data_path = os.path.join(os.path.dirname(__file__), 'data', 'materials_seed.json')
-    if os.path.exists(data_path):
+    materials_path = os.path.join(os.path.dirname(__file__), 'data', 'materials_seed.json')
+    values_path = os.path.join(os.path.dirname(__file__), 'data', 'material_values_seed.json')
+    if os.path.exists(materials_path) and os.path.exists(values_path):
         try:
-            with open(data_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            with open(materials_path, 'r', encoding='utf-8') as f:
+                mats = json.load(f)
+            with open(values_path, 'r', encoding='utf-8') as f:
+                vals = {v['material_id']: v for v in json.load(f)}
+            combined = []
+            for m in mats:
+                mid = m['id']
+                v = vals.get(mid, {})
+                combined.append({
+                    'id': mid,
+                    'name': m['name'],
+                    'category': m.get('category'),
+                    'unit_price': v.get('price', 20),
+                    'min_qty': v.get('min_qty', 1),
+                    'max_qty': v.get('max_qty', 5),
+                    'variance': v.get('variance', 0.2),
+                })
+            return combined
         except Exception:
             pass
     return [
@@ -95,19 +112,21 @@ READY_ITEM_TEMPLATES = load_ready_templates()
 
 
 class MarketEngine:
-    def __init__(self, rng=None):
+    def __init__(self, rng=None, state=None):
         self.materials_for_sale = []
         self.ready_items_for_sale = []
+        self.affix_manuals = []
         self.bulletin = None
-        self.refresh_market(round_number=1, rng=rng)
+        self.refresh_market(round_number=1, rng=rng, state=state)
 
-    def refresh_market(self, round_number=1, rng=None):
-        """Gera um estoque rotativo de insumos e itens prontos para a rodada especificada."""
+    def refresh_market(self, round_number=1, rng=None, state=None):
+        """Gera um estoque rotativo de insumos, itens prontos e manuais para a rodada especificada."""
         if rng is None:
             rng = random.Random()
 
+        available_mats = load_materials()
         self.materials_for_sale = []
-        for mat in AVAILABLE_MATERIALS:
+        for mat in available_mats:
             if rng.random() < 0.85:
                 qty = rng.randint(mat["min_qty"], mat["max_qty"])
                 price_mult = rng.uniform(0.9, 1.2)
@@ -157,19 +176,52 @@ class MarketEngine:
         else:
             self.bulletin = None
 
+        # Manuais de Ofício (Crafting v2)
+        self.affix_manuals = []
+        try:
+            from catalog import get_catalog
+            cat = get_catalog()
+            manual_offer_count = int(balance.get("crafting", {}).get("manual_offer_count", 2))
+            known = set(getattr(state, "known_affixes", [])) if state else set()
+            candidates = [
+                a for a in cat.affixes.values()
+                if a.get("unlock", {}).get("method") == "market" and a["affix_id"] not in known
+            ]
+            if candidates:
+                sample_k = min(manual_offer_count, len(candidates))
+                chosen = rng.sample(candidates, k=sample_k)
+                for a in chosen:
+                    slots = list({link["slot"] for link in cat.affix_material_links.get(a["affix_id"], [])})
+                    name_disp = a.get("name")
+                    if not name_disp:
+                        nm_m = a.get("name_m", "")
+                        nm_f = a.get("name_f", "")
+                        name_disp = f"{nm_m} / {nm_f}" if nm_m and nm_f else (nm_m or nm_f)
+                    self.affix_manuals.append({
+                        "affix_id": a["affix_id"],
+                        "name": name_disp,
+                        "kind": a.get("kind"),
+                        "cost": a.get("unlock", {}).get("cost", 250),
+                        "slots": slots,
+                    })
+        except Exception:
+            pass
+
     def get_market_data(self):
         return {
             "materials_for_sale": self.materials_for_sale,
             "ready_items_for_sale": self.ready_items_for_sale,
+            "affix_manuals": self.affix_manuals,
             "bulletin": self.bulletin,
         }
 
     def to_dict(self) -> dict:
-        """Serializa o catálogo e boletim do mercado para persistência."""
+        """Serializa o catálogo, manuais e boletim do mercado para persistência."""
         import copy
         return {
             "materials_for_sale": copy.deepcopy(self.materials_for_sale),
             "ready_items_for_sale": copy.deepcopy(self.ready_items_for_sale),
+            "affix_manuals": copy.deepcopy(self.affix_manuals),
             "bulletin": copy.deepcopy(self.bulletin),
         }
 
@@ -182,6 +234,8 @@ class MarketEngine:
             self.materials_for_sale = copy.deepcopy(data["materials_for_sale"])
         if "ready_items_for_sale" in data:
             self.ready_items_for_sale = copy.deepcopy(data["ready_items_for_sale"])
+        if "affix_manuals" in data:
+            self.affix_manuals = copy.deepcopy(data["affix_manuals"])
         if "bulletin" in data:
             self.bulletin = copy.deepcopy(data["bulletin"])
         return self

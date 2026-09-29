@@ -3,7 +3,7 @@
  * Comunica-se com o backend Python local (http.server nativo da biblioteca padrão).
  */
 
-import type { GameState, InventoryItem, SaveSlotInfo } from './mockData'
+import type { GameState, InventoryItem, SaveSlotInfo, CraftOptions, CraftPreview, MaterialSheet } from './mockData'
 
 const API_BASE = 'http://localhost:8000/api'
 
@@ -72,18 +72,88 @@ export async function saveTacticsBackend(
   return null
 }
 
-export async function craftItemBackend(recipeId: string): Promise<ApiResponse<{ item: InventoryItem }> | null> {
+export async function fetchCraftOptionsBackend(recipeId: string): Promise<CraftOptions | null> {
   try {
+    const res = await fetch(`${API_BASE}/craft_options?recipe_id=${encodeURIComponent(recipeId)}`)
+    if (res.ok) {
+      return (await res.json()) as CraftOptions
+    }
+  } catch (err) {
+    console.warn('[HeroFoot API] Erro ao carregar opções de forja:', err)
+  }
+  return null
+}
+
+export async function fetchCraftPreviewBackend(payload: {
+  recipe_id: string
+  prefix_id?: string | null
+  suffix_id?: string | null
+  prefix_material_id?: string | null
+  suffix_material_id?: string | null
+}): Promise<CraftPreview | null> {
+  try {
+    const res = await fetch(`${API_BASE}/craft_preview`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (res.ok) {
+      return (await res.json()) as CraftPreview
+    }
+  } catch (err) {
+    console.warn('[HeroFoot API] Erro ao carregar prévia de forja:', err)
+  }
+  return null
+}
+
+export async function craftItemBackend(
+  recipeIdOrPayload: string | {
+    recipe_id: string
+    branch?: string
+    prefix_id?: string | null
+    suffix_id?: string | null
+    prefix_material_id?: string | null
+    suffix_material_id?: string | null
+  }
+): Promise<ApiResponse<{ item: InventoryItem }> | null> {
+  try {
+    const body = typeof recipeIdOrPayload === 'string'
+      ? { recipe_id: recipeIdOrPayload }
+      : recipeIdOrPayload
     const res = await fetch(`${API_BASE}/craft`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ recipe_id: recipeId }),
+      body: JSON.stringify(body),
     })
-    if (res.ok) {
-      return (await res.json()) as ApiResponse<{ item: InventoryItem }>
-    }
+    return (await res.json()) as ApiResponse<{ item: InventoryItem }>
   } catch (err) {
     console.error('[HeroFoot API] Erro ao produzir item:', err)
+  }
+  return null
+}
+
+export async function learnAffixBackend(affixId: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/learn_affix`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ affix_id: affixId }),
+    })
+    return (await res.json()) as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao adquirir manual:', err)
+  }
+  return null
+}
+
+export async function fetchMaterialSheetBackend(materialId: string): Promise<MaterialSheet | null> {
+  try {
+    const res = await fetch(`${API_BASE}/material?id=${encodeURIComponent(materialId)}`)
+    if (res.ok) {
+      return (await res.json()) as MaterialSheet
+    }
+  } catch (err) {
+    console.warn('[HeroFoot API] Erro ao consultar ficha de material:', err)
   }
   return null
 }

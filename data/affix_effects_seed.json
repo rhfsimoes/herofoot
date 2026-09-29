@@ -1,0 +1,350 @@
+[
+  {
+    "affix_id": "pref_afiada",
+    "effect": "power_pct",
+    "value": 0.1
+  },
+  {
+    "affix_id": "pref_afiada",
+    "effect": "value_pct",
+    "value": 0.1
+  },
+  {
+    "affix_id": "pref_temperada",
+    "effect": "power_pct",
+    "value": 0.15
+  },
+  {
+    "affix_id": "pref_temperada",
+    "effect": "value_pct",
+    "value": 0.15
+  },
+  {
+    "affix_id": "pref_reforcada",
+    "effect": "power_pct",
+    "value": 0.1
+  },
+  {
+    "affix_id": "pref_reforcada",
+    "effect": "value_pct",
+    "value": 0.15
+  },
+  {
+    "affix_id": "pref_escamada",
+    "effect": "power_pct",
+    "value": 0.15
+  },
+  {
+    "affix_id": "pref_escamada",
+    "effect": "value_pct",
+    "value": 0.2
+  },
+  {
+    "affix_id": "pref_robusta",
+    "effect": "power_flat",
+    "value": 4
+  },
+  {
+    "affix_id": "pref_robusta",
+    "effect": "value_pct",
+    "value": 0.2
+  },
+  {
+    "affix_id": "pref_encantada",
+    "effect": "power_pct",
+    "value": 0.12
+  },
+  {
+    "affix_id": "pref_encantada",
+    "effect": "value_pct",
+    "value": 0.4
+  },
+  {
+    "affix_id": "pref_vigorosa",
+    "effect": "power_flat",
+    "value": 3
+  },
+  {
+    "affix_id": "pref_vigorosa",
+    "effect": "value_pct",
+    "value": 0.25
+  },
+  {
+    "affix_id": "pref_concentrada",
+    "effect": "energy_bonus_flat",
+    "value": 8
+  },
+  {
+    "affix_id": "pref_concentrada",
+    "effect": "value_pct",
+    "value": 0.25
+  },
+  {
+    "affix_id": "pref_nutritiva",
+    "effect": "energy_bonus_flat",
+    "value": 5
+  },
+  {
+    "affix_id": "pref_nutritiva",
+    "effect": "value_pct",
+    "value": 0.15
+  },
+  {
+    "affix_id": "pref_saborosa",
+    "effect": "energy_bonus_flat",
+    "value": 10
+  },
+  {
+    "affix_id": "pref_saborosa",
+    "effect": "value_pct",
+    "value": 0.35
+  },
+  {
+    "affix_id": "pref_farta",
+    "effect": "charges_flat",
+    "value": 1
+  },
+  {
+    "affix_id": "pref_farta",
+    "effect": "value_pct",
+    "value": 0.3
+  },
+  {
+    "affix_id": "pref_purificada",
+    "effect": "terrain_mitigation",
+    "value": "toxic_swamp"
+  },
+  {
+    "affix_id": "pref_purificada",
+    "effect": "value_pct",
+    "value": 0.15
+  },
+  {
+    "affix_id": "pref_ignea",
+    "effect": "terrain_mitigation",
+    "value": "glacier_frost"
+  },
+  {
+    "affix_id": "pref_ignea",
+    "effect": "value_pct",
+    "value": 0.2
+  },
+  {
+    "affix_id": "pref_firme",
+    "effect": "terrain_mitigation",
+    "value": "unstable_mine"
+  },
+  {
+    "affix_id": "pref_firme",
+    "effect": "value_pct",
+    "value": 0.2
+  },
+  {
+    "affix_id": "suf_acidente_trabalho",
+    "effect": "power_flat",
+    "value": 5
+  },
+  {
+    "affix_id": "suf_acidente_trabalho",
+    "effect": "value_pct",
+    "value": 0.1
+  },
+  {
+    "affix_id": "suf_acidente_trabalho",
+    "effect": "power_pct",
+    "value": 0.1,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_termo_responsabilidade",
+    "effect": "power_flat",
+    "value": 3
+  },
+  {
+    "affix_id": "suf_termo_responsabilidade",
+    "effect": "value_pct",
+    "value": 0.25
+  },
+  {
+    "affix_id": "suf_termo_responsabilidade",
+    "effect": "power_pct",
+    "value": 0.08,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_rescisao",
+    "effect": "power_pct",
+    "value": 0.12
+  },
+  {
+    "affix_id": "suf_rescisao",
+    "effect": "value_pct",
+    "value": 0.15
+  },
+  {
+    "affix_id": "suf_rescisao",
+    "effect": "power_pct",
+    "value": 0.12,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_laudo_pericial",
+    "effect": "power_flat",
+    "value": 4
+  },
+  {
+    "affix_id": "suf_laudo_pericial",
+    "effect": "value_pct",
+    "value": 0.2
+  },
+  {
+    "affix_id": "suf_laudo_pericial",
+    "effect": "power_pct",
+    "value": 0.1,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_seguro_vida",
+    "effect": "power_flat",
+    "value": 6
+  },
+  {
+    "affix_id": "suf_seguro_vida",
+    "effect": "value_pct",
+    "value": 0.35
+  },
+  {
+    "affix_id": "suf_seguro_vida",
+    "effect": "power_pct",
+    "value": 0.12,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_insalubridade",
+    "effect": "power_flat",
+    "value": 2
+  },
+  {
+    "affix_id": "suf_insalubridade",
+    "effect": "value_pct",
+    "value": 0.4
+  },
+  {
+    "affix_id": "suf_insalubridade",
+    "effect": "power_pct",
+    "value": 0.08,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_adicional_noturno",
+    "effect": "power_pct",
+    "value": 0.08
+  },
+  {
+    "affix_id": "suf_adicional_noturno",
+    "effect": "value_pct",
+    "value": 0.25
+  },
+  {
+    "affix_id": "suf_adicional_noturno",
+    "effect": "power_pct",
+    "value": 0.08,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_prontuario",
+    "effect": "charges_flat",
+    "value": 1
+  },
+  {
+    "affix_id": "suf_prontuario",
+    "effect": "value_pct",
+    "value": 0.25
+  },
+  {
+    "affix_id": "suf_prontuario",
+    "effect": "energy_bonus_flat",
+    "value": 10,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_produtividade",
+    "effect": "energy_bonus_flat",
+    "value": 6
+  },
+  {
+    "affix_id": "suf_produtividade",
+    "effect": "value_pct",
+    "value": 0.15
+  },
+  {
+    "affix_id": "suf_produtividade",
+    "effect": "charges_flat",
+    "value": 1,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_evacuacao",
+    "effect": "energy_bonus_flat",
+    "value": 8
+  },
+  {
+    "affix_id": "suf_evacuacao",
+    "effect": "value_pct",
+    "value": 0.35
+  },
+  {
+    "affix_id": "suf_evacuacao",
+    "effect": "charges_flat",
+    "value": 1,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_alvara",
+    "effect": "power_flat",
+    "value": 5
+  },
+  {
+    "affix_id": "suf_alvara",
+    "effect": "value_pct",
+    "value": 0.35
+  },
+  {
+    "affix_id": "suf_alvara",
+    "effect": "power_pct",
+    "value": 0.1,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_antidoto_eucalipto",
+    "effect": "power_flat",
+    "value": 3
+  },
+  {
+    "affix_id": "suf_antidoto_eucalipto",
+    "effect": "value_pct",
+    "value": 0.15
+  },
+  {
+    "affix_id": "suf_antidoto_eucalipto",
+    "effect": "power_pct",
+    "value": 0.1,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_prevencao_hipotermia",
+    "effect": "power_flat",
+    "value": 3
+  },
+  {
+    "affix_id": "suf_prevencao_hipotermia",
+    "effect": "value_pct",
+    "value": 0.2
+  },
+  {
+    "affix_id": "suf_prevencao_hipotermia",
+    "effect": "power_pct",
+    "value": 0.1,
+    "requires_quality": "Lendário"
+  }
+]

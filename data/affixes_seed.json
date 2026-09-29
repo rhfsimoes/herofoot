@@ -1,0 +1,241 @@
+[
+  {
+    "affix_id": "pref_afiada",
+    "kind": "prefix",
+    "unlock": {
+      "method": "start"
+    },
+    "name_m": "Afiado",
+    "name_f": "Afiada"
+  },
+  {
+    "affix_id": "pref_temperada",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 300
+    },
+    "name_m": "Temperado",
+    "name_f": "Temperada"
+  },
+  {
+    "affix_id": "pref_reforcada",
+    "kind": "prefix",
+    "unlock": {
+      "method": "start"
+    },
+    "name_m": "Reforçado",
+    "name_f": "Reforçada"
+  },
+  {
+    "affix_id": "pref_escamada",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 300
+    },
+    "name_m": "Escamado",
+    "name_f": "Escamada"
+  },
+  {
+    "affix_id": "pref_robusta",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 250
+    },
+    "name_m": "Robusto",
+    "name_f": "Robusta"
+  },
+  {
+    "affix_id": "pref_encantada",
+    "kind": "prefix",
+    "unlock": {
+      "method": "start"
+    },
+    "name_m": "Encantado",
+    "name_f": "Encantada"
+  },
+  {
+    "affix_id": "pref_vigorosa",
+    "kind": "prefix",
+    "unlock": {
+      "method": "loot"
+    },
+    "name_m": "Vigoroso",
+    "name_f": "Vigorosa"
+  },
+  {
+    "affix_id": "pref_concentrada",
+    "kind": "prefix",
+    "unlock": {
+      "method": "start"
+    },
+    "name_m": "Concentrado",
+    "name_f": "Concentrada"
+  },
+  {
+    "affix_id": "pref_nutritiva",
+    "kind": "prefix",
+    "unlock": {
+      "method": "start"
+    },
+    "name_m": "Nutritivo",
+    "name_f": "Nutritiva"
+  },
+  {
+    "affix_id": "pref_saborosa",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 200
+    },
+    "name_m": "Saboroso",
+    "name_f": "Saborosa"
+  },
+  {
+    "affix_id": "pref_farta",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 350
+    },
+    "name_m": "Farto",
+    "name_f": "Farta"
+  },
+  {
+    "affix_id": "pref_purificada",
+    "kind": "prefix",
+    "unlock": {
+      "method": "start"
+    },
+    "name_m": "Purificado",
+    "name_f": "Purificada"
+  },
+  {
+    "affix_id": "pref_ignea",
+    "kind": "prefix",
+    "unlock": {
+      "method": "start"
+    },
+    "name_m": "Ígneo",
+    "name_f": "Ígnea"
+  },
+  {
+    "affix_id": "pref_firme",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 250
+    },
+    "name_m": "Firme",
+    "name_f": "Firme"
+  },
+  {
+    "affix_id": "suf_acidente_trabalho",
+    "kind": "suffix",
+    "unlock": {
+      "method": "start"
+    },
+    "name": "do Acidente de Trabalho"
+  },
+  {
+    "affix_id": "suf_termo_responsabilidade",
+    "kind": "suffix",
+    "unlock": {
+      "method": "market",
+      "cost": 250
+    },
+    "name": "do Termo de Responsabilidade"
+  },
+  {
+    "affix_id": "suf_rescisao",
+    "kind": "suffix",
+    "unlock": {
+      "method": "loot"
+    },
+    "name": "da Cláusula de Rescisão"
+  },
+  {
+    "affix_id": "suf_laudo_pericial",
+    "kind": "suffix",
+    "unlock": {
+      "method": "start"
+    },
+    "name": "do Laudo Pericial Aprovado"
+  },
+  {
+    "affix_id": "suf_seguro_vida",
+    "kind": "suffix",
+    "unlock": {
+      "method": "market",
+      "cost": 300
+    },
+    "name": "do Seguro de Vida Complementar"
+  },
+  {
+    "affix_id": "suf_insalubridade",
+    "kind": "suffix",
+    "unlock": {
+      "method": "start"
+    },
+    "name": "do Adicional de Insalubridade"
+  },
+  {
+    "affix_id": "suf_adicional_noturno",
+    "kind": "suffix",
+    "unlock": {
+      "method": "market",
+      "cost": 350
+    },
+    "name": "do Adicional Noturno"
+  },
+  {
+    "affix_id": "suf_prontuario",
+    "kind": "suffix",
+    "unlock": {
+      "method": "start"
+    },
+    "name": "do Prontuário Médico Padrão"
+  },
+  {
+    "affix_id": "suf_produtividade",
+    "kind": "suffix",
+    "unlock": {
+      "method": "start"
+    },
+    "name": "da Produtividade Sem Pausa"
+  },
+  {
+    "affix_id": "suf_evacuacao",
+    "kind": "suffix",
+    "unlock": {
+      "method": "loot"
+    },
+    "name": "do Protocolo de Evacuação"
+  },
+  {
+    "affix_id": "suf_alvara",
+    "kind": "suffix",
+    "unlock": {
+      "method": "start"
+    },
+    "name": "do Alvará de Funcionamento"
+  },
+  {
+    "affix_id": "suf_antidoto_eucalipto",
+    "kind": "suffix",
+    "unlock": {
+      "method": "start"
+    },
+    "name": "do Antídoto de Eucalipto"
+  },
+  {
+    "affix_id": "suf_prevencao_hipotermia",
+    "kind": "suffix",
+    "unlock": {
+      "method": "start"
+    },
+    "name": "da Prevenção à Hipotermia"
+  }
+]

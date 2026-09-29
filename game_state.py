@@ -25,6 +25,9 @@ SERIALIZED_FIELDS = [
     "loadout",
     "workshop_levels",
     "materials",
+    "known_affixes",
+    "known_recipes",
+    "catalog_version",
 ]
 
 TRANSIENT_FIELDS = [
@@ -66,6 +69,11 @@ class GameState:
             "Culinária": 1,
         }
         self.materials = {}        # {"mat_id": quantidade}
+
+        # Crafting v2
+        self.known_affixes = []
+        self.known_recipes = []
+        self.catalog_version = 1
 
         # Campos transientes de execução
         self.last_match_result = None
@@ -138,6 +146,22 @@ class GameState:
                 except Exception:
                     pass
 
+        # Catálogo Crafting v2: Afixos e Receitas iniciais com unlock.method == 'start'
+        try:
+            from catalog import get_catalog
+            cat = get_catalog()
+            self.catalog_version = cat.catalog_version
+            self.known_affixes = [
+                aid for aid, a in cat.affixes.items()
+                if a.get("unlock", {}).get("method") == "start"
+            ]
+            self.known_recipes = [
+                rid for rid, r in cat.recipes.items()
+                if r.get("unlock", {}).get("method") == "start"
+            ]
+        except Exception:
+            pass
+
     def is_equipped(self, item_instance_id: str) -> bool:
         """Verifica se um item do almoxarifado está equipado no loadout atual."""
         if not item_instance_id:
@@ -164,16 +188,24 @@ class GameState:
 
     def has_materials_for(self, recipe: dict) -> bool:
         """Verifica se o jogador possui os insumos necessários para uma receita."""
-        for ingredient in recipe.get("ingredients", []):
-            mat_id = ingredient["item_id"]
-            qty_needed = ingredient["quantity"]
+        ingredients = recipe.get("ingredients")
+        if ingredients is None:
+            from catalog import get_catalog
+            ingredients = get_catalog().get_recipe_ingredients(recipe.get("recipe_id", ""))
+        for ingredient in ingredients:
+            mat_id = ingredient.get("material_id") or ingredient.get("item_id")
+            qty_needed = ingredient.get("quantity", 1)
             if self.materials.get(mat_id, 0) < qty_needed:
                 return False
         return True
 
     def consume_materials(self, recipe: dict):
         """Consome os insumos da receita do inventário de materiais."""
-        for ingredient in recipe.get("ingredients", []):
-            mat_id = ingredient["item_id"]
-            qty_needed = ingredient["quantity"]
+        ingredients = recipe.get("ingredients")
+        if ingredients is None:
+            from catalog import get_catalog
+            ingredients = get_catalog().get_recipe_ingredients(recipe.get("recipe_id", ""))
+        for ingredient in ingredients:
+            mat_id = ingredient.get("material_id") or ingredient.get("item_id")
+            qty_needed = ingredient.get("quantity", 1)
             self.materials[mat_id] = max(0, self.materials.get(mat_id, 0) - qty_needed)

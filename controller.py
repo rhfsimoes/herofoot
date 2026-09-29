@@ -99,6 +99,22 @@ class GameController:
             h["stat_weight_profile"] = spec.get("stat_weight_profile", h.get("stat_weight_profile", {}))
             decorated_team.append(h)
 
+        # Montagem das receitas com ingredientes a partir do catálogo normalizado
+        from catalog import get_catalog
+        cat = get_catalog()
+        assembled_recipes = {}
+        for rid, r in cat.recipes.items():
+            r_copy = dict(r)
+            r_copy["ingredients"] = [
+                {
+                    "item_id": i["material_id"],
+                    "material_id": i["material_id"],
+                    "quantity": i["quantity"],
+                }
+                for i in cat.get_recipe_ingredients(rid)
+            ]
+            assembled_recipes[rid] = r_copy
+
         return {
             "day": self.state.day,
             "week": self.state.week,
@@ -123,7 +139,10 @@ class GameController:
             "last_round_matches": self.league_engine.last_round_matches,
             "current_fixture": self.league_engine.get_player_match(self.state.day),
             "market": self.market_engine.get_market_data(),
-            "recipes": self.crafting_engine.recipe_db if self.crafting_engine else {},
+            "recipes": assembled_recipes,
+            "known_affixes": getattr(self.state, "known_affixes", []),
+            "known_recipes": getattr(self.state, "known_recipes", []),
+            "catalog_version": getattr(self.state, "catalog_version", 1),
             "active_slot": self.active_slot,
         }
 
@@ -176,8 +195,56 @@ class GameController:
     def save_tactics(self, starters: list, loadout: dict, reserves: list = None) -> dict:
         return self.tactics_service.save_tactics(starters, loadout, reserves=reserves)
 
-    def ui_request_craft(self, recipe_id: str, branch: str = "Ferragem", rng=None) -> dict:
-        return self.crafting_service.craft_item(recipe_id, branch, rng=rng)
+    def ui_request_craft(
+        self,
+        recipe_id: str,
+        branch: str = "Ferragem",
+        prefix_id: str = None,
+        suffix_id: str = None,
+        prefix_material_id: str = None,
+        suffix_material_id: str = None,
+        rng=None,
+    ) -> dict:
+        return self.crafting_service.craft_item(
+            recipe_id,
+            branch=branch,
+            prefix_id=prefix_id,
+            suffix_id=suffix_id,
+            prefix_material_id=prefix_material_id,
+            suffix_material_id=suffix_material_id,
+            rng=rng,
+        )
+
+    def get_craft_options(self, recipe_id: str) -> dict:
+        return self.crafting_service.get_craft_options(recipe_id)
+
+    def get_craft_preview(
+        self,
+        recipe_id: str,
+        prefix_id: str = None,
+        suffix_id: str = None,
+        prefix_material_id: str = None,
+        suffix_material_id: str = None,
+    ) -> dict:
+        return self.crafting_service.get_craft_preview(
+            recipe_id,
+            prefix_id=prefix_id,
+            suffix_id=suffix_id,
+            prefix_material_id=prefix_material_id,
+            suffix_material_id=suffix_material_id,
+        )
+
+    def learn_affix(self, affix_id: str) -> dict:
+        res = self.crafting_service.learn_affix(affix_id)
+        if res.get("success"):
+            if hasattr(self.market_engine, "affix_manuals"):
+                self.market_engine.affix_manuals = [
+                    m for m in self.market_engine.affix_manuals if m["affix_id"] != affix_id
+                ]
+        return res
+
+    def get_material_sheet(self, material_id: str) -> dict:
+        return self.crafting_service.get_material_sheet(material_id)
 
     def upgrade_workshop(self, branch: str = "Ferragem") -> dict:
         return self.crafting_service.upgrade_workshop(branch)

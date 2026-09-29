@@ -50,5 +50,8 @@
     "default_slot_bonus": 6,
     "mitigation_probability": 0.5
   },
+  "crafting": {
+    "manual_offer_count": 2
+  },
   "provisional_rescale_factor": 0.55
 }

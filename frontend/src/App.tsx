@@ -20,6 +20,7 @@ import {
   buyItemBackend,
   sellItemBackend,
   resolveOfferBackend,
+  learnAffixBackend,
 } from './api'
 import './index.css'
 
@@ -136,9 +137,20 @@ function AppContent() {
   }
 
   // Handlers para o módulo de Oficina e Balcão
-  async function handleCraft(recipeId: string) {
+  async function handleCraft(payload: string | { recipe_id: string; branch?: string; prefix_id?: string | null; suffix_id?: string | null; prefix_material_id?: string | null; suffix_material_id?: string | null }) {
     if (isBackendOnline) {
-      const res = await craftItemBackend(recipeId)
+      const res = await craftItemBackend(payload)
+      if (res && res.state) {
+        setGameState(prev => ({ ...prev, ...res.state }))
+      }
+      return res
+    }
+    return null
+  }
+
+  async function handleLearnAffix(affixId: string) {
+    if (isBackendOnline) {
+      const res = await learnAffixBackend(affixId)
       if (res && res.state) {
         setGameState(prev => ({ ...prev, ...res.state }))
       }
@@ -243,6 +255,7 @@ function AppContent() {
                 onBuyItem={handleBuyItem}
                 onSellItem={handleSellItem}
                 onResolveOffer={handleResolveOffer}
+                onLearnAffix={handleLearnAffix}
               />
             }
           />

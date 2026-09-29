@@ -6,9 +6,19 @@
     "name": { "type": "string" },
     "slot": { "type": "string", "enum": ["Arma", "Armadura", "Joia", "Inscrição", "Consumível"] },
     "branch": { "type": "string", "enum": ["Ferragem", "Alquimia", "Joalheria", "Culinária"] },
-    "prefix_component": { "type": "string" },
-    "base_item": { "type": "string" },
-    "suffix_component": { "type": "string" }
+    "gender": { "type": "string", "enum": ["m", "f"] },
+    "min_workshop_level": { "type": "integer", "minimum": 1 },
+    "base_power": { "type": "integer" },
+    "energy_restore": { "type": "integer" },
+    "charges": { "type": "integer" },
+    "market_value_base": { "type": "integer", "minimum": 1 },
+    "unlock": {
+      "type": "object",
+      "properties": {
+        "method": { "type": "string" }
+      },
+      "required": ["method"]
+    }
   },
-  "required": ["recipe_id", "name", "slot", "branch", "prefix_component", "base_item", "suffix_component"]
+  "required": ["recipe_id", "name", "slot", "branch", "gender", "min_workshop_level", "market_value_base", "unlock"]
 }

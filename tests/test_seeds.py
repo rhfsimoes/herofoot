@@ -42,16 +42,16 @@ class TestSeeds(unittest.TestCase):
 
     def test_canonical_sets(self):
         """Slots, ramos e qualidades pertencem aos conjuntos canônicos."""
-        # Itens
-        items = self.load_json('items_seed.json')
-        for item in items:
-            self.assertIn(item['slot'], CANONICAL_SLOTS, f"Slot inválido em {item['id']}")
-
         # Receitas
         recipes = self.load_json('recipes_seed.json')
         for rec_id, rec in recipes.items():
             self.assertIn(rec['slot'], CANONICAL_SLOTS, f"Slot inválido na receita {rec_id}")
             self.assertIn(rec['branch'], CANONICAL_BRANCHES, f"Ramo inválido na receita {rec_id}")
+
+        # Material Affixes
+        material_affixes = self.load_json('material_affixes_seed.json')
+        for link in material_affixes:
+            self.assertIn(link['slot'], CANONICAL_SLOTS, f"Slot inválido no vínculo {link}")
 
         # Workshops
         workshops = self.load_json('workshops_seed.json')
@@ -69,18 +69,18 @@ class TestSeeds(unittest.TestCase):
             self.assertIn(tpl['quality'], CANONICAL_QUALITIES)
 
     def test_recipe_references_exist(self):
-        """Todo base_item_id e todo material de receita existem."""
-        items = self.load_json('items_seed.json')
-        item_ids = {i['id'] for i in items}
+        """Toda receita em recipe_ingredients existe em recipes_seed, e todo material existe em materials_seed."""
         materials = self.load_json('materials_seed.json')
         material_ids = {m['id'] for m in materials}
 
         recipes = self.load_json('recipes_seed.json')
-        for rec_id, rec in recipes.items():
-            self.assertIn('base_item_id', rec, f"Receita {rec_id} sem base_item_id")
-            self.assertIn(rec['base_item_id'], item_ids, f"base_item_id {rec['base_item_id']} não existe em items_seed")
-            for ing in rec.get('ingredients', []):
-                self.assertIn(ing['item_id'], material_ids, f"Ingrediente {ing['item_id']} em {rec_id} não existe em materials_seed")
+        recipe_ids = set(recipes.keys())
+
+        recipe_ingredients = self.load_json('recipe_ingredients_seed.json')
+        for link in recipe_ingredients:
+            self.assertIn(link['recipe_id'], recipe_ids, f"recipe_id {link['recipe_id']} não existe em recipes_seed")
+            self.assertIn(link['material_id'], material_ids, f"material_id {link['material_id']} não existe em materials_seed")
+            self.assertGreater(link.get('quantity', 0), 0)
 
     def test_class_specialization_references(self):
         """Refs de classe -> especialização são válidas."""

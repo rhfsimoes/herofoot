@@ -1,7 +1,50 @@
 [
-  { "id": "mat_iron_ore", "name": "Minério de Ferro", "unit_price": 20, "min_qty": 3, "max_qty": 10 },
-  { "id": "mat_scaly_leather", "name": "Couro Escamoso", "unit_price": 35, "min_qty": 2, "max_qty": 7 },
-  { "id": "mat_mana_crystal", "name": "Cristal de Mana", "unit_price": 55, "min_qty": 1, "max_qty": 5 },
-  { "id": "mat_eucalyptus_herb", "name": "Erva de Eucalipto", "unit_price": 25, "min_qty": 2, "max_qty": 8 },
-  { "id": "mat_flour", "name": "Farinha de Trigo", "unit_price": 15, "min_qty": 4, "max_qty": 12 }
+  {
+    "id": "mat_iron_ore",
+    "name": "Minério de Ferro",
+    "category": "mineral",
+    "is_raw": true
+  },
+  {
+    "id": "mat_scaly_leather",
+    "name": "Couro Escamoso",
+    "category": "animal",
+    "is_raw": true
+  },
+  {
+    "id": "mat_mana_crystal",
+    "name": "Cristal de Mana",
+    "category": "arcano",
+    "is_raw": true
+  },
+  {
+    "id": "mat_eucalyptus_herb",
+    "name": "Erva de Eucalipto",
+    "category": "herbal",
+    "is_raw": true
+  },
+  {
+    "id": "mat_flour",
+    "name": "Farinha de Trigo",
+    "category": "alimento",
+    "is_raw": true
+  },
+  {
+    "id": "mat_ember_coal",
+    "name": "Brasa de Carvão",
+    "category": "mineral",
+    "is_raw": true
+  },
+  {
+    "id": "mat_granite_dust",
+    "name": "Pó de Granito",
+    "category": "mineral",
+    "is_raw": true
+  },
+  {
+    "id": "mat_wild_honey",
+    "name": "Mel Silvestre",
+    "category": "alimento",
+    "is_raw": true
+  }
 ]

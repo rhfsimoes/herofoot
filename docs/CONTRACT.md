@@ -106,4 +106,7 @@ Poder_Efetivo     = (Poder_Base_Equipe + Bônus_Slots) × (1 − penalidade_terr
 | D8 | Preço do Balcão calculado no servidor; Boletim multiplica a demanda | fechado |
 | D9 | Save em JSON: 3 slots + autosave | fechado |
 | D10 | Balanceamento econômico via simulação em massa | adiado (Onda 4) |
-| D11 | `workshops_seed.json` substitui o antigo `specializations_seed.json` (que confundia com especialização de herói) | proposto |
+| D11 | `workshops_seed.json` substitui o antigo `specializations_seed.json` (que confundia com especialização de herói) | fechado |
+| D12 | Autenticação e autoridade do servidor sobre escalação e loadout | fechado |
+| D13 | Crafting v2: catálogo normalizado com material no centro, prefixos e sufixos modulares | fechado |
+

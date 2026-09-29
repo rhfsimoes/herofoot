@@ -50,6 +50,8 @@ export interface Recipe {
   min_workshop_level?: number
   ingredients: { item_id?: string; label?: string; quantity: number }[]
   base_power?: number
+  energy_bonus?: number
+  energy_restore?: number
   market_value_base?: number
   charges?: number
   terrain_mitigation?: string | null
@@ -149,6 +151,95 @@ export interface ExpeditionSummary {
   exit_reason_rival: string
 }
 
+export interface AffixManual {
+  affix_id: string
+  name: string
+  kind: 'prefix' | 'suffix'
+  cost: number
+  slots: string[]
+}
+
+export interface CraftOptionAffix {
+  affix_id: string
+  name: string
+  kind: 'prefix' | 'suffix'
+  available: boolean
+  materials: {
+    material_id: string
+    name: string
+    quantity: number
+    current: number
+    available: boolean
+  }[]
+  missing_reasons: string[]
+  effects_description: string[]
+}
+
+export interface CraftOptions {
+  success: boolean
+  recipe: Recipe
+  ingredients: {
+    material_id: string
+    name: string
+    quantity_needed: number
+    quantity_current: number
+    has_enough: boolean
+  }[]
+  prefixes: CraftOptionAffix[]
+  suffixes: CraftOptionAffix[]
+  undiscovered_count: number
+}
+
+export interface CraftPreview {
+  success: boolean
+  can_craft: boolean
+  reasons: string[]
+  final_name: string
+  materials_summary: {
+    material_id: string
+    name: string
+    needed: number
+    current: number
+    has_enough: boolean
+  }[]
+  qualities: Record<string, InventoryItem>
+  workshop_chances: Record<string, number>
+  workshop_level: number
+  branch: string
+}
+
+export interface MaterialSheet {
+  success: boolean
+  material: {
+    id: string
+    name: string
+    category: string
+    unit_price: number
+    min_qty?: number
+    max_qty?: number
+  }
+  used_in_recipes: {
+    recipe_id: string
+    name: string
+    slot: string
+    branch: string
+  }[]
+  enables_affixes: {
+    affix_id: string
+    name: string
+    kind: string
+  }[]
+  sources: {
+    material_id: string
+    terrain: string
+    chance: number
+    quantity_min: number
+    quantity_max: number
+    min_room: number
+    boss_only: boolean
+  }[]
+}
+
 export interface GameState {
   day: number
   week: number
@@ -177,6 +268,7 @@ export interface GameState {
   market?: {
     materials_for_sale: MarketMaterial[]
     ready_items_for_sale: MarketReadyItem[]
+    affix_manuals?: AffixManual[]
     bulletin?: {
       target: string
       multiplier: number
@@ -184,6 +276,9 @@ export interface GameState {
     } | null
   }
   recipes?: Record<string, Recipe>
+  known_affixes?: string[]
+  known_recipes?: string[]
+  catalog_version?: number
 }
 
 export const MATERIAL_LABELS: Record<string, string> = {
@@ -192,6 +287,9 @@ export const MATERIAL_LABELS: Record<string, string> = {
   mat_mana_crystal: 'Cristal de Mana',
   mat_eucalyptus_herb: 'Erva de Eucalipto',
   mat_flour: 'Farinha de Trigo',
+  mat_ember_coal: 'Brasa de Carvão',
+  mat_granite_dust: 'Pó de Granito',
+  mat_wild_honey: 'Mel Silvestre',
 }
 
 export const MOCK_RECIPES: Recipe[] = [

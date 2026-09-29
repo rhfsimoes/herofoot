@@ -63,53 +63,67 @@ class TestCrafting(unittest.TestCase):
         O ramo é sempre recipe['branch'] (normalizado).
         O parâmetro branch do cliente é ignorado; receita de Alquimia com branch enviado como Ferragem usa Alquimia.
         """
-        # Configura filial de Ferragem em nível alto e Alquimia em nível 1
-        self.state.workshop_levels["Ferragem"] = 5
-        self.state.workshop_levels["Alquimia"] = 1
+        from catalog import get_catalog
+        cat = get_catalog()
+        orig_min = cat.recipes["rec_06"].get("min_workshop_level", 1)
+        cat.recipes["rec_06"]["min_workshop_level"] = 2
+        try:
+            # Configura filial de Ferragem em nível alto e Alquimia em nível 1
+            self.state.workshop_levels["Ferragem"] = 5
+            self.state.workshop_levels["Alquimia"] = 1
 
-        # rec_06 é da Alquimia e exige min_workshop_level = 2
-        # Abastece materiais para rec_06
-        self.state.materials["mat_eucalyptus_herb"] = 10
-        self.state.materials["mat_mana_crystal"] = 10
+            # rec_06 é da Alquimia e exige min_workshop_level = 2
+            # Abastece materiais para rec_06
+            self.state.materials["mat_eucalyptus_herb"] = 10
+            self.state.materials["mat_mana_crystal"] = 10
 
-        # Tenta craftar enviando branch "Ferragem"
-        res_fail = self.crafting_service.craft_item("rec_06", branch="Ferragem")
-        self.assertFalse(res_fail["success"])
-        self.assertIn("alquimia", res_fail["message"].lower())
-        self.assertIn("laudo pericial", res_fail["message"].lower())
+            # Tenta craftar enviando branch "Ferragem"
+            res_fail = self.crafting_service.craft_item("rec_06", branch="Ferragem")
+            self.assertFalse(res_fail["success"])
+            self.assertIn("alquimia", res_fail["message"].lower())
+            self.assertIn("laudo pericial", res_fail["message"].lower())
 
-        # Agora promove Alquimia para nível 2
-        self.state.workshop_levels["Alquimia"] = 2
-        res_success = self.crafting_service.craft_item("rec_06", branch="Ferragem")
-        self.assertTrue(res_success["success"])
-        self.assertEqual(res_success["item"]["branch"], "Alquimia")
+            # Agora promove Alquimia para nível 2
+            self.state.workshop_levels["Alquimia"] = 2
+            res_success = self.crafting_service.craft_item("rec_06", branch="Ferragem")
+            self.assertTrue(res_success["success"])
+            self.assertEqual(res_success["item"]["branch"], "Alquimia")
+        finally:
+            cat.recipes["rec_06"]["min_workshop_level"] = orig_min
 
     def test_insufficient_workshop_level_rejected_with_inspection_report(self):
         """
         Nível insuficiente de oficina é rejeitado com laudo de inspeção pericial
         e não consome insumos.
         """
-        self.state.workshop_levels["Alquimia"] = 1
-        self.state.materials["mat_eucalyptus_herb"] = 5
-        self.state.materials["mat_mana_crystal"] = 5
+        from catalog import get_catalog
+        cat = get_catalog()
+        orig_min = cat.recipes["rec_06"].get("min_workshop_level", 1)
+        cat.recipes["rec_06"]["min_workshop_level"] = 2
+        try:
+            self.state.workshop_levels["Alquimia"] = 1
+            self.state.materials["mat_eucalyptus_herb"] = 5
+            self.state.materials["mat_mana_crystal"] = 5
 
-        herb_before = self.state.materials["mat_eucalyptus_herb"]
-        crystal_before = self.state.materials["mat_mana_crystal"]
-        inv_len_before = len(self.state.inventory)
+            herb_before = self.state.materials["mat_eucalyptus_herb"]
+            crystal_before = self.state.materials["mat_mana_crystal"]
+            inv_len_before = len(self.state.inventory)
 
-        result = self.crafting_service.craft_item("rec_06")  # exige nível 2
+            result = self.crafting_service.craft_item("rec_06")  # exige nível 2
 
-        self.assertFalse(result["success"])
-        msg = result["message"].lower()
-        self.assertIn("laudo pericial", msg)
-        self.assertIn("alquimia", msg)
-        self.assertIn("nível 1", msg)
-        self.assertIn("nível 2", msg)
+            self.assertFalse(result["success"])
+            msg = result["message"].lower()
+            self.assertIn("laudo pericial", msg)
+            self.assertIn("alquimia", msg)
+            self.assertIn("nível 1", msg)
+            self.assertIn("nível 2", msg)
 
-        # Insumos não devem ser debitados
-        self.assertEqual(self.state.materials["mat_eucalyptus_herb"], herb_before)
-        self.assertEqual(self.state.materials["mat_mana_crystal"], crystal_before)
-        self.assertEqual(len(self.state.inventory), inv_len_before)
+            # Insumos não devem ser debitados
+            self.assertEqual(self.state.materials["mat_eucalyptus_herb"], herb_before)
+            self.assertEqual(self.state.materials["mat_mana_crystal"], crystal_before)
+            self.assertEqual(len(self.state.inventory), inv_len_before)
+        finally:
+            cat.recipes["rec_06"]["min_workshop_level"] = orig_min
 
     def test_upgrade_workshop_debits_gold_and_stops_at_level_6(self):
         """

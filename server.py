@@ -7,7 +7,7 @@ import sys
 import os
 import json
 from http.server import HTTPServer, SimpleHTTPRequestHandler
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from controller import GameController
@@ -64,6 +64,14 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
                 "success": True,
                 "saves": save_system.list_saves()
             })
+        elif path == '/api/craft_options':
+            query_params = parse_qs(parsed.query)
+            recipe_id = query_params.get('recipe_id', [''])[0]
+            self._send_json(controller.get_craft_options(recipe_id))
+        elif path == '/api/material':
+            query_params = parse_qs(parsed.query)
+            material_id = query_params.get('id', [''])[0]
+            self._send_json(controller.get_material_sheet(material_id))
         elif path.startswith('/api/'):
             self._send_json({"error": "Endpoint não encontrado"}, status=404)
         else:
@@ -100,8 +108,42 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
         elif path == '/api/craft':
             body = self._read_json_body()
             recipe_id = body.get('recipe_id')
-            branch = body.get('branch', 'blacksmithing')
-            result = controller.ui_request_craft(recipe_id, branch)
+            branch = body.get('branch', 'Ferragem')
+            prefix_id = body.get('prefix_id')
+            suffix_id = body.get('suffix_id')
+            prefix_material_id = body.get('prefix_material_id')
+            suffix_material_id = body.get('suffix_material_id')
+            result = controller.ui_request_craft(
+                recipe_id,
+                branch=branch,
+                prefix_id=prefix_id,
+                suffix_id=suffix_id,
+                prefix_material_id=prefix_material_id,
+                suffix_material_id=suffix_material_id,
+            )
+            self._send_json({
+                "result": result,
+                "state": controller.get_state()
+            })
+        elif path == '/api/craft_preview':
+            body = self._read_json_body()
+            recipe_id = body.get('recipe_id')
+            prefix_id = body.get('prefix_id')
+            suffix_id = body.get('suffix_id')
+            prefix_material_id = body.get('prefix_material_id')
+            suffix_material_id = body.get('suffix_material_id')
+            result = controller.get_craft_preview(
+                recipe_id,
+                prefix_id=prefix_id,
+                suffix_id=suffix_id,
+                prefix_material_id=prefix_material_id,
+                suffix_material_id=suffix_material_id,
+            )
+            self._send_json(result)
+        elif path == '/api/learn_affix':
+            body = self._read_json_body()
+            affix_id = body.get('affix_id')
+            result = controller.learn_affix(affix_id)
             self._send_json({
                 "result": result,
                 "state": controller.get_state()
