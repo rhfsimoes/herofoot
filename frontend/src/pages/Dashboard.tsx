@@ -64,6 +64,30 @@ export default function Dashboard({ state, onAdvancePhase }: DashboardProps) {
           </div>
         )}
 
+        {/* Notificação de Incidente Corporativo Ativo */}
+        {state.active_event && (
+          <div className="mt-4 p-4 bg-gradient-to-r from-amber-950/80 via-stone-900 to-amber-950/80 border border-amber-600/70 rounded-xl flex items-center justify-between gap-4 shadow-lg">
+            <div className="flex items-center gap-3">
+              <CrownSeal size={36} withRibbon={false} withGlow={true} />
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-amber-500 font-bold block">
+                  Incidente Corporativo Pendente de Homologação
+                </span>
+                <span className="text-amber-200 font-bold text-sm">
+                  {state.active_event.title}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate('/phase1')}
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold text-xs uppercase tracking-wider rounded-lg transition font-mono flex items-center gap-1.5 shadow"
+            >
+              <span>Abrir Autos</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
         <div className="mt-5 flex gap-3 flex-wrap">
           <button
             onClick={() => navigate(PHASE_PATHS[state.current_phase] ?? '/')}

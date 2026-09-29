@@ -47,7 +47,11 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             payload["success"] = result.get("success", True)
             if "message" in result:
                 payload["message"] = result["message"]
-            for k in ("gold", "facilities", "hero", "new_level", "saves", "slot", "item", "quality", "tinkering", "tinkering_success", "recipe_unlocked", "xp_gained", "current_xp", "level", "cost", "xp_consumed"):
+            for k in (
+                "gold", "facilities", "hero", "new_level", "saves", "slot", "item", "quality",
+                "tinkering", "tinkering_success", "recipe_unlocked", "xp_gained", "current_xp",
+                "level", "cost", "xp_consumed", "consequence", "effects_applied", "active_event"
+            ):
                 if k in result:
                     payload[k] = result[k]
         else:
@@ -98,6 +102,8 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             self._send_json(controller.get_transfer_market())
         elif path == '/api/crown_goals':
             self._send_json(controller.get_crown_goals())
+        elif path == '/api/events/active':
+            self._send_json({"active_event": controller.get_active_event()})
         elif path.startswith('/api/'):
             self._send_json({"error": "Endpoint não encontrado"}, status=404)
         else:
@@ -292,6 +298,13 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
                     "success": False,
                     "error": f"Falha ao instaurar novo ciclo corporativo: {str(err)}"
                 }, status=400)
+        elif path == '/api/events/resolve':
+            body = self._read_json_body()
+            event_id = body.get('event_id')
+            option_id = body.get('option_id')
+            result = controller.resolve_event_choice(event_id, option_id)
+            status = 200 if result.get("success", True) else 400
+            self._send_action_result(result, status=status)
         else:
             self._send_json({"error": "Endpoint POST desconhecido"}, status=404)
 

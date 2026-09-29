@@ -474,6 +474,31 @@ export const WORKSHOP_LEVEL_BENEFITS: Record<number, { title: string; summary: s
   },
 }
 
+export interface CorporateEventEffect {
+  gold?: number
+  fatigue_all?: number
+  supplies_bonus?: number
+  morale?: number
+  power_pct_modifier?: number
+}
+
+export interface CorporateEventOption {
+  id: string
+  label: string
+  description: string
+  consequence_narrative: string
+  effects: CorporateEventEffect
+}
+
+export interface CorporateEvent {
+  id: string
+  title: string
+  description: string
+  category: string
+  trigger_phase: string
+  options: CorporateEventOption[]
+}
+
 export interface GameState {
   day: number
   week: number
@@ -481,6 +506,9 @@ export interface GameState {
   contractor_confidence?: number
   current_phase: number
   active_slot?: string | null
+  active_event?: CorporateEvent | null
+  resolved_events_history?: string[]
+  supplies_bonus?: number
   workshop_levels: Record<string, number>
   workshop_xp?: Record<string, number>
   xp_progression?: Record<string | number, WorkshopXPProgression>

@@ -23,6 +23,7 @@ from services.crafting_service import CraftingService
 from services.sales_service import SalesService
 from services.market_service import MarketService
 from services.hero_service import HeroService, calculate_hero_power
+from services.event_service import EventService
 
 _CLASSES_CACHE = None
 
@@ -52,8 +53,9 @@ class GameController:
         # Serviços delegados
         self.tactics_service = TacticsService(self.state)
         self.hero_service = HeroService(self.state)
+        self.event_service = EventService(self.state)
         self.phase_service = PhaseService(
-            self.state, self.dungeons, self.league_engine, self.market_engine, match_engine, self.hero_service
+            self.state, self.dungeons, self.league_engine, self.market_engine, match_engine, self.hero_service, self.event_service
         )
         self.crafting_service = CraftingService(self.state, self.crafting_engine)
         self.sales_service = SalesService(self.state, self.counter_sales, self.market_engine)
@@ -63,8 +65,10 @@ class GameController:
         """Reatualiza as referências do estado e motores nos serviços após operações in-place."""
         self.tactics_service.state = self.state
         self.hero_service.state = self.state
+        self.event_service.state = self.state
         self.phase_service.state = self.state
         self.phase_service.hero_service = self.hero_service
+        self.phase_service.event_service = self.event_service
         self.phase_service.league_engine = self.league_engine
         self.phase_service.market_engine = self.market_engine
         self.crafting_service.state = self.state
@@ -186,6 +190,10 @@ class GameController:
                 "max_team_size": 12,
             },
             "crown_goals": self.get_crown_goals(),
+            "contractor_confidence": getattr(self.state, "contractor_confidence", 75),
+            "active_event": self.event_service.get_active_event(),
+            "resolved_events_history": getattr(self.state, "resolved_events_history", []),
+            "supplies_bonus": getattr(self.state, "supplies_bonus", 0),
             "active_slot": self.active_slot,
         }
 
@@ -232,8 +240,8 @@ class GameController:
         }
 
     # Operações de delegação
-    def advance_phase(self) -> dict:
-        return self.phase_service.advance_phase()
+    def advance_phase(self, rng=None) -> dict:
+        return self.phase_service.advance_phase(rng=rng)
 
     def save_tactics(self, starters: list, loadout: dict, reserves: list = None) -> dict:
         return self.tactics_service.save_tactics(starters, loadout, reserves=reserves)
@@ -366,4 +374,14 @@ class GameController:
     def get_crown_goals(self) -> dict:
         from services.crown_service import get_crown_goals_data
         return get_crown_goals_data(self.state, self.league_engine)
+
+    # Incidentes Corporativos Interativos (v0.5.0)
+    def get_active_event(self):
+        return self.event_service.get_active_event()
+
+    def roll_weekly_event(self, phase: str = "phase_1", rng=None):
+        return self.event_service.roll_weekly_event(phase=phase, rng=rng)
+
+    def resolve_event_choice(self, event_id: str, option_id: str) -> dict:
+        return self.event_service.resolve_event_choice(event_id, option_id)
 

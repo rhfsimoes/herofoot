@@ -11,7 +11,7 @@ from constants import normalize_slot
 
 
 class PhaseService:
-    def __init__(self, state, dungeons, league_engine, market_engine, match_engine=None, hero_service=None):
+    def __init__(self, state, dungeons, league_engine, market_engine, match_engine=None, hero_service=None, event_service=None):
         self.state = state
         self.dungeons = dungeons
         self.league_engine = league_engine
@@ -22,6 +22,11 @@ class PhaseService:
         else:
             from services.hero_service import HeroService
             self.hero_service = HeroService(self.state)
+        if event_service:
+            self.event_service = event_service
+        else:
+            from services.event_service import EventService
+            self.event_service = EventService(self.state)
 
     def get_current_dungeon(self) -> dict:
         if not self.dungeons:
@@ -49,7 +54,7 @@ class PhaseService:
         climate_rng = random.Random(climate_seed)
         return climate_rng.choice(climates)
 
-    def advance_phase(self) -> dict:
+    def advance_phase(self, rng=None) -> dict:
         phase = self.state.current_phase
         result = {}
 
@@ -77,6 +82,16 @@ class PhaseService:
             if hasattr(self, "hero_service"):
                 self.hero_service.refresh_transfer_market()
                 self.hero_service.replenish_academy()
+
+            # Transição semanal para Fase 1: Sorteio de incidente corporativo com 50% de chance
+            if hasattr(self, "event_service") and self.event_service:
+                balance = get_balance()
+                event_chance = balance.get("events", {}).get("weekly_trigger_chance", 0.5)
+                event_rng = rng if rng is not None else random.Random()
+                if event_rng.random() < event_chance:
+                    evt = self.event_service.roll_weekly_event("phase_1", rng=event_rng)
+                    if evt:
+                        result["active_event"] = evt
 
         result["current_phase"] = self.state.current_phase
         result["day"] = self.state.day
@@ -213,6 +228,12 @@ class PhaseService:
         consumable_energy_bonus = 0
         if consumable_item and isinstance(consumable_item, dict):
             consumable_energy_bonus = consumable_item.get("energy_bonus", consumable_item.get("energy_restore", 0))
+
+        # Bônus corporativo temporário de suprimentos
+        supplies_bonus = getattr(self.state, "supplies_bonus", 0)
+        if supplies_bonus:
+            consumable_energy_bonus += supplies_bonus
+            self.state.supplies_bonus = 0
 
         # 3. Parâmetros da equipe Rival
         rival_guild_info = next((g for g in self.league_engine.guilds if g["name"] == rival_name), None)

@@ -416,6 +416,7 @@ function AppContent() {
                 medicalFacilities={gameState.medical_facilities}
                 pendingRenewals={gameState.pending_contract_renewals}
                 youthAcademy={gameState.youth_academy}
+                activeEvent={gameState.active_event}
                 onAdvance={advancePhase}
                 onStateUpdate={handleStateChange as any}
               />

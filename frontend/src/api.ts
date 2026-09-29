@@ -11,7 +11,8 @@ import type {
   CraftPreview,
   MaterialSheet,
   MedicalFacilityInfo,
-  Hero
+  Hero,
+  CorporateEvent
 } from './mockData'
 
 const API_BASE = 'http://localhost:8000/api'
@@ -32,6 +33,9 @@ export interface ApiResponse<T = any> {
   is_tinkering?: boolean
   tinkering_success?: boolean
   recipe_unlocked?: boolean
+  consequence?: string
+  effects_applied?: Record<string, any>
+  active_event?: CorporateEvent | null
 }
 
 export async function checkBackendLive(): Promise<boolean> {
@@ -535,6 +539,36 @@ export async function fetchCrownGoalsBackend(): Promise<any | null> {
   return null
 }
 
+export async function fetchActiveEventBackend(): Promise<{ active_event: CorporateEvent | null } | null> {
+  try {
+    const res = await fetch(`${API_BASE}/events/active`, { signal: AbortSignal.timeout(2000) })
+    if (res.ok) {
+      return (await res.json()) as { active_event: CorporateEvent | null }
+    }
+  } catch (err) {
+    console.warn('[HeroFoot API] Falha ao consultar incidente ativo:', err)
+  }
+  return null
+}
 
-
-
+export async function resolveEventChoiceBackend(
+  eventId: string,
+  optionId: string
+): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/events/resolve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_id: eventId, option_id: optionId }),
+      signal: AbortSignal.timeout(3000),
+    })
+    if (res.ok) {
+      return (await res.json()) as ApiResponse
+    }
+    const errData = await res.json().catch(() => ({}))
+    return { success: false, message: errData.message || 'Falha ao homologar diretriz do incidente corporativo.' }
+  } catch (err) {
+    console.warn('[HeroFoot API] Falha ao resolver incidente corporativo:', err)
+  }
+  return null
+}

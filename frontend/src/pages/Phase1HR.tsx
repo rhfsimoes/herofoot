@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Zap,
   Swords,
@@ -18,10 +18,11 @@ import {
   Star,
   Award
 } from 'lucide-react'
-import type { Hero, MedicalFacilityInfo, PendingContractRenewal, GameState } from '../mockData'
+import type { Hero, MedicalFacilityInfo, PendingContractRenewal, GameState, CorporateEvent } from '../mockData'
 import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
 import OnboardingBanner from '../components/OnboardingBanner'
 import Tooltip from '../components/Tooltip'
+import CorporateEventModal from '../components/CorporateEventModal'
 import {
   upgradeMedicalFacilityBackend,
   treatHeroMassageBackend,
@@ -30,7 +31,9 @@ import {
   renewContractBackend,
   releaseContractBackend,
   promoteYouthBackend,
-  dismissYouthBackend
+  dismissYouthBackend,
+  fetchActiveEventBackend,
+  resolveEventChoiceBackend
 } from '../api'
 
 interface Phase1HRProps {
@@ -39,6 +42,7 @@ interface Phase1HRProps {
   medicalFacilities?: MedicalFacilityInfo
   pendingRenewals?: PendingContractRenewal[]
   youthAcademy?: Hero[]
+  activeEvent?: CorporateEvent | null
   onAdvance: () => void
   onStateUpdate?: (newState: Partial<GameState>) => void
 }
@@ -49,6 +53,7 @@ export default function Phase1HR({
   medicalFacilities: initialFacilities,
   pendingRenewals: initialRenewals = [],
   youthAcademy: initialYouthAcademy = [],
+  activeEvent: initialActiveEvent,
   onAdvance,
   onStateUpdate
 }: Phase1HRProps) {
@@ -57,8 +62,43 @@ export default function Phase1HR({
   const [facilities, setFacilities] = useState<MedicalFacilityInfo | undefined>(initialFacilities)
   const [renewals, setRenewals] = useState<PendingContractRenewal[]>(initialRenewals)
   const [youthAcademy, setYouthAcademy] = useState<Hero[]>(initialYouthAcademy)
+  const [activeEvent, setActiveEvent] = useState<CorporateEvent | null>(initialActiveEvent || null)
   const [actionLog, setActionLog] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (initialActiveEvent !== undefined) {
+      setActiveEvent(initialActiveEvent)
+    } else {
+      fetchActiveEventBackend().then(res => {
+        if (res && res.active_event) {
+          setActiveEvent(res.active_event)
+        }
+      })
+    }
+  }, [initialActiveEvent])
+
+  async function handleResolveEvent(eventId: string, optionId: string) {
+    const res = await resolveEventChoiceBackend(eventId, optionId)
+    if (res && res.success) {
+      if (res.state) {
+        setTeam(res.state.team)
+        setCurrentGold(res.state.gold)
+        onStateUpdate?.(res.state)
+      } else {
+        onStateUpdate?.({ active_event: null })
+      }
+      return {
+        success: true,
+        consequence: res.consequence,
+        effects_applied: res.effects_applied,
+      }
+    }
+    return {
+      success: false,
+      message: res?.message || 'Falha ao processar diretriz do incidente corporativo.',
+    }
+  }
 
   // Modernização do Departamento Médico
   async function handleUpgradeFacility() {
@@ -862,6 +902,18 @@ export default function Phase1HR({
         </div>
       </div>
       </div>
+
+      {/* Modal de Incidente Corporativo Interativo */}
+      {activeEvent && (
+        <CorporateEventModal
+          event={activeEvent}
+          onResolve={handleResolveEvent}
+          onClose={() => {
+            setActiveEvent(null)
+            onStateUpdate?.({ active_event: null })
+          }}
+        />
+      )}
     </div>
   )
 }
