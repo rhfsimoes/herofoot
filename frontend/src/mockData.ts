@@ -151,6 +151,17 @@ export interface MarketReadyItem {
   max_charges?: number
 }
 
+export interface DungeonClimateInfo {
+  id: string
+  climate: string
+  name: string
+  description: string
+  power_penalty_pct: number
+  energy_cost_extra: number
+  mitigation_required: string | null
+  mitigation_label: string
+}
+
 export interface DungeonInfo {
   id: string
   name: string
@@ -163,6 +174,7 @@ export interface DungeonInfo {
   mitigation_required: string | null
   mitigation_label: string
   recommended_power: number
+  climate?: DungeonClimateInfo
 }
 
 export interface SaveSlotInfo {
@@ -200,6 +212,7 @@ export interface ExpeditionSummary {
   rooms_explored_rival: number
   exit_reason_player: string
   exit_reason_rival: string
+  climate?: DungeonClimateInfo
 }
 
 export interface AffixManual {
@@ -488,7 +501,187 @@ export const MOCK_RECIPES: Recipe[] = [
     ingredients: [{ item_id: 'mat_flour', label: 'Farinha de Trigo', quantity: 3 }],
     base_power: 5, market_value_base: 140,
   },
+];
+
+export const CLIMATES_CATALOG: DungeonClimateInfo[] = [
+  {
+    id: 'climate_clear_sky',
+    climate: 'clear_sky',
+    name: 'Céu Limpo',
+    description: 'Visibilidade plena e condições atmosféricas estáveis. Sem interferências climáticas nas operações da expedição.',
+    power_penalty_pct: 0.0,
+    energy_cost_extra: 0,
+    mitigation_required: null,
+    mitigation_label: 'Nenhuma mitigação necessária',
+  },
+  {
+    id: 'climate_lightning_storm',
+    climate: 'lightning_storm',
+    name: 'Tempestade Elétrica',
+    description: 'Descargas atmosféricas violentas que interferem na cadência da expedição e sobrecarregam condutores metálicos.',
+    power_penalty_pct: 0.06,
+    energy_cost_extra: 3,
+    mitigation_required: 'lightning_storm',
+    mitigation_label: 'Condutor Aterrado ou Barreira Voltaica',
+  },
+  {
+    id: 'climate_thick_fog',
+    climate: 'thick_fog',
+    name: 'Névoa Espessa',
+    description: 'Bruma densa que retarda a progressão nas galerias e desorienta os exploradores, elevando o tempo de trânsito.',
+    power_penalty_pct: 0.05,
+    energy_cost_extra: 4,
+    mitigation_required: 'thick_fog',
+    mitigation_label: 'Lanterna Ocular ou Sinalizador Rúnico',
+  },
+  {
+    id: 'climate_acid_rain',
+    climate: 'acid_rain',
+    name: 'Chuva Ácida',
+    description: 'Precipitação corrosiva que degrada mantimentos e deteriora armaduras em trânsito, elevando o desgaste físico.',
+    power_penalty_pct: 0.08,
+    energy_cost_extra: 3,
+    mitigation_required: 'acid_rain',
+    mitigation_label: 'Verniz Neutralizador ou Manto Impermeável',
+  },
+  {
+    id: 'climate_scorching_heat',
+    climate: 'scorching_heat',
+    name: 'Calor Tórrido',
+    description: 'Altas temperaturas com sensação térmica extrema, acelerando a desidratação e o consumo de rações operacionais.',
+    power_penalty_pct: 0.06,
+    energy_cost_extra: 4,
+    mitigation_required: 'scorching_heat',
+    mitigation_label: 'Cantil Termorregulado ou Pedra de Gelo',
+  },
+  {
+    id: 'climate_polar_wind',
+    climate: 'polar_wind',
+    name: 'Vento Polar',
+    description: 'Correntes gélidas que entorpecem as articulações dos colaboradores e congelam provisões operacionais.',
+    power_penalty_pct: 0.07,
+    energy_cost_extra: 4,
+    mitigation_required: 'polar_wind',
+    mitigation_label: 'Sobretudo Isotérmico ou Brasero Portátil',
+  },
 ]
+
+export const DUNGEONS_CATALOG: DungeonInfo[] = [
+  {
+    id: 'dungeon_01',
+    name: 'Vale dos Ecos Verdejantes',
+    terrain: 'neutral',
+    terrain_label: 'Campo Aberto Verdejante',
+    description: 'Terreno padrão da Liga, sem penalidades ambientais. Trilha seca em campo aberto verdejante.',
+    power_penalty_pct: 0.0,
+    power_penalty: 0,
+    energy_cost_extra: 0,
+    mitigation_required: null,
+    mitigation_label: 'Nenhuma mitigação necessária',
+    recommended_power: 55,
+  },
+  {
+    id: 'dungeon_02',
+    name: 'Pântano Pútrido do Vale Baixo',
+    terrain: 'toxic_swamp',
+    terrain_label: 'Terreno Alagado & Emanações Venenosas',
+    description: 'Lama densa e miasma tóxico. Drena suprimentos e reduz a capacidade de combate sem proteção respiratória.',
+    power_penalty_pct: 0.12,
+    power_penalty: 10,
+    energy_cost_extra: 5,
+    mitigation_required: 'toxic_swamp',
+    mitigation_label: 'EPI Anti-Tóxico ou Runa do Pântano',
+    recommended_power: 72,
+  },
+  {
+    id: 'dungeon_03',
+    name: 'Cripta do Pico Glacial',
+    terrain: 'glacier_frost',
+    terrain_label: 'Frio Extremo & Solo Escorregadio',
+    description: 'Gelo cristalizado e ventos cortantes. Causa dormência muscular e congelamento rápido de rações.',
+    power_penalty_pct: 0.12,
+    power_penalty: 10,
+    energy_cost_extra: 5,
+    mitigation_required: 'glacier_frost',
+    mitigation_label: 'Cota Térmica ou Inscrição do Fogo',
+    recommended_power: 77,
+  },
+  {
+    id: 'dungeon_04',
+    name: 'Mina Profunda dos Desabamentos',
+    terrain: 'unstable_mine',
+    terrain_label: 'Solo Sísmico & Risco de Queda de Rochas',
+    description: 'Estrutura geológica frágil. Exige equipamentos reforçados contra impacto de estalactites.',
+    power_penalty_pct: 0.12,
+    power_penalty: 12,
+    energy_cost_extra: 5,
+    mitigation_required: 'unstable_mine',
+    mitigation_label: 'Armadura Reforçada ou Amuleto Sísmico',
+    recommended_power: 83,
+  },
+  {
+    id: 'dungeon_05',
+    name: 'Caldeira Vulcânica de Ignis',
+    terrain: 'volcanic_heat',
+    terrain_label: 'Calor Magmático & Fissuras Térmicas',
+    description: 'Gases incandescentes e solo instável com rios de lava corporativamente delimitados.',
+    power_penalty_pct: 0.14,
+    power_penalty: 14,
+    energy_cost_extra: 6,
+    mitigation_required: 'volcanic_heat',
+    mitigation_label: 'Manto Ígneo ou Runa de Resfriamento',
+    recommended_power: 85,
+  },
+  {
+    id: 'dungeon_06',
+    name: 'Ruínas Submersas de Nereus',
+    terrain: 'submerged_ruins',
+    terrain_label: 'Galerias Inundadas & Pressão Aquática',
+    description: 'Câmaras ancestrais submersas onde a movimentação e a conservação de rações são severamente comprometidas.',
+    power_penalty_pct: 0.12,
+    power_penalty: 11,
+    energy_cost_extra: 6,
+    mitigation_required: 'submerged_ruins',
+    mitigation_label: 'Gel Respiratório ou Botas de Lastro',
+    recommended_power: 80,
+  },
+  {
+    id: 'dungeon_07',
+    name: 'Bosque Rúnico das Névoas',
+    terrain: 'arcane_fog',
+    terrain_label: 'Distorção Mística & Eflúvios Arcanos',
+    description: 'Mata fechada saturada por resíduos de feitiçaria corporativa desregulada, gerando ilusões e perda de orientação.',
+    power_penalty_pct: 0.10,
+    power_penalty: 9,
+    energy_cost_extra: 5,
+    mitigation_required: 'arcane_fog',
+    mitigation_label: 'Bússola Espectral ou Lente Reveladora',
+    recommended_power: 75,
+  },
+  {
+    id: 'dungeon_08',
+    name: 'Pico das Tormentas Elétricas',
+    terrain: 'lightning_peaks',
+    terrain_label: 'Cordilheira Tempestuosa & Descargas Atmosféricas',
+    description: 'Cumes rochosos expostos a arcos voltaicos constantes que sobrecarregam condutores metálicos da party.',
+    power_penalty_pct: 0.15,
+    power_penalty: 15,
+    energy_cost_extra: 7,
+    mitigation_required: 'lightning_peaks',
+    mitigation_label: 'Aterramento Isolante ou Amuleto do Pára-Raio',
+    recommended_power: 88,
+  },
+]
+
+export function getDungeonForDay(dayOrWeek: number): DungeonInfo {
+  const idx = Math.max(0, dayOrWeek - 1) % DUNGEONS_CATALOG.length
+  return DUNGEONS_CATALOG[idx]
+}
+
+export function getClimateForDay(dayOrWeek: number): DungeonClimateInfo {
+  const idx = Math.max(0, dayOrWeek - 1) % CLIMATES_CATALOG.length
+  return CLIMATES_CATALOG[idx]
+}
 
 export const MOCK_STATE: GameState = {
   day: 1,
@@ -496,6 +689,10 @@ export const MOCK_STATE: GameState = {
   season: 1,
   gold: 1000,
   current_phase: 1,
+  current_dungeon: {
+    ...DUNGEONS_CATALOG[0],
+    climate: CLIMATES_CATALOG[1], // Tempestade Elétrica
+  },
   current_division: {
     id: 'div_acesso',
     name: 'Divisão de Acesso Mercante',

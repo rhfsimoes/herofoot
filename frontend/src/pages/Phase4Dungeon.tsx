@@ -1,6 +1,33 @@
-import { useState, useEffect } from 'react'
-import { Swords, ArrowRight, Newspaper, Compass } from 'lucide-react'
-import type { MatchResult, DungeonRoomEvent } from '../mockData'
+import { useState, useEffect, useMemo } from 'react'
+import {
+  Swords,
+  ArrowRight,
+  Newspaper,
+  Compass,
+  Mountain,
+  CloudRain,
+  CloudLightning,
+  Sun,
+  Wind,
+  CloudFog,
+  Flame,
+  Droplets,
+  Layers,
+  Skull,
+  ShieldCheck,
+  ShieldAlert,
+  Scroll,
+} from 'lucide-react'
+import {
+  getDungeonForDay,
+  getClimateForDay,
+  type MatchResult,
+  type DungeonRoomEvent,
+  type GameState,
+  type DungeonInfo,
+  type DungeonClimateInfo,
+  type InventoryItem,
+} from '../mockData'
 
 interface Phase4DungeonProps {
   onAdvance: () => void
@@ -8,6 +35,145 @@ interface Phase4DungeonProps {
   day?: number
   rivalGuildName?: string
   lastRoundResults?: MatchResult[]
+  state?: GameState
+  dungeon?: DungeonInfo
+  climate?: DungeonClimateInfo
+}
+
+function getBiomeVisual(terrain: string) {
+  switch (terrain) {
+    case 'toxic_swamp':
+      return {
+        icon: Skull,
+        badgeBg: 'bg-lime-950/70 border-lime-700/60 text-lime-300',
+        cardBg: 'bg-gradient-to-br from-lime-950/25 via-stone-900 to-[#1c1917]',
+        border: 'border-lime-800/50',
+        textAccent: 'text-lime-400',
+        iconBg: 'bg-lime-950/80 border-lime-600/50 text-lime-400',
+      }
+    case 'glacier_frost':
+      return {
+        icon: Mountain,
+        badgeBg: 'bg-sky-950/70 border-sky-700/60 text-sky-300',
+        cardBg: 'bg-gradient-to-br from-sky-950/25 via-stone-900 to-[#1c1917]',
+        border: 'border-sky-800/50',
+        textAccent: 'text-sky-400',
+        iconBg: 'bg-sky-950/80 border-sky-600/50 text-sky-400',
+      }
+    case 'unstable_mine':
+      return {
+        icon: Layers,
+        badgeBg: 'bg-amber-950/70 border-amber-700/60 text-amber-300',
+        cardBg: 'bg-gradient-to-br from-amber-950/25 via-stone-900 to-[#1c1917]',
+        border: 'border-amber-800/50',
+        textAccent: 'text-amber-400',
+        iconBg: 'bg-amber-950/80 border-amber-600/50 text-amber-400',
+      }
+    case 'volcanic_heat':
+      return {
+        icon: Flame,
+        badgeBg: 'bg-rose-950/70 border-rose-700/60 text-rose-300',
+        cardBg: 'bg-gradient-to-br from-rose-950/25 via-stone-900 to-[#1c1917]',
+        border: 'border-rose-800/50',
+        textAccent: 'text-rose-400',
+        iconBg: 'bg-rose-950/80 border-rose-600/50 text-rose-400',
+      }
+    case 'submerged_ruins':
+      return {
+        icon: Droplets,
+        badgeBg: 'bg-cyan-950/70 border-cyan-700/60 text-cyan-300',
+        cardBg: 'bg-gradient-to-br from-cyan-950/25 via-stone-900 to-[#1c1917]',
+        border: 'border-cyan-800/50',
+        textAccent: 'text-cyan-400',
+        iconBg: 'bg-cyan-950/80 border-cyan-600/50 text-cyan-400',
+      }
+    case 'arcane_fog':
+      return {
+        icon: CloudFog,
+        badgeBg: 'bg-purple-950/70 border-purple-700/60 text-purple-300',
+        cardBg: 'bg-gradient-to-br from-purple-950/25 via-stone-900 to-[#1c1917]',
+        border: 'border-purple-800/50',
+        textAccent: 'text-purple-400',
+        iconBg: 'bg-purple-950/80 border-purple-600/50 text-purple-400',
+      }
+    case 'lightning_peaks':
+      return {
+        icon: CloudLightning,
+        badgeBg: 'bg-yellow-950/70 border-yellow-700/60 text-yellow-300',
+        cardBg: 'bg-gradient-to-br from-yellow-950/25 via-stone-900 to-[#1c1917]',
+        border: 'border-yellow-800/50',
+        textAccent: 'text-yellow-400',
+        iconBg: 'bg-yellow-950/80 border-yellow-600/50 text-yellow-400',
+      }
+    default:
+      return {
+        icon: Compass,
+        badgeBg: 'bg-emerald-950/70 border-emerald-700/60 text-emerald-300',
+        cardBg: 'bg-gradient-to-br from-emerald-950/25 via-stone-900 to-[#1c1917]',
+        border: 'border-emerald-800/50',
+        textAccent: 'text-emerald-400',
+        iconBg: 'bg-emerald-950/80 border-emerald-600/50 text-emerald-400',
+      }
+  }
+}
+
+function getClimateVisual(climate: string) {
+  switch (climate) {
+    case 'lightning_storm':
+      return {
+        icon: CloudLightning,
+        badgeBg: 'bg-yellow-950/70 border-yellow-600/60 text-yellow-300',
+        cardBg: 'bg-gradient-to-br from-yellow-950/25 via-stone-900 to-[#1c1917]',
+        border: 'border-yellow-800/50',
+        textAccent: 'text-yellow-400',
+        iconBg: 'bg-yellow-950/80 border-yellow-600/50 text-yellow-400',
+      }
+    case 'thick_fog':
+      return {
+        icon: CloudFog,
+        badgeBg: 'bg-slate-900 border-slate-600/60 text-slate-300',
+        cardBg: 'bg-gradient-to-br from-slate-900/40 via-stone-900 to-[#1c1917]',
+        border: 'border-slate-700/50',
+        textAccent: 'text-slate-300',
+        iconBg: 'bg-slate-900 border-slate-600/50 text-slate-300',
+      }
+    case 'acid_rain':
+      return {
+        icon: CloudRain,
+        badgeBg: 'bg-emerald-950/70 border-emerald-600/60 text-emerald-300',
+        cardBg: 'bg-gradient-to-br from-emerald-950/25 via-stone-900 to-[#1c1917]',
+        border: 'border-emerald-800/50',
+        textAccent: 'text-emerald-400',
+        iconBg: 'bg-emerald-950/80 border-emerald-600/50 text-emerald-400',
+      }
+    case 'scorching_heat':
+      return {
+        icon: Flame,
+        badgeBg: 'bg-orange-950/70 border-orange-600/60 text-orange-300',
+        cardBg: 'bg-gradient-to-br from-orange-950/25 via-stone-900 to-[#1c1917]',
+        border: 'border-orange-800/50',
+        textAccent: 'text-orange-400',
+        iconBg: 'bg-orange-950/80 border-orange-600/50 text-orange-400',
+      }
+    case 'polar_wind':
+      return {
+        icon: Wind,
+        badgeBg: 'bg-cyan-950/70 border-cyan-600/60 text-cyan-300',
+        cardBg: 'bg-gradient-to-br from-cyan-950/25 via-stone-900 to-[#1c1917]',
+        border: 'border-cyan-800/50',
+        textAccent: 'text-cyan-400',
+        iconBg: 'bg-cyan-950/80 border-cyan-600/50 text-cyan-400',
+      }
+    default:
+      return {
+        icon: Sun,
+        badgeBg: 'bg-amber-950/70 border-amber-600/60 text-amber-300',
+        cardBg: 'bg-gradient-to-br from-amber-950/20 via-stone-900 to-[#1c1917]',
+        border: 'border-amber-800/50',
+        textAccent: 'text-amber-300',
+        iconBg: 'bg-amber-950/80 border-amber-600/50 text-amber-300',
+      }
+  }
 }
 
 export default function Phase4Dungeon({
@@ -16,6 +182,9 @@ export default function Phase4Dungeon({
   day = 1,
   rivalGuildName = 'Ordem do Grifo Dourado',
   lastRoundResults,
+  state,
+  dungeon,
+  climate,
 }: Phase4DungeonProps) {
   const [running, setRunning] = useState(false)
   const [done, setDone] = useState(false)
@@ -45,22 +214,81 @@ export default function Phase4Dungeon({
 
   const [simulatedMatches, setSimulatedMatches] = useState<MatchResult[]>([])
 
+  // Determinação determinística de Bioma Base e Clima da Semana
+  const fallbackDungeon = useMemo(() => getDungeonForDay(day), [day])
+  const fallbackClimate = useMemo(() => getClimateForDay(day), [day])
+
+  const [activeDungeon, setActiveDungeon] = useState<DungeonInfo>(
+    dungeon || state?.current_dungeon || fallbackDungeon
+  )
+  const [activeClimate, setActiveClimate] = useState<DungeonClimateInfo>(
+    climate || state?.current_dungeon?.climate || fallbackClimate
+  )
+
+  // Sincroniza ambiente se estado ou dia mudarem
+  const [prevEnvKey, setPrevEnvKey] = useState<string>(`${state?.current_dungeon?.id ?? ''}_${day}`)
+  const currentEnvKey = `${state?.current_dungeon?.id ?? ''}_${day}`
+  if (currentEnvKey !== prevEnvKey) {
+    setPrevEnvKey(currentEnvKey)
+    if (dungeon) setActiveDungeon(dungeon)
+    else if (state?.current_dungeon) setActiveDungeon(state.current_dungeon)
+    else setActiveDungeon(getDungeonForDay(day))
+
+    if (climate) setActiveClimate(climate)
+    else if (state?.current_dungeon?.climate) setActiveClimate(state.current_dungeon.climate)
+    else setActiveClimate(getClimateForDay(day))
+  }
+
+  // Itens equipados na tática da guilda
+  const loadoutItems: InventoryItem[] = useMemo(() => {
+    if (!state?.tactics?.loadout) return []
+    const inv = state.inventory || []
+    return Object.values(state.tactics.loadout)
+      .map(val => {
+        if (!val) return null
+        if (typeof val === 'string') return inv.find(i => i.item_instance_id === val) || null
+        return val as InventoryItem
+      })
+      .filter((i): i is InventoryItem => Boolean(i))
+  }, [state?.tactics?.loadout, state?.inventory])
+
+  // Checagem de Mitigação de Terreno (Bioma)
+  const isTerrainMitigated = useMemo(() => {
+    if (!activeDungeon.mitigation_required) return true
+    return loadoutItems.some(i => i.terrain_mitigation === activeDungeon.mitigation_required)
+  }, [activeDungeon.mitigation_required, loadoutItems])
+
+  // Checagem de Mitigação de Clima Semanal
+  const isClimateMitigated = useMemo(() => {
+    if (!activeClimate.mitigation_required) return true
+    return loadoutItems.some(i => i.terrain_mitigation === activeClimate.mitigation_required)
+  }, [activeClimate.mitigation_required, loadoutItems])
+
+  // Cálculo consolidado de penalidades
+  const terrainPenaltyPct = isTerrainMitigated ? 0 : (activeDungeon.power_penalty_pct ?? 0.12)
+  const climatePenaltyPct = isClimateMitigated ? 0 : activeClimate.power_penalty_pct
+  const totalPowerPenaltyPct = Math.round((terrainPenaltyPct + climatePenaltyPct) * 100)
+
+  const terrainExtraEnergy = isTerrainMitigated ? 0 : activeDungeon.energy_cost_extra
+  const climateExtraEnergy = isClimateMitigated ? 0 : activeClimate.energy_cost_extra
+  const totalExtraEnergyCost = terrainExtraEnergy + climateExtraEnergy
+
   // Animação sala a sala através dos room_events
   useEffect(() => {
     if (!running || roomEvents.length === 0) return
 
-    if (currentRoomIndex >= roomEvents.length - 1) {
-      setDone(true)
-      setRunning(false)
-      return
-    }
-
     const timer = setTimeout(() => {
+      if (currentRoomIndex >= roomEvents.length - 1) {
+        setDone(true)
+        setRunning(false)
+        return
+      }
+
       const nextIndex = currentRoomIndex + 1
       const evt = roomEvents[nextIndex]
       setCurrentRoomIndex(nextIndex)
 
-      // Atualiza barras de energia
+      // Atualiza barras de suprimentos
       setPlayerEnergy(Math.round(evt.energy_t1))
       setRivalEnergy(Math.round(evt.energy_t2))
 
@@ -82,7 +310,7 @@ export default function Phase4Dungeon({
           scorer = 'rival'
           setRivalScore(s => s + 2)
         }
-      } else if (evtText.includes('sem ocorrências')) {
+      } else if (evtText.includes('sem ocorrências') || evtText.includes('sem confronto')) {
         roomType = 'empty'
       } else {
         roomType = 'miniboss'
@@ -126,6 +354,13 @@ export default function Phase4Dungeon({
         const res = await onExecuteExpedition()
         if (res && res.result && res.result.player_match) {
           const matchData = res.result.player_match
+          if (matchData.climate) {
+            setActiveClimate(matchData.climate)
+          }
+          if (res.result.dungeon) {
+            setActiveDungeon(res.result.dungeon)
+          }
+
           const events: DungeonRoomEvent[] = matchData.room_events || []
           setRoomEvents(events)
 
@@ -148,7 +383,7 @@ export default function Phase4Dungeon({
       }
     }
 
-    // Fallback local: simula masmorra de duração variável (entre 6 e 9 salas)
+    // Fallback local: simula masmorra com impacto das sobretaxas ambientais
     const totalRooms = 6 + Math.floor(Math.random() * 4) // 6 a 9 salas
     const localEvents: DungeonRoomEvent[] = []
     let pE = 100
@@ -156,10 +391,13 @@ export default function Phase4Dungeon({
 
     for (let r = 1; r <= totalRooms; r++) {
       const isBoss = r === totalRooms
-      pE = Math.max(0, pE - (10 + Math.floor(Math.random() * 8)))
-      rE = Math.max(0, rE - (12 + Math.floor(Math.random() * 8)))
+      const playerDrain = 10 + Math.floor(Math.random() * 8) + totalExtraEnergyCost
+      const rivalDrain = 12 + Math.floor(Math.random() * 8)
 
-      let eventMsg = 'Sala sem ocorrências operacionais.'
+      pE = Math.max(0, pE - playerDrain)
+      rE = Math.max(0, rE - rivalDrain)
+
+      let eventMsg = 'Câmara com trânsito estável e sem ocorrências hostis.'
       if (isBoss) {
         if (Math.random() > 0.4) {
           eventMsg = `Guilda do Jogador superou a margem de 15% e abateu o Boss Final (+2 PE)!`
@@ -205,6 +443,10 @@ export default function Phase4Dungeon({
   }
 
   const currentEvent = currentRoomIndex >= 0 ? roomEvents[currentRoomIndex] : null
+  const biomeVisual = getBiomeVisual(activeDungeon.terrain)
+  const climateVisual = getClimateVisual(activeClimate.climate)
+  const BiomeIcon = biomeVisual.icon
+  const ClimateIcon = climateVisual.icon
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
@@ -215,12 +457,16 @@ export default function Phase4Dungeon({
             <span className="text-amber-500 font-mono text-xs uppercase tracking-widest font-bold">Fase IV</span>
             <span className="text-stone-600">·</span>
             <span className="text-stone-400 text-xs">Simulação da Expedição Oficial</span>
+            <span className="text-stone-600">·</span>
+            <span className="text-amber-300 font-mono text-xs bg-amber-950/70 border border-amber-800/60 px-2 py-0.5 rounded font-bold">
+              Semana #{day}
+            </span>
           </div>
           <h2 className="text-amber-100 text-xl font-black mt-0.5 tracking-wide">
-            Incursão em Masmorra — Duração Variável
+            Incursão em Masmorra Modular
           </h2>
           <p className="text-stone-400 text-xs mt-1">
-            A expedição avança pelas câmaras até o esgotamento dos Suprimentos ou a resolução do Boss Final.
+            Progressão expedicionária sob matriz desacoplada de Bioma Base e Condição Climática Semanal.
           </p>
         </div>
 
@@ -231,6 +477,146 @@ export default function Phase4Dungeon({
       </div>
 
       {/* ─────────────────────────────────────────────
+          QUADRO DE AMBIENTAÇÃO MODULAR (BIOMA × CLIMA)
+         ───────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Card 1: Bioma Base da Masmorra */}
+        <div className={`p-4 rounded-xl border ${biomeVisual.border} ${biomeVisual.cardBg} space-y-3 shadow-lg relative overflow-hidden`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className={`w-9 h-9 rounded-lg border flex items-center justify-center ${biomeVisual.iconBg}`}>
+                <BiomeIcon className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-mono tracking-widest text-stone-400 font-bold block">
+                  Bioma Base Homologado
+                </span>
+                <h3 className="text-sm font-black text-stone-100 flex items-center gap-2">
+                  <span>{activeDungeon.name}</span>
+                </h3>
+              </div>
+            </div>
+            <span className={`text-[10px] font-mono px-2 py-0.5 rounded border uppercase font-bold ${biomeVisual.badgeBg}`}>
+              {activeDungeon.terrain_label}
+            </span>
+          </div>
+
+          <p className="text-stone-300 text-xs leading-relaxed">
+            {activeDungeon.description}
+          </p>
+
+          {/* Status de Mitigação de Terreno */}
+          <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="text-stone-400 font-mono text-[11px]">Mitigação da Guilda:</span>
+              {isTerrainMitigated ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-700/60 px-2 py-0.5 rounded">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Protegido</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-rose-400 bg-rose-950/70 border border-rose-700/60 px-2 py-0.5 rounded">
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                  <span>Penalidade Ativa</span>
+                </span>
+              )}
+            </div>
+
+            <div className="text-[11px] font-mono">
+              {!isTerrainMitigated ? (
+                <span className="text-rose-300 font-bold">
+                  -{Math.round((activeDungeon.power_penalty_pct ?? 0.12) * 100)}% Poder · +{activeDungeon.energy_cost_extra} Dreno
+                </span>
+              ) : (
+                <span className="text-stone-400">
+                  {activeDungeon.mitigation_required ? 'Proteção Homologada' : 'Terreno Neutro'}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: Condição Climática Semanal */}
+        <div className={`p-4 rounded-xl border ${climateVisual.border} ${climateVisual.cardBg} space-y-3 shadow-lg relative overflow-hidden`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className={`w-9 h-9 rounded-lg border flex items-center justify-center ${climateVisual.iconBg}`}>
+                <ClimateIcon className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-mono tracking-widest text-amber-400 font-bold block">
+                  Condição Climática da Rodada
+                </span>
+                <h3 className="text-sm font-black text-stone-100 flex items-center gap-2">
+                  <span>{activeClimate.name}</span>
+                </h3>
+              </div>
+            </div>
+            <span className={`text-[10px] font-mono px-2 py-0.5 rounded border uppercase font-bold ${climateVisual.badgeBg}`}>
+              Semana #{day}
+            </span>
+          </div>
+
+          <p className="text-stone-300 text-xs leading-relaxed">
+            {activeClimate.description}
+          </p>
+
+          {/* Status de Mitigação Climática */}
+          <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="text-stone-400 font-mono text-[11px]">Mitigação da Guilda:</span>
+              {isClimateMitigated ? (
+                <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-700/60 px-2 py-0.5 rounded">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>{activeClimate.climate === 'clear_sky' ? 'Atmosfera Estável' : 'Protegido'}</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-amber-400 bg-amber-950/70 border border-amber-700/60 px-2 py-0.5 rounded">
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                  <span>Sobrecarga Climática</span>
+                </span>
+              )}
+            </div>
+
+            <div className="text-[11px] font-mono">
+              {!isClimateMitigated ? (
+                <span className="text-amber-300 font-bold">
+                  -{Math.round(activeClimate.power_penalty_pct * 100)}% Poder · +{activeClimate.energy_cost_extra} Dreno
+                </span>
+              ) : (
+                <span className="text-stone-400">
+                  {activeClimate.mitigation_required ? 'Proteção Ativa' : 'Sem Penalidade'}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Resumo Integrado de Impacto Operacional */}
+      {totalPowerPenaltyPct > 0 || totalExtraEnergyCost > 0 ? (
+        <div className="bg-rose-950/30 border border-rose-800/60 rounded-xl p-3 flex items-center justify-between text-xs flex-wrap gap-2 text-rose-200 shadow-sm">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0" />
+            <span>
+              <strong>Penalidades Ambientais Acumuladas:</strong> A equipe opera com déficit estrutural de{' '}
+              <strong className="text-rose-300">-{totalPowerPenaltyPct}% Poder Efetivo</strong> e sobretaxa de{' '}
+              <strong className="text-rose-300">+{totalExtraEnergyCost} Suprimentos/câmara</strong> devido a intempéries não mitigadas.
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-emerald-950/30 border border-emerald-800/50 rounded-xl p-3 flex items-center justify-between text-xs flex-wrap gap-2 text-emerald-200 shadow-sm">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>
+              <strong>Conformidade Ambiental Plena:</strong> A equipe está 100% protegida contra o terreno e o clima desta rodada. Nenhuma penalidade aplicada.
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────
           MOLDURA DE PLACAR ESTILO MADEIRA E LATÃO
          ───────────────────────────────────────────── */}
       <div className="bg-[#1c1917] border-2 border-amber-900/50 rounded-2xl p-6 shadow-2xl space-y-6">
@@ -239,7 +625,14 @@ export default function Phase4Dungeon({
           {/* Barra do Jogador */}
           <div className="space-y-1.5">
             <div className="flex justify-between items-center text-xs">
-              <span className="font-bold text-amber-200">Guilda do Jogador</span>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-amber-200">Guilda do Jogador</span>
+                {totalExtraEnergyCost > 0 && (
+                  <span className="text-[10px] font-mono text-rose-400 bg-rose-950/70 border border-rose-800/60 px-1.5 py-0.2 rounded">
+                    +{totalExtraEnergyCost} dreno
+                  </span>
+                )}
+              </div>
               <span className="font-mono font-bold text-stone-300">{playerEnergy} Suprimentos</span>
             </div>
             <div className="w-full bg-stone-950 rounded-full h-3 overflow-hidden border border-stone-800 p-0.5">
@@ -298,7 +691,7 @@ export default function Phase4Dungeon({
                 <span className="text-[10px] block mt-0.5 font-bold text-stone-400">
                   {currentEvent.is_final_boss
                     ? '⚔️ BOSS FINAL'
-                    : currentEvent.event.includes('sem ocorrências')
+                    : currentEvent.event.includes('sem ocorrências') || currentEvent.event.includes('sem confronto')
                     ? '○ Vazia'
                     : '⚡ Mini-Boss'}
                 </span>
@@ -325,53 +718,90 @@ export default function Phase4Dungeon({
       {/* ─────────────────────────────────────────────
           TERMINAL DE TRANSMISSÃO DA EXPEDIÇÃO (LOGS)
          ───────────────────────────────────────────── */}
-      <div className="bg-stone-950 border border-stone-800 rounded-xl p-4 font-mono text-xs text-stone-300 h-64 overflow-y-auto space-y-1.5 shadow-inner">
-        <div className="flex items-center justify-between text-[11px] text-stone-500 border-b border-stone-800/80 pb-1.5 mb-2 font-mono">
-          <span>// TRANSMISSÃO TELEMÉTRICA DA MASMORRA</span>
-          <span>SEMANA #{day}</span>
+      <div className="bg-stone-950 border border-stone-800 rounded-xl p-4 font-mono text-xs text-stone-300 h-72 overflow-y-auto space-y-2 shadow-inner">
+        <div className="flex items-center justify-between text-[11px] text-stone-500 border-b border-stone-800/80 pb-2 mb-2 font-mono flex-wrap gap-2">
+          <span className="flex items-center gap-1.5 text-stone-400 font-bold">
+            <Scroll className="w-3.5 h-3.5 text-amber-500" />
+            <span>// TRANSMISSÃO TELEMÉTRICA DA MASMORRA</span>
+          </span>
+          <span className="text-[10px] text-stone-400">
+            {activeDungeon.name} · {activeClimate.name} · SEMANA #{day}
+          </span>
         </div>
 
         {logs.length === 0 ? (
-          <p className="text-stone-600 italic py-8 text-center">
-            Aguardando início da incursão para recepção dos sinais de campanha.
+          <p className="text-stone-600 italic py-12 text-center">
+            Aguardando ordem de avanço operacional para recepção dos sinais de campanha...
           </p>
         ) : (
           logs.map((logItem, idx) => {
             if (logItem.type === 'boss') {
+              const isJoint = logItem.text.includes('Abate Conjunto')
+              const isPlayer = logItem.text.includes('Guilda do Jogador')
               return (
                 <div
                   key={idx}
-                  className="text-amber-300 font-bold bg-amber-950/40 p-2 rounded-lg border-l-4 border-amber-500 shadow-sm"
+                  className="bg-gradient-to-r from-amber-950/60 via-amber-900/30 to-stone-900/60 p-3 rounded-xl border-l-4 border-amber-400 shadow-md ring-1 ring-amber-500/20 space-y-1"
                 >
-                  <span className="text-[10px] text-amber-500 uppercase block font-black mb-0.5">
-                    [CÂMARA {logItem.room} — BOSS FINAL]
-                  </span>
-                  <span>{logItem.text}</span>
+                  <div className="flex items-center justify-between flex-wrap gap-1">
+                    <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <Swords className="w-3.5 h-3.5 text-amber-400" />
+                      <span>[CÂMARA {logItem.room} — CLÍMAX: BOSS FINAL]</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-900/70 border border-amber-500/70 text-amber-200">
+                      {isJoint ? '+1 PE CONJUNTO' : isPlayer ? '+2 PE JOGADOR' : '+2 PE RIVAL'}
+                    </span>
+                  </div>
+                  <p className="text-amber-100 text-xs font-semibold leading-relaxed">
+                    {logItem.text}
+                  </p>
                 </div>
               )
             }
             if (logItem.type === 'miniboss') {
+              const isPlayer = logItem.text.includes('Guilda do Jogador')
+              const hasClassSkill = logItem.text.includes('Parede de Escudos') || logItem.text.includes('Execução Fria')
               return (
                 <div
                   key={idx}
-                  className="text-stone-200 bg-stone-900/60 p-2 rounded-lg border-l-2 border-cyan-500"
+                  className="bg-stone-900/80 p-2.5 rounded-xl border-l-4 border-cyan-500 shadow-sm space-y-1"
                 >
-                  <span className="text-[10px] text-cyan-400 uppercase block font-bold mb-0.5">
-                    [CÂMARA {logItem.room} — MINI-BOSS]
-                  </span>
-                  <span>{logItem.text}</span>
+                  <div className="flex items-center justify-between flex-wrap gap-1">
+                    <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <span>⚡ [CÂMARA {logItem.room} — MINI-BOSS / EMBOSCADA]</span>
+                      {hasClassSkill && (
+                        <span className="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-700/60 px-1.5 py-0.2 rounded font-mono font-bold">
+                          HABILIDADE DE CLASSE
+                        </span>
+                      )}
+                    </span>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border font-mono ${
+                      isPlayer ? 'bg-cyan-950 text-cyan-300 border-cyan-700/60' : 'bg-stone-800 text-stone-300 border-stone-700'
+                    }`}>
+                      +1 PE
+                    </span>
+                  </div>
+                  <p className="text-stone-200 text-xs leading-relaxed">
+                    {logItem.text}
+                  </p>
                 </div>
               )
             }
             if (logItem.type === 'empty') {
               return (
-                <div key={idx} className="text-stone-500 italic px-2 py-1">
-                  [Câmara {logItem.room}] {logItem.text}
+                <div
+                  key={idx}
+                  className="text-stone-400 bg-stone-950/60 px-3 py-1.5 rounded-lg border-l-2 border-stone-700/60 flex items-center justify-between text-[11px]"
+                >
+                  <span>
+                    <strong className="text-stone-500 font-mono">[Câmara {logItem.room}]</strong> {logItem.text}
+                  </span>
+                  <span className="text-[10px] text-stone-600 font-mono uppercase">Trânsito Livre</span>
                 </div>
               )
             }
             return (
-              <div key={idx} className="text-stone-400 px-2 py-1">
+              <div key={idx} className="text-stone-400 bg-stone-950/40 px-3 py-1 rounded-lg border-l-2 border-stone-800 text-[11px]">
                 {logItem.text}
               </div>
             )
@@ -450,7 +880,7 @@ export default function Phase4Dungeon({
           <div className="flex items-center justify-between border-b border-stone-800 pb-2">
             <h3 className="text-amber-300 text-xs uppercase tracking-widest font-black flex items-center gap-2">
               <Newspaper className="w-4 h-4 text-amber-500" />
-              <span>Boletim de Resultados da Rodada — Semana {day}</span>
+              <span>Boletim de Resultados da Rodada — Semana #{day}</span>
             </h3>
             <span className="text-stone-500 text-[10px] font-mono">Resultados Homologados pela Liga</span>
           </div>
@@ -480,7 +910,7 @@ export default function Phase4Dungeon({
       {!running && !done && (
         <button
           onClick={handleStart}
-          className="w-full py-3.5 bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-sm uppercase tracking-wider rounded-xl shadow-lg shadow-amber-950/40 hover:brightness-110 transition flex items-center justify-center gap-2"
+          className="w-full py-3.5 bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-sm uppercase tracking-wider rounded-xl shadow-lg shadow-amber-950/40 hover:brightness-110 transition flex items-center justify-center gap-2 cursor-pointer"
         >
           <Swords className="w-4 h-4" />
           <span>Iniciar Expedição & Simulação da Rodada</span>
@@ -489,14 +919,14 @@ export default function Phase4Dungeon({
 
       {running && (
         <div className="w-full py-3.5 bg-stone-900 border border-stone-800 text-amber-400 font-mono text-xs rounded-xl text-center animate-pulse">
-          // Expedição e confrontos da liga em andamento pelas câmaras...
+          // Expedição e confrontos da liga em andamento pelas câmaras da masmorra...
         </div>
       )}
 
       {done && (
         <button
           onClick={onAdvance}
-          className="w-full py-3.5 bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-sm uppercase tracking-wider rounded-xl shadow-lg shadow-amber-950/40 hover:brightness-110 transition flex items-center justify-center gap-2"
+          className="w-full py-3.5 bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-sm uppercase tracking-wider rounded-xl shadow-lg shadow-amber-950/40 hover:brightness-110 transition flex items-center justify-center gap-2 cursor-pointer"
         >
           <span>Consolidar Resultados & Ir para Balanço Financeiro</span>
           <ArrowRight className="w-4 h-4" />

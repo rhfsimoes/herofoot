@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   Hammer,
   FlaskConical,
@@ -37,7 +37,12 @@ import {
   type MaterialSheet,
   type AffixManual,
 } from '../mockData'
-import { RARITY_CARD_STYLES, RARITY_BADGE_STYLES } from '../utils/rarityStyles'
+import {
+  RARITY_CARD_STYLES,
+  RARITY_BADGE_STYLES,
+  MATERIAL_RARITY_STYLES,
+  getMaterialRarity,
+} from '../utils/rarityStyles'
 import {
   fetchCraftOptionsBackend,
   fetchCraftPreviewBackend,
@@ -150,8 +155,14 @@ export default function Phase2Workshop({
   const [lastCraft, setLastCraft] = useState<InventoryItem | null>(null)
 
   // Crafting v2 Seleções
-  const recipesList: Recipe[] = state.recipes ? Object.values(state.recipes) : MOCK_RECIPES
-  const branchRecipes = recipesList.filter(r => r.branch === selectedBranch)
+  const recipesList: Recipe[] = useMemo(
+    () => (state.recipes ? Object.values(state.recipes) : MOCK_RECIPES),
+    [state.recipes]
+  )
+  const branchRecipes = useMemo(
+    () => recipesList.filter(r => r.branch === selectedBranch),
+    [recipesList, selectedBranch]
+  )
   const [selectedRecipeId, setSelectedRecipeId] = useState<string>(
     branchRecipes[0]?.recipe_id || branchRecipes[0]?.id || 'rec_01'
   )
@@ -186,7 +197,20 @@ export default function Phase2Workshop({
   } | null>(null)
 
   // Boletim de Mercado Pop-up Semanal
-  const [bulletinModalOpen, setBulletinModalOpen] = useState<boolean>(false)
+  const bulletin = state.market?.bulletin
+  const bulletinWeekKey = `bulletin_dismissed_w${state.week || state.day}`
+  const [bulletinModalOpen, setBulletinModalOpen] = useState<boolean>(() => {
+    if (!bulletin?.headline) return false
+    return !sessionStorage.getItem(bulletinWeekKey)
+  })
+  const [prevBulletinWeekKey, setPrevBulletinWeekKey] = useState<string>(bulletinWeekKey)
+  if (bulletinWeekKey !== prevBulletinWeekKey) {
+    setPrevBulletinWeekKey(bulletinWeekKey)
+    if (bulletin?.headline && !sessionStorage.getItem(bulletinWeekKey)) {
+      setBulletinModalOpen(true)
+    }
+  }
+
   const [isUpgrading, setIsUpgrading] = useState<boolean>(false)
   const [isBuyingManual, setIsBuyingManual] = useState<string | null>(null)
   const [transactionLog, setTransactionLog] = useState<string[]>([])
@@ -201,28 +225,29 @@ export default function Phase2Workshop({
     state.market?.affix_manuals ?? []
   )
 
-  const bulletin = state.market?.bulletin
   const activeBranchInfo = BRANCHES.find(b => b.name === selectedBranch)!
   const currentBranchLevel = state.workshop_levels[activeBranchInfo.key] ?? 1
 
-  // Sincroniza estado de bases quando troca a bancada
-  useEffect(() => {
-    const firstInBranch = branchRecipes[0]
+  function handleSelectBranch(branchName: WorkshopBranch) {
+    setSelectedBranch(branchName)
+    const newBranchRecipes = recipesList.filter(r => r.branch === branchName)
+    const firstInBranch = newBranchRecipes[0]
     if (firstInBranch) {
       const rid = firstInBranch.recipe_id || firstInBranch.id || ''
       setSelectedRecipeId(rid)
       setSelectedPrefixId(null)
       setSelectedSuffixId(null)
     }
-  }, [selectedBranch])
+  }
 
-  function computeLocalPreview(
-    recipeId: string,
+  const computeLocalPreview = useCallback(
+    (
+      recipeId: string,
     prefixId: string | null,
     suffixId: string | null,
     currentMaterials: Record<string, number>,
     branchLevel: number
-  ): CraftPreview {
+  ): CraftPreview => {
     const recipe = recipesList.find(r => (r.recipe_id || r.id) === recipeId) || recipesList[0]
     const baseName = recipe?.base_item || recipe?.name || 'Item de Campanha'
     const reasons: string[] = []
@@ -323,7 +348,7 @@ export default function Phase2Workshop({
       workshop_level: branchLevel,
       branch: recipe?.branch ?? 'Ferragem',
     }
-  }
+  }, [recipesList])
 
   // Carrega opções e prévia ao vivo de Crafting v2
   useEffect(() => {
@@ -362,25 +387,18 @@ export default function Phase2Workshop({
     return () => {
       active = false
     }
-  }, [selectedRecipeId, selectedPrefixId, selectedSuffixId, materials, currentBranchLevel])
+  }, [selectedRecipeId, selectedPrefixId, selectedSuffixId, materials, currentBranchLevel, computeLocalPreview])
 
-  useEffect(() => {
+  const [prevPropState, setPrevPropState] = useState(state)
+  if (state !== prevPropState) {
+    setPrevPropState(state)
     setInventory(state.inventory)
     setMaterials(state.materials)
     setGold(state.gold)
     if (state.market?.materials_for_sale) setMarketMaterials(state.market.materials_for_sale)
     if (state.market?.ready_items_for_sale) setMarketReadyItems(state.market.ready_items_for_sale)
     if (state.market?.affix_manuals) setAffixManuals(state.market.affix_manuals)
-  }, [state])
-
-  useEffect(() => {
-    if (bulletin && bulletin.headline) {
-      const weekKey = `bulletin_dismissed_w${state.week || state.day}`
-      if (!sessionStorage.getItem(weekKey)) {
-        setBulletinModalOpen(true)
-      }
-    }
-  }, [state.week, state.day, bulletin])
+  }
 
   function dismissBulletin() {
     const weekKey = `bulletin_dismissed_w${state.week || state.day}`
@@ -833,7 +851,7 @@ export default function Phase2Workshop({
               return (
                 <div
                   key={branch.name}
-                  onClick={() => setSelectedBranch(branch.name)}
+                  onClick={() => handleSelectBranch(branch.name)}
                   className={`bg-[#1c1917] border rounded-xl p-4 shadow-lg cursor-pointer transition-all ${
                     isSelected
                       ? 'border-amber-500 ring-1 ring-amber-400/40 bg-gradient-to-b from-[#292524] to-[#1c1917]'
@@ -879,19 +897,25 @@ export default function Phase2Workshop({
                 Clique em qualquer insumo para consultar sua Ficha Técnica
               </span>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(materials).map(([key, qty]) => (
-                <button
-                  key={key}
-                  onClick={() => handleOpenMaterialSheet(key)}
-                  className="bg-stone-900 hover:bg-stone-800 border border-stone-700 hover:border-amber-500 text-stone-300 text-xs px-3 py-1.5 rounded-lg flex items-center gap-2 transition cursor-pointer group shadow"
-                  title="Abrir Ficha Técnica do Insumo"
-                >
-                  <Info className="w-3 h-3 text-stone-500 group-hover:text-amber-400 transition" />
-                  <span>{MATERIAL_LABELS[key] ?? key}:</span>
-                  <strong className="text-amber-300 font-mono">{qty}</strong>
-                </button>
-              ))}
+            <div className="flex flex-wrap gap-2.5">
+              {Object.entries(materials).map(([key, qty]) => {
+                const rarity = getMaterialRarity(key)
+                const rStyle = MATERIAL_RARITY_STYLES[rarity]
+                return (
+                  <button
+                    key={key}
+                    onClick={() => handleOpenMaterialSheet(key)}
+                    className={`${rStyle.bg} hover:brightness-125 border ${rStyle.border} ${rStyle.glow} text-stone-200 text-xs px-3 py-1.5 rounded-xl flex items-center gap-2 transition cursor-pointer group shadow`}
+                    title={`Abrir Ficha Técnica: ${MATERIAL_LABELS[key] ?? key} (${rarity})`}
+                  >
+                    <span className={`w-2 h-2 rounded-full ${rStyle.dot} shrink-0`} />
+                    <span className="font-medium text-stone-200">{MATERIAL_LABELS[key] ?? key}:</span>
+                    <strong className="text-amber-300 font-mono">{qty}</strong>
+                    <span className={rStyle.badge}>{rarity}</span>
+                    <Info className="w-3 h-3 text-stone-500 group-hover:text-amber-400 transition ml-0.5" />
+                  </button>
+                )
+              })}
             </div>
           </div>
 
@@ -987,6 +1011,36 @@ export default function Phase2Workshop({
                       <h3 className="text-xl font-black text-amber-100 mt-1">
                         {selectedRecipe.name || selectedRecipe.base_item}
                       </h3>
+                      {/* Insumos Base Homologados com Tag de Raridade */}
+                      {selectedRecipe.ingredients && selectedRecipe.ingredients.length > 0 && (
+                        <div className="flex items-center gap-2 flex-wrap text-xs pt-1.5 mt-1 border-t border-stone-800/60">
+                          <span className="text-stone-400 font-mono text-[11px]">Insumos Base:</span>
+                          {selectedRecipe.ingredients.map((ing, idx) => {
+                            const mid = ing.item_id || 'mat_iron_ore'
+                            const name = ing.label || MATERIAL_LABELS[mid] || mid
+                            const rarity = getMaterialRarity(mid, name)
+                            const rStyle = MATERIAL_RARITY_STYLES[rarity]
+                            const userHas = materials[mid] ?? 0
+                            const hasEnough = userHas >= ing.quantity
+                            return (
+                              <button
+                                key={idx}
+                                onClick={() => handleOpenMaterialSheet(mid)}
+                                className={`px-2 py-0.5 rounded-lg text-[11px] font-mono border flex items-center gap-1.5 transition cursor-pointer ${
+                                  hasEnough
+                                    ? 'bg-stone-900 border-stone-700 text-stone-200 hover:border-amber-500'
+                                    : 'bg-rose-950/40 border-rose-800 text-rose-300'
+                                }`}
+                                title={`Abrir Ficha Técnica: ${name} (${rarity})`}
+                              >
+                                <span className={`w-1.5 h-1.5 rounded-full ${rStyle.dot} shrink-0`} />
+                                <span>{ing.quantity}× {name}</span>
+                                <span className={rStyle.badge}>{rarity}</span>
+                              </button>
+                            )
+                          })}
+                        </div>
+                      )}
                     </div>
 
                     {craftOptions && craftOptions.undiscovered_count > 0 && (
@@ -1049,9 +1103,18 @@ export default function Phase2Workshop({
 
                             <div className="mt-2 pt-1.5 border-t border-stone-800/60 flex items-center justify-between text-[10px]">
                               {isAvailable ? (
-                                <span className="text-emerald-400 font-mono">
-                                  {pfx.materials.map(m => `${m.quantity}× ${m.name}`).join(', ')}
-                                </span>
+                                <div className="flex flex-wrap gap-1 items-center">
+                                  {pfx.materials.map(m => {
+                                    const r = getMaterialRarity(m.material_id, m.name)
+                                    const rStyle = MATERIAL_RARITY_STYLES[r]
+                                    return (
+                                      <span key={m.material_id} className="text-emerald-400 font-mono flex items-center gap-1">
+                                        <span>{m.quantity}× {m.name}</span>
+                                        <span className={rStyle.badge}>{r}</span>
+                                      </span>
+                                    )
+                                  })}
+                                </div>
                               ) : (
                                 <span className="text-rose-400 font-mono font-bold">
                                   {pfx.missing_reasons[0] || 'Insumos insuficientes'}
@@ -1117,9 +1180,18 @@ export default function Phase2Workshop({
 
                             <div className="mt-2 pt-1.5 border-t border-stone-800/60 flex items-center justify-between text-[10px]">
                               {isAvailable ? (
-                                <span className="text-emerald-400 font-mono">
-                                  {sfx.materials.map(m => `${m.quantity}× ${m.name}`).join(', ')}
-                                </span>
+                                <div className="flex flex-wrap gap-1 items-center">
+                                  {sfx.materials.map(m => {
+                                    const r = getMaterialRarity(m.material_id, m.name)
+                                    const rStyle = MATERIAL_RARITY_STYLES[r]
+                                    return (
+                                      <span key={m.material_id} className="text-emerald-400 font-mono flex items-center gap-1">
+                                        <span>{m.quantity}× {m.name}</span>
+                                        <span className={rStyle.badge}>{r}</span>
+                                      </span>
+                                    )
+                                  })}
+                                </div>
                               ) : (
                                 <span className="text-rose-400 font-mono font-bold">
                                   {sfx.missing_reasons[0] || 'Insumos insuficientes'}
@@ -1147,20 +1219,26 @@ export default function Phase2Workshop({
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-stone-400">Total de Insumos:</span>
                           <div className="flex gap-1.5 flex-wrap">
-                            {craftPreview.materials_summary.map(m => (
-                              <button
-                                key={m.material_id}
-                                onClick={() => handleOpenMaterialSheet(m.material_id)}
-                                className={`text-[11px] px-2 py-0.5 rounded font-mono border transition cursor-pointer ${
-                                  m.has_enough
-                                    ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800'
-                                    : 'bg-rose-950/60 text-rose-300 border-rose-800'
-                                }`}
-                                title="Ver Ficha Técnica deste Insumo"
-                              >
-                                {m.needed}× {m.name} ({m.current})
-                              </button>
-                            ))}
+                            {craftPreview.materials_summary.map(m => {
+                              const r = getMaterialRarity(m.material_id, m.name)
+                              const rStyle = MATERIAL_RARITY_STYLES[r]
+                              return (
+                                <button
+                                  key={m.material_id}
+                                  onClick={() => handleOpenMaterialSheet(m.material_id)}
+                                  className={`text-[11px] px-2.5 py-1 rounded-lg font-mono border transition cursor-pointer flex items-center gap-1.5 shadow-sm ${
+                                    m.has_enough
+                                      ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800'
+                                      : 'bg-rose-950/40 text-rose-300 border-rose-800'
+                                  }`}
+                                  title={`Ver Ficha Técnica: ${m.name} (${r})`}
+                                >
+                                  <span className={`w-1.5 h-1.5 rounded-full ${rStyle.dot} shrink-0`} />
+                                  <span>{m.needed}× {m.name} ({m.current})</span>
+                                  <span className={rStyle.badge}>{r}</span>
+                                </button>
+                              )
+                            })}
                           </div>
                         </div>
                       </div>
@@ -1503,44 +1581,49 @@ export default function Phase2Workshop({
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {marketMaterials.map(mat => (
-                  <div
-                    key={mat.material_id}
-                    className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 flex flex-col justify-between gap-3 shadow-md"
-                  >
-                    <div>
-                      <div className="flex justify-between items-start">
+                {marketMaterials.map(mat => {
+                  const rarity = getMaterialRarity(mat.material_id, mat.name)
+                  const rStyle = MATERIAL_RARITY_STYLES[rarity]
+                  return (
+                    <div
+                      key={mat.material_id}
+                      className={`${rStyle.bg} border ${rStyle.border} ${rStyle.glow} rounded-xl p-4 flex flex-col justify-between gap-3 shadow-md transition-all`}
+                    >
+                      <div>
+                        <div className="flex justify-between items-start gap-2">
+                          <button
+                            onClick={() => handleOpenMaterialSheet(mat.material_id)}
+                            className="text-stone-100 font-bold text-sm hover:text-amber-400 flex items-center gap-1.5 transition text-left cursor-pointer"
+                          >
+                            <Info className="w-3.5 h-3.5 text-stone-500" />
+                            <span>{mat.name}</span>
+                          </button>
+                          <span className={rStyle.badge}>{rarity}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs text-stone-400 font-mono mt-2">
+                          <span>Estoque: <strong className="text-stone-200">{mat.available_quantity} un.</strong></span>
+                          <span>Preço: <strong className="text-amber-300">⬡ {mat.unit_price} Ouro</strong></span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-800/80">
                         <button
-                          onClick={() => handleOpenMaterialSheet(mat.material_id)}
-                          className="text-stone-100 font-bold text-sm hover:text-amber-400 flex items-center gap-1.5 transition text-left cursor-pointer"
+                          onClick={() => handleBuyMaterial(mat, 1)}
+                          disabled={mat.available_quantity < 1 || gold < mat.unit_price}
+                          className="bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold px-3 py-1.5 rounded-lg text-xs transition cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
                         >
-                          <Info className="w-3.5 h-3.5 text-stone-500" />
-                          <span>{mat.name}</span>
+                          +1
                         </button>
-                        <span className="text-xs text-stone-400 font-mono">{mat.available_quantity} disp.</span>
-                      </div>
-                      <div className="text-xs text-stone-400 font-mono mt-2">
-                        Preço Unitário: <strong className="text-amber-300">⬡ {mat.unit_price} Ouro</strong>
+                        <button
+                          onClick={() => handleBuyMaterial(mat, 3)}
+                          disabled={gold < mat.unit_price * 3}
+                          className="bg-amber-600 hover:bg-amber-500 text-stone-950 font-black px-4 py-1.5 rounded-lg text-xs transition cursor-pointer disabled:opacity-30 disabled:pointer-events-none shadow"
+                        >
+                          +3 Lote
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-800">
-                      <button
-                        onClick={() => handleBuyMaterial(mat, 1)}
-                        disabled={mat.available_quantity < 1 || gold < mat.unit_price}
-                        className="bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold px-3 py-1.5 rounded-lg text-xs transition cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
-                      >
-                        +1
-                      </button>
-                      <button
-                        onClick={() => handleBuyMaterial(mat, 3)}
-                        disabled={gold < mat.unit_price * 3}
-                        className="bg-amber-600 hover:bg-amber-500 text-stone-950 font-black px-4 py-1.5 rounded-lg text-xs transition cursor-pointer disabled:opacity-30 disabled:pointer-events-none shadow"
-                      >
-                        +3 Lote
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           )}
@@ -1777,19 +1860,30 @@ export default function Phase2Workshop({
             </button>
 
             {/* Cabeçalho do Insumo */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-900/50 border border-amber-600/50 flex items-center justify-center shrink-0">
-                <Info className="w-5 h-5 text-amber-400" />
-              </div>
-              <div>
-                <span className="text-[10px] text-amber-400 uppercase tracking-widest font-mono font-bold block">
-                  Ficha Técnica de Matéria-Prima
-                </span>
-                <h3 className="text-lg font-black text-stone-100">
-                  {materialSheetModal.material.name}
-                </h3>
-              </div>
-            </div>
+            {(() => {
+              const modalRarity = getMaterialRarity(materialSheetModal.material.id, materialSheetModal.material.name)
+              const modalRStyle = MATERIAL_RARITY_STYLES[modalRarity]
+              return (
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl ${modalRStyle.bg} border ${modalRStyle.border} ${modalRStyle.glow} flex items-center justify-center shrink-0`}>
+                      <Info className={`w-5 h-5 ${modalRStyle.text}`} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-amber-400 uppercase tracking-widest font-mono font-bold block">
+                        Ficha Técnica de Matéria-Prima
+                      </span>
+                      <h3 className="text-lg font-black text-stone-100">
+                        {materialSheetModal.material.name}
+                      </h3>
+                    </div>
+                  </div>
+                  <span className={modalRStyle.badge}>
+                    {modalRarity}
+                  </span>
+                </div>
+              )
+            })()}
 
             {/* Dados Básicos */}
             <div className="grid grid-cols-2 gap-3 text-xs font-mono bg-stone-950 p-3 rounded-xl border border-stone-800">
