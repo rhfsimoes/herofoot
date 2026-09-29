@@ -4,9 +4,12 @@ Gerencia ordens de fabricação de itens nas 4 bancadas da oficina, prévia de f
 consulta de opções por afixo, aquisição de Manuais de Ofício e ampliações departamentais.
 """
 
+import uuid
+import random
 from typing import Dict, Any, Optional
 
 from constants import normalize_branch, BRANCHES
+from balance import get_balance
 from crafting import get_workshops_data, determine_quality
 from catalog import get_catalog
 from item_resolver import resolve_item, build_name, get_quality_multipliers
@@ -25,13 +28,19 @@ class CraftingService:
         suffix_id: Optional[str] = None,
         prefix_material_id: Optional[str] = None,
         suffix_material_id: Optional[str] = None,
+        is_tinkering: bool = False,
         rng=None,
     ) -> Dict[str, Any]:
         """
         Executa a ordem de fabricação de um item (Crafting v2).
         Consome os ingredientes da base mais o material de cada afixo escolhido.
         Valida nível de oficina, afixos conhecidos, compatibilidade de slot e estoque de materiais.
+        Suporta Forja Experimental (Tinkering) para projetos com nível superior ao homologado.
         """
+        if isinstance(is_tinkering, random.Random) and rng is None:
+            rng = is_tinkering
+            is_tinkering = False
+
         cat = get_catalog()
         recipe = cat.get_recipe(recipe_id)
         if not recipe:
@@ -41,13 +50,14 @@ class CraftingService:
             if not recipe:
                 return {"success": False, "message": "Receita não localizada no Livro de Ordens."}
 
-        # Validação de receita conhecida
-        if hasattr(self.state, "known_recipes") and self.state.known_recipes:
-            if recipe_id not in self.state.known_recipes:
-                return {
-                    "success": False,
-                    "message": f"Ordem de serviço rejeitada: receita '{recipe_id}' não homologada no acervo técnico da guilda.",
-                }
+        # Validação de receita conhecida (se não for forja experimental / tinkering)
+        if not is_tinkering:
+            if hasattr(self.state, "known_recipes") and self.state.known_recipes:
+                if recipe_id not in self.state.known_recipes:
+                    return {
+                        "success": False,
+                        "message": f"Ordem de serviço rejeitada: receita '{recipe_id}' não homologada no acervo técnico da guilda.",
+                    }
 
         # O ramo é SEMPRE recipe["branch"] (normalizado). O parâmetro branch do cliente é ignorado.
         branch_raw = recipe.get("branch", "Ferragem")
@@ -56,7 +66,7 @@ class CraftingService:
 
         # Nível mínimo da oficina exigido pela receita
         min_level = recipe.get("min_workshop_level", 1)
-        if workshop_level < min_level:
+        if workshop_level < min_level and not is_tinkering:
             return {
                 "success": False,
                 "message": (
@@ -164,7 +174,112 @@ class CraftingService:
         for mat_id, needed in total_needed.items():
             self.state.materials[mat_id] = max(0, self.state.materials.get(mat_id, 0) - needed)
 
-        # Sorteio auditado da qualidade com RNG injetável
+        # Cálculo da XP base de forja a partir da progressão departamental
+        data = get_workshops_data()
+        xp_progression = data.get("xp_progression", {})
+        recipe_tier = recipe.get("tier", 1)
+        tier_key = f"xp_per_craft_tier{recipe_tier}"
+
+        base_xp = xp_progression.get(str(workshop_level), {}).get(tier_key)
+        if base_xp is None:
+            for lvl_info in xp_progression.values():
+                if lvl_info.get(tier_key) is not None:
+                    base_xp = lvl_info[tier_key]
+                    break
+        if base_xp is None:
+            base_xp = 10 if recipe_tier == 1 else (25 if recipe_tier == 2 else 60)
+
+        if rng is None:
+            rng = random.Random()
+
+        # Mecânica de Tinkering (Forja Experimental)
+        if workshop_level < min_level:
+            balance = get_balance()
+            tinkering_cfg = balance.get("crafting", {}).get("tinkering", {})
+            penalty_per_gap = tinkering_cfg.get("success_penalty_per_tier_gap", 0.35)
+            min_success = tinkering_cfg.get("min_success_chance", 0.05)
+            multiplier_success = tinkering_cfg.get("xp_multiplier_on_tinkering_success", 1.5)
+            xp_fail = tinkering_cfg.get("xp_on_tinkering_fail", 5)
+            gororoba_value = tinkering_cfg.get("gororoba_sell_value", 20)
+
+            tier_gap = max(1, min_level - workshop_level)
+            success_chance = max(min_success, 1.0 - tier_gap * penalty_per_gap)
+
+            roll = rng.random()
+            if roll < success_chance:
+                quality = determine_quality(workshop_level, rng=rng)
+                crafted_item = resolve_item(
+                    recipe_id=recipe_id,
+                    prefix_id=prefix_id,
+                    suffix_id=suffix_id,
+                    quality=quality,
+                    prefix_material_id=chosen_prefix_mat,
+                    suffix_material_id=chosen_suffix_mat,
+                    catalog=cat,
+                )
+                mults = get_quality_multipliers()
+                crafted_item["multiplier"] = mults.get(quality, 1.0)
+                self.state.inventory.append(crafted_item)
+
+                if hasattr(self.state, "known_recipes") and recipe_id not in self.state.known_recipes:
+                    self.state.known_recipes.append(recipe_id)
+
+                xp_gained = int(base_xp * multiplier_success)
+                if not hasattr(self.state, "workshop_xp") or not isinstance(self.state.workshop_xp, dict):
+                    self.state.workshop_xp = {"Ferragem": 0, "Alquimia": 0, "Joalheria": 0, "Culinária": 0}
+                self.state.workshop_xp[norm_branch] = self.state.get_workshop_xp(norm_branch) + xp_gained
+
+                return {
+                    "success": True,
+                    "item": crafted_item,
+                    "quality": quality,
+                    "tinkering": True,
+                    "tinkering_success": True,
+                    "recipe_unlocked": True,
+                    "xp_gained": xp_gained,
+                    "current_xp": self.state.get_workshop_xp(norm_branch),
+                }
+            else:
+                mults = get_quality_multipliers()
+                gororoba_item = {
+                    "item_instance_id": str(uuid.uuid4()),
+                    "recipe_id": recipe_id,
+                    "name": "Gororoba Experimental",
+                    "description": "Resíduo operacional oriundo de processo fabril experimental sem conformidade técnica homologada.",
+                    "slot": slot,
+                    "slot_type": slot,
+                    "branch": norm_branch,
+                    "quality": "Fraco",
+                    "power_bonus": 0,
+                    "energy_bonus": 0,
+                    "terrain_mitigation": None,
+                    "market_value_base": int(gororoba_value),
+                    "multiplier": mults.get("Fraco", 0.70),
+                    "special_suffix_active": False,
+                }
+                self.state.inventory.append(gororoba_item)
+
+                if hasattr(self.state, "known_recipes") and recipe_id not in self.state.known_recipes:
+                    self.state.known_recipes.append(recipe_id)
+
+                xp_fail_int = int(xp_fail)
+                if not hasattr(self.state, "workshop_xp") or not isinstance(self.state.workshop_xp, dict):
+                    self.state.workshop_xp = {"Ferragem": 0, "Alquimia": 0, "Joalheria": 0, "Culinária": 0}
+                self.state.workshop_xp[norm_branch] = self.state.get_workshop_xp(norm_branch) + xp_fail_int
+
+                return {
+                    "success": True,
+                    "item": gororoba_item,
+                    "quality": "Fraco",
+                    "tinkering": True,
+                    "tinkering_success": False,
+                    "recipe_unlocked": True,
+                    "message": "Falha no processo de forja experimental. Os insumos foram consumidos gerando refugo operacional (Gororoba Experimental), mas o protocolo da receita foi catalogado.",
+                    "xp_gained": xp_fail_int,
+                    "current_xp": self.state.get_workshop_xp(norm_branch),
+                }
+
+        # Fabricação regular homologada
         quality = determine_quality(workshop_level, rng=rng)
 
         # Instanciação do item
@@ -185,7 +300,17 @@ class CraftingService:
         # Adiciona ao inventário da guilda
         self.state.inventory.append(crafted_item)
 
-        return {"success": True, "item": crafted_item, "quality": quality}
+        if not hasattr(self.state, "workshop_xp") or not isinstance(self.state.workshop_xp, dict):
+            self.state.workshop_xp = {"Ferragem": 0, "Alquimia": 0, "Joalheria": 0, "Culinária": 0}
+        self.state.workshop_xp[norm_branch] = self.state.get_workshop_xp(norm_branch) + base_xp
+
+        return {
+            "success": True,
+            "item": crafted_item,
+            "quality": quality,
+            "xp_gained": base_xp,
+            "current_xp": self.state.get_workshop_xp(norm_branch),
+        }
 
     def get_craft_options(self, recipe_id: str) -> Dict[str, Any]:
         """
@@ -531,12 +656,23 @@ class CraftingService:
         self.state.gold -= cost
         self.state.workshop_levels[norm_branch] = next_level
 
+        # Débito da XP necessária correspondente ao avanço de current_level para next_level
+        xp_progression = data.get("xp_progression", {})
+        level_prog = xp_progression.get(str(current_level), {})
+        xp_needed = level_prog.get("xp_to_next_level") or 0
+        current_xp = self.state.get_workshop_xp(norm_branch)
+        if not hasattr(self.state, "workshop_xp") or not isinstance(self.state.workshop_xp, dict):
+            self.state.workshop_xp = {"Ferragem": 0, "Alquimia": 0, "Joalheria": 0, "Culinária": 0}
+        self.state.workshop_xp[norm_branch] = max(0, current_xp - xp_needed)
+
         return {
             "success": True,
             "message": f"Ordem de ampliação homologada. Filial de {norm_branch} modernizada para o nível {next_level}.",
             "branch": norm_branch,
             "level": next_level,
             "cost": cost,
+            "xp_consumed": xp_needed,
+            "current_xp": self.state.get_workshop_xp(norm_branch),
         }
 
 

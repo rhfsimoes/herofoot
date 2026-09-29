@@ -25,6 +25,7 @@ SERIALIZED_FIELDS = [
     "reserves",
     "loadout",
     "workshop_levels",
+    "workshop_xp",
     "materials",
     "known_affixes",
     "known_recipes",
@@ -85,6 +86,12 @@ class GameState:
             "Joalheria": 1,
             "Culinária": 1,
         }
+        self.workshop_xp = {
+            "Ferragem": 0,
+            "Alquimia": 0,
+            "Joalheria": 0,
+            "Culinária": 0,
+        }
         self.materials = {}        # {"mat_id": quantidade}
 
         # Crafting v2
@@ -121,6 +128,17 @@ class GameState:
         for field in SERIALIZED_FIELDS:
             if field in data:
                 setattr(self, field, copy.deepcopy(data[field]))
+        if not hasattr(self, "workshop_xp") or not isinstance(self.workshop_xp, dict):
+            self.workshop_xp = {
+                "Ferragem": 0,
+                "Alquimia": 0,
+                "Joalheria": 0,
+                "Culinária": 0,
+            }
+        else:
+            for b in ["Ferragem", "Alquimia", "Joalheria", "Culinária"]:
+                if b not in self.workshop_xp:
+                    self.workshop_xp[b] = 0
         return self
 
     def load_initial_data(self):
@@ -228,6 +246,17 @@ class GameState:
     def get_workshop_level(self, branch: str) -> int:
         norm_branch = normalize_branch(branch)
         return self.workshop_levels.get(norm_branch, 1)
+
+    def get_workshop_xp(self, branch: str) -> int:
+        norm_branch = normalize_branch(branch)
+        if not hasattr(self, "workshop_xp") or not isinstance(self.workshop_xp, dict):
+            self.workshop_xp = {
+                "Ferragem": 0,
+                "Alquimia": 0,
+                "Joalheria": 0,
+                "Culinária": 0,
+            }
+        return self.workshop_xp.get(norm_branch, 0)
 
     def has_materials_for(self, recipe: dict) -> bool:
         """Verifica se o jogador possui os insumos necessários para uma receita."""
