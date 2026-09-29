@@ -140,6 +140,106 @@
     "value": 0.2
   },
   {
+    "affix_id": "pref_predatorio",
+    "effect": "power_pct",
+    "value": 0.18
+  },
+  {
+    "affix_id": "pref_predatorio",
+    "effect": "value_pct",
+    "value": 0.4
+  },
+  {
+    "affix_id": "pref_galvanizado",
+    "effect": "power_flat",
+    "value": 5
+  },
+  {
+    "affix_id": "pref_galvanizado",
+    "effect": "power_pct",
+    "value": 0.1
+  },
+  {
+    "affix_id": "pref_galvanizado",
+    "effect": "value_pct",
+    "value": 0.5
+  },
+  {
+    "affix_id": "pref_glacial",
+    "effect": "terrain_mitigation",
+    "value": "glacier_frost"
+  },
+  {
+    "affix_id": "pref_glacial",
+    "effect": "power_flat",
+    "value": 3
+  },
+  {
+    "affix_id": "pref_glacial",
+    "effect": "value_pct",
+    "value": 0.3
+  },
+  {
+    "affix_id": "pref_vulcanico",
+    "effect": "power_pct",
+    "value": 0.2
+  },
+  {
+    "affix_id": "pref_vulcanico",
+    "effect": "power_flat",
+    "value": 4
+  },
+  {
+    "affix_id": "pref_vulcanico",
+    "effect": "value_pct",
+    "value": 0.35
+  },
+  {
+    "affix_id": "pref_macico",
+    "effect": "power_flat",
+    "value": 6
+  },
+  {
+    "affix_id": "pref_macico",
+    "effect": "value_pct",
+    "value": 0.2
+  },
+  {
+    "affix_id": "pref_impenetravel",
+    "effect": "power_flat",
+    "value": 8
+  },
+  {
+    "affix_id": "pref_impenetravel",
+    "effect": "power_pct",
+    "value": 0.12
+  },
+  {
+    "affix_id": "pref_impenetravel",
+    "effect": "value_pct",
+    "value": 0.4
+  },
+  {
+    "affix_id": "pref_penitente",
+    "effect": "power_pct",
+    "value": 0.22
+  },
+  {
+    "affix_id": "pref_penitente",
+    "effect": "value_pct",
+    "value": 0.4
+  },
+  {
+    "affix_id": "pref_economico",
+    "effect": "value_pct",
+    "value": 0.45
+  },
+  {
+    "affix_id": "pref_economico",
+    "effect": "power_flat",
+    "value": 2
+  },
+  {
     "affix_id": "suf_acidente_trabalho",
     "effect": "power_flat",
     "value": 5
@@ -343,6 +443,112 @@
   },
   {
     "affix_id": "suf_prevencao_hipotermia",
+    "effect": "power_pct",
+    "value": 0.1,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_risco_calculado",
+    "effect": "power_flat",
+    "value": 4
+  },
+  {
+    "affix_id": "suf_risco_calculado",
+    "effect": "value_pct",
+    "value": 0.2
+  },
+  {
+    "affix_id": "suf_risco_calculado",
+    "effect": "power_pct",
+    "value": 0.12,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_eficiencia_tributaria",
+    "effect": "value_pct",
+    "value": 0.5
+  },
+  {
+    "affix_id": "suf_eficiencia_tributaria",
+    "effect": "power_flat",
+    "value": 3
+  },
+  {
+    "affix_id": "suf_eficiencia_tributaria",
+    "effect": "value_pct",
+    "value": 0.3,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_rescisao_imediata",
+    "effect": "power_flat",
+    "value": 7
+  },
+  {
+    "affix_id": "suf_rescisao_imediata",
+    "effect": "power_pct",
+    "value": 0.2
+  },
+  {
+    "affix_id": "suf_rescisao_imediata",
+    "effect": "value_pct",
+    "value": 0.35
+  },
+  {
+    "affix_id": "suf_rescisao_imediata",
+    "effect": "power_pct",
+    "value": 0.15,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_turno_extraordinario",
+    "effect": "energy_bonus_flat",
+    "value": 12
+  },
+  {
+    "affix_id": "suf_turno_extraordinario",
+    "effect": "charges_flat",
+    "value": 1
+  },
+  {
+    "affix_id": "suf_turno_extraordinario",
+    "effect": "value_pct",
+    "value": 0.25
+  },
+  {
+    "affix_id": "suf_turno_extraordinario",
+    "effect": "energy_bonus_flat",
+    "value": 15,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_compliance_magico",
+    "effect": "power_flat",
+    "value": 5
+  },
+  {
+    "affix_id": "suf_compliance_magico",
+    "effect": "value_pct",
+    "value": 0.35
+  },
+  {
+    "affix_id": "suf_compliance_magico",
+    "effect": "power_pct",
+    "value": 0.1,
+    "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "suf_responsabilidade_limitada",
+    "effect": "power_flat",
+    "value": 6
+  },
+  {
+    "affix_id": "suf_responsabilidade_limitada",
+    "effect": "value_pct",
+    "value": 0.3
+  },
+  {
+    "affix_id": "suf_responsabilidade_limitada",
     "effect": "power_pct",
     "value": 0.1,
     "requires_quality": "Lendário"

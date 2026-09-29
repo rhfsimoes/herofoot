@@ -132,6 +132,82 @@
     "name_f": "Firme"
   },
   {
+    "affix_id": "pref_predatorio",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 350
+    },
+    "name_m": "Predatório",
+    "name_f": "Predatória"
+  },
+  {
+    "affix_id": "pref_galvanizado",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 300
+    },
+    "name_m": "Galvanizado",
+    "name_f": "Galvanizada"
+  },
+  {
+    "affix_id": "pref_glacial",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 350
+    },
+    "name_m": "Glacial",
+    "name_f": "Glacial"
+  },
+  {
+    "affix_id": "pref_vulcanico",
+    "kind": "prefix",
+    "unlock": {
+      "method": "loot"
+    },
+    "name_m": "Vulcânico",
+    "name_f": "Vulcânica"
+  },
+  {
+    "affix_id": "pref_macico",
+    "kind": "prefix",
+    "unlock": {
+      "method": "start"
+    },
+    "name_m": "Maciço",
+    "name_f": "Maciça"
+  },
+  {
+    "affix_id": "pref_impenetravel",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 450
+    },
+    "name_m": "Impenetrável",
+    "name_f": "Impenetrável"
+  },
+  {
+    "affix_id": "pref_penitente",
+    "kind": "prefix",
+    "unlock": {
+      "method": "loot"
+    },
+    "name_m": "Penitente",
+    "name_f": "Penitente"
+  },
+  {
+    "affix_id": "pref_economico",
+    "kind": "prefix",
+    "unlock": {
+      "method": "start"
+    },
+    "name_m": "Econômico",
+    "name_f": "Econômica"
+  },
+  {
     "affix_id": "suf_acidente_trabalho",
     "kind": "suffix",
     "unlock": {
@@ -237,5 +313,56 @@
       "method": "start"
     },
     "name": "da Prevenção à Hipotermia"
+  },
+  {
+    "affix_id": "suf_risco_calculado",
+    "kind": "suffix",
+    "unlock": {
+      "method": "start"
+    },
+    "name": "do Risco Calculado"
+  },
+  {
+    "affix_id": "suf_eficiencia_tributaria",
+    "kind": "suffix",
+    "unlock": {
+      "method": "market",
+      "cost": 400
+    },
+    "name": "da Eficiência Tributária"
+  },
+  {
+    "affix_id": "suf_rescisao_imediata",
+    "kind": "suffix",
+    "unlock": {
+      "method": "loot"
+    },
+    "name": "da Rescisão Imediata"
+  },
+  {
+    "affix_id": "suf_turno_extraordinario",
+    "kind": "suffix",
+    "unlock": {
+      "method": "market",
+      "cost": 350
+    },
+    "name": "do Turno Extraordinário"
+  },
+  {
+    "affix_id": "suf_compliance_magico",
+    "kind": "suffix",
+    "unlock": {
+      "method": "market",
+      "cost": 380
+    },
+    "name": "do Compliance Mágico"
+  },
+  {
+    "affix_id": "suf_responsabilidade_limitada",
+    "kind": "suffix",
+    "unlock": {
+      "method": "start"
+    },
+    "name": "da Responsabilidade Limitada"
   }
 ]

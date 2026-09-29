@@ -19,6 +19,24 @@
   },
   {
     "terrain": "neutral",
+    "material_id": "mat_common_ash",
+    "chance": 0.65,
+    "qty_min": 2,
+    "qty_max": 4,
+    "min_rooms_reached": 2,
+    "boss_only": false
+  },
+  {
+    "terrain": "neutral",
+    "material_id": "mat_tanned_leather",
+    "chance": 0.6,
+    "qty_min": 1,
+    "qty_max": 3,
+    "min_rooms_reached": 3,
+    "boss_only": false
+  },
+  {
+    "terrain": "neutral",
     "material_id": "mat_scaly_leather",
     "chance": 0.5,
     "qty_min": 1,
@@ -28,8 +46,26 @@
   },
   {
     "terrain": "neutral",
+    "material_id": "mat_griffin_claw",
+    "chance": 0.35,
+    "qty_min": 1,
+    "qty_max": 2,
+    "min_rooms_reached": 6,
+    "boss_only": false
+  },
+  {
+    "terrain": "neutral",
     "material_id": "mat_mana_crystal",
     "chance": 0.5,
+    "qty_min": 1,
+    "qty_max": 2,
+    "min_rooms_reached": 10,
+    "boss_only": true
+  },
+  {
+    "terrain": "neutral",
+    "material_id": "mat_chimera_horn",
+    "chance": 0.25,
     "qty_min": 1,
     "qty_max": 2,
     "min_rooms_reached": 10,
@@ -46,11 +82,47 @@
   },
   {
     "terrain": "toxic_swamp",
+    "material_id": "mat_glowing_moss",
+    "chance": 0.75,
+    "qty_min": 2,
+    "qty_max": 4,
+    "min_rooms_reached": 2,
+    "boss_only": false
+  },
+  {
+    "terrain": "toxic_swamp",
+    "material_id": "mat_mandrake_root",
+    "chance": 0.5,
+    "qty_min": 1,
+    "qty_max": 3,
+    "min_rooms_reached": 4,
+    "boss_only": false
+  },
+  {
+    "terrain": "toxic_swamp",
     "material_id": "mat_scaly_leather",
     "chance": 0.5,
     "qty_min": 1,
     "qty_max": 3,
     "min_rooms_reached": 4,
+    "boss_only": false
+  },
+  {
+    "terrain": "toxic_swamp",
+    "material_id": "mat_basilisk_scale",
+    "chance": 0.45,
+    "qty_min": 1,
+    "qty_max": 2,
+    "min_rooms_reached": 5,
+    "boss_only": false
+  },
+  {
+    "terrain": "toxic_swamp",
+    "material_id": "mat_pure_ectoplasm",
+    "chance": 0.4,
+    "qty_min": 1,
+    "qty_max": 2,
+    "min_rooms_reached": 6,
     "boss_only": false
   },
   {
@@ -72,6 +144,24 @@
     "boss_only": true
   },
   {
+    "terrain": "toxic_swamp",
+    "material_id": "mat_liquid_mana_crystal",
+    "chance": 0.3,
+    "qty_min": 1,
+    "qty_max": 2,
+    "min_rooms_reached": 10,
+    "boss_only": true
+  },
+  {
+    "terrain": "glacier_frost",
+    "material_id": "mat_scaly_leather",
+    "chance": 0.6,
+    "qty_min": 1,
+    "qty_max": 3,
+    "min_rooms_reached": 2,
+    "boss_only": false
+  },
+  {
     "terrain": "glacier_frost",
     "material_id": "mat_mana_crystal",
     "chance": 0.4,
@@ -82,11 +172,11 @@
   },
   {
     "terrain": "glacier_frost",
-    "material_id": "mat_scaly_leather",
-    "chance": 0.6,
+    "material_id": "mat_ancient_wood",
+    "chance": 0.55,
     "qty_min": 1,
     "qty_max": 3,
-    "min_rooms_reached": 2,
+    "min_rooms_reached": 3,
     "boss_only": false
   },
   {
@@ -100,10 +190,46 @@
   },
   {
     "terrain": "glacier_frost",
+    "material_id": "mat_moonlight_herb",
+    "chance": 0.35,
+    "qty_min": 1,
+    "qty_max": 2,
+    "min_rooms_reached": 5,
+    "boss_only": false
+  },
+  {
+    "terrain": "glacier_frost",
+    "material_id": "mat_black_steel",
+    "chance": 0.4,
+    "qty_min": 1,
+    "qty_max": 2,
+    "min_rooms_reached": 6,
+    "boss_only": false
+  },
+  {
+    "terrain": "glacier_frost",
+    "material_id": "mat_chimera_horn",
+    "chance": 0.25,
+    "qty_min": 1,
+    "qty_max": 2,
+    "min_rooms_reached": 8,
+    "boss_only": false
+  },
+  {
+    "terrain": "glacier_frost",
     "material_id": "mat_mana_crystal",
     "chance": 0.7,
     "qty_min": 2,
     "qty_max": 3,
+    "min_rooms_reached": 10,
+    "boss_only": true
+  },
+  {
+    "terrain": "glacier_frost",
+    "material_id": "mat_soul_stone",
+    "chance": 0.2,
+    "qty_min": 1,
+    "qty_max": 1,
     "min_rooms_reached": 10,
     "boss_only": true
   },
@@ -118,11 +244,29 @@
   },
   {
     "terrain": "unstable_mine",
+    "material_id": "mat_soapstone",
+    "chance": 0.75,
+    "qty_min": 2,
+    "qty_max": 4,
+    "min_rooms_reached": 2,
+    "boss_only": false
+  },
+  {
+    "terrain": "unstable_mine",
     "material_id": "mat_granite_dust",
     "chance": 0.7,
     "qty_min": 2,
     "qty_max": 4,
     "min_rooms_reached": 2,
+    "boss_only": false
+  },
+  {
+    "terrain": "unstable_mine",
+    "material_id": "mat_lapis_powder",
+    "chance": 0.6,
+    "qty_min": 2,
+    "qty_max": 4,
+    "min_rooms_reached": 3,
     "boss_only": false
   },
   {
@@ -136,10 +280,55 @@
   },
   {
     "terrain": "unstable_mine",
+    "material_id": "mat_mithril_ingot",
+    "chance": 0.4,
+    "qty_min": 1,
+    "qty_max": 2,
+    "min_rooms_reached": 5,
+    "boss_only": false
+  },
+  {
+    "terrain": "unstable_mine",
+    "material_id": "mat_adamantite_ore",
+    "chance": 0.3,
+    "qty_min": 1,
+    "qty_max": 2,
+    "min_rooms_reached": 7,
+    "boss_only": false
+  },
+  {
+    "terrain": "unstable_mine",
     "material_id": "mat_mana_crystal",
     "chance": 0.6,
     "qty_min": 1,
     "qty_max": 3,
+    "min_rooms_reached": 10,
+    "boss_only": true
+  },
+  {
+    "terrain": "unstable_mine",
+    "material_id": "mat_fire_golem_core",
+    "chance": 0.3,
+    "qty_min": 1,
+    "qty_max": 2,
+    "min_rooms_reached": 10,
+    "boss_only": true
+  },
+  {
+    "terrain": "unstable_mine",
+    "material_id": "mat_runic_gold",
+    "chance": 0.2,
+    "qty_min": 1,
+    "qty_max": 1,
+    "min_rooms_reached": 10,
+    "boss_only": true
+  },
+  {
+    "terrain": "unstable_mine",
+    "material_id": "mat_ancient_dragon_scale",
+    "chance": 0.15,
+    "qty_min": 1,
+    "qty_max": 1,
     "min_rooms_reached": 10,
     "boss_only": true
   }

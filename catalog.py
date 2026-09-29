@@ -158,10 +158,13 @@ class Catalog:
             return None
         res = dict(m)
         val = self.material_values.get(material_id, {})
-        res["unit_price"] = val.get("price", 20)
+        res["unit_price"] = val.get("unit_price", val.get("price", val.get("market_value_base", 20)))
+        res["market_value_base"] = val.get("market_value_base", res["unit_price"])
+        res["rarity"] = m.get("rarity", val.get("rarity", "Comum"))
         res["min_qty"] = val.get("min_qty", 1)
         res["max_qty"] = val.get("max_qty", 5)
         res["variance"] = val.get("variance", 0.2)
+        res["market_appearance_chance"] = val.get("market_appearance_chance", 0.5)
         return res
 
     def get_material_sources(self, material_id: str) -> List[Dict[str, Any]]:
