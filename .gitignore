@@ -20,6 +20,7 @@ yarn-error.log*
 
 # Game Saves and temporary logs
 data/saves/
+.worktrees/
 *.log
 
 # IDE & OS
