@@ -1,0 +1,92 @@
+[
+  {
+    "id": "vip_order_01",
+    "client_name": "Guarda Ducal de Prata",
+    "target_slot": "Armadura",
+    "required_quality": "Ótimo",
+    "reward_multiplier": 2.6,
+    "confidence_reward": 12,
+    "flavor_text": "A chancelaria do Grão-Duque abriu edital de aquisição de couraças reforçadas com polimento especular para a escolta de carruagens pagadoras. Rejeita-se categoricamente qualquer peça com rebarba de forja ou ausência de selo de têmpera homologada."
+  },
+  {
+    "id": "vip_order_02",
+    "client_name": "Ordem dos Clérigos Auditores",
+    "target_slot": "Joia",
+    "required_quality": "Normal",
+    "reward_multiplier": 2.2,
+    "confidence_reward": 10,
+    "flavor_text": "Edital emergencial do Tribunal Eclesiástico para aquisição de pingentes de foco mental destinados aos escribas comissionados que conferem balanços contábeis de expedições sob suspeita de desvio de dízimo."
+  },
+  {
+    "id": "vip_order_03",
+    "client_name": "Sindicato dos Mineiros de Malaquita",
+    "target_slot": "Arma",
+    "required_quality": "Ótimo",
+    "reward_multiplier": 2.8,
+    "confidence_reward": 14,
+    "flavor_text": "A diretoria do consórcio mineiro requisita lote comissionado de machados de corte reforçado para desobstrução de galerias profundas infestadas de carapaças trogloditas. Pagamento garantido com lastro direto em minério bruto."
+  },
+  {
+    "id": "vip_order_04",
+    "client_name": "Consórcio Real de Seguros de Vida & Ressurreição",
+    "target_slot": "Consumível",
+    "required_quality": "Ótimo",
+    "reward_multiplier": 2.4,
+    "confidence_reward": 10,
+    "flavor_text": "A seguradora oficial da Coroa exige provisão concentrada de rações enriquecidas e tônicos de estanque para mitigar sinistros de desidratação em massa antes que heróis segurados acionem apólices de invalidez funcional."
+  },
+  {
+    "id": "vip_order_05",
+    "client_name": "Inspetoria de Postura e Fronteiras",
+    "target_slot": "Inscrição",
+    "required_quality": "Normal",
+    "reward_multiplier": 2.1,
+    "confidence_reward": 8,
+    "flavor_text": "Postos alfandegários do Septentrião necessitam de matrizes rúnicas de contenção climática para resguardar cancelas de pedágio fiscal contra ventos polares e congelamento de correntes de içamento."
+  },
+  {
+    "id": "vip_order_06",
+    "client_name": "Chancelaria dos Mestres de Bigorna Imperial",
+    "target_slot": "Arma",
+    "required_quality": "Lendário",
+    "reward_multiplier": 4.5,
+    "confidence_reward": 25,
+    "flavor_text": "Comenda solene encomendada pelo gabinete do Primeiro-Ministro para ofertar ao plenipotenciário do Reino de Cinzas. Exige-se lâmina de têmpera lendária com microfissuras seladas a frio e laudo metalúrgico de pureza impecável."
+  },
+  {
+    "id": "vip_order_07",
+    "client_name": "Tribunal de Apelações e Execuções Fiscais",
+    "target_slot": "Armadura",
+    "required_quality": "Lendário",
+    "reward_multiplier": 4.2,
+    "confidence_reward": 22,
+    "flavor_text": "O pelotão de meirinhos especiais incumbido de executar a penhora de fortalezas de barões inadimplentes requisita armadura pesada de padrão lendário, imune a projéteis arcanos de devedores desesperados."
+  },
+  {
+    "id": "vip_order_08",
+    "client_name": "Liga Mercantil dos Joalheiros da Capital",
+    "target_slot": "Joia",
+    "required_quality": "Ótimo",
+    "reward_multiplier": 3.0,
+    "confidence_reward": 15,
+    "flavor_text": "Consórcio de ourives do distrito bancário busca amuletos de geometria sagrada e engastes lapidados para lastrear a emissão de cédulas fiduciárias da Bolsa Central de Gemas."
+  },
+  {
+    "id": "vip_order_09",
+    "client_name": "Intendência Geral das Expedições Reais",
+    "target_slot": "Consumível",
+    "required_quality": "Normal",
+    "reward_multiplier": 1.9,
+    "confidence_reward": 8,
+    "flavor_text": "Requisição extraordinária para reabastecimento dos celeiros de campanha das milícias provinciais após manobras de adestramento no planalto. Faturamento imediato com quitação sem glosas pelo tesouro régio."
+  },
+  {
+    "id": "vip_order_10",
+    "client_name": "Colégio Maior de Engenharia Taumatúrgica",
+    "target_slot": "Inscrição",
+    "required_quality": "Ótimo",
+    "reward_multiplier": 3.2,
+    "confidence_reward": 18,
+    "flavor_text": "A bancada de arcanistas da Academia Real solicita inscrições rúnicas de absorção sísmica para blindar os alicerces do novo repositório subterrâneo de pergaminhos fiscais contra abalos tectônicos de masmorra."
+  }
+]
