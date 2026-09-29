@@ -8,17 +8,14 @@ import json
 import os
 import random
 import unittest
-from unittest.mock import patch
 
-from balance import get_balance, reload_balance
+from balance import get_balance
 from match_engine import (
     Team,
     MatchEngine,
     calculate_hero_effective_power,
     calculate_team_base_power,
     calculate_slot_bonus,
-    check_terrain_mitigation,
-    calculate_average_agi,
 )
 
 

@@ -6,7 +6,6 @@ import os
 import unittest
 from game_state import GameState
 from services.crown_service import (
-    init_crown_goals,
     get_crown_goals_data,
     process_quarterly_audit,
 )

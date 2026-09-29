@@ -5,7 +5,6 @@ cobertura de atributos de GameState e endpoints HTTP da API de persistência.
 """
 
 import os
-import sys
 import json
 import hashlib
 import tempfile

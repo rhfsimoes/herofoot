@@ -2,8 +2,6 @@ import os
 import json
 import random
 
-# Re-export CounterSales from counter_sales for backwards compatibility
-from counter_sales import CounterSales
 
 _WORKSHOPS_CACHE = None
 

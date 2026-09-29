@@ -1,15 +1,11 @@
 import unittest
-import copy
 import random
 from controller import GameController
 from crafting import (
     determine_quality,
     create_gororoba,
     get_workshops_data,
-    CraftingEngine,
-    Workshop,
 )
-from services.crafting_service import CraftingService
 
 FORBIDDEN_TERMS = ["gol", "gramado", "estádio", "estadio", "escanteio", "bilheteria", "brasfoot"]
 

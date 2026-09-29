@@ -1,11 +1,7 @@
 import unittest
 import os
-import json
 import random
 from league_engine import LeagueEngine
-from game_state import GameState
-from controller import GameController
-from balance import get_balance
 
 FORBIDDEN_TERMS = ["gol", "gramado", "estádio", "estadio", "escanteio", "bilheteria", "brasfoot"]
 

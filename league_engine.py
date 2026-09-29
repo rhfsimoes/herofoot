@@ -357,7 +357,6 @@ class LeagueEngine:
         results = []
 
         # 1. Simula a divisão ativa do jogador
-        player_div = self.divisions[self.current_division_id]
         fixtures_player_div = self.get_fixtures_for_round(round_num, self.current_division_id)
 
         for fix in fixtures_player_div:

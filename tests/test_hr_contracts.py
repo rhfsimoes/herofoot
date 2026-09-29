@@ -12,7 +12,6 @@ import os
 import re
 from game_state import GameState
 from services.hero_service import HeroService, calculate_hero_power
-from services.phase_service import PhaseService
 from controller import GameController
 
 FORBIDDEN_TERMS = ["gol", "gramado", "estádio", "estadio", "escanteio", "bilheteria", "brasfoot"]

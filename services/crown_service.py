@@ -48,7 +48,6 @@ def get_crown_goals_data(state: Any, league_engine: Optional[Any] = None) -> Dic
 
     balance = get_balance()
     crown_cfg = balance.get("crown_goals", {})
-    cycle_length = crown_cfg.get("cycle_length_weeks", 8)
     subsidy_reward = crown_cfg.get("subsidy_reward_base", 400)
     penalty_tax = crown_cfg.get("penalty_tax_base", 200)
     min_goals_to_pass = crown_cfg.get("min_goals_to_pass", 2)

@@ -7,7 +7,6 @@ import unittest
 from controller import GameController
 from counter_sales import CounterSales
 from market_engine import MarketEngine
-from balance import get_balance
 from constants import SLOTS
 
 

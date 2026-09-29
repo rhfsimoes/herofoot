@@ -4,10 +4,9 @@ Gerencia ordens de fabricação de itens nas 4 bancadas da oficina, prévia de f
 consulta de opções por afixo, aquisição de Manuais de Ofício e ampliações departamentais.
 """
 
-import uuid
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 
-from constants import normalize_branch, normalize_slot, BRANCHES
+from constants import normalize_branch, BRANCHES
 from crafting import get_workshops_data, determine_quality
 from catalog import get_catalog
 from item_resolver import resolve_item, build_name, get_quality_multipliers

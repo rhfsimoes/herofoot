@@ -11,12 +11,9 @@ Valida:
 """
 
 import unittest
-import copy
-import random
 from controller import GameController
 from catalog import get_catalog
-from item_resolver import resolve_item, build_name
-import save_system
+from item_resolver import resolve_item
 
 
 class TestCraftingV2(unittest.TestCase):

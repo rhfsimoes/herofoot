@@ -6,7 +6,6 @@ renovações, e o Departamento de Saúde & Bem-Estar Ocupacional (Money Sinks).
 
 import os
 import json
-import copy
 import random
 from balance import get_balance
 

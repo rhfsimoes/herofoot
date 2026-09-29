@@ -5,7 +5,7 @@ Contém a classe GameState e o rastreamento de campos serializáveis e transient
 
 import os
 import json
-from constants import normalize_branch, normalize_slot
+from constants import normalize_branch
 from balance import get_balance
 
 import copy
