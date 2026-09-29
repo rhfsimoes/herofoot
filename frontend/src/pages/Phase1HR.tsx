@@ -597,18 +597,13 @@ export default function Phase1HR({
                     <div className="flex justify-between items-start">
                       <div>
                         <span className="text-stone-100 font-bold text-xs block">{y.name}</span>
-                        <span className="text-[10px] text-stone-400">{y.age} anos · Nível {y.level ?? 1}</span>
+                        <span className="text-[10px] text-stone-400">
+                          {y.age} anos · {y.class_name ?? y.class ?? 'Combatente'} {y.specialization_name ? `(${y.specialization_name})` : ''}
+                        </span>
                       </div>
                       <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-stone-800 text-amber-400 border border-stone-700">
                         {y.current_power ?? 40} Pod.
                       </span>
-                    </div>
-
-                    <div className="mt-2 text-stone-400 text-[11px]">
-                      <div>{y.class_name ?? y.class ?? 'Combatente'}</div>
-                      {y.specialization_name && (
-                        <div className="text-[10px] text-stone-500">{y.specialization_name}</div>
-                      )}
                     </div>
 
                     <div className="mt-2.5 pt-2 border-t border-stone-800/80">

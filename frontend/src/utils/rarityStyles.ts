@@ -101,16 +101,34 @@ export const MATERIAL_RARITY_MAP: Record<string, MaterialRarity> = {
   mat_soul_stone: 'Lendário',
 }
 
-export function getMaterialRarity(materialIdOrName?: string, explicitRarity?: string): MaterialRarity {
+export function getMaterialRarity(
+  materialIdOrName?: string,
+  nameOrExplicitRarity?: string,
+  explicitRarity?: string
+): MaterialRarity {
+  const explicit =
+    explicitRarity ??
+    (nameOrExplicitRarity === 'Comum' ||
+    nameOrExplicitRarity === 'Raro' ||
+    nameOrExplicitRarity === 'Épico' ||
+    nameOrExplicitRarity === 'Lendário'
+      ? nameOrExplicitRarity
+      : undefined)
+
   if (
-    explicitRarity === 'Comum' ||
-    explicitRarity === 'Raro' ||
-    explicitRarity === 'Épico' ||
-    explicitRarity === 'Lendário'
+    explicit === 'Comum' ||
+    explicit === 'Raro' ||
+    explicit === 'Épico' ||
+    explicit === 'Lendário'
   ) {
-    return explicitRarity
+    return explicit
   }
-  if (!materialIdOrName) return 'Comum'
+  if (!materialIdOrName) {
+    if (nameOrExplicitRarity && !explicitRarity) {
+      return getMaterialRarity(nameOrExplicitRarity)
+    }
+    return 'Comum'
+  }
   if (MATERIAL_RARITY_MAP[materialIdOrName]) {
     return MATERIAL_RARITY_MAP[materialIdOrName]
   }
@@ -145,3 +163,95 @@ export function getMaterialRarity(materialIdOrName?: string, explicitRarity?: st
   }
   return 'Comum'
 }
+
+export type MaterialCategory =
+  | 'Todas'
+  | 'Ferragem (Minérios)'
+  | 'Alquimia (Herbal)'
+  | 'Joalheria (Arcano)'
+  | 'Culinária & Monstros'
+
+export const MATERIAL_CATEGORY_MAP: Record<string, Exclude<MaterialCategory, 'Todas'>> = {
+  // Ferragem (Minérios e Madeiras de Forja)
+  mat_iron_ore: 'Ferragem (Minérios)',
+  mat_soapstone: 'Ferragem (Minérios)',
+  mat_ember_coal: 'Ferragem (Minérios)',
+  mat_granite_dust: 'Ferragem (Minérios)',
+  mat_mithril_ingot: 'Ferragem (Minérios)',
+  mat_black_steel: 'Ferragem (Minérios)',
+  mat_adamantite_ore: 'Ferragem (Minérios)',
+  mat_runic_gold: 'Ferragem (Minérios)',
+  mat_common_ash: 'Ferragem (Minérios)',
+  mat_ancient_wood: 'Ferragem (Minérios)',
+
+  // Alquimia (Herbal)
+  mat_glowing_moss: 'Alquimia (Herbal)',
+  mat_eucalyptus_herb: 'Alquimia (Herbal)',
+  mat_mandrake_root: 'Alquimia (Herbal)',
+  mat_moonlight_herb: 'Alquimia (Herbal)',
+
+  // Joalheria (Arcano)
+  mat_lapis_powder: 'Joalheria (Arcano)',
+  mat_mana_crystal: 'Joalheria (Arcano)',
+  mat_pure_ectoplasm: 'Joalheria (Arcano)',
+  mat_liquid_mana_crystal: 'Joalheria (Arcano)',
+  mat_fire_golem_core: 'Joalheria (Arcano)',
+  mat_soul_stone: 'Joalheria (Arcano)',
+
+  // Culinária & Monstros (Animais & Alimentos)
+  mat_tanned_leather: 'Culinária & Monstros',
+  mat_scaly_leather: 'Culinária & Monstros',
+  mat_basilisk_scale: 'Culinária & Monstros',
+  mat_griffin_claw: 'Culinária & Monstros',
+  mat_chimera_horn: 'Culinária & Monstros',
+  mat_ancient_dragon_scale: 'Culinária & Monstros',
+  mat_flour: 'Culinária & Monstros',
+  mat_wild_honey: 'Culinária & Monstros',
+}
+
+export function getMaterialCategory(materialId?: string, name?: string): Exclude<MaterialCategory, 'Todas'> {
+  if (materialId && MATERIAL_CATEGORY_MAP[materialId]) {
+    return MATERIAL_CATEGORY_MAP[materialId]
+  }
+  const text = `${materialId ?? ''} ${name ?? ''}`.toLowerCase()
+  if (
+    text.includes('erva') ||
+    text.includes('raiz') ||
+    text.includes('musgo') ||
+    text.includes('mandrágora') ||
+    text.includes('luar') ||
+    text.includes('herbal') ||
+    text.includes('planta')
+  ) {
+    return 'Alquimia (Herbal)'
+  }
+  if (
+    text.includes('mana') ||
+    text.includes('cristal') ||
+    text.includes('ectoplasma') ||
+    text.includes('golem') ||
+    text.includes('alma') ||
+    text.includes('lápis') ||
+    text.includes('arcano')
+  ) {
+    return 'Joalheria (Arcano)'
+  }
+  if (
+    text.includes('couro') ||
+    text.includes('escama') ||
+    text.includes('garra') ||
+    text.includes('chifre') ||
+    text.includes('dragão') ||
+    text.includes('basilisco') ||
+    text.includes('grifo') ||
+    text.includes('quimera') ||
+    text.includes('farinha') ||
+    text.includes('mel') ||
+    text.includes('alimento') ||
+    text.includes('monstro')
+  ) {
+    return 'Culinária & Monstros'
+  }
+  return 'Ferragem (Minérios)'
+}
+
