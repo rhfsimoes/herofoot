@@ -29,6 +29,9 @@ import {
   type InventoryItem,
 } from '../mockData'
 import { BiomeBanner } from '../components/art'
+import OnboardingBanner from '../components/OnboardingBanner'
+import EmptyState from '../components/EmptyState'
+import Tooltip from '../components/Tooltip'
 
 interface Phase4DungeonProps {
   onAdvance: () => void
@@ -460,7 +463,10 @@ export default function Phase4Dungeon({
   const ClimateIcon = climateVisual.icon
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto">
+      {/* Banner de Onboarding — aparece apenas na primeira visita à Fase 4 */}
+      <OnboardingBanner phase={4} />
+      <div className="p-6 space-y-6">
       {/* Topo */}
       <div className="border-b border-stone-800 pb-4 flex justify-between items-center flex-wrap gap-4">
         <div>
@@ -651,7 +657,7 @@ export default function Phase4Dungeon({
                   </span>
                 )}
               </div>
-              <span className="font-mono font-bold text-stone-300">{playerEnergy} Suprimentos</span>
+              <span className="font-mono font-bold text-stone-300">{playerEnergy} <Tooltip term="Suprimentos">Suprimentos</Tooltip></span>
             </div>
             <div className="w-full bg-stone-950 rounded-full h-3 overflow-hidden border border-stone-800 p-0.5">
               <div
@@ -924,6 +930,11 @@ export default function Phase4Dungeon({
         </div>
       )}
 
+      {/* Alerta quando nenhum herói foi escalado na Fase 3 */}
+      {!running && !done && (!state?.tactics?.starters || state.tactics.starters.length === 0) && (
+        <EmptyState variant="no-dungeon-result" className="my-2" />
+      )}
+
       {/* Controles da Arena */}
       {!running && !done && (
         <button
@@ -950,6 +961,7 @@ export default function Phase4Dungeon({
           <ArrowRight className="w-4 h-4" />
         </button>
       )}
+      </div>
     </div>
   )
 }

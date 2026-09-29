@@ -20,6 +20,8 @@ import {
 } from 'lucide-react'
 import type { Hero, MedicalFacilityInfo, PendingContractRenewal, GameState } from '../mockData'
 import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
+import OnboardingBanner from '../components/OnboardingBanner'
+import Tooltip from '../components/Tooltip'
 import {
   upgradeMedicalFacilityBackend,
   treatHeroMassageBackend,
@@ -357,7 +359,11 @@ export default function Phase1HR({
   const nextUpgrade = facilities?.next_upgrade
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto">
+      {/* Banner de Onboarding — aparece apenas na primeira visita à Fase 1 */}
+      <OnboardingBanner phase={1} />
+
+      <div className="p-6 space-y-6">
       {/* Cabeçalho da Fase */}
       <div className="border-b border-stone-800 pb-4 flex justify-between items-center flex-wrap gap-4">
         <div>
@@ -678,7 +684,7 @@ export default function Phase1HR({
                 <th className="py-3 px-4 text-left font-semibold">Aventureiro</th>
                 <th className="py-3 px-3 text-left font-semibold">Classe & Esp.</th>
                 <th className="py-3 px-3 text-center font-semibold">Poder Bruto</th>
-                <th className="py-3 px-3 text-center font-semibold">Fadiga</th>
+                <th className="py-3 px-3 text-center font-semibold"><Tooltip term="Fadiga" inline /></th>
                 <th className="py-3 px-3 text-center font-semibold">Contrato & Moral</th>
                 <th className="py-3 px-3 text-center font-semibold">Status</th>
                 <th className="py-3 px-3 text-right font-semibold">Salário/sem</th>
@@ -854,6 +860,7 @@ export default function Phase1HR({
             Colaboradores escalados com índice de fadiga superior a 50% sofrem severa perda de rendimento e possuem probabilidade quadruplicada de sofrerem acidentes graves em masmorras. A manutenção das instalações médicas consome recursos semanais da guilda (DRE), mas acelera a regeneração de todo o contingente.
           </p>
         </div>
+      </div>
       </div>
     </div>
   )

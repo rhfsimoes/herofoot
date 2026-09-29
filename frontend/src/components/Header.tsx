@@ -22,6 +22,7 @@ import {
   newGameBackend,
 } from '../api'
 import { GuildCrest } from './art'
+import PhaseProgress from './PhaseProgress'
 
 interface HeaderProps {
   state: GameState
@@ -329,6 +330,12 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
               R-{state.week ?? state.day}
             </span>
           </div>
+
+          {/* Progresso de Fases */}
+          <PhaseProgress
+            currentPhase={state.current_phase ?? 1}
+            week={state.week ?? state.day ?? 1}
+          />
 
           {/* BOTÃO DO MENU DA GUILDA (SAVES E ARQUIVO) */}
           <button

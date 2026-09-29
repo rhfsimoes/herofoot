@@ -10,6 +10,9 @@ import {
 import type { GameState, Hero, InventoryItem, DungeonInfo } from '../mockData'
 import { RARITY_CARD_STYLES, RARITY_BADGE_STYLES, GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
 import { BiomeBanner } from '../components/art'
+import OnboardingBanner from '../components/OnboardingBanner'
+import EmptyState from '../components/EmptyState'
+import Tooltip from '../components/Tooltip'
 
 interface Phase3TacticsProps {
   state: GameState
@@ -172,7 +175,10 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
 
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto">
+      {/* Banner de Onboarding — aparece apenas na primeira visita à Fase 3 */}
+      <OnboardingBanner phase={3} />
+      <div className="p-6 space-y-6">
       {/* Topo */}
       <div className="border-b border-stone-800 pb-4 flex justify-between items-center flex-wrap gap-4">
         <div>
@@ -211,7 +217,7 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
                 Sinergia de Elite Ativa
               </h4>
               <p className="text-xs text-stone-300">
-                Todos os 5 Slots preenchidos com equipamentos de alta qualidade. (+15% de Eficiência em Suprimentos na Dungeon)
+                Todos os 5 Slots preenchidos com equipamentos de alta qualidade. (+15% de Eficiência em <Tooltip term="Suprimentos">Suprimentos</Tooltip> na Dungeon)
               </p>
             </div>
           </div>
@@ -460,9 +466,7 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
 
             <div className="space-y-2">
               {starters.length === 0 ? (
-                <p className="text-stone-500 text-xs italic py-6 text-center">
-                  Nenhum titular escalado. Aloque combatentes aptos abaixo.
-                </p>
+                <EmptyState variant="no-heroes-assigned" className="my-2" />
               ) : (
                 starters.map(hero => (
                   <div
@@ -704,6 +708,7 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
         >
           {isSaving ? 'Protocolando...' : 'Assinar Memorando & Despachar Expedição →'}
         </button>
+      </div>
       </div>
     </div>
   )

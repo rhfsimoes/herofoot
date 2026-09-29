@@ -52,6 +52,9 @@ import {
   scoutMarketHeroBackend,
   hireMarketHeroBackend,
 } from '../api'
+import OnboardingBanner from '../components/OnboardingBanner'
+import EmptyState from '../components/EmptyState'
+import Tooltip from '../components/Tooltip'
 
 interface Phase2WorkshopProps {
   state: GameState
@@ -801,7 +804,10 @@ export default function Phase2Workshop({
   ) || branchRecipes[0]
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto">
+      {/* Banner de Onboarding — aparece apenas na primeira visita à Fase 2 */}
+      <OnboardingBanner phase={2} />
+      <div className="p-6 space-y-6">
       {/* Cabeçalho da Fase */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-800 pb-4">
         <div>
@@ -1401,7 +1407,7 @@ export default function Phase2Workshop({
                 </div>
                 <div>
                   <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400 block -mb-0.5">
-                    Boletim de Mercado Oficial da Liga
+                    <Tooltip term="Boletim de Mercado">Boletim de Mercado</Tooltip> Oficial da Liga
                   </span>
                   <p className="text-xs text-stone-200 font-semibold">{bulletin.headline}</p>
                 </div>
@@ -1468,9 +1474,7 @@ export default function Phase2Workshop({
               </div>
 
               {inventory.length === 0 ? (
-                <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-8 text-center text-stone-500 italic text-xs">
-                  Nenhum ativo localizado no almoxarifado corporativo para liquidação mercantil.
-                </div>
+                <EmptyState variant="inventory" className="my-2" />
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {inventory.map(item => {
@@ -2257,6 +2261,7 @@ export default function Phase2Workshop({
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

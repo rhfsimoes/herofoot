@@ -19,6 +19,8 @@ import {
 import type { GameState } from '../mockData'
 import { GOLD_GRADIENT_TEXT, MATERIAL_RARITY_STYLES, getMaterialRarity } from '../utils/rarityStyles'
 import { CrownSeal, NobleDivisionEmblem, AccessDivisionEmblem } from '../components/art'
+import OnboardingBanner from '../components/OnboardingBanner'
+import Tooltip from '../components/Tooltip'
 
 interface Phase5ResultsProps {
   state: GameState
@@ -86,7 +88,10 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
   const rowsToDisplay = activeDivision ? activeDivision.standings : state.league_table
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto">
+      {/* Banner de Onboarding — aparece apenas na primeira visita à Fase 5 */}
+      <OnboardingBanner phase={5} />
+      <div className="p-6 space-y-6">
       {/* Topo */}
       <div className="border-b border-stone-800 pb-4 flex justify-between items-center flex-wrap gap-4">
         <div>
@@ -369,7 +374,7 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
               {state.contractor_confidence !== undefined && (
                 <div className="text-right">
                   <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400 block">
-                    Confiança Contratante
+                    <Tooltip term="Confiança da Contratante">Confiança Contratante</Tooltip>
                   </span>
                   <span
                     className={`text-sm font-mono font-bold ${
@@ -747,6 +752,7 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
         <span>Arquivar Relatório & Iniciar Próxima Rodada</span>
         <ArrowRight className="w-5 h-5" />
       </button>
+      </div>
     </div>
   )
 }

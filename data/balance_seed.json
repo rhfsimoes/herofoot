@@ -54,7 +54,14 @@
     "mitigation_probability": 0.5
   },
   "crafting": {
-    "manual_offer_count": 2
+    "manual_offer_count": 2,
+    "tinkering": {
+      "success_penalty_per_tier_gap": 0.35,
+      "min_success_chance": 0.05,
+      "gororoba_sell_value": 20,
+      "xp_multiplier_on_tinkering_success": 1.5,
+      "xp_on_tinkering_fail": 5
+    }
   },
   "league": {
     "rounds_per_season": 28,

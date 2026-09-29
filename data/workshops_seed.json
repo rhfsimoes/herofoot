@@ -13,6 +13,14 @@
     "5": { "Fraco": 0, "Normal": 10, "Ótimo": 60, "Lendário": 30 },
     "6": { "Fraco": 0, "Normal": 0, "Ótimo": 40, "Lendário": 60 }
   },
+  "xp_progression": {
+    "1": { "xp_to_next_level": 100, "xp_per_craft_tier1": 10, "xp_per_craft_tier2": 25, "xp_per_craft_tier3": null, "upgrade_cost_gold": null },
+    "2": { "xp_to_next_level": 150, "xp_per_craft_tier1": 10, "xp_per_craft_tier2": 25, "xp_per_craft_tier3": 60, "upgrade_cost_gold": 500 },
+    "3": { "xp_to_next_level": 225, "xp_per_craft_tier1": 10, "xp_per_craft_tier2": 25, "xp_per_craft_tier3": 60, "upgrade_cost_gold": 1000 },
+    "4": { "xp_to_next_level": 338, "xp_per_craft_tier1": 10, "xp_per_craft_tier2": 25, "xp_per_craft_tier3": 60, "upgrade_cost_gold": 2000 },
+    "5": { "xp_to_next_level": 506, "xp_per_craft_tier1": 10, "xp_per_craft_tier2": 25, "xp_per_craft_tier3": 60, "upgrade_cost_gold": 4000 },
+    "6": { "xp_to_next_level": null, "xp_per_craft_tier1": 10, "xp_per_craft_tier2": 25, "xp_per_craft_tier3": 60, "upgrade_cost_gold": 8000 }
+  },
   "quality_multipliers": {
     "Fraco": 0.70,
     "Normal": 1.00,
@@ -21,9 +29,9 @@
   },
   "upgrade_costs": {
     "2": 500,
-    "3": 900,
-    "4": 1600,
-    "5": 2800,
-    "6": 5000
+    "3": 1000,
+    "4": 2000,
+    "5": 4000,
+    "6": 8000
   }
 }
