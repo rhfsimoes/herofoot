@@ -1,0 +1,635 @@
+[
+  {
+    "id": "evt_fiscal_audit_surprise",
+    "title": "Auditoria Fiscal Extraordinária da Fase 5",
+    "description": "Dona Eustáquia Grin e sua comissão de meirinhos bateram nos portões da guilda com um mandado de busca contábil. Uma suposta discrepância no número de frascos de poção alquímica declarados e consumidos na última expedição ameaça reter o subsídio de fomento régio da Coroa.",
+    "category": "fiscal",
+    "trigger_phase": "phase_5",
+    "options": [
+      {
+        "id": "opt_audit_bribe_charity",
+        "label": "Subornar a comitiva com 'donativo voluntário para o orfanato da Fazenda Real'",
+        "description": "Uma transferência discreta de fundos que regulariza instantaneamente a escrituração contábil sem novas perguntas.",
+        "consequence_narrative": "Dona Eustáquia carimbou o laudo com o selo dourado de 'Aprovado com Louvor Institucional'. Os cofres sentiram o golpe, mas a paz fiscal foi comprada.",
+        "effects": {
+          "gold": -180,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 0
+        }
+      },
+      {
+        "id": "opt_audit_full_scrutiny",
+        "label": "Apresentar toda a escrituração contábil em sessão de 14 horas de averiguação",
+        "description": "Submeter todo o corpo administrativo e os aventureiros a interrogatórios exaustivos sobre cada nabo consumido.",
+        "consequence_narrative": "Após catorze horas de conferência de notas fiscais amareladas, nenhum desvio foi encontrado. O subsídio foi liberado, mas todo o plantel terminou em estado de exaustão mental.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 15,
+          "supplies_bonus": 0,
+          "morale": -5
+        }
+      },
+      {
+        "id": "opt_audit_legal_challenge",
+        "label": "Acionar banca de advogados tributários e contestar a jurisdição do mandado",
+        "description": "Pagar custas judiciais para protelar a inspeção com recursos perante o Tribunal de Contas da Coroa.",
+        "consequence_narrative": "A liminar foi deferida com ressalvas. Pagaram-se honorários salgados, mas a guilda ganhou tempo e evitou o pagamento da multa principal.",
+        "effects": {
+          "gold": -80,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 5
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_arthus_plate_incident",
+    "title": "Incidente Noturno no Bistrô do Javali Cansado",
+    "description": "Durante a folga de domingo, dois combatentes titulares da sua guilda exageraram no hidromel e iniciaram uma baderna generalizada no Bistrô do Javali Cansado. O ex-herói Arthus Valente conteve o tumulto sem sacar armas — usando apenas duas bandejas de mogno e um saca-rolhas rúnico —, mas o gerente da taberna acionou a Coroa exigindo reparação civil com base no Código de Defesa do Consumidor Feudal.",
+    "category": "legal",
+    "trigger_phase": "weekly_start",
+    "options": [
+      {
+        "id": "opt_arthus_pay_damages",
+        "label": "Pagar a indenização civil integral e enviar pedido de desculpas formal a Arthus",
+        "description": "Arcar com o prejuízo das mesas quebradas e reconhecer a conduta exemplar do ex-herói como garçom.",
+        "consequence_narrative": "A conta do prejuízo foi quitada. Grato pelo respeito profissional, Arthus enviou pelos correios um pacote com rações calóricas preparadas na cozinha do bistrô para a sua próxima expedição.",
+        "effects": {
+          "gold": -150,
+          "fatigue_all": 0,
+          "supplies_bonus": 20,
+          "morale": 10
+        }
+      },
+      {
+        "id": "opt_arthus_dock_wages",
+        "label": "Descontar o valor do soldo dos arruaceiros e enviá-los para lavar louça comunitária",
+        "description": "Transferir a punição financeira diretamente para os culpados e forçá-los a prestar serviços no bistrô.",
+        "consequence_narrative": "A guilda não desembolsou ouro, mas os dois heróis passaram a noite esfregando tachos engordurados sob a supervisão implacável de Arthus Valente, retornando exaustos e desmoralizados.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 12,
+          "supplies_bonus": 0,
+          "morale": -10
+        }
+      },
+      {
+        "id": "opt_arthus_plead_fortuitous",
+        "label": "Alegar 'caso fortuito decorrente de estresse pós-masmorra' perante o cartório",
+        "description": "Tentar enquadrar o quebra-quebra como reação fisiológica involuntária decorrente de trauma profissional.",
+        "consequence_narrative": "O meirinho aplicou multa de menor monta por litigância de má-fé. A imprensa de arautos publicou notas satíricas zombando da disciplina da guilda.",
+        "effects": {
+          "gold": -50,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": -5
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_clerical_insurance_hike",
+    "title": "Reajuste Atuarial do Consórcio Clerical de Seguros",
+    "description": "O Dr. Klaus Hollen e a junta médica do Consórcio Clerical emitiram parecer de reavaliação de sinistralidade: a alta incidência de perfurações e mordidas em expedições recentes desequilibrou a apólice coletiva da Liga. A mensalidade médica sofrerá reajuste emergencial compulsório.",
+    "category": "hr",
+    "trigger_phase": "phase_1",
+    "options": [
+      {
+        "id": "opt_clerical_upgrade_premium",
+        "label": "Aderir à Apólice Ouro com cobertura estendida para traumas viscerais",
+        "description": "Investir pesado na segurança médica para acelerar o retorno dos aventureiros afastados.",
+        "consequence_narrative": "O prêmio securitário custou uma fortuna, mas o complexo hospitalar designou cirurgiões de elite para a guilda, aliviando o cansaço dos combatentes e reduzindo atestados médicos.",
+        "effects": {
+          "gold": -220,
+          "fatigue_all": -15,
+          "supplies_bonus": 0,
+          "morale": 10
+        }
+      },
+      {
+        "id": "opt_clerical_remain_basic",
+        "label": "Manter o Plano Básico com coparticipação em emplastros e repouso padrão",
+        "description": "Não assumir custos extraordinários e deixar a recuperação dos feridos ocorrer no ritmo natural da natureza.",
+        "consequence_narrative": "A tesouraria preservou os recursos, mantendo a rotina protocolar sem bônus nem penalidades financeiras adicionais.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 0
+        }
+      },
+      {
+        "id": "opt_clerical_slash_preventive",
+        "label": "Cortar as triagens preventivas e suspender o fornecimento de pomadas caras",
+        "description": "Economizar despesas operacionais transferindo a responsabilidade do autocuidado para os próprios heróis.",
+        "consequence_narrative": "Sobraram moedas no caixa da enfermaria, mas o acúmulo de toxinas e contraturas musculares gerou um aumento generalizado de fadiga na guilda.",
+        "effects": {
+          "gold": 120,
+          "fatigue_all": 18,
+          "supplies_bonus": 0,
+          "morale": -8
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_ration_scandal_alchemy",
+    "title": "Inquérito Bromatológico nas Rações de Campanha",
+    "description": "Um fiscal sanitário da Câmara dos Mercadores lacrou os tonéis de farinha mágica na sua oficina de culinária sob suspeita de adulteração deliberada: farelo de serragem e cinzas de fornalha teriam sido misturados às massas para inflacionar artificialmente o rendimento dos fardos.",
+    "category": "logistics",
+    "trigger_phase": "phase_2",
+    "options": [
+      {
+        "id": "opt_ration_discard_buy_noble",
+        "label": "Descartar o lote adulterado e adquirir farinha nobre certificada na capital",
+        "description": "Priorizar a integridade calórica da Party titular às custas de um desembolso vultoso na feira.",
+        "consequence_narrative": "O lote contaminado foi incinerado e rações de altíssima densidade energética foram produzidas, garantindo um incremento expressivo de suprimentos operacionais para a próxima masmorra.",
+        "effects": {
+          "gold": -140,
+          "fatigue_all": 0,
+          "supplies_bonus": 25,
+          "morale": 5
+        }
+      },
+      {
+        "id": "opt_ration_mask_herbs",
+        "label": "Instruir os boticários a mascarar o odor com essência concentrada de orégano élfico",
+        "description": "Utilizar temperos pesados para disfarçar o gosto de serragem e alimentar a tropa com o lote existente.",
+        "consequence_narrative": "A guilda poupou moedas e os suprimentos foram esticados, mas os heróis titulares sofreram desconfortos gástricos severos durante a marcha subterrânea.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 14,
+          "supplies_bonus": 10,
+          "morale": -5
+        }
+      },
+      {
+        "id": "opt_ration_sell_counter_rustic",
+        "label": "Despachar o lote suspeito no Balcão com a etiqueta 'Ração Tradicional Rústica'",
+        "description": "Transformar o lote defeituoso em receita imediata aproveitando o apetite de mercenários desavisados.",
+        "consequence_narrative": "As rações venderam como água para caravaneiros provincianos. O caixa engordou imediatamente, ainda que a consciência corporativa tenha ficado ligeiramente pesada.",
+        "effects": {
+          "gold": 160,
+          "fatigue_all": 0,
+          "supplies_bonus": -5,
+          "morale": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_mercenary_union_grievance",
+    "title": "Aviso de Greve de Advertência da Ala dos Ladinos",
+    "description": "Horas antes do fechamento da escalação tática da semana, os batedores e arqueiros protocolaram manifesto na superintendência: exigem botas com forro de veludo acústico e o cancelamento do desconto em folha das gazuas perdidas em baús trancados.",
+    "category": "hr",
+    "trigger_phase": "phase_3",
+    "options": [
+      {
+        "id": "opt_union_grant_allowance",
+        "label": "Conceder abono emergencial de insalubridade e repor as ferramentas de precisão",
+        "description": "Atender às reivindicações dos especialistas de agilidade para assegurar foco máximo na masmorra.",
+        "consequence_narrative": "Com calçados aveludados e ferramentas novas pagas pela diretoria, os batedores desfilaram em campo com moral nas alturas e prontidão tática impecável.",
+        "effects": {
+          "gold": -120,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 15,
+          "power_pct_modifier": 0.05
+        }
+      },
+      {
+        "id": "opt_union_corporate_speech",
+        "label": "Fazer pronunciamento institucional sobre 'vestir a camisa de ferro da guilda'",
+        "description": "Discursar solenemente sobre fidelidade à bandeira, sacrifício compartilhado e meritocracia medieval.",
+        "consequence_narrative": "O discurso causou reviradas de olhos coletivas. Nenhum centavo saiu do cofre, mas os ladinos marcharam para a masmorra de braços cruzados emocionalmente e com rendimento capenga.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 5,
+          "supplies_bonus": 0,
+          "morale": -15,
+          "power_pct_modifier": -0.05
+        }
+      },
+      {
+        "id": "opt_union_punish_leader",
+        "label": "Aplicar advertência no líder sindical e promover aprendiz da reserva",
+        "description": "Cortar a insubordinação pela raiz substituindo o porta-voz do motim por um jovem ávido por oportunidades.",
+        "consequence_narrative": "A disciplina hierárquica foi restaurada à força. O líder rebelde foi confinado à limpeza das baias, enquanto o restante do plantel engoliu a seco o recado.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 8,
+          "supplies_bonus": 0,
+          "morale": -5
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_herald_sponsorship_bid",
+    "title": "Cota de Patrocínio dos Trovadores da Praça Alta",
+    "description": "A famosa Manufatura de Botinas & Graxas de Ferro 'Passo Régio' deseja estampar seu brasão nas capas da sua Party titular durante as transmissões oficiais de arautos nas praças do reino.",
+    "category": "public_relations",
+    "trigger_phase": "weekly_start",
+    "options": [
+      {
+        "id": "opt_herald_exclusive_cash",
+        "label": "Assinar contrato de exclusividade comercial com adiantamento em ouro",
+        "description": "Receber verba imediata no caixa em troca de transformar a Party em vitrine publicitária ambulante.",
+        "consequence_narrative": "O ouro entrou reluzente na tesouraria da guilda. As capas ficaram pesadas com os brasões de bronze do patrocinador, mas o saldo bancário comemorou.",
+        "effects": {
+          "gold": 240,
+          "fatigue_all": 5,
+          "supplies_bonus": 0,
+          "morale": 0
+        }
+      },
+      {
+        "id": "opt_herald_performance_clause",
+        "label": "Negociar cláusula de bônus atrelada ao número de Pontos de Expedição da rodada",
+        "description": "Apostar na competência tática dos heróis para extrair um faturamento muito maior perante os patrocinadores.",
+        "consequence_narrative": "O contrato foi assinado sob termo de rendimento. Os aventureiros foram inflamados pelo incentivo corporativo de pontuar perante os auditores.",
+        "effects": {
+          "gold": 60,
+          "fatigue_all": 0,
+          "supplies_bonus": 10,
+          "morale": 10
+        }
+      },
+      {
+        "id": "opt_herald_reject_purity",
+        "label": "Recusar a proposta para preservar a nobreza heráldica e a pureza do estandarte",
+        "description": "Não macular a tradição da guilda com marcas comerciais de graxa para botas.",
+        "consequence_narrative": "A recusa causou admiração na Chancelaria da Coroa e nas famílias nobres da capital, fortalecendo o prestígio institucional e o brio dos combatentes.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 15
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_dungeon_safety_inspection",
+    "title": "Embargo Cautelar pelo Ministério dos Subsolos",
+    "description": "Na soleira da masmorra da rodada, três fiscais do Ministério dos Subsolos interromperam o avanço da guilda exigindo a exibição de extintores rúnicos de classe B e comprovante de calibração de tochas. A guilda rival já está explorando a câmara pela entrada lateral.",
+    "category": "logistics",
+    "trigger_phase": "phase_4",
+    "options": [
+      {
+        "id": "opt_dungeon_fast_clearance_fee",
+        "label": "Pagar a 'Taxa de Liberação Técnica em Regime Especial de Urgência'",
+        "description": "Desembolsar o valor de protocolo para obter carimbo imediato no alvará de descida.",
+        "consequence_narrative": "O carimbo desceu com rapidez estonteante após o pagamento do boleto. A expedição entrou no complexo subterrâneo sem atraso logístico e com suprimentos intactos.",
+        "effects": {
+          "gold": -110,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 0
+        }
+      },
+      {
+        "id": "opt_dungeon_regular_inspection",
+        "label": "Apresentar cada tocha para medição oficial e aguardar o trâmite ordinário",
+        "description": "Cumprir a burocracia sem pagar propinas ou taxas aceleradoras, aceitando o atraso da comitiva.",
+        "consequence_narrative": "A inspeção durou quase duas horas na ventania da entrada da caverna. As primeiras rações foram devoradas na fila e as tochas perderam pavio antes da primeira sala.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 5,
+          "supplies_bonus": -20,
+          "morale": -5
+        }
+      },
+      {
+        "id": "opt_dungeon_sneak_crevice",
+        "label": "Burlar a guarita fiscal rastejando por uma fenda geológica não catalogada",
+        "description": "Ignorar os comissários e invadir a concessão através de uma brecha estreita nas pedras.",
+        "consequence_narrative": "A guilda poupou o ouro e furou a fila, mas a passagem pela fenda estreita custou arranhões, cãibras e rasgos nos mantos de toda a Party titular.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 16,
+          "supplies_bonus": 0,
+          "morale": 5
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_academy_scout_leak",
+    "title": "Vazamento Confidencial do Boletim de Olheiros da Liga",
+    "description": "Um escrivão dispensado da comissão técnica da Câmara dos Mercadores abordou seu encarregado de RH nas vielas da capital. Ele oferece a certidão verídica de atributos e potencial sem rasuras de uma jovem promessa da Academia de Aprendizes.",
+    "category": "market",
+    "trigger_phase": "phase_2",
+    "options": [
+      {
+        "id": "opt_scout_buy_dossier",
+        "label": "Comprar o dossiê sigiloso por baixo do balcão",
+        "description": "Investir na inteligência corporativa para pinçar o melhor talento da base sem margem para erro.",
+        "consequence_narrative": "O dossiê continha dados biométricos cirúrgicos. O próximo aprendiz integrado ao elenco principal iniciará suas funções com aproveitamento muito superior.",
+        "effects": {
+          "gold": -95,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 5
+        }
+      },
+      {
+        "id": "opt_scout_report_whistleblower",
+        "label": "Prender o informante e entregá-lo à Guarda Fazendária da Coroa",
+        "description": "Demonstrar conformidade ética irretocável e receber gratificação por combate à espionagem industrial.",
+        "consequence_narrative": "A Coroa recompensou a guilda com uma bolsa em ouro e uma nota de louvor emitida pela Secretaria de Governança e Ética Feudal.",
+        "effects": {
+          "gold": 80,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 5
+        }
+      },
+      {
+        "id": "opt_scout_ignore_pitch",
+        "label": "Mandar o informante embora e confiar na metodologia de olheiros da casa",
+        "description": "Não se envolver em transações obscuras e poupar o orçamento institucional.",
+        "consequence_narrative": "O homem sumiu na neblina das vielas. A guilda continuou confiando em suas próprias planilhas e instinto gerencial.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_demon_king_pr_campaign",
+    "title": "Nota de Repúdio da Assessoria da Cidadela Demoníaca",
+    "description": "A assessoria de imprensa do Rei Demônio protocolou reclamação formal na mesa da Liga: as guildas estão abandonando vasilhames de poções vazios, ferraduras tortas e restos de ração nas galerias do abismo, desrespeitando o plano de manejo ambiental da concessão.",
+    "category": "public_relations",
+    "trigger_phase": "weekly_start",
+    "options": [
+      {
+        "id": "opt_demon_pr_clean_dungeon",
+        "label": "Implementar o Programa 'Masmorras Limpas' com treinamento e bolsas de descarte",
+        "description": "Adequar a logística da guilda aos mais rigorosos padrões de sustentabilidade e responsabilidade socioecológica.",
+        "consequence_narrative": "A implementação das bolsas de descarte disciplinou os titulares. A organização da bagagem gerou aproveitamento racional dos suprimentos.",
+        "effects": {
+          "gold": -75,
+          "fatigue_all": 0,
+          "supplies_bonus": 15,
+          "morale": 5
+        }
+      },
+      {
+        "id": "opt_demon_pr_mock_statement",
+        "label": "Emitir nota irônica zombando do apego ecológico do Rei Demônio e vender broches",
+        "description": "Capitalizar em cima do absurdo vendendo suvenires satíricos nas tabernas da capital.",
+        "consequence_narrative": "A resposta sarcástica virou febre nas tavernas e os broches renderam bom faturamento, embora os arqui-monstros da masmorra tenham jurado vingança pessoal.",
+        "effects": {
+          "gold": 130,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 10
+        }
+      },
+      {
+        "id": "opt_demon_pr_archive_memo",
+        "label": "Arquivar o ofício sem despacho por ausência de competência do remetente",
+        "description": "Tratar o manifesto do Soberano das Sombras com o devido desdém burocrático e protocolar.",
+        "consequence_narrative": "O memorando foi empilhado junto a outros mil requerimentos sem resposta na chancelaria. Vida normal na guilda.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_medical_strike_quackery",
+    "title": "Paralisação dos Sangradores da Enfermaria Central",
+    "description": "Os estagiários de herbalismo e técnicos em aplicação de sanguessugas da Tenda de Curativos cruzaram os braços contra o cheiro persistente de unguento de troll vencido nas dependências da enfermaria.",
+    "category": "hr",
+    "trigger_phase": "phase_1",
+    "options": [
+      {
+        "id": "opt_medical_hire_quacks",
+        "label": "Contratar comitiva de curandeiros nômades sem inscrição no Conselho Médico",
+        "description": "Recorrer a boticários itinerantes de reputação duvidosa para descarregar a musculatura da tropa por preço vil.",
+        "consequence_narrative": "Os curandeiros aplicaram cataplasmas ardidos e poções de gosto duvidoso. A fadiga diminuiu milagrosamente, embora um dos heróis tenha ficado com a pele arroxeada.",
+        "effects": {
+          "gold": -60,
+          "fatigue_all": -20,
+          "supplies_bonus": 0,
+          "morale": -5
+        }
+      },
+      {
+        "id": "opt_medical_renovate_ventilation",
+        "label": "Instalar dutos de exaustão e adquirir unguentos nobres de hortelã arcana",
+        "description": "Resolver as condições de trabalho das instalações médicas com investimento estruturante em infraestrutura.",
+        "consequence_narrative": "A enfermaria virou modelo sanitário. O corpo clínico encerrou a greve com sorrisos e toda a guilda passou por sessões revigorantes de relaxamento.",
+        "effects": {
+          "gold": -170,
+          "fatigue_all": -25,
+          "supplies_bonus": 0,
+          "morale": 15
+        }
+      },
+      {
+        "id": "opt_medical_cold_water_mandate",
+        "label": "Mandar os queixosos tomarem banho de balde no poço do pátio e seguir o turno",
+        "description": "Impor austeridade espartana e desconsiderar o odor das pomadas como frescura operária.",
+        "consequence_narrative": "A greve foi sufocada pelo autoritarismo, mas os curativos ficaram mal colocados e os aventureiros recuperaram menos energia no repouso semanal.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 10,
+          "supplies_bonus": 0,
+          "morale": -10
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_counter_customer_complaint",
+    "title": "Reclamação de Consumidor Nobre no Balcão de Vendas",
+    "description": "Um barão provinciano com voz estridente invadiu a loja da guilda exigindo a devolução imediata do ouro pago em um pingente encantado, alegando que o amuleto 'não impediu que seu cavalo pisasse em falso numa poça'. Ele ameaça abrir reclamação pública na Associação Comercial.",
+    "category": "market",
+    "trigger_phase": "phase_2",
+    "options": [
+      {
+        "id": "opt_counter_full_refund_polish",
+        "label": "Reembolsar o valor e oferecer um kit de polimento de cortesia",
+        "description": "Engolir o desaforo da nobreza para blindar a credibilidade e o fluxo de compradores do Balcão.",
+        "consequence_narrative": "O nobre retirou as queixas elogiando o cavalheirismo comercial da guilda. O atendimento cortês atraiu novos clientes burgueses dispostos a pagar preços justos.",
+        "effects": {
+          "gold": -90,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 5
+        }
+      },
+      {
+        "id": "opt_counter_point_disclaimer",
+        "label": "Apontar para o aviso em letras miúdas: 'Mercadoria vendida no estado em que se encontra'",
+        "description": "Exercer com frieza os direitos assegurados no estatuto de comércio medieval sem ceder a chiliques aristocráticos.",
+        "consequence_narrative": "O barão saiu espumando de raiva e espalhou boatos desfavoráveis pela praça do mercado, esfriando a demanda de compradores por alguns dias.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": -5
+        }
+      },
+      {
+        "id": "opt_counter_swap_consumable",
+        "label": "Propor a troca amigável por duas rações operacionais de alta caloria",
+        "description": "Despachar o cliente oferecendo itens de estoque culinário em substituição ao item reclamado.",
+        "consequence_narrative": "O aristocrata aceitou as rações achando que fez um ótimo negócio para suas caçadas de fim de semana. Problema encerrado com custo mínimo.",
+        "effects": {
+          "gold": -25,
+          "fatigue_all": 0,
+          "supplies_bonus": -5,
+          "morale": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_climate_insurance_waiver",
+    "title": "Termo de Renúncia por Intempéries Meteorológicas",
+    "description": "Os astrólogos da corte emitiram alerta de clima severo (nevascas cristalinas e vendavais elétricos) para a rodada. O consórcio de seguros exige a contratação de uma apólice suplementar de sinistro ambiental antes da partida das equipes.",
+    "category": "legal",
+    "trigger_phase": "phase_3",
+    "options": [
+      {
+        "id": "opt_climate_buy_coverage",
+        "label": "Contratar o Aditivo Meteorológico de Proteção Rúnica",
+        "description": "Pagar a taxa extraordinária para assegurar assistência técnica e mitigações térmicas emergenciais.",
+        "consequence_narrative": "Com apólice assinada, a equipe recebeu capas impermeabilizadas e kits térmicos adicionais, encarando o clima hostil com tranquilidade absoluta.",
+        "effects": {
+          "gold": -130,
+          "fatigue_all": -5,
+          "supplies_bonus": 10,
+          "morale": 5
+        }
+      },
+      {
+        "id": "opt_climate_sign_waiver",
+        "label": "Fazer a Party titular assinar termo de assunção de risco individual",
+        "description": "Eximir a guilda de indenizações e enviar os combatentes na cara e na coragem.",
+        "consequence_narrative": "O cofre permaneceu fechado, mas os aventureiros marcharam sob a tempestade murmurando pragas contra a mesquinhez da superintendência.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 12,
+          "supplies_bonus": 0,
+          "morale": -12,
+          "power_pct_modifier": -0.05
+        }
+      },
+      {
+        "id": "opt_climate_street_insulation",
+        "label": "Comprar graxa isolante impermeabilizante de vendedores ambulantes",
+        "description": "Adquirir uma solução paliativa de baixo custo nos becos do porto para untar as couraças.",
+        "consequence_narrative": "A graxa cheirava a peixe defumado, mas ajudou a isolar a umidade e o choque térmico básico, cumprindo o papel com orçamento comedido.",
+        "effects": {
+          "gold": -50,
+          "fatigue_all": 0,
+          "supplies_bonus": 5,
+          "morale": 0
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_veteran_retirement_benefit",
+    "title": "Requerimento de Gratificação de Aposentadoria de Veterano",
+    "description": "Um dos veteranos mais leais da guilda completou trinta e dois anos e protocolou formalmente sua desmobilização funcional com base no Estatuto do Trabalhador de Masmorras. Ele requer sua indenização por tempo de serviço e um banquete de despedida.",
+    "category": "hr",
+    "trigger_phase": "phase_5",
+    "options": [
+      {
+        "id": "opt_veteran_full_banquet",
+        "label": "Conceder a gratificação integral e realizar banquete de honra institucional",
+        "description": "Celebrar a carreira do herói com carinho institucional, carnes nobres e pagamento da indenização justa.",
+        "consequence_narrative": "A comemoração foi emocionante. A generosidade da diretoria comoveu todo o plantel, atraindo jovens prodígios que agora sonham em ingressar na Academia da guilda.",
+        "effects": {
+          "gold": -200,
+          "fatigue_all": -10,
+          "supplies_bonus": 0,
+          "morale": 20
+        }
+      },
+      {
+        "id": "opt_veteran_office_role",
+        "label": "Oferecer cargo de auxiliar de almoxarifado com salário simbólico de manutenção",
+        "description": "Aproveitar a experiência do guerreiro nas dependências da oficina sem desembolsar rescisão vultosa.",
+        "consequence_narrative": "O veterano aceitou o posto com satisfação pragmática. Sua presença na oficina otimizou a catalogação de ferramentas e reduziu despesas de manutenção predial.",
+        "effects": {
+          "gold": -70,
+          "fatigue_all": 0,
+          "supplies_bonus": 5,
+          "morale": 5
+        }
+      },
+      {
+        "id": "opt_veteran_deny_benefit",
+        "label": "Negar o requerimento alegando que os contratos de temporada operavam por prazo determinado",
+        "description": "Usar brechas na legislação trabalhista feudal para dispensar o combatente sem pagamento rescisório.",
+        "consequence_narrative": "A economia foi imediata, mas a frieza contábil revoltou os atletas da guilda, que agora temem pelo próprio futuro ao cruzarem os trinta anos.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 8,
+          "supplies_bonus": 0,
+          "morale": -20
+        }
+      }
+    ]
+  },
+  {
+    "id": "evt_merchants_cartel_speculation",
+    "title": "Cartelização das Reservas de Minério de Ferro da Província",
+    "description": "O Barão Cassian Voss e o Grêmio dos Mineradores represaram todas as barcaças de ferro e cobre no canal central, gerando escassez súbita para forçar a disparada das cotações de metais de forja no reino.",
+    "category": "market",
+    "trigger_phase": "weekly_start",
+    "options": [
+      {
+        "id": "opt_cartel_advance_buy",
+        "label": "Adiantar compras de lotes de metal antes que a cotação dobre no mercado aberto",
+        "description": "Garantir o suprimento de matéria-prima das oficinas antes da escalada inflacionária.",
+        "consequence_narrative": "A compra foi fechada a tempo. O estoque de metal está seguro para os ferreiros trabalharem sem interrupções nas próximas encomendas da Liga.",
+        "effects": {
+          "gold": -160,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 5
+        }
+      },
+      {
+        "id": "opt_cartel_dump_stock",
+        "label": "Despejar lingotes e sobras da ferragem no Balcão para surfar na alta histórica",
+        "description": "Aproveitar o desespero de armeiros rivais e vender reservas da oficina pelo Preço Abusivo.",
+        "consequence_narrative": "Os lingotes foram arrematados em minutos por guildas concorrentes desesperadas. A tesouraria explodiu de ouro líquido.",
+        "effects": {
+          "gold": 250,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 0
+        }
+      },
+      {
+        "id": "opt_cartel_antitrust_petition",
+        "label": "Assinar manifesto coletivo das guildas emergentes exigindo intervenção da Coroa",
+        "description": "Mobilizar a classe média de aventureiros contra a ganância monopolista dos grandes barões.",
+        "consequence_narrative": "A petição constrangeu o Barão Cassian Voss na corte, fortalecendo os laços comunitários e a união entre os colaboradores da guilda.",
+        "effects": {
+          "gold": 0,
+          "fatigue_all": 0,
+          "supplies_bonus": 0,
+          "morale": 12
+        }
+      }
+    ]
+  }
+]
