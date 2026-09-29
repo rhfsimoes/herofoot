@@ -10,6 +10,7 @@ import random
 import unittest
 
 from balance import get_balance
+from controller import GameController
 from match_engine import (
     Team,
     MatchEngine,
@@ -432,6 +433,148 @@ class TestMatchEngineContract(unittest.TestCase):
                         self.assertEqual(len(matches), 0, f"Termo proibido '{term}' encontrado em {filepath}")
                     else:
                         self.assertNotIn(term, content, f"Termo proibido '{term}' encontrado em {filepath}")
+
+
+class TestDungeonLootFatigueAndDRE(unittest.TestCase):
+    def setUp(self):
+        self.controller = GameController()
+        self.controller.state.world_seed = 42
+
+    def test_asymmetric_fatigue_and_recovery(self):
+        """Valida que titulares ganham +25 de fadiga na expedição e recuperam apenas 5 em repouso pós-incursão, enquanto reservas recuperam 20."""
+        starters = self.controller.state.team[:6]
+        reserves = self.controller.state.team[6:9]
+        self.controller.state.starters = [h["id"] for h in starters]
+        self.controller.state.reserves = [h["id"] for h in reserves]
+
+        for h in starters:
+            h["specialization_id"] = "spec_berserker"
+            h["fatigue"] = 0
+
+        for h in reserves:
+            h["fatigue"] = 50
+
+        # Executa Fase 4 (Expedição)
+        res_p4 = self.controller.phase_service.phase_4_dungeon()
+        self.assertEqual(self.controller.state.last_expedition_starters, [h["id"] for h in starters])
+
+        # Titulares devem ter ganho +25 de fadiga
+        for h in starters:
+            self.assertEqual(h["fatigue"], 25, f"Herói titular {h['id']} deveria ter 25 de fadiga após expedição")
+
+        # Reservas permanecem intactos na Fase 4
+        for h in reserves:
+            self.assertEqual(h["fatigue"], 50)
+
+        # Executa Fase 1 (Cuidado e Repouso)
+        self.controller.phase_service.phase_1_cuidado()
+
+        # Titulares devem recuperar apenas 5 pontos (cansaço residual): 25 - 5 = 20
+        for h in starters:
+            self.assertEqual(h["fatigue"], 20, f"Herói titular {h['id']} deveria ter recuperado apenas 5 de fadiga (ficando com 20)")
+
+        # Reservas devem recuperar 20 pontos completos: 50 - 20 = 30
+        for h in reserves:
+            self.assertEqual(h["fatigue"], 30, f"Herói reserva {h['id']} deveria ter recuperado 20 de fadiga (ficando com 30)")
+
+    def test_sustaining_prayer_reduces_fatigue_gain(self):
+        """Clérigo com Prece de Sustentação reduz o ganho de fadiga da expedição de 25 para 20."""
+        starters = self.controller.state.team[:6]
+        self.controller.state.starters = [h["id"] for h in starters]
+        for h in starters:
+            h["fatigue"] = 0
+
+        # Atribui especialização de Clérigo de Suporte com a habilidade
+        starters[0]["specialization_id"] = "spec_cleric_support"
+
+        self.controller.phase_service.phase_4_dungeon()
+
+        for h in starters:
+            self.assertEqual(h["fatigue"], 20, f"Herói {h['id']} deveria ter ganho apenas 20 de fadiga com Prece de Sustentação")
+
+    def test_dungeon_loot_real_generation_and_inventory_credit(self):
+        """Espólios da masmorra são sorteados de material_sources_seed.json, registrados em last_expedition_loot e creditados em materials."""
+        self.controller.state.materials = {}
+        # Garante expedição com energia alta para alcançar salas
+        self.controller.state.loadout["Consumível"] = {
+            "name": "Ração de Longa Marcha",
+            "slot_type": "Consumível",
+            "energy_bonus": 50,
+            "charges": 5,
+            "max_charges": 5,
+        }
+
+        res_p4 = self.controller.phase_service.phase_4_dungeon()
+
+        self.assertIn("loot_dropped", res_p4)
+        loot = res_p4["loot_dropped"]
+        self.assertEqual(self.controller.state.last_expedition_loot, loot)
+
+        # Se salas foram exploradas, confere a consistência dos espólios
+        rooms_explored = res_p4["player_match"]["rooms_explored_player"]
+        if rooms_explored > 0:
+            self.assertGreater(len(loot), 0, "Deveria ter havido coleta de espólios após incursão com salas exploradas")
+            for item in loot:
+                self.assertIn("material_id", item)
+                self.assertIn("quantity", item)
+                self.assertIn("name", item)
+                self.assertIn("rarity", item)
+                self.assertGreater(item["quantity"], 0)
+                mat_id = item["material_id"]
+                self.assertGreaterEqual(self.controller.state.materials.get(mat_id, 0), item["quantity"])
+
+    def test_zero_rooms_explored_yields_no_loot(self):
+        """Incursão sem suprimentos que explora 0 salas não recolhe nenhum espólio."""
+        loot = self.controller.phase_service._generate_dungeon_loot("neutral", 0, random.Random(42))
+        self.assertEqual(loot, [])
+
+    def test_dynamic_dre_financial_statement(self):
+        """Fase 5 apura receita de vendas semanais, zera o acumulador, calcula net completo e salva last_financial_statement."""
+        self.controller.state.weekly_sales_revenue = 450
+        initial_gold = 2000
+        self.controller.state.gold = initial_gold
+
+        res_p5 = self.controller.phase_service.phase_5_results()
+
+        self.assertIn("last_financial_statement", res_p5)
+        stmt = res_p5["last_financial_statement"]
+        self.assertEqual(self.controller.state.last_financial_statement, stmt)
+
+        # Validação de todas as chaves obrigatórias do DRE corporativo
+        required_keys = [
+            "revenue",
+            "sales_revenue",
+            "season_award",
+            "crown_subsidy",
+            "crown_penalty",
+            "salaries",
+            "total_maintenance",
+            "base_maintenance",
+            "medical_maintenance",
+            "academy_maintenance",
+            "net",
+        ]
+        for key in required_keys:
+            self.assertIn(key, stmt, f"Chave contábil obrigatória '{key}' ausente no DRE")
+
+        # Receita de vendas deve ser o valor acumulado
+        self.assertEqual(stmt["sales_revenue"], 450)
+        # Acumulador semanal deve ser zerado após fechamento
+        self.assertEqual(self.controller.state.weekly_sales_revenue, 0)
+
+        # Conferência do cálculo líquido (net)
+        expected_net = (
+            stmt["revenue"]
+            + stmt["sales_revenue"]
+            + stmt["season_award"]
+            + stmt["crown_subsidy"]
+            - stmt["crown_penalty"]
+            - stmt["salaries"]
+            - stmt["total_maintenance"]
+        )
+        self.assertEqual(stmt["net"], expected_net)
+        # Ouro do estado deve ter recebido exatamente + net
+        self.assertEqual(self.controller.state.gold, initial_gold + expected_net)
 
 
 if __name__ == '__main__':

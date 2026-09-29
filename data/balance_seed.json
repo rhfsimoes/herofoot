@@ -22,8 +22,9 @@
     "slot_bonus_cap": 15
   },
   "fatigue": {
-    "gain_per_expedition": 20,
+    "gain_per_expedition": 25,
     "recovery_per_week": 20,
+    "starter_recovery_per_week": 5,
     "fatigued_threshold": 70,
     "recovered_threshold": 50,
     "power_penalty_max": 0.30

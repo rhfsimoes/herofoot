@@ -321,11 +321,11 @@ class TestDungeonClimatesAndSkills(unittest.TestCase):
 
         service.phase_4_dungeon()
 
-        # Fadiga padrão ganha seria 20.
-        # Com Clérigo de Apoio, a skill_sustaining_prayer reduz 5 pontos, ganhando apenas 15.
-        # 10 inicial + 15 = 25
-        self.assertEqual(cleric["fatigue"], 25)
-        self.assertEqual(fighter["fatigue"], 25)
+        # Fadiga padrão ganha seria 25.
+        # Com Clérigo de Apoio, a skill_sustaining_prayer reduz 5 pontos, ganhando apenas 20.
+        # 10 inicial + 20 = 30
+        self.assertEqual(cleric["fatigue"], 30)
+        self.assertEqual(fighter["fatigue"], 30)
 
     def test_deterministic_climate_selection_in_phase_service(self):
         """Verifica se a seleção de clima semanal em PhaseService é estritamente determinística."""
