@@ -13,6 +13,31 @@ from balance import get_balance
 
 _CLASSES_CACHE = None
 _CLIMATES_CACHE = None
+_RIVAL_TRAITS_CACHE = None
+
+
+def get_rival_traits_data() -> List[Dict[str, Any]]:
+    """Carrega catálogo de traços de rivais de data/rival_traits_seed.json."""
+    global _RIVAL_TRAITS_CACHE
+    if _RIVAL_TRAITS_CACHE is None:
+        path = os.path.join(os.path.dirname(__file__), 'data', 'rival_traits_seed.json')
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                _RIVAL_TRAITS_CACHE = json.load(f)
+        else:
+            _RIVAL_TRAITS_CACHE = []
+    return _RIVAL_TRAITS_CACHE
+
+
+def get_trait_dict(trait: Any) -> Optional[Dict[str, Any]]:
+    """Retorna o dicionário de dados do traço a partir de um objeto ou id."""
+    if isinstance(trait, dict):
+        return trait
+    for t in get_rival_traits_data():
+        if t.get("id") == trait:
+            return t
+    return None
+
 
 
 def get_classes_data() -> Dict[str, Any]:
@@ -167,6 +192,7 @@ class Team:
         has_climate_mitigation: bool = True,
         balance: Optional[Dict[str, Any]] = None,
         heroes: Optional[List[Dict[str, Any]]] = None,
+        traits: Optional[List[Any]] = None,
     ):
         if balance is None:
             balance = get_balance()
@@ -179,6 +205,7 @@ class Team:
         self.has_terrain_mitigation = has_terrain_mitigation
         self.has_climate_mitigation = has_climate_mitigation
         self.heroes = heroes or []
+        self.traits = traits or []
 
         # Extração das habilidades ativas da equipe com base nos heróis titulares
         self.skills = self._extract_active_skills()
@@ -222,14 +249,76 @@ class Team:
         """Retorna os dados da habilidade ativa ou None."""
         return self.skills.get(skill_id)
 
+    def has_trait(self, trait_id: str) -> bool:
+        """Verifica se a equipe possui um traço específico."""
+        for t in self.traits:
+            tid = t.get("id") if isinstance(t, dict) else str(t)
+            if tid == trait_id:
+                return True
+        return False
+
+    def get_trait_effects_list(self) -> List[Dict[str, Any]]:
+        """Retorna a lista de dicionários de efeitos dos traços da equipe."""
+        res = []
+        for t in self.traits:
+            td = get_trait_dict(t)
+            if td and "effects" in td:
+                res.append(td["effects"])
+        return res
+
+    def get_auto_mitigate_terrains(self) -> List[str]:
+        """Retorna lista de terrenos mitigados automaticamente pelos traços."""
+        res = []
+        for eff in self.get_trait_effects_list():
+            mits = eff.get("auto_mitigate_terrain", [])
+            if isinstance(mits, list):
+                res.extend(mits)
+            elif isinstance(mits, str):
+                res.append(mits)
+        return res
+
+    def get_auto_mitigate_climates(self) -> List[str]:
+        """Retorna lista de climas mitigados automaticamente pelos traços."""
+        res = []
+        for eff in self.get_trait_effects_list():
+            mits = eff.get("auto_mitigate_climate", [])
+            if isinstance(mits, list):
+                res.extend(mits)
+            elif isinstance(mits, str):
+                res.append(mits)
+        return res
+
+    def get_trait_power_bonus(self, terrain_type: Optional[str] = None, climate_type: Optional[str] = None) -> float:
+        """Calcula o bônus de poder advindo dos traços da equipe."""
+        bonus = 0.0
+        for eff in self.get_trait_effects_list():
+            bonus += float(eff.get("defense_power_bonus", 0))
+            bonus += float(eff.get("combat_power_bonus", 0))
+            if terrain_type == "toxic_swamp":
+                bonus += float(eff.get("swamp_power_bonus", 0))
+            if terrain_type == "glacier_frost":
+                bonus += float(eff.get("cold_terrain_bonus", 0))
+        return bonus
+
+    def get_trait_energy_multiplier(self, terrain_type: Optional[str] = None) -> float:
+        """Calcula o multiplicador de gasto de suprimentos advindo dos traços."""
+        multiplier = 1.0
+        for eff in self.get_trait_effects_list():
+            multiplier *= float(eff.get("energy_cost_multiplier", 1.0))
+            if terrain_type in ("volcanic_heat", "scorching_heat") and "arid_energy_penalty" in eff:
+                multiplier *= float(eff.get("arid_energy_penalty", 1.0))
+        return multiplier
+
     def calculate_effective_power(
         self,
         terrain_power_penalty_pct: float = 0.0,
         climate_power_penalty_pct: float = 0.0,
+        terrain_type: Optional[str] = None,
+        climate_type: Optional[str] = None,
     ) -> float:
         """
-        Calcula o Poder Efetivo da equipe aplicando penalidade percentual de terreno e clima.
-        Guerreiro/Berserker com 'skill_survival' reduz a penalidade de terreno pela metade.
+        Calcula o Poder Efetivo da equipe aplicando penalidade percentual de terreno e clima,
+        além de bônus advindos de habilidades e traços da guilda.
         """
         raw_terrain_pct = float(terrain_power_penalty_pct)
         if raw_terrain_pct > 1.0:
@@ -251,7 +340,8 @@ class Team:
         climate_pct = 0.0 if self.has_climate_mitigation else raw_climate_pct
 
         total_penalty_pct = min(1.0, terrain_pct + climate_pct)
-        effective = (self.base_power + self.bonus_slots) * (1.0 - total_penalty_pct)
+        trait_bonus = self.get_trait_power_bonus(terrain_type, climate_type)
+        effective = (self.base_power + self.bonus_slots + trait_bonus) * (1.0 - total_penalty_pct)
         return max(0.0, effective)
 
 
@@ -336,6 +426,19 @@ class MatchEngine:
             self.terrain_type in elemental_tags or self.climate_type in elemental_tags
         )
 
+        # Mitigações automáticas advindas de traços das forças-tarefas
+        if req_mitigation:
+            if req_mitigation in self.team1.get_auto_mitigate_terrains() or self.terrain_type in self.team1.get_auto_mitigate_terrains():
+                self.team1.has_terrain_mitigation = True
+            if req_mitigation in self.team2.get_auto_mitigate_terrains() or self.terrain_type in self.team2.get_auto_mitigate_terrains():
+                self.team2.has_terrain_mitigation = True
+
+        if climate_req_mitigation:
+            if climate_req_mitigation in self.team1.get_auto_mitigate_climates() or self.climate_type in self.team1.get_auto_mitigate_climates():
+                self.team1.has_climate_mitigation = True
+            if climate_req_mitigation in self.team2.get_auto_mitigate_climates() or self.climate_type in self.team2.get_auto_mitigate_climates():
+                self.team2.has_climate_mitigation = True
+
         # Penalidades ambientais de terreno calculadas para cada equipe
         if terrain_penalty_t1 is not None:
             self.penalty_pct_t1 = terrain_penalty_t1
@@ -373,13 +476,106 @@ class MatchEngine:
         if not self.fast_mode:
             self.match_log.append(message)
 
+    def _simulate_round(self, room: int, ep1: float, ep2: float) -> bool:
+        """Simula a resolução de uma câmara da masmorra para ambas as forças-tarefas."""
+        is_final_boss = (room == self.num_rooms)
+
+        # A guilda só entra numa sala com energia estritamente acima de 0
+        t1_entered = self.team1.energy > 0
+        t2_entered = self.team2.energy > 0
+
+        if not t1_entered and not t2_entered:
+            return True
+
+        # A variação de custo de suprimentos é sorteada por sala e vale para as duas guildas na mesma sala
+        room_variance = self.rng.uniform(1.0 - self.room_cost_variance, 1.0 + self.room_cost_variance)
+
+        # Define antecipadamente se há encontro (salas 1 até max_rooms - 1)
+        has_encounter = True
+        if not is_final_boss:
+            has_encounter = (self.rng.random() < self.room_encounter_probability)
+
+        # Consumo de suprimentos da sala percorrida (com multiplicador de traços de cada equipe)
+        if t1_entered:
+            agi_reduction_1 = self.agi_energy_reduction_max * (self.team1.agi / 100.0)
+            base_cost_1 = self.base_energy_cost_per_room * room_variance * (1.0 - agi_reduction_1)
+
+            # Habilidade Batedor (Ladino/Arqueiro):
+            # Redução no custo de suprimentos ao explorar salas vazias
+            if not has_encounter and self.team1.has_skill("skill_scout"):
+                scout_skill = self.team1.get_skill("skill_scout") or {}
+                reduction_pct = float(scout_skill.get("empty_room_cost_reduction_pct", 0.30))
+                base_cost_1 *= (1.0 - reduction_pct)
+
+            trait_energy_mult_1 = self.team1.get_trait_energy_multiplier(self.terrain_type)
+            cost_t1 = (base_cost_1 + self.extra_cost_t1) * trait_energy_mult_1
+            self.team1.energy = max(0.0, self.team1.energy - cost_t1)
+            self.team1.rooms_explored += 1
+            if self.team1.energy == 0 and not is_final_boss:
+                self.team1.exit_reason = "Suprimentos esgotados"
+
+        if t2_entered:
+            agi_reduction_2 = self.agi_energy_reduction_max * (self.team2.agi / 100.0)
+            base_cost_2 = self.base_energy_cost_per_room * room_variance * (1.0 - agi_reduction_2)
+
+            # Habilidade Batedor (Ladino/Arqueiro) para Team 2
+            if not has_encounter and self.team2.has_skill("skill_scout"):
+                scout_skill = self.team2.get_skill("skill_scout") or {}
+                reduction_pct = float(scout_skill.get("empty_room_cost_reduction_pct", 0.30))
+                base_cost_2 *= (1.0 - reduction_pct)
+
+            trait_energy_mult_2 = self.team2.get_trait_energy_multiplier(self.terrain_type)
+            cost_t2 = (base_cost_2 + self.extra_cost_t2) * trait_energy_mult_2
+            self.team2.energy = max(0.0, self.team2.energy - cost_t2)
+            self.team2.rooms_explored += 1
+            if self.team2.energy == 0 and not is_final_boss:
+                self.team2.exit_reason = "Suprimentos esgotados"
+
+        room_report = {
+            "room": room,
+            "is_final_boss": is_final_boss,
+            "energy_t1": round(self.team1.energy, 2),
+            "energy_t2": round(self.team2.energy, 2),
+            "t1_present": t1_entered,
+            "t2_present": t2_entered,
+        }
+
+        if is_final_boss:
+            event_msg = self._resolve_final_boss(ep1, ep2, t1_entered, t2_entered)
+            if t1_entered:
+                self.team1.exit_reason = "Boss resolvido"
+            if t2_entered:
+                self.team2.exit_reason = "Boss resolvido"
+            if not self.fast_mode:
+                room_report["event"] = event_msg
+                self.room_events.append(room_report)
+            return True
+        else:
+            if not has_encounter:
+                event_msg = "Sala sem ocorrências operacionais."
+                if t1_entered and self.team1.has_skill("skill_scout"):
+                    event_msg += f" (Batedor de {self.team1.name} reduziu custos de provisão)."
+                self.log(f"Câmara {room}: {event_msg}")
+            else:
+                event_msg = self._resolve_miniboss(ep1, ep2, room, t1_entered, t2_entered)
+
+            if not self.fast_mode:
+                room_report["event"] = event_msg
+                self.room_events.append(room_report)
+
+        if self.team1.energy == 0 and self.team2.energy == 0:
+            self.log(f"Câmara {room}: Ambas as expedições esgotaram seus suprimentos operacionais.")
+            return True
+
+        return False
+
     def simulate(self) -> Dict[str, Any]:
         """Executa a simulação sala a sala até o esgotamento de suprimentos ou resolução do Boss Final."""
         self.log(f"Iniciando expedição oficial na masmorra: {self.terrain_name} | Clima: {self.climate_name}")
         self.log(f"Confronto da Rodada: {self.team1.name} vs {self.team2.name}")
 
-        ep1 = self.team1.calculate_effective_power(self.penalty_pct_t1, self.climate_penalty_t1)
-        ep2 = self.team2.calculate_effective_power(self.penalty_pct_t2, self.climate_penalty_t2)
+        ep1 = self.team1.calculate_effective_power(self.penalty_pct_t1, self.climate_penalty_t1, self.terrain_type, self.climate_type)
+        ep2 = self.team2.calculate_effective_power(self.penalty_pct_t2, self.climate_penalty_t2, self.terrain_type, self.climate_type)
 
         self.log(
             f"Poder Efetivo Calculado — {self.team1.name}: {ep1:.1f} | "
@@ -387,101 +583,27 @@ class MatchEngine:
         )
 
         for room in range(1, self.num_rooms + 1):
-            is_final_boss = (room == self.num_rooms)
-
-            # A guilda só entra numa sala com energia estritamente acima de 0
-            t1_entered = self.team1.energy > 0
-            t2_entered = self.team2.energy > 0
-
-            if not t1_entered and not t2_entered:
-                break
-
-            # A variação de custo de suprimentos é sorteada por sala e vale para as duas guildas na mesma sala
-            room_variance = self.rng.uniform(1.0 - self.room_cost_variance, 1.0 + self.room_cost_variance)
-
-            # Define antecipadamente se há encontro (salas 1 até max_rooms - 1)
-            has_encounter = True
-            if not is_final_boss:
-                has_encounter = (self.rng.random() < self.room_encounter_probability)
-
-            # Consumo de suprimentos da sala percorrida
-            if t1_entered:
-                agi_reduction_1 = self.agi_energy_reduction_max * (self.team1.agi / 100.0)
-                base_cost_1 = self.base_energy_cost_per_room * room_variance * (1.0 - agi_reduction_1)
-
-                # Habilidade Batedor (Ladino/Arqueiro):
-                # Redução no custo de suprimentos ao explorar salas vazias
-                if not has_encounter and self.team1.has_skill("skill_scout"):
-                    scout_skill = self.team1.get_skill("skill_scout") or {}
-                    reduction_pct = float(scout_skill.get("empty_room_cost_reduction_pct", 0.30))
-                    base_cost_1 *= (1.0 - reduction_pct)
-
-                cost_t1 = base_cost_1 + self.extra_cost_t1
-                self.team1.energy = max(0.0, self.team1.energy - cost_t1)
-                self.team1.rooms_explored += 1
-                if self.team1.energy == 0 and not is_final_boss:
-                    self.team1.exit_reason = "Suprimentos esgotados"
-
-            if t2_entered:
-                agi_reduction_2 = self.agi_energy_reduction_max * (self.team2.agi / 100.0)
-                base_cost_2 = self.base_energy_cost_per_room * room_variance * (1.0 - agi_reduction_2)
-
-                # Habilidade Batedor (Ladino/Arqueiro) para Team 2
-                if not has_encounter and self.team2.has_skill("skill_scout"):
-                    scout_skill = self.team2.get_skill("skill_scout") or {}
-                    reduction_pct = float(scout_skill.get("empty_room_cost_reduction_pct", 0.30))
-                    base_cost_2 *= (1.0 - reduction_pct)
-
-                cost_t2 = base_cost_2 + self.extra_cost_t2
-                self.team2.energy = max(0.0, self.team2.energy - cost_t2)
-                self.team2.rooms_explored += 1
-                if self.team2.energy == 0 and not is_final_boss:
-                    self.team2.exit_reason = "Suprimentos esgotados"
-
-            room_report = {
-                "room": room,
-                "is_final_boss": is_final_boss,
-                "energy_t1": round(self.team1.energy, 2),
-                "energy_t2": round(self.team2.energy, 2),
-                "t1_present": t1_entered,
-                "t2_present": t2_entered,
-            }
-
-            if is_final_boss:
-                event_msg = self._resolve_final_boss(ep1, ep2, t1_entered, t2_entered)
-                if t1_entered:
-                    self.team1.exit_reason = "Boss resolvido"
-                if t2_entered:
-                    self.team2.exit_reason = "Boss resolvido"
-                if not self.fast_mode:
-                    room_report["event"] = event_msg
-                    self.room_events.append(room_report)
-                break
-            else:
-                if not has_encounter:
-                    event_msg = "Sala sem ocorrências operacionais."
-                    if t1_entered and self.team1.has_skill("skill_scout"):
-                        event_msg += f" (Batedor de {self.team1.name} reduziu custos de provisão)."
-                    self.log(f"Câmara {room}: {event_msg}")
-                else:
-                    event_msg = self._resolve_miniboss(ep1, ep2, room, t1_entered, t2_entered)
-
-                if not self.fast_mode:
-                    room_report["event"] = event_msg
-                    self.room_events.append(room_report)
-
-            if self.team1.energy == 0 and self.team2.energy == 0:
-                self.log(f"Câmara {room}: Ambas as expedições esgotaram seus suprimentos operacionais.")
+            should_stop = self._simulate_round(room, ep1, ep2)
+            if should_stop:
                 break
 
         return self._generate_save_data()
 
     def _resolve_miniboss(self, ep1: float, ep2: float, room: int, t1_present: bool, t2_present: bool) -> str:
         """Resolve o confronto de câmara intermediária com Mini-Boss ou ameaça de sala."""
-        # Habilidade Canalização Concentrada (Mago/Piromante):
-        # Bônus de Poder contra Minibosses elementais
         effective_ep1 = ep1
         effective_ep2 = ep2
+
+        # Bônus de poder advindo de traços táticos para miniboss e masmorras elementais
+        for eff in self.team1.get_trait_effects_list():
+            effective_ep1 += float(eff.get("miniboss_power_bonus", 0))
+            if self.is_elemental_encounter:
+                effective_ep1 += float(eff.get("elemental_encounter_power_bonus", 0))
+
+        for eff in self.team2.get_trait_effects_list():
+            effective_ep2 += float(eff.get("miniboss_power_bonus", 0))
+            if self.is_elemental_encounter:
+                effective_ep2 += float(eff.get("elemental_encounter_power_bonus", 0))
 
         if self.is_elemental_encounter:
             if t1_present and self.team1.has_skill("skill_concentrated_channeling"):
@@ -499,7 +621,12 @@ class MatchEngine:
             prob_t1 = effective_ep1 / total_p if total_p > 0 else 0.5
             roll = self.rng.random()
 
-            if roll < prob_t1 - self.miniboss_draw_margin:
+            # Margem de desempate modificada por traços (ex: trait_tact_arcane_interdiction)
+            draw_margin_1 = self.miniboss_draw_margin
+            for eff in self.team1.get_trait_effects_list():
+                draw_margin_1 += float(eff.get("miniboss_draw_margin_bonus", 0))
+
+            if roll < prob_t1 - draw_margin_1:
                 self.team1.score += self.miniboss_points
                 msg = f"{self.team1.name} neutralizou a ameaça na Câmara {room} (+{self.miniboss_points} PE)."
             elif roll > prob_t1 + self.miniboss_draw_margin:
@@ -527,14 +654,16 @@ class MatchEngine:
                 else:
                     msg = f"Disputa equilibrada na Câmara {room}. Nenhum abate prioritário deferido (0 PE)."
         elif t1_present:
-            p_clear = max(0.05, min(0.95, self.solo_clear_base * effective_ep1 / self.recommended_power))
+            solo_bonus = sum(float(e.get("solo_clear_bonus", 0)) for e in self.team1.get_trait_effects_list())
+            p_clear = max(0.05, min(0.95, (self.solo_clear_base + solo_bonus) * effective_ep1 / self.recommended_power))
             if self.rng.random() < p_clear:
                 self.team1.score += self.miniboss_points
                 msg = f"{self.team1.name} conteve a ameaça na Câmara {room} de forma autônoma (+{self.miniboss_points} PE)."
             else:
                 msg = f"{self.team1.name} não obteve êxito na contenção da ameaça na Câmara {room} (0 PE)."
         elif t2_present:
-            p_clear = max(0.05, min(0.95, self.solo_clear_base * effective_ep2 / self.recommended_power))
+            solo_bonus = sum(float(e.get("solo_clear_bonus", 0)) for e in self.team2.get_trait_effects_list())
+            p_clear = max(0.05, min(0.95, (self.solo_clear_base + solo_bonus) * effective_ep2 / self.recommended_power))
             if self.rng.random() < p_clear:
                 self.team2.score += self.miniboss_points
                 msg = f"{self.team2.name} conteve a ameaça na Câmara {room} de forma autônoma (+{self.miniboss_points} PE)."
@@ -550,13 +679,20 @@ class MatchEngine:
         """Resolve o confronto final do Boss da masmorra."""
         self.log("Forças-tarefas alcançaram a Câmara do Boss Final!")
 
+        eval_ep1 = ep1
+        eval_ep2 = ep2
+        for eff in self.team1.get_trait_effects_list():
+            eval_ep1 += float(eff.get("boss_power_bonus", 0))
+        for eff in self.team2.get_trait_effects_list():
+            eval_ep2 += float(eff.get("boss_power_bonus", 0))
+
         if t1_present and t2_present:
-            diff = abs(ep1 - ep2)
-            higher_p = max(ep1, ep2)
+            diff = abs(eval_ep1 - eval_ep2)
+            higher_p = max(eval_ep1, eval_ep2)
             percent_diff = (diff / higher_p) if higher_p > 0 else 0.0
 
             if percent_diff > self.boss_threshold_pct:
-                if ep1 > ep2:
+                if eval_ep1 > eval_ep2:
                     self.team1.score += self.boss_win_points
                     msg = f"{self.team1.name} superou o rival em mais de 15% de poder e garantiu o Abate do Boss Final (+{self.boss_win_points} PE)!"
                 else:
@@ -569,25 +705,25 @@ class MatchEngine:
         elif t1_present:
             # Habilidade Execução Fria (Ladino/Assassino):
             # Bônus na rolagem de Boss solitário
-            eval_power = ep1
+            solo_eval = eval_ep1
             if self.team1.has_skill("skill_cold_execution"):
                 skill_data = self.team1.get_skill("skill_cold_execution") or {}
                 bonus_pct = float(skill_data.get("solo_boss_power_bonus_pct", 0.15))
-                eval_power *= (1.0 + bonus_pct)
+                solo_eval *= (1.0 + bonus_pct)
 
-            if eval_power >= self.recommended_power:
+            if solo_eval >= self.recommended_power:
                 self.team1.score += self.boss_win_points
                 msg = f"{self.team1.name} enfrentou o Boss Final de forma autônoma e executou o abate (+{self.boss_win_points} PE)!"
             else:
                 msg = f"{self.team1.name} enfrentou o Boss Final, mas o contingente operacional não atingiu o poder recomendado de {self.recommended_power} (0 PE)."
         elif t2_present:
-            eval_power = ep2
+            solo_eval = eval_ep2
             if self.team2.has_skill("skill_cold_execution"):
                 skill_data = self.team2.get_skill("skill_cold_execution") or {}
                 bonus_pct = float(skill_data.get("solo_boss_power_bonus_pct", 0.15))
-                eval_power *= (1.0 + bonus_pct)
+                solo_eval *= (1.0 + bonus_pct)
 
-            if eval_power >= self.recommended_power:
+            if solo_eval >= self.recommended_power:
                 self.team2.score += self.boss_win_points
                 msg = f"{self.team2.name} enfrentou o Boss Final de forma autônoma e executou o abate (+{self.boss_win_points} PE)!"
             else:
@@ -617,3 +753,45 @@ class MatchEngine:
             "match_log": self.match_log,
             "room_events": self.room_events,
         }
+
+
+def calculate_rival_power(
+    guild: Dict[str, Any],
+    dungeon: Optional[Dict[str, Any]] = None,
+    climate: Optional[Dict[str, Any]] = None,
+) -> float:
+    """
+    Calcula o poder efetivo de uma guilda rival considerando seus traços, masmorra e clima.
+    """
+    base_power = float(guild.get("power_rating", 60))
+    traits = guild.get("traits", [])
+    team = Team(
+        name=guild.get("name", "Rival"),
+        base_power=base_power,
+        bonus_slots=6.0,
+        traits=traits,
+        has_terrain_mitigation=False,
+        has_climate_mitigation=False,
+    )
+    req_mit = dungeon.get("mitigation_required") if dungeon else None
+    terrain_type = dungeon.get("terrain", "neutral") if dungeon else "neutral"
+    dungeon_penalty = float(dungeon.get("power_penalty_pct", 0.0)) if dungeon else 0.0
+
+    req_climate_mit = climate.get("mitigation_required") if climate else None
+    climate_type = climate.get("climate", "clear_sky") if climate else "clear_sky"
+    climate_penalty = float(climate.get("power_penalty_pct", 0.0)) if climate else 0.0
+
+    if req_mit:
+        if req_mit in team.get_auto_mitigate_terrains() or terrain_type in team.get_auto_mitigate_terrains():
+            team.has_terrain_mitigation = True
+
+    if req_climate_mit:
+        if req_climate_mit in team.get_auto_mitigate_climates() or climate_type in team.get_auto_mitigate_climates():
+            team.has_climate_mitigation = True
+
+    return team.calculate_effective_power(
+        terrain_power_penalty_pct=dungeon_penalty,
+        climate_power_penalty_pct=climate_penalty,
+        terrain_type=terrain_type,
+        climate_type=climate_type,
+    )

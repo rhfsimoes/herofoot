@@ -272,6 +272,7 @@ class PhaseService:
                 has_terrain_mitigation=rival_has_mitigation,
                 has_climate_mitigation=rival_climate_mit,
                 balance=balance,
+                traits=rival_guild_info.get("traits", []) if rival_guild_info else [],
             )
             engine = self.match_engine.MatchEngine(
                 t1,

@@ -16,6 +16,8 @@
     "type": "tactical",
     "description": "Filosofia militar voltada ao choque frontal imediato. Os combatentes forçam passagens e abatem guardiões nas primeiras câmaras sem aguardar o escalonamento da retaguarda, impondo severo desgaste biomecânico aos heróis.",
     "effects": {
+      "combat_power_bonus": 4,
+      "energy_cost_multiplier": 1.20,
       "solo_clear_bonus": 0.15,
       "miniboss_power_bonus": 8,
       "fatigue_gain_modifier": 8
@@ -60,6 +62,7 @@
     "type": "tactical",
     "description": "Tropa adaptada a fendas glaciais, tundra congelada e nevascas permanentes. Utilizam graxa espessa e isolantes térmicos para manter articulações e lâminas operacionais abaixo de zero.",
     "effects": {
+      "auto_mitigate_terrain": ["glacier_frost"],
       "auto_mitigate_climate": ["polar_wind", "blizzard"],
       "cold_terrain_bonus": 5,
       "heat_fatigue_multiplier": 1.25
@@ -174,5 +177,20 @@
       "crown_confidence_baseline_bonus": 15,
       "bureaucratic_latency": 0.15
     }
+  },
+  {
+    "id": "meta_camara_founding",
+    "type": "metadata",
+    "power_min": 50,
+    "power_max": 54,
+    "naming_prefixes": [
+      "Companhia", "Consórcio", "Sindicato", "Bastião", "Ordem", "Vanguarda", "Irmandade", "Liga"
+    ],
+    "naming_connectors": [
+      "da Bigorna", "do Falcão", "do Carvalho", "da Lança", "do Lobo", "da Sentinela", "do Martelo", "do Tridente"
+    ],
+    "naming_suffixes": [
+      "Rubra", "Imperial", "de Prata", "Boreal", "Cinzento", "de Bronze", "de Aço", "de Malaquita"
+    ]
   }
 ]
