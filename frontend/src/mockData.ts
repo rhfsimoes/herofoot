@@ -47,6 +47,7 @@ export interface InventoryItem {
   max_charges?: number
   market_value_base: number
   branch?: string
+  description?: string
 }
 
 export interface Recipe {
@@ -62,7 +63,9 @@ export interface Recipe {
   suffix_component?: string
   suffix?: string
   min_workshop_level?: number
-  ingredients: { item_id?: string; label?: string; quantity: number }[]
+  tier?: number
+  xp_reward?: number
+  ingredients: { item_id?: string; material_id?: string; label?: string; quantity: number }[]
   base_power?: number
   energy_bonus?: number
   energy_restore?: number
@@ -498,7 +501,6 @@ export interface CorporateEvent {
   trigger_phase: string
   options: CorporateEventOption[]
 }
-
 export interface GameState {
   day: number
   week: number
