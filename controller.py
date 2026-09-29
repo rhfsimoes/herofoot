@@ -316,6 +316,9 @@ class GameController:
     def resolve_counter_offer(self, offer_id: str, accept: bool) -> dict:
         return self.sales_service.resolve_counter_offer(offer_id, accept)
 
+    def fulfill_vip_order(self, item_instance_id: str) -> dict:
+        return self.sales_service.fulfill_vip_order(item_instance_id)
+
     def hire_hero(self, hero_data: dict) -> dict:
         self.state.team.append(hero_data)
         return {"success": True, "message": f"Aventureiro '{hero_data.get('name')}' contratado."}
