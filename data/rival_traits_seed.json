@@ -1,0 +1,178 @@
+[
+  {
+    "id": "trait_tact_steel_wall",
+    "name": "Paredão de Aço Homologado",
+    "type": "tactical",
+    "description": "Doutrina de contenção estrita e avanço lento em falange blindada. Reduz substancialmente as chances de recuo desordenado e falhas em recintos hostis, mas consome rações e lubrificantes de armadura em ritmo alarmante.",
+    "effects": {
+      "defense_power_bonus": 6,
+      "energy_cost_multiplier": 1.20,
+      "fatigue_gain_modifier": -3
+    }
+  },
+  {
+    "id": "trait_tact_reckless_offensive",
+    "name": "Investida de Alto Impacto",
+    "type": "tactical",
+    "description": "Filosofia militar voltada ao choque frontal imediato. Os combatentes forçam passagens e abatem guardiões nas primeiras câmaras sem aguardar o escalonamento da retaguarda, impondo severo desgaste biomecânico aos heróis.",
+    "effects": {
+      "solo_clear_bonus": 0.15,
+      "miniboss_power_bonus": 8,
+      "fatigue_gain_modifier": 8
+    }
+  },
+  {
+    "id": "trait_tact_swamp_specialists",
+    "name": "Especialistas em Bioma Tóxico",
+    "type": "tactical",
+    "description": "Corpo expedicionário treinado em drenagem de miasmas e equipado com filtros respiratórios de carvão vegetal ativo. Ignoram os entraves patológicos das zonas alagadas e pântanos de lodo pestilento.",
+    "effects": {
+      "auto_mitigate_terrain": ["toxic_swamp"],
+      "swamp_power_bonus": 4,
+      "arid_energy_penalty": 1.15
+    }
+  },
+  {
+    "id": "trait_tact_attrition_warfare",
+    "name": "Protocolo de Cerco e Atrito",
+    "type": "tactical",
+    "description": "Estratégia metodológica focada no esgotamento sistemático de monstros de grande porte. A equipe evita trocas explosivas e desgasta a anatomia dos bosses mediante manobras circulares e projéteis cadenciados.",
+    "effects": {
+      "boss_power_bonus": 10,
+      "boss_win_point_bonus": 1,
+      "early_room_power_penalty": -4
+    }
+  },
+  {
+    "id": "trait_tact_blitz_recon",
+    "name": "Batedores de Vanguarda Célere",
+    "type": "tactical",
+    "description": "Mobilização de esquadrões ligeiros com calçados de tração rúnica. Priorizam mapear atalhos e contornar gargalos logísticos com velocidade inigualável, sacrificando capacidade de retenção em combates frontais.",
+    "effects": {
+      "agi_bonus": 12,
+      "energy_cost_multiplier": 0.85,
+      "defense_power_bonus": -5
+    }
+  },
+  {
+    "id": "trait_tact_cryo_drills",
+    "name": "Companhia de Engenharia Polar",
+    "type": "tactical",
+    "description": "Tropa adaptada a fendas glaciais, tundra congelada e nevascas permanentes. Utilizam graxa espessa e isolantes térmicos para manter articulações e lâminas operacionais abaixo de zero.",
+    "effects": {
+      "auto_mitigate_climate": ["polar_wind", "blizzard"],
+      "cold_terrain_bonus": 5,
+      "heat_fatigue_multiplier": 1.25
+    }
+  },
+  {
+    "id": "trait_tact_arcane_interdiction",
+    "name": "Interdição Mágica e Supressão",
+    "type": "tactical",
+    "description": "Empregam redes condutoras de mithril e incensos inibidores de mana. Especialistas em neutralizar conjurações abissais e anomalias de fenda mediante contenção regulatória rápida.",
+    "effects": {
+      "miniboss_draw_margin_bonus": 0.06,
+      "elemental_encounter_power_bonus": 7,
+      "maintenance_cost_weekly": 40
+    }
+  },
+  {
+    "id": "trait_tact_guerilla_opportunism",
+    "name": "Oportunismo de Emboscada",
+    "type": "tactical",
+    "description": "Operam sem estandartes ostensivos, explorando sombras e passagens secundárias. Recusam embates frontais solenes, focando em interceptações laterais e apropriação oportunista de despojos.",
+    "effects": {
+      "counter_encounter_bonus": 0.20,
+      "loot_bonus_pct": 0.15,
+      "crown_confidence_penalty": -2
+    }
+  },
+  {
+    "id": "trait_corp_aristocratic_backing",
+    "name": "Aristocracia Financiada",
+    "type": "corporate",
+    "description": "Apoiada por consórcios ducais e banqueiros da alta nobreza com acesso irrestrito a linhas de crédito. Despejam somas extravagantes no Mercado de Transferências para inflacionar salários e asfixiar rivais emergentes.",
+    "effects": {
+      "transfer_budget_multiplier": 1.50,
+      "bid_aggression_factor": 1.30,
+      "weekly_luxury_overhead": 120
+    }
+  },
+  {
+    "id": "trait_corp_worker_cooperative",
+    "name": "Cooperativa Operária de Incursão",
+    "type": "corporate",
+    "description": "Modelo societário coletivo fundamentado na autogestão de artífices e escudeiros. Não pagam salários principescos a estrelas individuais; reinvestem suas sobras na rotação maciça e capacitação técnica de aprendizes.",
+    "effects": {
+      "payroll_reduction_pct": 0.25,
+      "academy_turnover_bonus": 1,
+      "star_player_retention_penalty": 0.35
+    }
+  },
+  {
+    "id": "trait_corp_counter_predators",
+    "name": "Predadores do Balcão",
+    "type": "corporate",
+    "description": "Superintendentes com faro afiado para manufaturas de excelência e poder de compra voraz. Visitam com regularidade o balcão comercial de outras guildas para adquirir equipamentos de ponta e reforçar sua própria tropa.",
+    "effects": {
+      "counter_visit_frequency": 1.40,
+      "high_tier_purchase_budget": 600,
+      "rival_gear_escalation_pct": 0.10
+    }
+  },
+  {
+    "id": "trait_corp_chronic_default",
+    "name": "Inadimplência Crônica",
+    "type": "corporate",
+    "description": "Guilda administrada por aventureiros pródigos sob regime de contabilidade criativa. Operam permanentemente no limite do colapso fiscal e sob risco constante de intervenção cartorária e penhora de patrimônio pela Coroa.",
+    "effects": {
+      "bankruptcy_risk_rate": 0.30,
+      "crown_fine_frequency": 1.50,
+      "emergency_loan_leverage": 1.25
+    }
+  },
+  {
+    "id": "trait_corp_clerical_patronage",
+    "name": "Subsídio Clerical & Isenção de Dízimo",
+    "type": "corporate",
+    "description": "Corporação canonicamente subordinada à Chancelaria da Fé. Gozam de imunidade tributária eclesiástica e auxílio hospitalar contínuo em troca do expurgo e sagração das masmorras concedidas.",
+    "effects": {
+      "tax_exemption_pct": 0.50,
+      "healing_cost_discount": 0.40,
+      "forbidden_dark_relics": true
+    }
+  },
+  {
+    "id": "trait_corp_smuggling_syndicate",
+    "name": "Sindicato do Contrabando de Minérios",
+    "type": "corporate",
+    "description": "Mantêm esquemas de receptação clandestina nos portos fluviais e extração de jazidas não registradas. Operam no mercado paralelo com custos de insumos manufaturados muito abaixo da tabela oficial.",
+    "effects": {
+      "raw_material_discount": 0.30,
+      "black_market_item_chance": 0.25,
+      "audit_seizure_risk": 0.15
+    }
+  },
+  {
+    "id": "trait_corp_ironclad_contracts",
+    "name": "Cláusulas Leoninas de Fidelidade",
+    "type": "corporate",
+    "description": "Corpo jurídico implacável que redige instrumentos de prestação de serviços com multas rescisórias impagáveis. Asseguram permanência prolongada de combatentes a custos contidos, ao preço da apatia nos alojamentos.",
+    "effects": {
+      "contract_renewal_discount": 0.20,
+      "transfer_poaching_resistance": 0.50,
+      "locker_room_morale_penalty": -0.05
+    }
+  },
+  {
+    "id": "trait_corp_state_charter",
+    "name": "Concessão Pública Imperial",
+    "type": "corporate",
+    "description": "Operada como braço paraestatal do Ministério dos Subsolos. Usufruem de dotação orçamentária fixa e prioridade no abastecimento de armazéns públicos, sujeitando-se porém a morosas auditorias regulatórias.",
+    "effects": {
+      "weekly_state_stipend": 100,
+      "crown_confidence_baseline_bonus": 15,
+      "bureaucratic_latency": 0.15
+    }
+  }
+]
