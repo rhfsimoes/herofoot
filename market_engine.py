@@ -7,6 +7,8 @@ import os
 import json
 import random
 import uuid
+import copy
+from typing import Optional, Dict, Any, List
 
 from constants import SLOTS
 from balance import get_balance
@@ -82,6 +84,17 @@ def load_bulletins():
     return []
 
 
+def load_vip_orders():
+    data_path = os.path.join(os.path.dirname(__file__), 'data', 'vip_orders_seed.json')
+    if os.path.exists(data_path):
+        try:
+            with open(data_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return []
+
+
 SLOT_PLURALS = {
     "Arma": "Armas",
     "Armadura": "Armaduras",
@@ -117,6 +130,7 @@ class MarketEngine:
         self.ready_items_for_sale = []
         self.affix_manuals = []
         self.bulletin = None
+        self.active_vip_order: Optional[Dict[str, Any]] = None
         self.refresh_market(round_number=1, rng=rng, state=state)
 
     def refresh_market(self, round_number=1, rng=None, state=None):
@@ -176,6 +190,21 @@ class MarketEngine:
         else:
             self.bulletin = None
 
+        # Encomendas VIP da Nobreza
+        if self.active_vip_order:
+            if round_number >= self.active_vip_order.get("expires_round", 0):
+                self.active_vip_order = None
+
+        if not self.active_vip_order:
+            vip_chance = float(sales_cfg.get("vip_order_chance", 0.35))
+            if rng.random() < vip_chance:
+                vip_orders = load_vip_orders()
+                if vip_orders:
+                    chosen = copy.deepcopy(rng.choice(vip_orders))
+                    duration = int(sales_cfg.get("vip_order_duration_rounds", 2))
+                    chosen["expires_round"] = round_number + duration
+                    self.active_vip_order = chosen
+
         # Manuais de Ofício (Crafting v2)
         self.affix_manuals = []
         try:
@@ -213,21 +242,21 @@ class MarketEngine:
             "ready_items_for_sale": self.ready_items_for_sale,
             "affix_manuals": self.affix_manuals,
             "bulletin": self.bulletin,
+            "vip_order": self.active_vip_order,
         }
 
     def to_dict(self) -> dict:
-        """Serializa o catálogo, manuais e boletim do mercado para persistência."""
-        import copy
+        """Serializa o catálogo, manuais, boletim e encomenda VIP do mercado para persistência."""
         return {
             "materials_for_sale": copy.deepcopy(self.materials_for_sale),
             "ready_items_for_sale": copy.deepcopy(self.ready_items_for_sale),
             "affix_manuals": copy.deepcopy(self.affix_manuals),
             "bulletin": copy.deepcopy(self.bulletin),
+            "active_vip_order": copy.deepcopy(self.active_vip_order),
         }
 
     def from_dict(self, data: dict):
         """Restaura o estado do mercado a partir de um dicionário serializado."""
-        import copy
         if not isinstance(data, dict):
             return self
         if "materials_for_sale" in data:
@@ -238,5 +267,9 @@ class MarketEngine:
             self.affix_manuals = copy.deepcopy(data["affix_manuals"])
         if "bulletin" in data:
             self.bulletin = copy.deepcopy(data["bulletin"])
+        if "active_vip_order" in data:
+            self.active_vip_order = copy.deepcopy(data["active_vip_order"])
+        elif "vip_order" in data:
+            self.active_vip_order = copy.deepcopy(data["vip_order"])
         return self
 

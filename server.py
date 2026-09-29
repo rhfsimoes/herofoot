@@ -50,7 +50,8 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             for k in (
                 "gold", "facilities", "hero", "new_level", "saves", "slot", "item", "quality",
                 "tinkering", "tinkering_success", "recipe_unlocked", "xp_gained", "current_xp",
-                "level", "cost", "xp_consumed", "consequence", "effects_applied", "active_event"
+                "level", "cost", "xp_consumed", "consequence", "effects_applied", "active_event",
+                "gold_earned", "confidence_earned"
             ):
                 if k in result:
                     payload[k] = result[k]
@@ -246,6 +247,11 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             offer_id = body.get('offer_id')
             accept = bool(body.get('accept', False))
             result = controller.resolve_counter_offer(offer_id, accept)
+            self._send_action_result(result)
+        elif path == '/api/fulfill_vip_order':
+            body = self._read_json_body()
+            item_id = body.get('item_instance_id')
+            result = controller.fulfill_vip_order(item_id)
             self._send_action_result(result)
         elif path == '/api/save':
             body = self._read_json_body()
