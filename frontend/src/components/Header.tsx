@@ -99,7 +99,17 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
           type: 'success',
           text: res.message || `Registro corporativo arquivado com sucesso no compartimento [${slotId}].`,
         })
-        await loadSaves()
+        if (res.saves && Array.isArray(res.saves)) {
+          setSaveSlots(res.saves)
+        } else {
+          await loadSaves()
+        }
+        if (onStateChange) {
+          onStateChange({
+            ...state,
+            active_slot: res.slot || slotId,
+          })
+        }
       } else {
         setFeedback({
           type: 'error',

@@ -3,7 +3,7 @@
  * Comunica-se com o backend Python local (http.server nativo da biblioteca padrão).
  */
 
-import type { GameState, InventoryItem } from './mockData'
+import type { GameState, InventoryItem, SaveSlotInfo } from './mockData'
 
 const API_BASE = 'http://localhost:8000/api'
 
@@ -13,6 +13,8 @@ export interface ApiResponse<T = any> {
   success?: boolean
   message?: string
   error?: string
+  saves?: SaveSlotInfo[]
+  slot?: string
 }
 
 export async function checkBackendLive(): Promise<boolean> {
@@ -171,11 +173,14 @@ export async function resolveOfferBackend(offerId: string, accept: boolean): Pro
 // ENDPOINTS DE ARQUIVAMENTO E PERSISTÊNCIA (SAVES)
 // ─────────────────────────────────────────────
 
-export async function fetchSavesBackend(): Promise<any[] | null> {
+export async function fetchSavesBackend(): Promise<SaveSlotInfo[] | null> {
   try {
     const res = await fetch(`${API_BASE}/saves`, { signal: AbortSignal.timeout(2000) })
     if (res.ok) {
-      return (await res.json()) as any[]
+      const data = await res.json()
+      if (Array.isArray(data)) return data as SaveSlotInfo[]
+      if (data && Array.isArray(data.saves)) return data.saves as SaveSlotInfo[]
+      return null
     }
   } catch (err) {
     console.warn('[HeroFoot API] Erro ao consultar lista de saves:', err)
