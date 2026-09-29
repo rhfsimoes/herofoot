@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Coins,
   Package,
@@ -25,24 +25,28 @@ interface Phase5ResultsProps {
 }
 
 export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) {
-  const [selectedDivisionId, setSelectedDivisionId] = useState<string>(
-    state.current_division?.id || 'div_acesso'
+  const [userSelectedDivisionId, setUserSelectedDivisionId] = useState<string | null>(null)
+  const [prevCurrentDivisionId, setPrevCurrentDivisionId] = useState<string | undefined>(
+    state.current_division?.id
   )
-  const [showSeasonModal, setShowSeasonModal] = useState<boolean>(false)
 
-  // Dispara modal de encerramento se houver season_summary nesta rodada
-  useEffect(() => {
+  if (state.current_division?.id !== prevCurrentDivisionId) {
+    setPrevCurrentDivisionId(state.current_division?.id)
+    setUserSelectedDivisionId(null)
+  }
+
+  const selectedDivisionId = userSelectedDivisionId ?? state.current_division?.id ?? 'div_acesso'
+  const setSelectedDivisionId = (id: string) => setUserSelectedDivisionId(id)
+
+  const [showSeasonModal, setShowSeasonModal] = useState<boolean>(() => Boolean(state.season_summary))
+  const [prevSeasonSummary, setPrevSeasonSummary] = useState(state.season_summary)
+
+  if (state.season_summary !== prevSeasonSummary) {
+    setPrevSeasonSummary(state.season_summary)
     if (state.season_summary) {
       setShowSeasonModal(true)
     }
-  }, [state.season_summary])
-
-  // Atualiza a aba da divisão quando a divisão ativa mudar
-  useEffect(() => {
-    if (state.current_division?.id) {
-      setSelectedDivisionId(state.current_division.id)
-    }
-  }, [state.current_division?.id])
+  }
 
   const salaryTotal = state.team.reduce((sum, h) => sum + h.salary, 0)
   const maintenance = 50

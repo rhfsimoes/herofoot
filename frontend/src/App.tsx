@@ -399,6 +399,7 @@ function AppContent() {
                 day={gameState.day}
                 rivalGuildName={rivalGuild}
                 lastRoundResults={gameState.last_round_matches}
+                state={gameState}
               />
             }
           />

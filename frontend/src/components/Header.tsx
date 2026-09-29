@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import {
   Shield,
@@ -36,6 +36,10 @@ const DEFAULT_SLOTS: SaveSlotInfo[] = [
   { slot: 'autosave', label: 'Salvamento Automático', exists: false },
 ]
 
+function generateTimestamp(): string {
+  return new Date().toISOString()
+}
+
 export default function Header({ state, isBackendOnline, onStateChange }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [saveSlots, setSaveSlots] = useState<SaveSlotInfo[]>(DEFAULT_SLOTS)
@@ -49,7 +53,7 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
 
   const reputation = 85
 
-  async function loadSaves() {
+  const loadSaves = useCallback(async () => {
     if (!isBackendOnline) {
       // Modo local simulado
       const localSaves = localStorage.getItem('herofoot_saves')
@@ -73,14 +77,13 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
     } catch (err) {
       console.warn('Erro ao carregar lista de saves:', err)
     }
-  }
+  }, [isBackendOnline])
 
-  useEffect(() => {
-    if (isMenuOpen) {
-      setFeedback(null)
-      loadSaves()
-    }
-  }, [isMenuOpen, isBackendOnline])
+  const handleOpenMenu = useCallback(() => {
+    setFeedback(null)
+    setIsMenuOpen(true)
+    loadSaves()
+  }, [loadSaves])
 
   async function handleSave(slotId: string, exists: boolean) {
     if (exists) {
@@ -122,7 +125,7 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
     }
 
     // Fallback local
-    const now = new Date().toISOString()
+    const now = generateTimestamp()
     const updated = saveSlots.map(s =>
       s.slot === slotId
         ? {
@@ -329,7 +332,7 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
 
           {/* BOTÃO DO MENU DA GUILDA (SAVES E ARQUIVO) */}
           <button
-            onClick={() => setIsMenuOpen(true)}
+            onClick={handleOpenMenu}
             className="bg-gradient-to-r from-amber-700/70 to-amber-900/90 border border-amber-500/60 hover:border-amber-400 text-amber-100 px-3.5 py-2 rounded-xl flex items-center gap-2 shadow-lg shadow-amber-950/40 hover:brightness-110 transition active:scale-95 text-xs font-black uppercase tracking-wider"
             title="Menu de Gestão de Arquivamento, Salvamento e Novo Exercício Fiscal"
           >
