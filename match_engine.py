@@ -265,7 +265,14 @@ class MatchEngine:
             else:
                 has_encounter = (self.rng.random() < self.room_encounter_probability)
                 if not has_encounter:
-                    event_msg = "Sala sem ocorrências operacionais."
+                    empty_opts = [
+                        "Sala sem ocorrências operacionais. Expedição avança em formação defensiva.",
+                        "Corredor úmido e silencioso coberto por névoa densa. A tropa avança sem contato hostil.",
+                        "Labirinto de pedra calcária; batedores contornam escombros e mantêm o ritmo de marcha.",
+                        "Inscrições rúnicas desgastadas nas paredes; goteiras e silêncio sepulcral.",
+                        "Vasto salão abandonado com tochas extintas; expedição reorganiza provisões com cautela.",
+                    ]
+                    event_msg = self.rng.choice(empty_opts)
                     self.log(f"Câmara {room}: {event_msg}")
                 else:
                     event_msg = self._resolve_miniboss(ep1, ep2, room, t1_entered, t2_entered)
@@ -282,6 +289,14 @@ class MatchEngine:
 
     def _resolve_miniboss(self, ep1: float, ep2: float, room: int, t1_present: bool, t2_present: bool) -> str:
         """Resolve o confronto de câmara intermediária com Mini-Boss ou ameaça de sala."""
+        enc_templates = [
+            "{team} neutralizou a ameaça hostil na Câmara {room} (+{points} PE).",
+            "{team} resgatou emissários reais aprisionados na Câmara {room} (+{points} PE).",
+            "{team} desarmou armadilhas arcanas e saqueou um baú ancestral na Câmara {room} (+{points} PE).",
+            "{team} decifrou selos rúnicos e recuperou uma relíquia da Coroa na Câmara {room} (+{points} PE).",
+            "{team} repeliu uma emboscada hostil com manobra coordenada na Câmara {room} (+{points} PE).",
+        ]
+
         if t1_present and t2_present:
             total_p = ep1 + ep2
             prob_t1 = ep1 / total_p if total_p > 0 else 0.5
@@ -289,26 +304,50 @@ class MatchEngine:
 
             if roll < prob_t1 - self.miniboss_draw_margin:
                 self.team1.score += self.miniboss_points
-                msg = f"{self.team1.name} neutralizou a ameaça na Câmara {room} (+{self.miniboss_points} PE)."
+                tmpl = self.rng.choice(enc_templates)
+                msg = tmpl.format(team=self.team1.name, room=room, points=self.miniboss_points)
             elif roll > prob_t1 + self.miniboss_draw_margin:
                 self.team2.score += self.miniboss_points
-                msg = f"{self.team2.name} neutralizou a ameaça na Câmara {room} (+{self.miniboss_points} PE)."
+                tmpl = self.rng.choice(enc_templates)
+                msg = tmpl.format(team=self.team2.name, room=room, points=self.miniboss_points)
             else:
-                msg = f"Disputa equilibrada na Câmara {room}. Nenhum abate prioritário deferido (0 PE)."
+                draw_opts = [
+                    f"Disputa equilibrada na Câmara {room}. Nenhum abate prioritário deferido (0 PE).",
+                    f"Confronto tático acirrado na Câmara {room}. Ambas as forças disputaram os recursos sem vantagem conclusiva (0 PE).",
+                ]
+                msg = self.rng.choice(draw_opts)
         elif t1_present:
             p_clear = max(0.05, min(0.95, self.solo_clear_base * ep1 / self.recommended_power))
             if self.rng.random() < p_clear:
                 self.team1.score += self.miniboss_points
-                msg = f"{self.team1.name} conteve a ameaça na Câmara {room} de forma autônoma (+{self.miniboss_points} PE)."
+                solo_wins = [
+                    f"{self.team1.name} conteve a ameaça na Câmara {room} de forma autônoma (+{self.miniboss_points} PE).",
+                    f"{self.team1.name} resgatou reféns da Câmara {room} (+{self.miniboss_points} PE).",
+                    f"{self.team1.name} destravou um baú ancestral na Câmara {room} (+{self.miniboss_points} PE).",
+                ]
+                msg = self.rng.choice(solo_wins)
             else:
-                msg = f"{self.team1.name} não obteve êxito na contenção da ameaça na Câmara {room} (0 PE)."
+                solo_fails = [
+                    f"{self.team1.name} não obteve êxito na contenção da ameaça na Câmara {room} (0 PE).",
+                    f"{self.team1.name} encontrou forte resistência e recuou preventivamente na Câmara {room} (0 PE).",
+                ]
+                msg = self.rng.choice(solo_fails)
         elif t2_present:
             p_clear = max(0.05, min(0.95, self.solo_clear_base * ep2 / self.recommended_power))
             if self.rng.random() < p_clear:
                 self.team2.score += self.miniboss_points
-                msg = f"{self.team2.name} conteve a ameaça na Câmara {room} de forma autônoma (+{self.miniboss_points} PE)."
+                solo_wins = [
+                    f"{self.team2.name} conteve a ameaça na Câmara {room} de forma autônoma (+{self.miniboss_points} PE).",
+                    f"{self.team2.name} resgatou reféns da Câmara {room} (+{self.miniboss_points} PE).",
+                    f"{self.team2.name} destravou um baú ancestral na Câmara {room} (+{self.miniboss_points} PE).",
+                ]
+                msg = self.rng.choice(solo_wins)
             else:
-                msg = f"{self.team2.name} não obteve êxito na contenção da ameaça na Câmara {room} (0 PE)."
+                solo_fails = [
+                    f"{self.team2.name} não obteve êxito na contenção da ameaça na Câmara {room} (0 PE).",
+                    f"{self.team2.name} encontrou forte resistência e recuou preventivamente na Câmara {room} (0 PE).",
+                ]
+                msg = self.rng.choice(solo_fails)
         else:
             msg = f"Nenhum destacamento operacional presente na Câmara {room}."
 

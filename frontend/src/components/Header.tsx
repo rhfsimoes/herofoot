@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import {
   Shield,
   Coins,
@@ -341,9 +342,10 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
       {/* ─────────────────────────────────────────────
           MODAL DE ARQUIVAMENTO CORPORATIVO (SAVES / LOAD)
          ───────────────────────────────────────────── */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-stone-900 border-2 border-amber-800/80 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 space-y-6 text-stone-200">
+      {isMenuOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-stone-900 border-2 border-amber-800/80 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 space-y-6 text-stone-200">
             {/* Cabeçalho do Modal */}
             <div className="flex justify-between items-start border-b border-stone-800 pb-4">
               <div className="flex items-center gap-3">
@@ -529,7 +531,8 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   )

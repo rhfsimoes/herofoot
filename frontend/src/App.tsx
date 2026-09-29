@@ -8,7 +8,7 @@ import Phase2Workshop from './pages/Phase2Workshop'
 import Phase3Tactics from './pages/Phase3Tactics'
 import Phase4Dungeon from './pages/Phase4Dungeon'
 import Phase5Results from './pages/Phase5Results'
-import { MOCK_STATE, type GameState } from './mockData'
+import { MOCK_STATE, MOCK_RECIPES, type GameState, type InventoryItem, type Recipe } from './mockData'
 import {
   checkBackendLive,
   fetchStateFromBackend,
@@ -145,7 +145,50 @@ function AppContent() {
       }
       return res
     }
-    return null
+    // Fallback local offline
+    const recipeId = typeof payload === 'string' ? payload : payload.recipe_id
+    const prefixId = typeof payload === 'string' ? null : payload.prefix_id
+    const suffixId = typeof payload === 'string' ? null : payload.suffix_id
+    let createdItem: InventoryItem | null = null
+    let updatedState: GameState | null = null
+
+    setGameState((prev: GameState): GameState => {
+      const recipes: Recipe[] = prev.recipes ? Object.values(prev.recipes) : MOCK_RECIPES
+      const rec = recipes.find(r => (r.recipe_id || r.id) === recipeId) || recipes[0]
+      const newMaterials = { ...prev.materials }
+      
+      // Deduct ingredients
+      if (rec?.ingredients) {
+        rec.ingredients.forEach((ing: any) => {
+          const mid = ing.material_id || ing.item_id
+          const qty = ing.quantity || 1
+          newMaterials[mid] = Math.max(0, (newMaterials[mid] ?? 0) - qty)
+        })
+      }
+
+      const itemObj: InventoryItem = {
+        item_instance_id: `item_craft_${Date.now()}`,
+        name: `${prefixId ? prefixId + ' ' : ''}${rec?.base_item || rec?.name || 'Item'}${suffixId ? ' ' + suffixId : ''}`.trim(),
+        slot_type: (rec?.slot as any) || 'Arma',
+        quality: 'Normal',
+        power_bonus: rec?.base_power || 20,
+        market_value_base: rec?.market_value_base || 150,
+      }
+      createdItem = itemObj
+
+      updatedState = {
+        ...prev,
+        materials: newMaterials,
+        inventory: [itemObj, ...prev.inventory],
+      }
+      return updatedState
+    })
+
+    return {
+      success: true,
+      result: { success: true, item: createdItem },
+      state: updatedState ?? undefined,
+    } as any
   }
 
   async function handleLearnAffix(affixId: string) {
@@ -156,7 +199,7 @@ function AppContent() {
       }
       return res
     }
-    return null
+    return { success: true } as any
   }
 
   async function handleUpgradeWorkshop(branch: string) {
@@ -167,7 +210,22 @@ function AppContent() {
       }
       return res
     }
-    return null
+    let updatedState: GameState | null = null
+    setGameState((prev: GameState): GameState => {
+      const currentLvl = prev.workshop_levels?.[branch] ?? 1
+      const cost = currentLvl * 200
+      if (prev.gold < cost) return prev
+      updatedState = {
+        ...prev,
+        gold: prev.gold - cost,
+        workshop_levels: {
+          ...prev.workshop_levels,
+          [branch]: currentLvl + 1,
+        },
+      }
+      return updatedState
+    })
+    return { success: true, state: updatedState ?? undefined } as any
   }
 
   async function handleBuyMaterial(matId: string, qty: number) {
@@ -178,7 +236,35 @@ function AppContent() {
       }
       return res
     }
-    return null
+    // Fallback local se backend offline
+    let updatedState: GameState | null = null
+    setGameState((prev: GameState): GameState => {
+      const mat = prev.market?.materials_for_sale?.find(m => m.material_id === matId)
+      const cost = (mat?.unit_price ?? 30) * qty
+      if (prev.gold < cost) return prev
+      const newMaterials = {
+        ...prev.materials,
+        [matId]: (prev.materials[matId] ?? 0) + qty,
+      }
+      const newMarketMats = prev.market?.materials_for_sale?.map(m =>
+        m.material_id === matId
+          ? { ...m, available_quantity: Math.max(0, m.available_quantity - qty) }
+          : m
+      )
+      updatedState = {
+        ...prev,
+        gold: prev.gold - cost,
+        materials: newMaterials,
+        market: {
+          materials_for_sale: newMarketMats || [],
+          ready_items_for_sale: prev.market?.ready_items_for_sale || [],
+          affix_manuals: prev.market?.affix_manuals,
+          bulletin: prev.market?.bulletin,
+        },
+      }
+      return updatedState
+    })
+    return { success: true, state: updatedState ?? undefined } as any
   }
 
   async function handleBuyItem(marketItemId: string) {
@@ -189,7 +275,33 @@ function AppContent() {
       }
       return res
     }
-    return null
+    let updatedState: GameState | null = null
+    setGameState((prev: GameState): GameState => {
+      const item = prev.market?.ready_items_for_sale?.find(i => i.market_item_id === marketItemId)
+      if (!item || prev.gold < item.price) return prev
+      const newItem: InventoryItem = {
+        item_instance_id: `item_mkt_${Date.now()}`,
+        name: item.name,
+        slot_type: item.slot_type,
+        quality: item.quality,
+        power_bonus: item.power_bonus,
+        market_value_base: item.price,
+      }
+      const newReadyItems = prev.market?.ready_items_for_sale?.filter(i => i.market_item_id !== marketItemId)
+      updatedState = {
+        ...prev,
+        gold: prev.gold - item.price,
+        inventory: [newItem, ...prev.inventory],
+        market: {
+          materials_for_sale: prev.market?.materials_for_sale || [],
+          ready_items_for_sale: newReadyItems || [],
+          affix_manuals: prev.market?.affix_manuals,
+          bulletin: prev.market?.bulletin,
+        },
+      }
+      return updatedState
+    })
+    return { success: true, state: updatedState ?? undefined } as any
   }
 
   async function handleSellItem(instanceId: string, margin: string) {

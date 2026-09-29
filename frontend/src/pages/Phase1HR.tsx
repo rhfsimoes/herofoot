@@ -90,21 +90,53 @@ export default function Phase1HR({
     setIsLoading(true)
     try {
       const res = await treatHeroMassageBackend(heroId)
-      if (res && res.success) {
+      const isSuccess = (res?.success ?? res?.result?.success) ?? false
+      if (res && isSuccess) {
         if (res.state) {
           setTeam(res.state.team)
           setCurrentGold(res.state.gold)
           onStateUpdate?.(res.state)
-        } else if (res.hero) {
-          setTeam(prev => prev.map(h => (h.id === heroId ? { ...h, ...res.hero } : h)))
-          if (res.gold !== undefined) {
-            setCurrentGold(res.gold)
-            onStateUpdate?.({ gold: res.gold })
+        } else if (res.hero || res.result?.hero) {
+          const hData = res.hero || res.result?.hero
+          setTeam(prev => prev.map(h => (h.id === heroId ? { ...h, ...hData } : h)))
+          const gVal = res.gold ?? res.result?.gold
+          if (gVal !== undefined) {
+            setCurrentGold(gVal)
+            onStateUpdate?.({ gold: gVal })
           }
         }
-        setActionLog(l => [res.message || 'Sessão de massagem realizada.', ...l])
+        setActionLog(l => [res.message || res.result?.message || 'Sessão de massagem realizada.', ...l])
+      } else if (res) {
+        alert(res?.message || res?.result?.message || 'Não foi possível autorizar a sessão de massagem.')
       } else {
-        alert(res?.message || 'Não foi possível autorizar a sessão de massagem.')
+        // Fallback local se backend offline
+        const hero = team.find(h => h.id === heroId)
+        if (hero) {
+          if (currentGold < 75) {
+            alert('Saldo insuficiente em tesouraria (Custo: 75 Ouro).')
+            return
+          }
+          if (hero.fatigue <= 0) {
+            alert(`Laudo Clínico: ${hero.name} já se encontra com 0% de fadiga.`)
+            return
+          }
+          const newGold = currentGold - 75
+          const newFatigue = Math.max(0, hero.fatigue - 40)
+          const updatedTeam = team.map(h =>
+            h.id === heroId
+              ? {
+                  ...h,
+                  fatigue: newFatigue,
+                  status: newFatigue < 70 && !h.injured ? 'Apto' : h.status,
+                  happiness: Math.min(100, (h.happiness ?? 80) + 5),
+                }
+              : h
+          )
+          setTeam(updatedTeam)
+          setCurrentGold(newGold)
+          onStateUpdate?.({ gold: newGold, team: updatedTeam })
+          setActionLog(l => [`[Sessão de Massagem] ${hero.name} aliviou 40 pontos de fadiga.`, ...l])
+        }
       }
     } catch {
       alert('Erro de conexão ao solicitar procedimento terapêutico.')
@@ -237,10 +269,15 @@ export default function Phase1HR({
 
   // Promover aprendiz da base
   async function handlePromoteYouth(heroId: string) {
+    if (team.length >= 12) {
+      alert('Capacidade máxima do alojamento atingida: o quadro profissional já possui o limite de 12 colaboradores.')
+      return
+    }
     setIsLoading(true)
     try {
       const res = await promoteYouthBackend(heroId)
-      if (res && res.success) {
+      const isSuccess = (res?.success ?? res?.result?.success) ?? false
+      if (res && isSuccess) {
         if (res.state) {
           setTeam(res.state.team)
           setCurrentGold(res.state.gold)
@@ -249,13 +286,27 @@ export default function Phase1HR({
         } else {
           const promoted = youthAcademy.find(y => y.id === heroId)
           if (promoted) {
-            setYouthAcademy(prev => prev.filter(y => y.id !== heroId))
-            setTeam(prev => [...prev, { ...promoted, salary: 35, contract_seasons_left: 2 }])
+            const updatedYouth = youthAcademy.filter(y => y.id !== heroId)
+            const updatedTeam = [...team, { ...promoted, salary: 35, contract_seasons_left: 2 }]
+            setYouthAcademy(updatedYouth)
+            setTeam(updatedTeam)
+            onStateUpdate?.({ youth_academy: updatedYouth, team: updatedTeam })
           }
         }
-        setActionLog(l => [res.message || 'Promoção funcional homologada.', ...l])
+        setActionLog(l => [res.message || res.result?.message || 'Promoção funcional homologada.', ...l])
+      } else if (res) {
+        alert(res?.message || res?.result?.message || 'Falha ao promover aprendiz da base.')
       } else {
-        alert(res?.message || 'Falha ao promover aprendiz da base.')
+        // Fallback local se backend offline
+        const promoted = youthAcademy.find(y => y.id === heroId)
+        if (promoted) {
+          const updatedYouth = youthAcademy.filter(y => y.id !== heroId)
+          const updatedTeam = [...team, { ...promoted, salary: 35, contract_seasons_left: 2 }]
+          setYouthAcademy(updatedYouth)
+          setTeam(updatedTeam)
+          onStateUpdate?.({ youth_academy: updatedYouth, team: updatedTeam })
+          setActionLog(l => [`[Promoção da Base] ${promoted.name} promovido ao quadro profissional.`, ...l])
+        }
       }
     } catch {
       alert('Erro de conexão com o conselho pedagógico.')
@@ -272,16 +323,24 @@ export default function Phase1HR({
     setIsLoading(true)
     try {
       const res = await dismissYouthBackend(heroId)
-      if (res && res.success) {
+      const isSuccess = (res?.success ?? res?.result?.success) ?? false
+      if (res && isSuccess) {
         if (res.state) {
           setYouthAcademy(res.state.youth_academy || [])
           onStateUpdate?.(res.state)
         } else {
-          setYouthAcademy(prev => prev.filter(y => y.id !== heroId))
+          const updatedYouth = youthAcademy.filter(y => y.id !== heroId)
+          setYouthAcademy(updatedYouth)
+          onStateUpdate?.({ youth_academy: updatedYouth })
         }
-        setActionLog(l => [res.message || 'Desligamento de aprendiz formalizado.', ...l])
+        setActionLog(l => [res.message || res.result?.message || 'Desligamento de aprendiz formalizado.', ...l])
+      } else if (res) {
+        alert(res?.message || res?.result?.message || 'Falha ao dispensar aprendiz.')
       } else {
-        alert(res?.message || 'Falha ao dispensar aprendiz.')
+        const updatedYouth = youthAcademy.filter(y => y.id !== heroId)
+        setYouthAcademy(updatedYouth)
+        onStateUpdate?.({ youth_academy: updatedYouth })
+        setActionLog(l => ['[Academia] Aprendiz desligado do programa de base.', ...l])
       }
     } catch {
       alert('Erro ao submeter desligamento.')

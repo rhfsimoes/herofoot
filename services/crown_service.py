@@ -18,7 +18,14 @@ def init_crown_goals(state: Any, league_engine: Optional[Any] = None) -> None:
     if league_engine and hasattr(league_engine, "get_standings"):
         st = league_engine.get_standings()
         player_guild = next(
-            (g for g in st if g.get("is_player") or g.get("guild_name") in ["Sua Guilda", "Guilda do Jogador"] or g.get("name") in ["Sua Guilda", "Guilda do Jogador"]),
+            (g for g in st if g.get("is_player") or g.get("id") == "g_player" or g.get("guild_name") in ["Sua Guilda", "Guilda do Jogador"] or g.get("name") in ["Sua Guilda", "Guilda do Jogador"]),
+            None
+        )
+        if player_guild:
+            starting_pts = player_guild.get("points", 0)
+    elif hasattr(state, "league_table") and state.league_table:
+        player_guild = next(
+            (g for g in state.league_table if g.get("is_player") or g.get("id") == "g_player" or g.get("guild_name") in ["Sua Guilda", "Guilda do Jogador"] or g.get("name") in ["Sua Guilda", "Guilda do Jogador"]),
             None
         )
         if player_guild:
@@ -56,7 +63,14 @@ def get_crown_goals_data(state: Any, league_engine: Optional[Any] = None) -> Dic
     if league_engine and hasattr(league_engine, "get_standings"):
         st = league_engine.get_standings()
         player_guild = next(
-            (g for g in st if g.get("is_player") or g.get("guild_name") in ["Sua Guilda", "Guilda do Jogador"] or g.get("name") in ["Sua Guilda", "Guilda do Jogador"]),
+            (g for g in st if g.get("is_player") or g.get("id") == "g_player" or g.get("guild_name") in ["Sua Guilda", "Guilda do Jogador"] or g.get("name") in ["Sua Guilda", "Guilda do Jogador"]),
+            None
+        )
+        if player_guild:
+            current_league_pts = player_guild.get("points", 0)
+    elif hasattr(state, "league_table") and state.league_table:
+        player_guild = next(
+            (g for g in state.league_table if g.get("is_player") or g.get("id") == "g_player" or g.get("guild_name") in ["Sua Guilda", "Guilda do Jogador"] or g.get("name") in ["Sua Guilda", "Guilda do Jogador"]),
             None
         )
         if player_guild:

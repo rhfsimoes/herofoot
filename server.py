@@ -38,6 +38,24 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(data, ensure_ascii=False).encode('utf-8'))
 
+    def _send_action_result(self, result, extra=None, status=200):
+        payload = {
+            "result": result,
+            "state": controller.get_state(),
+        }
+        if isinstance(result, dict):
+            payload["success"] = result.get("success", True)
+            if "message" in result:
+                payload["message"] = result["message"]
+            for k in ("gold", "facilities", "hero", "new_level", "saves", "slot"):
+                if k in result:
+                    payload[k] = result[k]
+        else:
+            payload["success"] = True
+        if extra:
+            payload.update(extra)
+        self._send_json(payload, status=status)
+
     def _read_json_body(self):
         content_length = int(self.headers.get('Content-Length', 0))
         if content_length > 0:
@@ -109,10 +127,7 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             reserves = body.get('reserves', [])
             loadout = body.get('loadout', {})
             result = controller.save_tactics(starters, loadout, reserves=reserves)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/craft':
             body = self._read_json_body()
             recipe_id = body.get('recipe_id')
@@ -129,10 +144,7 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
                 prefix_material_id=prefix_material_id,
                 suffix_material_id=suffix_material_id,
             )
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/craft_preview':
             body = self._read_json_body()
             recipe_id = body.get('recipe_id')
@@ -152,129 +164,81 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             body = self._read_json_body()
             affix_id = body.get('affix_id')
             result = controller.learn_affix(affix_id)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/upgrade_workshop':
             body = self._read_json_body()
             branch = body.get('branch', 'Ferragem')
             result = controller.upgrade_workshop(branch)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/upgrade_medical':
             result = controller.upgrade_medical_facility()
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/hr/massage':
             body = self._read_json_body()
             hero_id = body.get('hero_id')
             result = controller.treat_hero_massage(hero_id)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/hr/accelerate_injury':
             body = self._read_json_body()
             hero_id = body.get('hero_id')
             result = controller.accelerate_hero_injury(hero_id)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/hr/banquet':
             result = controller.collective_banquet()
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/hr/renew_contract':
             body = self._read_json_body()
             hero_id = body.get('hero_id')
             result = controller.renew_hero_contract(hero_id)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/hr/release_contract':
             body = self._read_json_body()
             hero_id = body.get('hero_id')
             result = controller.release_hero_contract(hero_id)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/academy/promote':
             body = self._read_json_body()
             hero_id = body.get('hero_id')
             result = controller.promote_youth(hero_id)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/academy/dismiss':
             body = self._read_json_body()
             hero_id = body.get('hero_id')
             result = controller.dismiss_youth(hero_id)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/market/scout':
             body = self._read_json_body()
             hero_id = body.get('hero_id')
             result = controller.scout_market_hero(hero_id)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/market/hire':
             body = self._read_json_body()
             hero_id = body.get('hero_id')
             result = controller.hire_market_hero(hero_id)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/buy_material':
             body = self._read_json_body()
             material_id = body.get('material_id')
             quantity = int(body.get('quantity', 1))
             result = controller.buy_material(material_id, quantity)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/buy_item':
             body = self._read_json_body()
             market_item_id = body.get('market_item_id')
             result = controller.buy_ready_item(market_item_id)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/sell':
             body = self._read_json_body()
             item_id = body.get('item_instance_id')
             margin_type = body.get('margin_type', 'Preço Justo')
             result = controller.list_item_for_sale(item_id, margin_type=margin_type)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/resolve_offer':
             body = self._read_json_body()
             offer_id = body.get('offer_id')
             accept = bool(body.get('accept', False))
             result = controller.resolve_counter_offer(offer_id, accept)
-            self._send_json({
-                "result": result,
-                "state": controller.get_state()
-            })
+            self._send_action_result(result)
         elif path == '/api/save':
             body = self._read_json_body()
             slot = body.get('slot', 'autosave')

@@ -504,7 +504,7 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
                 <th className="py-2.5 px-3 text-right w-10">D</th>
                 <th className="py-2.5 px-3 text-right w-12">PE+</th>
                 <th className="py-2.5 px-3 text-right w-12">PE-</th>
-                <th className="py-2.5 px-3 text-right w-12">SG</th>
+                <th className="py-2.5 px-3 text-right w-12" title="Saldo de Pontos de Expedição (PE+ menos PE-)">SPE</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-800/50">
@@ -563,6 +563,10 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
               })}
             </tbody>
           </table>
+        </div>
+        <div className="px-4 py-2.5 border-t border-stone-800/80 bg-stone-950/60 text-[10px] text-stone-500 flex flex-wrap items-center justify-between gap-2">
+          <span><strong>Pts:</strong> Pontos da Liga (Vitória: 3, Empate: 1, Derrota: 0) · <strong>J:</strong> Expedições Realizadas · <strong>V/E/D:</strong> Vitórias, Empates e Derrotas</span>
+          <span><strong>PE+:</strong> Pontos Conquistados · <strong>PE-:</strong> Pontos Cedidos · <strong>SPE:</strong> Saldo de Pontos de Expedição (PE+ menos PE-)</span>
         </div>
       </div>
 

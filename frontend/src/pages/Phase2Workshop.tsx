@@ -216,6 +216,115 @@ export default function Phase2Workshop({
     }
   }, [selectedBranch])
 
+  function computeLocalPreview(
+    recipeId: string,
+    prefixId: string | null,
+    suffixId: string | null,
+    currentMaterials: Record<string, number>,
+    branchLevel: number
+  ): CraftPreview {
+    const recipe = recipesList.find(r => (r.recipe_id || r.id) === recipeId) || recipesList[0]
+    const baseName = recipe?.base_item || recipe?.name || 'Item de Campanha'
+    const reasons: string[] = []
+
+    const minLevel = recipe?.min_workshop_level ?? 1
+    if (branchLevel < minLevel) {
+      reasons.push(
+        `Nível de oficina insuficiente (${branchLevel}/${minLevel} na filial de ${recipe?.branch ?? 'Ferragem'})`
+      )
+    }
+
+    const materialsSummary: { material_id: string; name: string; needed: number; current: number; has_enough: boolean }[] = []
+    const ings = recipe?.ingredients || []
+    ings.forEach((ing: any) => {
+      const mid = ing.material_id || ing.item_id || 'mat_iron_ore'
+      const name = ing.label || ing.name || MATERIAL_LABELS[mid] || mid
+      const needed = ing.quantity || 1
+      const current = currentMaterials[mid] ?? 0
+      const hasEnough = current >= needed
+      if (!hasEnough) {
+        reasons.push(`Falta ${needed - current}× ${name}`)
+      }
+      materialsSummary.push({
+        material_id: mid,
+        name,
+        needed,
+        current,
+        has_enough: hasEnough,
+      })
+    })
+
+    if (prefixId) {
+      const pfxMatId = 'mat_granite_dust'
+      const pfxMatName = MATERIAL_LABELS[pfxMatId] || 'Pó de Granito'
+      const pfxQty = 1
+      const pfxCurr = currentMaterials[pfxMatId] ?? 0
+      const hasEnough = pfxCurr >= pfxQty
+      if (!hasEnough) {
+        reasons.push(`Falta ${pfxQty - pfxCurr}× ${pfxMatName} para o prefixo`)
+      }
+      materialsSummary.push({
+        material_id: pfxMatId,
+        name: pfxMatName,
+        needed: pfxQty,
+        current: pfxCurr,
+        has_enough: hasEnough,
+      })
+    }
+
+    if (suffixId) {
+      const sfxMatId = 'mat_ember_coal'
+      const sfxMatName = MATERIAL_LABELS[sfxMatId] || 'Brasa de Carvão'
+      const sfxQty = 1
+      const sfxCurr = currentMaterials[sfxMatId] ?? 0
+      const hasEnough = sfxCurr >= sfxQty
+      if (!hasEnough) {
+        reasons.push(`Falta ${sfxQty - sfxCurr}× ${sfxMatName} para o sufixo`)
+      }
+      materialsSummary.push({
+        material_id: sfxMatId,
+        name: sfxMatName,
+        needed: sfxQty,
+        current: sfxCurr,
+        has_enough: hasEnough,
+      })
+    }
+
+    const pfxPart = prefixId ? `${prefixId} ` : ''
+    const sfxPart = suffixId ? ` ${suffixId}` : ''
+    const finalName = `${pfxPart}${baseName}${sfxPart}`.trim()
+
+    const basePower = recipe?.base_power ?? 20
+    const baseValue = recipe?.market_value_base ?? 150
+    const qualities: Record<ItemQuality, any> = {
+      Fraco: { power_bonus: Math.round(basePower * 0.7), market_value_base: Math.round(baseValue * 0.6) },
+      Normal: { power_bonus: basePower, market_value_base: baseValue },
+      Ótimo: { power_bonus: Math.round(basePower * 1.3), market_value_base: Math.round(baseValue * 1.4) },
+      Lendário: { power_bonus: Math.round(basePower * 1.8), market_value_base: Math.round(baseValue * 2.5) },
+    }
+
+    const chancesMap: Record<number, Record<ItemQuality, number>> = {
+      1: { Fraco: 50, Normal: 40, Ótimo: 10, Lendário: 0 },
+      2: { Fraco: 35, Normal: 45, Ótimo: 18, Lendário: 2 },
+      3: { Fraco: 20, Normal: 50, Ótimo: 25, Lendário: 5 },
+      4: { Fraco: 10, Normal: 50, Ótimo: 30, Lendário: 10 },
+      5: { Fraco: 5, Normal: 45, Ótimo: 35, Lendário: 15 },
+      6: { Fraco: 0, Normal: 40, Ótimo: 40, Lendário: 20 },
+    }
+
+    return {
+      success: true,
+      can_craft: reasons.length === 0,
+      reasons,
+      final_name: finalName,
+      materials_summary: materialsSummary,
+      qualities,
+      workshop_chances: chancesMap[branchLevel] || chancesMap[1],
+      workshop_level: branchLevel,
+      branch: recipe?.branch ?? 'Ferragem',
+    }
+  }
+
   // Carrega opções e prévia ao vivo de Crafting v2
   useEffect(() => {
     if (!selectedRecipeId) return
@@ -232,8 +341,20 @@ export default function Phase2Workshop({
         prefix_id: selectedPrefixId,
         suffix_id: selectedSuffixId,
       })
-      if (active && preview) {
-        setCraftPreview(preview)
+      if (active) {
+        if (preview) {
+          setCraftPreview(preview)
+        } else {
+          setCraftPreview(
+            computeLocalPreview(
+              selectedRecipeId,
+              selectedPrefixId,
+              selectedSuffixId,
+              materials,
+              currentBranchLevel
+            )
+          )
+        }
       }
     }
 
@@ -311,7 +432,12 @@ export default function Phase2Workshop({
   // AÇÕES DE CRAFTING v2
   // ─────────────────────────────────────────────
   async function handleExecuteCraft() {
-    if (!selectedRecipeId || isLoadingCraft) return
+    if (!selectedRecipeId || isLoadingCraft || !craftPreview?.can_craft) {
+      if (!craftPreview?.can_craft && craftPreview?.reasons) {
+        alert(`Não é possível forjar este ativo corporativo:\n- ${craftPreview.reasons.join('\n- ')}`)
+      }
+      return
+    }
 
     setIsLoadingCraft(true)
     const payload = {
@@ -324,16 +450,17 @@ export default function Phase2Workshop({
     if (onCraft) {
       try {
         const res = await onCraft(payload)
-        if (res && res.result && res.result.success) {
-          const item: InventoryItem = res.result.item
-          setLastCraft(item)
+        const isSuccess = (res?.result?.success ?? res?.success) ?? false
+        if (res && isSuccess) {
+          const item: InventoryItem = res.result?.item || (res as any).item
+          if (item) setLastCraft(item)
           if (res.state) {
             setInventory(res.state.inventory)
             setMaterials(res.state.materials)
             setGold(res.state.gold)
           }
 
-          if (item.quality === 'Lendário') {
+          if (item?.quality === 'Lendário') {
             setLegendaryItem({
               name: item.name,
               prefix: selectedPrefixId || 'Obra-Prima',
@@ -342,9 +469,9 @@ export default function Phase2Workshop({
               specialEffectDescription: 'Multiplicador de 180% de poder + ativação integral de cláusula mística especial.',
             })
           }
-          setTransactionLog(l => [`[Oficina] Produção de '${item.name}' autorizada pelo controle de qualidade.`, ...l])
-        } else if (res && res.result && !res.result.success) {
-          alert(res.result.message || 'Falha na homologação do processo de forja.')
+          setTransactionLog(l => [`[Oficina] Produção de '${item?.name || 'Ativo'}' autorizada pelo controle de qualidade.`, ...l])
+        } else if (res && !isSuccess) {
+          alert(res.result?.message || res.message || 'Falha na homologação do processo de forja.')
         }
       } catch (err) {
         console.warn('Erro ao forjar ativo:', err)
@@ -410,19 +537,48 @@ export default function Phase2Workshop({
           if (res.state.market?.materials_for_sale) {
             setMarketMaterials(res.state.market.materials_for_sale)
           }
+          setCraftPreview(
+            computeLocalPreview(
+              selectedRecipeId,
+              selectedPrefixId,
+              selectedSuffixId,
+              res.state.materials,
+              currentBranchLevel
+            )
+          )
+          setTransactionLog(l => [`[Mercado] ${qty}x ${mat.name} faturados por ⬡ ${totalCost} Ouro.`, ...l])
+          return
         }
-        setTransactionLog(l => [`[Mercado] ${qty}x ${mat.name} faturados por ⬡ ${totalCost} Ouro.`, ...l])
-        return
       } catch (err) {
         console.warn('Fallback para compra local de insumos:', err)
       }
     }
 
-    setGold(g => g - totalCost)
-    setMaterials(prev => ({
-      ...prev,
-      [mat.material_id]: (prev[mat.material_id] ?? 0) + qty,
-    }))
+    const newGold = gold - totalCost
+    const newMaterials = {
+      ...materials,
+      [mat.material_id]: (materials[mat.material_id] ?? 0) + qty,
+    }
+    setGold(newGold)
+    setMaterials(newMaterials)
+    setMarketMaterials(prev =>
+      prev.map(m =>
+        m.material_id === mat.material_id
+          ? { ...m, available_quantity: Math.max(0, m.available_quantity - qty) }
+          : m
+      )
+    )
+    setCraftPreview(
+      computeLocalPreview(
+        selectedRecipeId,
+        selectedPrefixId,
+        selectedSuffixId,
+        newMaterials,
+        currentBranchLevel
+      )
+    )
+    onStateUpdate?.({ gold: newGold, materials: newMaterials })
+    setTransactionLog(l => [`[Mercado] ${qty}x ${mat.name} faturados por ⬡ ${totalCost} Ouro.`, ...l])
   }
 
   async function handleBuyItem(readyItem: MarketReadyItem) {
@@ -865,18 +1021,20 @@ export default function Phase2Workshop({
 
                       {craftOptions?.prefixes.map(pfx => {
                         const isSelected = selectedPrefixId === pfx.affix_id
+                        const hasMats = pfx.materials.every(m => (materials[m.material_id] ?? 0) >= m.quantity)
+                        const isAvailable = pfx.available || hasMats
                         return (
                           <div
                             key={pfx.affix_id}
                             onClick={() => {
-                              if (pfx.available) setSelectedPrefixId(pfx.affix_id)
+                              setSelectedPrefixId(isSelected ? null : pfx.affix_id)
                             }}
-                            className={`p-3 rounded-lg border text-xs transition flex flex-col justify-between ${
-                              !pfx.available
-                                ? 'bg-stone-950/50 border-stone-900 opacity-50 cursor-not-allowed'
-                                : isSelected
-                                ? 'bg-amber-950/40 border-amber-500 text-amber-200 cursor-pointer shadow-md'
-                                : 'bg-stone-950 border-stone-800 text-stone-300 hover:border-stone-700 cursor-pointer'
+                            className={`p-3 rounded-lg border text-xs transition flex flex-col justify-between cursor-pointer ${
+                              isSelected
+                                ? 'bg-amber-950/40 border-amber-500 text-amber-200 shadow-md ring-1 ring-amber-500/50'
+                                : isAvailable
+                                ? 'bg-stone-950 border-stone-800 text-stone-300 hover:border-stone-700'
+                                : 'bg-stone-950/50 border-stone-900 opacity-60 text-stone-400'
                             }`}
                           >
                             <div>
@@ -890,7 +1048,7 @@ export default function Phase2Workshop({
                             </div>
 
                             <div className="mt-2 pt-1.5 border-t border-stone-800/60 flex items-center justify-between text-[10px]">
-                              {pfx.available ? (
+                              {isAvailable ? (
                                 <span className="text-emerald-400 font-mono">
                                   {pfx.materials.map(m => `${m.quantity}× ${m.name}`).join(', ')}
                                 </span>
@@ -931,18 +1089,20 @@ export default function Phase2Workshop({
 
                       {craftOptions?.suffixes.map(sfx => {
                         const isSelected = selectedSuffixId === sfx.affix_id
+                        const hasMats = sfx.materials.every(m => (materials[m.material_id] ?? 0) >= m.quantity)
+                        const isAvailable = sfx.available || hasMats
                         return (
                           <div
                             key={sfx.affix_id}
                             onClick={() => {
-                              if (sfx.available) setSelectedSuffixId(sfx.affix_id)
+                              setSelectedSuffixId(isSelected ? null : sfx.affix_id)
                             }}
-                            className={`p-3 rounded-lg border text-xs transition flex flex-col justify-between ${
-                              !sfx.available
-                                ? 'bg-stone-950/50 border-stone-900 opacity-50 cursor-not-allowed'
-                                : isSelected
-                                ? 'bg-amber-950/40 border-amber-500 text-amber-200 cursor-pointer shadow-md'
-                                : 'bg-stone-950 border-stone-800 text-stone-300 hover:border-stone-700 cursor-pointer'
+                            className={`p-3 rounded-lg border text-xs transition flex flex-col justify-between cursor-pointer ${
+                              isSelected
+                                ? 'bg-amber-950/40 border-amber-500 text-amber-200 shadow-md ring-1 ring-amber-500/50'
+                                : isAvailable
+                                ? 'bg-stone-950 border-stone-800 text-stone-300 hover:border-stone-700'
+                                : 'bg-stone-950/50 border-stone-900 opacity-60 text-stone-400'
                             }`}
                           >
                             <div>
@@ -956,7 +1116,7 @@ export default function Phase2Workshop({
                             </div>
 
                             <div className="mt-2 pt-1.5 border-t border-stone-800/60 flex items-center justify-between text-[10px]">
-                              {sfx.available ? (
+                              {isAvailable ? (
                                 <span className="text-emerald-400 font-mono">
                                   {sfx.materials.map(m => `${m.quantity}× ${m.name}`).join(', ')}
                                 </span>

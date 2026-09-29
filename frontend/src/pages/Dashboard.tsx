@@ -130,7 +130,7 @@ export default function Dashboard({ state, onAdvancePhase }: DashboardProps) {
                 <th className="py-2.5 px-3 text-right w-10">D</th>
                 <th className="py-2.5 px-3 text-right w-12">PE+</th>
                 <th className="py-2.5 px-3 text-right w-12">PE-</th>
-                <th className="py-2.5 px-3 text-right w-12">SG</th>
+                <th className="py-2.5 px-3 text-right w-12" title="Saldo de Pontos de Expedição (PE+ menos PE-)">SPE</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-800/50">
@@ -169,6 +169,10 @@ export default function Dashboard({ state, onAdvancePhase }: DashboardProps) {
               })}
             </tbody>
           </table>
+        </div>
+        <div className="px-4 py-2 border-t border-stone-800/80 bg-stone-950/60 text-[10px] text-stone-500 flex flex-wrap items-center justify-between gap-2">
+          <span><strong>Pts:</strong> Pontos (V:3 E:1 D:0) · <strong>J:</strong> Expedições · <strong>V/E/D:</strong> Vitórias/Empates/Derrotas</span>
+          <span><strong>PE+:</strong> Pontos Conquistados · <strong>PE-:</strong> Pontos Cedidos · <strong>SPE:</strong> Saldo de Pontos de Expedição</span>
         </div>
       </div>
     </div>
