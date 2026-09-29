@@ -46,5 +46,53 @@
     "mitigation_required": "unstable_mine",
     "mitigation_label": "Armadura Reforçada ou Amuleto Sísmico",
     "recommended_power": 83
+  },
+  {
+    "id": "dungeon_05",
+    "name": "Caldeira Vulcânica de Ignis",
+    "terrain": "volcanic_heat",
+    "terrain_label": "Calor Magmático & Fissuras Térmicas",
+    "description": "Gases incandescentes e solo instável com rios de lava corporativamente delimitados.",
+    "power_penalty_pct": 0.14,
+    "energy_cost_extra": 6,
+    "mitigation_required": "volcanic_heat",
+    "mitigation_label": "Manto Ígneo ou Runa de Resfriamento",
+    "recommended_power": 85
+  },
+  {
+    "id": "dungeon_06",
+    "name": "Ruínas Submersas de Nereus",
+    "terrain": "submerged_ruins",
+    "terrain_label": "Galerias Inundadas & Pressão Aquática",
+    "description": "Câmaras ancestrais submersas onde a movimentação e a conservação de rações são severamente comprometidas.",
+    "power_penalty_pct": 0.12,
+    "energy_cost_extra": 6,
+    "mitigation_required": "submerged_ruins",
+    "mitigation_label": "Gel Respiratório ou Botas de Lastro",
+    "recommended_power": 80
+  },
+  {
+    "id": "dungeon_07",
+    "name": "Bosque Rúnico das Névoas",
+    "terrain": "arcane_fog",
+    "terrain_label": "Distorção Mística & Eflúvios Arcanos",
+    "description": "Mata fechada saturada por resíduos de feitiçaria corporativa desregulada, gerando ilusões e perda de orientação.",
+    "power_penalty_pct": 0.10,
+    "energy_cost_extra": 5,
+    "mitigation_required": "arcane_fog",
+    "mitigation_label": "Bússola Espectral ou Lente Reveladora",
+    "recommended_power": 75
+  },
+  {
+    "id": "dungeon_08",
+    "name": "Pico das Tormentas Elétricas",
+    "terrain": "lightning_peaks",
+    "terrain_label": "Cordilheira Tempestuosa & Descargas Atmosféricas",
+    "description": "Cumes rochosos expostos a arcos voltaicos constantes que sobrecarregam condutores metálicos da party.",
+    "power_penalty_pct": 0.15,
+    "energy_cost_extra": 7,
+    "mitigation_required": "lightning_peaks",
+    "mitigation_label": "Aterramento Isolante ou Amuleto do Pára-Raio",
+    "recommended_power": 88
   }
 ]

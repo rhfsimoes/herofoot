@@ -36,6 +36,19 @@ class PhaseService:
         idx = (self.state.day - 1) % len(self.dungeons)
         return self.dungeons[idx]
 
+    def get_current_climate(self) -> dict:
+        """Determina o clima da semana de forma determinística a partir de world_seed, dia/semana e tag climate."""
+        from match_engine import get_climates_data, get_default_climate
+        climates = get_climates_data()
+        if not climates:
+            return get_default_climate()
+
+        world_seed = getattr(self.state, "world_seed", 42)
+        day_or_week = self.state.day if hasattr(self.state, "day") else getattr(self.state, "week", 1)
+        climate_seed = hash((world_seed, day_or_week, "climate"))
+        climate_rng = random.Random(climate_seed)
+        return climate_rng.choice(climates)
+
     def advance_phase(self) -> dict:
         phase = self.state.current_phase
         result = {}
@@ -142,18 +155,23 @@ class PhaseService:
     def phase_4_dungeon(self) -> dict:
         """
         Fase 4: Simulação da masmorra com cálculo real de Poder Efetivo, 5 Slots,
-        mitigação de terreno da rodada e consumo de cargas de consumíveis.
+        mitigação de terreno e clima dinâmico da rodada, habilidades de classe e consumo de consumíveis.
         """
         from match_engine import (
             calculate_team_base_power,
             calculate_slot_bonus,
             check_terrain_mitigation,
+            check_climate_mitigation,
             calculate_average_agi,
         )
 
         dungeon = self.get_current_dungeon()
         dungeon_name = dungeon.get("name", "Masmorra Desconhecida")
         required_mitigation = dungeon.get("mitigation_required")
+
+        climate = self.get_current_climate()
+        climate_name = climate.get("name", "Céu Limpo")
+        required_climate_mitigation = climate.get("mitigation_required")
 
         # Determinismo baseado no seed global da campanha e rodada
         world_seed = getattr(self.state, "world_seed", 42)
@@ -179,9 +197,10 @@ class PhaseService:
         base_power = calculate_team_base_power(starter_heroes, balance)
         player_agi = calculate_average_agi(starter_heroes)
 
-        # 2. Bônus de Loadout dos 5 Slots e Mitigação de Terreno
+        # 2. Bônus de Loadout dos 5 Slots e Mitigações de Terreno e Clima
         bonus_slots_power = calculate_slot_bonus(self.state.loadout, balance)
         has_terrain_mitigation = check_terrain_mitigation(self.state.loadout, required_mitigation)
+        has_climate_mitigation = check_climate_mitigation(self.state.loadout, required_climate_mitigation)
 
         consumable_item = self.state.loadout.get("Consumível")
         consumable_energy_bonus = 0
@@ -195,6 +214,7 @@ class PhaseService:
         rival_slot_bonus = rival_cfg.get("default_slot_bonus", 6)
         rival_mit_prob = rival_cfg.get("mitigation_probability", 0.5)
         rival_has_mitigation = (round_rng.random() < rival_mit_prob) if required_mitigation else True
+        rival_climate_mit = (round_rng.random() < rival_mit_prob) if required_climate_mitigation else True
         rival_agi = rival_guild_info.get("average_agi", rival_base_power) if rival_guild_info else rival_base_power
 
         player_pe = 0
@@ -211,6 +231,8 @@ class PhaseService:
                 consumable_energy_bonus=consumable_energy_bonus,
                 agi=player_agi,
                 has_terrain_mitigation=has_terrain_mitigation,
+                has_climate_mitigation=has_climate_mitigation,
+                heroes=starter_heroes,
                 balance=balance,
             )
             t2 = self.match_engine.Team(
@@ -220,12 +242,14 @@ class PhaseService:
                 consumable_energy_bonus=0,
                 agi=rival_agi,
                 has_terrain_mitigation=rival_has_mitigation,
+                has_climate_mitigation=rival_climate_mit,
                 balance=balance,
             )
             engine = self.match_engine.MatchEngine(
                 t1,
                 t2,
                 dungeon=dungeon,
+                climate=climate,
                 rng=round_rng,
                 fast_mode=False,
                 balance=balance,
@@ -244,7 +268,7 @@ class PhaseService:
             }
             player_pe = 2
             rival_pe = 1
-            match_log = [f"Expedição em {dungeon_name} concluída com sucesso."]
+            match_log = [f"Expedição em {dungeon_name} ({climate_name}) concluída com sucesso."]
 
         # 4. Regra das Cargas do Consumível (usa max_charges configurado no item)
         consumable_report = None
@@ -273,6 +297,13 @@ class PhaseService:
         gain_val = fatigue_cfg.get("gain_per_expedition", 20)
         fatigued_thresh = fatigue_cfg.get("fatigued_threshold", 70)
 
+        # Habilidade Prece de Sustentação (Clérigo/Apoio):
+        # Reduz a fadiga resultante da expedição
+        if self.match_engine and t1.has_skill("skill_sustaining_prayer"):
+            skill_data = t1.get_skill("skill_sustaining_prayer") or {}
+            fatigue_reduction = skill_data.get("fatigue_gain_reduction", 5)
+            gain_val = max(0, gain_val - fatigue_reduction)
+
         for h in starter_heroes:
             h["fatigue"] = min(100, h.get("fatigue", 0) + gain_val)
             h["season_appearances"] = h.get("season_appearances", 0) + 1
@@ -285,13 +316,16 @@ class PhaseService:
             player_pe_for=player_pe,
             player_pe_against=rival_pe,
             dungeon=dungeon,
+            climate=climate,
             rng=round_rng,
         )
 
         return {
             "phase": 4,
             "dungeon": dungeon,
+            "climate": climate,
             "mitigation_applied": has_terrain_mitigation,
+            "climate_applied": has_climate_mitigation,
             "player_match": {
                 "player_guild": "Guilda do Jogador",
                 "rival_guild": rival_name,

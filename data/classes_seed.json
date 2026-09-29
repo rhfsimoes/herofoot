@@ -3,22 +3,26 @@
     {
       "id": "class_warrior",
       "name": "Guerreiro",
-      "description": "Combatente de linha de frente especialista em armas marciais e armaduras pesadas."
+      "description": "Combatente de linha de frente especialista em armas marciais e armaduras pesadas.",
+      "skill_ids": ["skill_survival", "skill_shield_wall"]
     },
     {
       "id": "class_rogue",
       "name": "Ladino",
-      "description": "Especialista em incursões rápidas, ataques de precisão e evasão de perigos."
+      "description": "Especialista em incursões rápidas, ataques de precisão e evasão de perigos.",
+      "skill_ids": ["skill_scout", "skill_cold_execution"]
     },
     {
       "id": "class_mage",
       "name": "Mago",
-      "description": "Conjurador arcano focado em projeção de dano elemental em área."
+      "description": "Conjurador arcano focado em projeção de dano elemental em área.",
+      "skill_ids": ["skill_concentrated_channeling"]
     },
     {
       "id": "class_cleric",
       "name": "Clérigo",
-      "description": "Auxiliar sagrado dedicado a suporte vital, preces restauradoras e sustentação da equipe."
+      "description": "Auxiliar sagrado dedicado a suporte vital, preces restauradoras e sustentação da equipe.",
+      "skill_ids": ["skill_sustaining_prayer"]
     }
   ],
   "specializations": [
@@ -27,6 +31,8 @@
       "class_id": "class_warrior",
       "name": "Berserker",
       "description": "Focado em impacto físico avassalador e resiliência corporal extrema sob pressão de combate.",
+      "skill_id": "skill_survival",
+      "skill_ids": ["skill_survival"],
       "stat_weight_profile": {
         "str": 0.45,
         "agi": 0.15,
@@ -41,6 +47,8 @@
       "class_id": "class_warrior",
       "name": "Espadachim",
       "description": "Equilíbrio técnico entre manuseio veloz de lâminas, agilidade e postura defensiva sólida.",
+      "skill_id": "skill_shield_wall",
+      "skill_ids": ["skill_shield_wall"],
       "stat_weight_profile": {
         "str": 0.25,
         "agi": 0.35,
@@ -55,6 +63,8 @@
       "class_id": "class_rogue",
       "name": "Arqueiro",
       "description": "Ataques de longa distância baseados em destreza, cadência de disparos e oportunismo crítico.",
+      "skill_id": "skill_scout",
+      "skill_ids": ["skill_scout"],
       "stat_weight_profile": {
         "str": 0.10,
         "agi": 0.40,
@@ -69,6 +79,8 @@
       "class_id": "class_rogue",
       "name": "Assassino",
       "description": "Golpes letais em pontos vitais, infiltração ágil e alto índice de sorte tática.",
+      "skill_id": "skill_cold_execution",
+      "skill_ids": ["skill_cold_execution"],
       "stat_weight_profile": {
         "str": 0.25,
         "agi": 0.35,
@@ -83,6 +95,8 @@
       "class_id": "class_mage",
       "name": "Piromante",
       "description": "Canalização de calor destrutivo com alta concentração intelectual e reflexos canalizados.",
+      "skill_id": "skill_concentrated_channeling",
+      "skill_ids": ["skill_concentrated_channeling"],
       "stat_weight_profile": {
         "str": 0.05,
         "agi": 0.10,
@@ -97,6 +111,8 @@
       "class_id": "class_cleric",
       "name": "Clérigo de Apoio",
       "description": "Suporte espiritual, manutenção de vida e proteção da tropa por meio de profunda sabedoria.",
+      "skill_id": "skill_sustaining_prayer",
+      "skill_ids": ["skill_sustaining_prayer"],
       "stat_weight_profile": {
         "str": 0.05,
         "agi": 0.10,
@@ -105,6 +121,56 @@
         "wis": 0.40,
         "lck": 0.10
       }
+    }
+  ],
+  "skills": [
+    {
+      "id": "skill_scout",
+      "name": "Batedor Avançado",
+      "class_id": "class_rogue",
+      "specialization_id": "spec_rogue_archer",
+      "description": "Reconhecimento prévio de galerias. Reduz o consumo de suprimentos ao transitar por câmaras sem ocorrências operacionais.",
+      "empty_room_cost_reduction_pct": 0.30
+    },
+    {
+      "id": "skill_survival",
+      "name": "Resiliência Operacional",
+      "class_id": "class_warrior",
+      "specialization_id": "spec_warrior_berserker",
+      "description": "Treinamento brutal contra intempéries. Reduz pela metade a penalidade de poder em terrenos severos sem necessidade de item.",
+      "severe_terrain_penalty_multiplier": 0.50
+    },
+    {
+      "id": "skill_shield_wall",
+      "name": "Parede de Escudos",
+      "class_id": "class_warrior",
+      "specialization_id": "spec_warrior_swordsman",
+      "description": "Formação compacta de contenção. Garante vantagem de desempate em confrontos de Miniboss contra forças rivais.",
+      "miniboss_draw_advantage": true
+    },
+    {
+      "id": "skill_cold_execution",
+      "name": "Execução Fria",
+      "class_id": "class_rogue",
+      "specialization_id": "spec_rogue_assassin",
+      "description": "Foco cirúrgico em alvos solitários de alta patente. Concede bônus de poder na avaliação de abates de Boss solitário.",
+      "solo_boss_power_bonus_pct": 0.15
+    },
+    {
+      "id": "skill_sustaining_prayer",
+      "name": "Prece de Sustentação",
+      "class_id": "class_cleric",
+      "specialization_id": "spec_cleric_support",
+      "description": "Prece corporativa de revigoração contínua. Reduz o acúmulo de fadiga resultante da incursão aos membros da força-tarefa.",
+      "fatigue_gain_reduction": 5
+    },
+    {
+      "id": "skill_concentrated_channeling",
+      "name": "Canalização Concentrada",
+      "class_id": "class_mage",
+      "specialization_id": "spec_mage_pyromancer",
+      "description": "Sobrecarga mágica focada. Concede bônus de poder efetivo em confrontos contra Minibosses de matriz elemental.",
+      "elemental_miniboss_power_bonus_pct": 0.20
     }
   ]
 }

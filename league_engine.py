@@ -246,10 +246,10 @@ class LeagueEngine:
                 return fix_copy
         return None
 
-    def simulate_ai_match(self, home_id, away_id, dungeon=None, rng=None):
+    def simulate_ai_match(self, home_id, away_id, dungeon=None, climate=None, rng=None):
         """
         Simula o confronto entre duas guildas rivais utilizando o MatchEngine em modo rápido.
-        Lê poder e AGI reais das guildas e seus elencos gerados no seed.
+        Lê poder e AGI reais das guildas e seus elencos gerados no seed, aplicando bioma e clima.
         """
         from match_engine import Team, MatchEngine
         from balance import get_balance
@@ -275,6 +275,10 @@ class LeagueEngine:
         mit_home = (rng.random() < mit_prob) if req_mit else True
         mit_away = (rng.random() < mit_prob) if req_mit else True
 
+        req_climate_mit = climate.get("mitigation_required") if climate else None
+        climate_mit_home = (rng.random() < mit_prob) if req_climate_mit else True
+        climate_mit_away = (rng.random() < mit_prob) if req_climate_mit else True
+
         t_home = Team(
             name=home.get("name", home_id),
             base_power=p_home,
@@ -282,6 +286,7 @@ class LeagueEngine:
             consumable_energy_bonus=0,
             agi=agi_home,
             has_terrain_mitigation=mit_home,
+            has_climate_mitigation=climate_mit_home,
             balance=balance,
         )
         t_away = Team(
@@ -291,6 +296,7 @@ class LeagueEngine:
             consumable_energy_bonus=0,
             agi=agi_away,
             has_terrain_mitigation=mit_away,
+            has_climate_mitigation=climate_mit_away,
             balance=balance,
         )
 
@@ -298,6 +304,7 @@ class LeagueEngine:
             t_home,
             t_away,
             dungeon=dungeon,
+            climate=climate,
             rng=rng,
             fast_mode=True,
             balance=balance,
@@ -345,7 +352,7 @@ class LeagueEngine:
             a["draws"] += 1
             a["points"] += 1
 
-    def process_round_simulations(self, round_num, player_pe_for, player_pe_against, dungeon=None, rng=None):
+    def process_round_simulations(self, round_num, player_pe_for, player_pe_against, dungeon=None, climate=None, rng=None):
         """
         Executa a rodada completa: simula partidas em todas as divisões.
         Ao final da temporada (rodada 7 de 7), dispara a apuração de títulos, acesso e descenso.
@@ -370,7 +377,7 @@ class LeagueEngine:
                 score_h = player_pe_against
                 score_a = player_pe_for
             else:
-                score_h, score_a = self.simulate_ai_match(h_id, a_id, dungeon=dungeon, rng=rng)
+                score_h, score_a = self.simulate_ai_match(h_id, a_id, dungeon=dungeon, climate=climate, rng=rng)
 
             self.record_match_result(h_id, a_id, score_h, score_a, division_id=self.current_division_id)
 
@@ -390,7 +397,7 @@ class LeagueEngine:
             for fix in fixtures_other:
                 h_id = fix["home_id"]
                 a_id = fix["away_id"]
-                score_h, score_a = self.simulate_ai_match(h_id, a_id, dungeon=dungeon, rng=rng)
+                score_h, score_a = self.simulate_ai_match(h_id, a_id, dungeon=dungeon, climate=climate, rng=rng)
                 self.record_match_result(h_id, a_id, score_h, score_a, division_id=div_id)
 
         self.last_round_matches = results
