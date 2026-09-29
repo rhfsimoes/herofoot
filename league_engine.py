@@ -36,9 +36,52 @@ def load_default_guilds():
 
 DEFAULT_GUILDS = load_default_guilds()
 
+_RIVAL_TRAITS_CATALOG_CACHE = None
+
+
+def load_rival_traits_catalog():
+    """Carrega catálogo completo de traços de rivais de data/rival_traits_seed.json."""
+    global _RIVAL_TRAITS_CATALOG_CACHE
+    if _RIVAL_TRAITS_CATALOG_CACHE is None:
+        path = os.path.join(os.path.dirname(__file__), 'data', 'rival_traits_seed.json')
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                _RIVAL_TRAITS_CATALOG_CACHE = json.load(f)
+        else:
+            _RIVAL_TRAITS_CATALOG_CACHE = []
+    return _RIVAL_TRAITS_CATALOG_CACHE
+
+
+def get_tactical_traits():
+    """Retorna lista de traços táticos disponíveis."""
+    return [copy.deepcopy(t) for t in load_rival_traits_catalog() if t.get("type") == "tactical"]
+
+
+def get_corporate_traits():
+    """Retorna lista de traços corporativos disponíveis."""
+    return [copy.deepcopy(t) for t in load_rival_traits_catalog() if t.get("type") == "corporate"]
+
+
+def assign_guild_traits(guild_id: str, world_seed: int = 1337) -> list:
+    """
+    Sorteia deterministicamente 1 traço tático e 1 traço corporativo
+    baseando-se em hash((world_seed, guild_id)).
+    """
+    tactical_traits = sorted(get_tactical_traits(), key=lambda t: t.get("id", ""))
+    corporate_traits = sorted(get_corporate_traits(), key=lambda t: t.get("id", ""))
+
+    if not tactical_traits or not corporate_traits:
+        return []
+
+    guild_rng = random.Random(hash((world_seed, guild_id)))
+    chosen_tactical = copy.deepcopy(guild_rng.choice(tactical_traits))
+    chosen_corporate = copy.deepcopy(guild_rng.choice(corporate_traits))
+    return [chosen_tactical, chosen_corporate]
+
 
 class LeagueEngine:
-    def __init__(self, guilds=None, divisions_data=None):
+    def __init__(self, guilds=None, divisions_data=None, world_seed: int = 1337):
+        self.world_seed = world_seed
         self.all_guilds = {}
         raw_seed = self._load_seed_data()
 
@@ -54,20 +97,7 @@ class LeagueEngine:
             "div_acesso": {"1": 800, "2": 500, "3": 300, "4": 200, "default": 100}
         })
 
-        # Carrega todas as guildas catalogadas
-        if raw_seed:
-            player_g = raw_seed.get("player_guild", {"id": "g_player", "name": "Guilda do Jogador", "is_player": True, "power_rating": 61})
-            self.all_guilds[player_g["id"]] = copy.deepcopy(player_g)
-            for r in raw_seed.get("rival_guilds", []):
-                self.all_guilds[r["id"]] = copy.deepcopy(r)
-        else:
-            for g in (guilds if guilds else DEFAULT_GUILDS):
-                self.all_guilds[g["id"]] = copy.deepcopy(g)
-
-        # Se guilds foi passado explicitamente (ex: testes legados), atualiza/complementa
-        if guilds:
-            for g in guilds:
-                self.all_guilds[g["id"]] = copy.deepcopy(g)
+        self._init_guilds(guilds=guilds, raw_seed=raw_seed)
 
         self.current_division_id = "div_acesso"
         self.season_number = 1
@@ -122,6 +152,31 @@ class LeagueEngine:
             self._init_division_table(div_id)
             div["_schedule"] = self._generate_round_robin_schedule(div["guild_ids"])
 
+    def _init_guilds(self, guilds=None, raw_seed=None):
+        """Inicializa catálogo de guildas e atribui traços determinísticos para rivais."""
+        if raw_seed is None:
+            raw_seed = self._load_seed_data()
+
+        if raw_seed:
+            player_g = raw_seed.get("player_guild", {"id": "g_player", "name": "Guilda do Jogador", "is_player": True, "power_rating": 61})
+            self.all_guilds[player_g["id"]] = copy.deepcopy(player_g)
+            for r in raw_seed.get("rival_guilds", []):
+                self.all_guilds[r["id"]] = copy.deepcopy(r)
+        else:
+            for g in (guilds if guilds else DEFAULT_GUILDS):
+                self.all_guilds[g["id"]] = copy.deepcopy(g)
+
+        if guilds:
+            for g in guilds:
+                self.all_guilds[g["id"]] = copy.deepcopy(g)
+
+        for gid, g in self.all_guilds.items():
+            if g.get("is_player"):
+                g.setdefault("traits", [])
+            else:
+                if not g.get("traits"):
+                    g["traits"] = assign_guild_traits(gid, self.world_seed)
+
     def _load_seed_data(self):
         data_path = os.path.join(os.path.dirname(__file__), 'data', 'guilds_seed.json')
         if os.path.exists(data_path):
@@ -143,6 +198,7 @@ class LeagueEngine:
                 "is_player": g.get("is_player", False),
                 "power_rating": g.get("power_rating", 60),
                 "average_agi": g.get("average_agi", g.get("power_rating", 60)),
+                "traits": copy.deepcopy(g.get("traits", [])),
                 "played": 0,
                 "wins": 0,
                 "draws": 0,
@@ -288,6 +344,7 @@ class LeagueEngine:
             has_terrain_mitigation=mit_home,
             has_climate_mitigation=climate_mit_home,
             balance=balance,
+            traits=home.get("traits", []),
         )
         t_away = Team(
             name=away.get("name", away_id),
@@ -298,6 +355,7 @@ class LeagueEngine:
             has_terrain_mitigation=mit_away,
             has_climate_mitigation=climate_mit_away,
             balance=balance,
+            traits=away.get("traits", []),
         )
 
         engine = MatchEngine(
@@ -474,6 +532,12 @@ class LeagueEngine:
                 f"Classificação final: {player_rank}º lugar. Permanência homologada para o próximo ano. Bonificação: ⬡ {award_gold} Ouro."
             )
 
+        # Liquidação Judicial por Falência: Bottom 2 da Divisão de Acesso
+        candidates_liquidation = [r for r in standings_acesso if r["id"] not in promoted_ids and not r.get("is_player")]
+        liquidated_rows = candidates_liquidation[-2:] if len(candidates_liquidation) >= 2 else candidates_liquidation
+        liquidated_ids = [r["id"] for r in liquidated_rows]
+        liquidated_names = [self.all_guilds.get(gid, {}).get("name", r.get("guild_name", gid)) for r, gid in zip(liquidated_rows, liquidated_ids)]
+
         summary = {
             "season": self.season_number,
             "player_division_id": player_div_id,
@@ -485,6 +549,8 @@ class LeagueEngine:
             "verdict": verdict,
             "promoted_guilds": promoted_names,
             "relegated_guilds": relegated_names,
+            "liquidated_guilds": liquidated_names,
+            "dissolved_guilds": liquidated_names,
             "champion_nobre": standings_nobre[0]["guild_name"] if standings_nobre else "",
             "champion_acesso": standings_acesso[0]["guild_name"] if standings_acesso else "",
         }
@@ -510,6 +576,75 @@ class LeagueEngine:
                 div_acesso["guild_ids"].append(rid)
             if rid in self.all_guilds:
                 self.all_guilds[rid]["division_id"] = "div_acesso"
+
+        # Executa Liquidação Judicial por Falência: remove as 2 guildas da tabela e de self.guilds
+        for lid in liquidated_ids:
+            if lid in div_acesso["guild_ids"]:
+                div_acesso["guild_ids"].remove(lid)
+            if lid in div_acesso["table"]:
+                del div_acesso["table"][lid]
+            if lid in self.all_guilds:
+                del self.all_guilds[lid]
+
+        # Funda 2 novas guildas substitutas criadas pela Câmara dos Mercadores
+        meta_catalog = load_rival_traits_catalog()
+        meta = next((item for item in meta_catalog if item.get("id") == "meta_camara_founding"), {})
+        prefixes = meta.get("naming_prefixes", [
+            "Companhia", "Consórcio", "Sindicato", "Bastião", "Ordem", "Vanguarda", "Irmandade", "Liga"
+        ])
+        connectors = meta.get("naming_connectors", [
+            "da Bigorna", "do Falcão", "do Carvalho", "da Lança", "do Lobo", "da Sentinela", "do Martelo", "do Tridente"
+        ])
+        suffixes = meta.get("naming_suffixes", [
+            "Rubra", "Imperial", "de Prata", "Boreal", "Cinzento", "de Bronze", "de Aço", "de Malaquita"
+        ])
+        power_min = meta.get("power_min", 50)
+        power_max = meta.get("power_max", 54)
+
+        newly_founded_guilds = []
+        for i in range(len(liquidated_ids)):
+            founding_rng = random.Random(hash((self.world_seed, self.season_number, "camara_founding", i)))
+            pref = founding_rng.choice(prefixes)
+            conn = founding_rng.choice(connectors)
+            suff = founding_rng.choice(suffixes)
+            new_name = f"{pref} {conn} {suff}"
+            
+            existing_names = {g.get("name") for g in self.all_guilds.values()}
+            if new_name in existing_names:
+                new_name = f"{new_name} ({self.season_number + 1})"
+
+            new_id = f"g_camara_s{self.season_number}_{i + 1}"
+            while new_id in self.all_guilds:
+                new_id = f"{new_id}_x"
+
+            power_val = founding_rng.randint(power_min, power_max)
+            new_traits = assign_guild_traits(new_id, self.world_seed)
+
+            new_guild = {
+                "id": new_id,
+                "name": new_name,
+                "is_player": False,
+                "power_rating": power_val,
+                "division_id": "div_acesso",
+                "average_agi": power_val,
+                "traits": new_traits,
+                "roster": [
+                    {
+                        "id": f"hero_{new_id}_{h_idx}",
+                        "name": f"Aventureiro {pref} {h_idx}",
+                        "class_id": "class_warrior",
+                        "specialization_id": "spec_warrior_swordsman",
+                        "power": power_val,
+                        "attributes": {"agi": power_val},
+                    }
+                    for h_idx in range(1, 7)
+                ]
+            }
+            self.all_guilds[new_id] = new_guild
+            div_acesso["guild_ids"].append(new_id)
+            newly_founded_guilds.append(new_guild)
+
+        summary["new_guilds"] = [g["name"] for g in newly_founded_guilds]
 
         # Atualiza divisão ativa do jogador
         if is_player_promoted:
@@ -596,12 +731,14 @@ class LeagueEngine:
                 cleaned_matches.append(m)
 
         return {
+            "world_seed": self.world_seed,
             # Campos legados essenciais para compatibilidade de testes existentes
             "table": copy.deepcopy(self.table),
             "current_round": self.current_round,
             "last_round_matches": cleaned_matches,
             "_schedule": copy.deepcopy(self._schedule),
             "guilds": copy.deepcopy(self.guilds),
+            "all_guilds": copy.deepcopy(self.all_guilds),
             # Campos da Onda 2 (Multi-Divisão e Temporadas)
             "season_number": self.season_number,
             "current_division_id": self.current_division_id,
@@ -615,6 +752,8 @@ class LeagueEngine:
         if not isinstance(data, dict):
             return self
 
+        if "world_seed" in data:
+            self.world_seed = data["world_seed"]
         if "season_number" in data:
             self.season_number = data["season_number"]
         if "current_division_id" in data:
@@ -628,6 +767,15 @@ class LeagueEngine:
         if "season_history" in data:
             self.season_history = copy.deepcopy(data["season_history"])
 
+        if "all_guilds" in data and isinstance(data["all_guilds"], dict):
+            self.all_guilds = copy.deepcopy(data["all_guilds"])
+        elif "guilds" in data and isinstance(data["guilds"], list):
+            for g in data["guilds"]:
+                gid = g.get("id")
+                if gid and gid in self.all_guilds:
+                    if "traits" in g:
+                        self.all_guilds[gid]["traits"] = copy.deepcopy(g["traits"])
+
         if "divisions" in data and isinstance(data["divisions"], dict):
             self.divisions = copy.deepcopy(data["divisions"])
         elif "table" in data:
@@ -636,5 +784,15 @@ class LeagueEngine:
                 self.divisions[self.current_division_id]["table"] = copy.deepcopy(data["table"])
             if "_schedule" in data:
                 self.divisions[self.current_division_id]["_schedule"] = copy.deepcopy(data["_schedule"])
+
+        # Garante integridade de traços em todas as guildas e tabelas restauradas
+        for gid, g in self.all_guilds.items():
+            if not g.get("is_player") and not g.get("traits"):
+                g["traits"] = assign_guild_traits(gid, self.world_seed)
+
+        for did, dinfo in self.divisions.items():
+            for gid, row in dinfo.get("table", {}).items():
+                if "traits" not in row and gid in self.all_guilds:
+                    row["traits"] = copy.deepcopy(self.all_guilds[gid].get("traits", []))
 
         return self
