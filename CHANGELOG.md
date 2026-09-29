@@ -5,6 +5,40 @@ O formato baseia-se em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ---
 
+## [0.5.0-alpha] — 2026-09-29
+
+### 🤖 Novos Agentes & Expansão de Estrutura de Desenvolvimento
+- **Cobertura de Funções de Indústria:** Criação formal e inclusão no roadmap de 4 novos agentes especializados:
+  - `balance_agent` (QA & Balance Engineer — Alta Prioridade)
+  - `gamedesign_agent` (Game Designer & Balance Designer — Alta Prioridade)
+  - `ux_agent` (UX Designer — Média Prioridade)
+  - `sound_agent` (Sound Designer — Média Prioridade)
+
+### 📐 Especificação & Design Sistêmico (`docs/DESIGN_SPEC_V050.md`)
+- **Progressão com XP de Bancada:** Definição da tabela exponencial de evolução ($XP_{req} = 100 \times 1.5^{nível-1}$) e dos custos de modernização em ouro por nível em `data/workshops_seed.json["xp_progression"]`.
+- **Forja Experimental (Tinkering):** Especificação da fórmula probabilística `success_chance = max(0.05, 1 - (recipe_tier - workshop_level) * 0.35)`, com ganho permanente de homologação de receita mesmo em falha com refugo 'Gororoba Experimental' e seção `crafting.tinkering` em `data/balance_seed.json`.
+
+### ⚖️ Auditoria Econômica & Simulações (`docs/BALANCE_REPORT_V050.md`)
+- **Simulação em 3 Estratégias (50 semanas, `scripts/balance_audit_v050.py`):**
+  - Casual (1-2 itens forjados/sem): 100% solvente, +⬡ 3.763 ouro final, atingiu Nível 3 na Semana 8 (dentro da meta de 8-12 semanas).
+  - Intensiva (4 itens forjados/sem com Boletim): +⬡ 3.660 ouro final, atingiu Nível 3 na Semana 6.
+  - Sem Forja (dependência de cotas): Falência acumulada com -⬡ 7.950, comprovando matematicamente o pilar Tycoon de que a guilda vive de sua manufatura bélica.
+
+### 🖥️ UX & Onboarding no Frontend (`docs/UX_AUDIT_V050.md`)
+- **Stepper de Progresso de Fases (`PhaseProgress.tsx`):** Indicador visual `Semana X — Fase Y/5` no topo do Header, com mini-badges de etapas concluídas, ativa e futuras.
+- **Glossário & Tooltips Contextuais (`Tooltip.tsx`):** Termos corporativos essenciais (*Fadiga*, *Confiança da Contratante*, *Boletim de Mercado*, *Suprimentos*, *Pontos de Expedição*) agora possuem tooltips flutuantes com definições de cartório medieval.
+- **Banners de Onboarding (`OnboardingBanner.tsx`):** Mensagens introdutórias por fase, com persistência local em `localStorage`.
+- **Estados Vazios Educativos (`EmptyState.tsx`):** Orientação proativa quando o inventário está vazio ou nenhum combatente foi selecionado na escalação.
+
+### 🔊 Identidade Sonora & Áudio (`docs/SOUND_IDENTITY.md`)
+- **Documento Canônico de Sonoplastia:** Catálogo priorizado de 15 efeitos obrigatórios (P1) e 10 secundários (P2) combinando diegese medieval (bigorna, óleo, cascalho) e burocracia satírica (carimbos pesados, sinos de cartório, folhear de razão contábil).
+- **Scaffold de Hook React (`useSound.ts`):** Interface tipada pronta para plugar na biblioteca Howler.js.
+
+### 📜 Narrativa & Eventos Corporativos Aprofundados (`data/events_seed.json`)
+- **Expansão Satírica:** Revisão integral dos eventos existentes e adição de dilemas de alto impacto envolvendo o ex-herói Arthus Valente, aliciamento de titulares por guildas nobres rivais e auditorias surpresa com suborno ou revistas de pijamas.
+
+---
+
 ## [0.4.1] — 2026-09-29
 
 ### 👑 Metas da Contratante & Auditorias Não Punitivas
