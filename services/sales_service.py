@@ -44,6 +44,18 @@ class SalesService:
         if self.state.is_equipped(item_instance_id):
             return {"success": False, "message": "Ativo em uso na expedição. Desequipe antes de anunciar."}
 
+        # Verifica se o ativo foi rejeitado nesta mesma rodada (encalhado)
+        current_day = getattr(self.state, "day", 1)
+        encalhado_ate = item.get("encalhado_ate_semana")
+        if encalhado_ate is not None and encalhado_ate >= current_day:
+            return {
+                "success": False,
+                "message": "Ativo encalhado em vitrine nesta semana. Reanúncio bloqueado pela Câmara dos Mercadores até a próxima rodada.",
+            }
+        elif encalhado_ate is not None and encalhado_ate < current_day:
+            item["encalhado"] = False
+            item["encalhado_ate_semana"] = None
+
         if not self.counter_sales:
             return {"success": False, "message": "Módulo de vendas indisponível."}
 
@@ -52,6 +64,25 @@ class SalesService:
         if reference_price is None:
             reference_price = item.get("base_price", 100)
         reference_price = int(reference_price)
+
+        norm_margin = normalize_margin(margin_type)
+
+        # Taxa de vitrine e especulação da Câmara dos Mercadores (Listing Fee para Preço Abusivo)
+        listing_fee = 0
+        if hasattr(self.counter_sales, "calculate_listing_fee"):
+            listing_fee = self.counter_sales.calculate_listing_fee(reference_price, norm_margin)
+        elif norm_margin == "Preço Abusivo":
+            listing_fee = max(10, round(reference_price * 0.08))
+
+        if listing_fee > 0 and self.state.gold < listing_fee:
+            return {
+                "success": False,
+                "message": f"Tesouraria insuficiente para recolher a taxa de vitrine e especulação da Câmara dos Mercadores (Custo: {listing_fee} Ouro).",
+            }
+
+        # Debita a taxa não reembolsável da tesouraria da guilda
+        if listing_fee > 0:
+            self.state.gold -= listing_fee
 
         # Multiplicador de demanda vindo do Boletim de Mercado
         if demand_multiplier is None:
@@ -67,7 +98,6 @@ class SalesService:
         else:
             demand_multiplier = float(demand_multiplier)
 
-        norm_margin = normalize_margin(margin_type)
         result = self.counter_sales.list_item_for_sale(
             item_name=item.get("name", "Item"),
             reference_price=reference_price,
@@ -84,6 +114,7 @@ class SalesService:
         if status == "vendido":
             self.state.inventory.remove(item)
             self.state.gold += asked_price
+            self.state.weekly_sales_revenue = getattr(self.state, "weekly_sales_revenue", 0) + asked_price
             return {
                 "success": True,
                 "status": "vendido",
@@ -92,17 +123,26 @@ class SalesService:
                 "reference_price": ref_price,
                 "asked_price": asked_price,
                 "demand_multiplier": demand_mult,
+                "listing_fee": listing_fee,
                 "message": f"Venda aprovada a preço de tabela (+{asked_price} Moedas de Ouro).",
             }
 
         elif status == "não vendido":
+            # Taxa de vitrine é retida e ativo fica encalhado até o término da semana
+            item["encalhado_ate_semana"] = self.state.day
+            item["encalhado"] = True
+            if listing_fee > 0:
+                msg = f"Ativo rejeitado pelo mercado por preço excessivo. Custas de vitrine de {listing_fee} Moedas de Ouro foram retidas pela junta comercial."
+            else:
+                msg = "Preço excessivo. Nenhum comprador manifestou interesse no ativo."
             return {
                 "success": False,
                 "status": "não vendido",
                 "reference_price": ref_price,
                 "asked_price": asked_price,
                 "demand_multiplier": demand_mult,
-                "message": "Preço excessivo. Nenhum comprador manifestou interesse no ativo.",
+                "listing_fee": listing_fee,
+                "message": msg,
             }
 
         elif status == "contraproposta":
@@ -121,6 +161,7 @@ class SalesService:
                 "reference_price": ref_price,
                 "asked_price": asked_price,
                 "demand_multiplier": demand_mult,
+                "listing_fee": listing_fee,
                 "message": f"Comprador realizou contraproposta de {counter_offer_val} Moedas de Ouro.",
             }
 
@@ -135,6 +176,7 @@ class SalesService:
 
         if accept:
             self.state.gold += int(offer["price"])
+            self.state.weekly_sales_revenue = getattr(self.state, "weekly_sales_revenue", 0) + int(offer["price"])
             return {
                 "success": True,
                 "accepted": True,

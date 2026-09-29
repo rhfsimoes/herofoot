@@ -317,6 +317,155 @@ class TestSales(unittest.TestCase):
         self.assertEqual(state["market"]["bulletin"]["target"], "Armadura")
         self.assertEqual(state["market"]["bulletin"]["multiplier"], 2.0)
 
+    def test_preco_abusivo_listing_fee_deduction(self):
+        """Preço Abusivo cobra taxa de vitrine de 8% (mínimo 10), enquanto outras margens cobram zero."""
+        cs = CounterSales()
+        # Item com ref 200: 8% = 16 (acima do mínimo de 10)
+        self.assertEqual(cs.calculate_listing_fee(200, "Preço Abusivo"), 16)
+        # Item com ref 50: 8% = 4 (atinge mínimo de 10)
+        self.assertEqual(cs.calculate_listing_fee(50, "Preço Abusivo"), 10)
+        # Margens normais não cobram taxa de vitrine
+        self.assertEqual(cs.calculate_listing_fee(200, "Preço Justo"), 0)
+        self.assertEqual(cs.calculate_listing_fee(200, "Promoção"), 0)
+
+        # Validação via controller/serviço
+        item = {
+            "item_instance_id": "fee_item_01",
+            "name": "Peitoral Nobre",
+            "slot_type": "Armadura",
+            "quality": "Normal",
+            "power_bonus": 10,
+            "market_value_base": 200,
+        }
+        self.controller.state.inventory.append(item)
+        self.controller.state.gold = 1000
+
+        class SoldRNG:
+            def uniform(self, a, b):
+                return 1.45  # 1.35 <= 1.45 -> vendido
+
+        res = self.controller.list_item_for_sale(
+            "fee_item_01",
+            margin_type="Preço Abusivo",
+            rng=SoldRNG()
+        )
+        self.assertTrue(res["success"])
+        self.assertEqual(res["listing_fee"], 16)
+        # 1000 - 16 (taxa) + 270 (preço pedido: 200 * 1.35) = 1254
+        self.assertEqual(self.controller.state.gold, 1000 - 16 + 270)
+
+    def test_preco_abusivo_insufficient_gold_for_listing_fee(self):
+        """Rejeita anúncio abusivo se a guilda não puder pagar a taxa de vitrine da Câmara."""
+        item = {
+            "item_instance_id": "poor_item_01",
+            "name": "Adaga Rústica",
+            "slot_type": "Arma",
+            "quality": "Normal",
+            "power_bonus": 5,
+            "market_value_base": 100,
+        }
+        self.controller.state.inventory.append(item)
+        self.controller.state.gold = 5  # Menos que a taxa mínima de 10
+
+        res = self.controller.list_item_for_sale("poor_item_01", margin_type="Preço Abusivo")
+        self.assertFalse(res["success"])
+        self.assertEqual(
+            res["message"],
+            "Tesouraria insuficiente para recolher a taxa de vitrine e especulação da Câmara dos Mercadores (Custo: 10 Ouro)."
+        )
+        # Ouro e inventário intactos
+        self.assertEqual(self.controller.state.gold, 5)
+        self.assertIn(item, self.controller.state.inventory)
+
+    def test_preco_abusivo_nao_vendido_fee_lost_and_item_encalhado(self):
+        """Se o comprador recusar, a taxa é perdida, o ativo fica encalhado e o reanúncio é bloqueado no turno."""
+        item = {
+            "item_instance_id": "stalled_item_01",
+            "name": "Elmo Desprezado",
+            "slot_type": "Armadura",
+            "quality": "Normal",
+            "power_bonus": 8,
+            "market_value_base": 200,
+        }
+        self.controller.state.inventory.append(item)
+        self.controller.state.gold = 1000
+        self.controller.state.day = 3
+
+        class RejectRNG:
+            def uniform(self, a, b):
+                return 1.10  # 1.35 > 1.10 + 0.15 = 1.25 -> não vendido
+
+        res = self.controller.list_item_for_sale(
+            "stalled_item_01",
+            margin_type="Preço Abusivo",
+            rng=RejectRNG()
+        )
+        self.assertFalse(res["success"])
+        self.assertEqual(res["status"], "não vendido")
+        self.assertEqual(res["listing_fee"], 16)
+        # Taxa de 16 retida pela junta comercial
+        self.assertEqual(self.controller.state.gold, 984)
+        self.assertIn("retidas pela junta comercial", res["message"])
+
+        # O item permanece no inventário mas marcado como encalhado na rodada 3
+        self.assertIn(item, self.controller.state.inventory)
+        self.assertTrue(item.get("encalhado"))
+        self.assertEqual(item.get("encalhado_ate_semana"), 3)
+
+        # Tentativa de reanunciar o mesmo item na mesma rodada deve ser barrada pela Câmara
+        re_res = self.controller.list_item_for_sale("stalled_item_01", margin_type="Preço Justo")
+        self.assertFalse(re_res["success"])
+        self.assertIn("encalhado em vitrine nesta semana", re_res["message"].lower())
+
+        # Na rodada seguinte, o ativo é liberado e pode ser vendido
+        self.controller.state.day = 4
+        ok_res = self.controller.list_item_for_sale("stalled_item_01", margin_type="Preço Justo")
+        self.assertTrue(ok_res["success"])
+        self.assertEqual(ok_res["status"], "vendido")
+
+    def test_weekly_sales_revenue_tracking(self):
+        """Vendas diretas e contrapropostas aceitas acumulam em weekly_sales_revenue."""
+        item1 = {
+            "item_instance_id": "rev_item_01",
+            "name": "Machado Comercial",
+            "slot_type": "Arma",
+            "quality": "Normal",
+            "power_bonus": 10,
+            "market_value_base": 100,
+        }
+        item2 = {
+            "item_instance_id": "rev_item_02",
+            "name": "Escudo de Negociação",
+            "slot_type": "Armadura",
+            "quality": "Normal",
+            "power_bonus": 10,
+            "market_value_base": 100,
+        }
+        self.controller.state.inventory.extend([item1, item2])
+        self.controller.state.gold = 1000
+
+        # 1. Venda direta por Preço Justo (+100)
+        res1 = self.controller.list_item_for_sale("rev_item_01", margin_type="Preço Justo")
+        self.assertTrue(res1["success"])
+        self.assertEqual(getattr(self.controller.state, "weekly_sales_revenue", 0), 100)
+
+        # 2. Venda por Contraproposta aceita (+125)
+        class CounterRNG:
+            def uniform(self, a, b):
+                return 1.25
+
+        res2 = self.controller.list_item_for_sale(
+            "rev_item_02",
+            margin_type="Preço Abusivo",
+            rng=CounterRNG()
+        )
+        self.assertEqual(res2["status"], "contraproposta")
+        offer_id = res2["offer_id"]
+
+        accept_res = self.controller.resolve_counter_offer(offer_id, accept=True)
+        self.assertTrue(accept_res["success"])
+        self.assertEqual(getattr(self.controller.state, "weekly_sales_revenue", 0), 100 + 125)
+
 
 if __name__ == '__main__':
     unittest.main()

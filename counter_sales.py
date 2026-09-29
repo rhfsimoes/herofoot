@@ -21,6 +21,15 @@ class CounterSales:
         self.buyer_tolerance_min = float(sales_cfg.get("buyer_tolerance_min", 1.0))
         self.buyer_tolerance_max = float(sales_cfg.get("buyer_tolerance_max", 1.5))
         self.counter_zone = float(sales_cfg.get("counter_zone", 0.15))
+        self.listing_fee_rate = float(sales_cfg.get("listing_fee_rate", 0.08))
+        self.listing_fee_min = int(sales_cfg.get("listing_fee_min", 10))
+
+    def calculate_listing_fee(self, reference_price: int, margin_type: str) -> int:
+        """Calcula a taxa de vitrine da Câmara dos Mercadores (8% do valor base, mínimo de 10 ouro para margem abusiva)."""
+        norm_margin = normalize_margin(margin_type)
+        if norm_margin == "Preço Abusivo":
+            return max(self.listing_fee_min, round(reference_price * self.listing_fee_rate))
+        return 0
 
     def list_item_for_sale(
         self,
@@ -36,6 +45,7 @@ class CounterSales:
         norm_margin = normalize_margin(margin_type)
         rate = self.margin_rates.get(norm_margin, 1.0)
         demand_mult = float(demand_multiplier) if demand_multiplier is not None else 1.0
+        listing_fee = self.calculate_listing_fee(ref_price, norm_margin)
 
         asked_price = round(ref_price * rate * demand_mult)
 
@@ -63,6 +73,7 @@ class CounterSales:
             "demand_multiplier": demand_mult,
             "asked_price": asked_price,
             "final_price": asked_price,
+            "listing_fee": listing_fee,
             "status": status,
             "counter_offer": counter_offer
         }
