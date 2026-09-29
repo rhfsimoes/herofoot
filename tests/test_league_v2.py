@@ -81,10 +81,10 @@ class TestLeagueV2(unittest.TestCase):
             self.assertEqual(row["played"], 1, f"Equipe {row['id']} da divisão nobre não jogou")
 
     def test_season_end_and_promotions_relegations(self):
-        """Simulação de 7 rodadas encerra a temporada, promove top 2 do Acesso e rebaixa bottom 2 da Nobre."""
+        """Simulação de todas as rodadas encerra a temporada, promove top 2 do Acesso e rebaixa bottom 2 da Nobre."""
         rng = random.Random(1337)
-        # Roda 7 rodadas para concluir a temporada
-        for r in range(1, 8):
+        # Roda todas as rodadas para concluir a temporada
+        for r in range(1, self.league.rounds_per_season + 1):
             self.league.process_round_simulations(
                 round_num=r,
                 player_pe_for=2,
@@ -93,7 +93,7 @@ class TestLeagueV2(unittest.TestCase):
             )
 
         summary = self.league.season_summary
-        self.assertIsNotNone(summary, "Resumo de temporada não foi gerado ao fim da 7ª rodada")
+        self.assertIsNotNone(summary, f"Resumo de temporada não foi gerado ao fim da {self.league.rounds_per_season}ª rodada")
         self.assertEqual(summary["season"], 1)
         self.assertEqual(len(summary["promoted_guilds"]), 2)
         self.assertEqual(len(summary["relegated_guilds"]), 2)
@@ -109,7 +109,7 @@ class TestLeagueV2(unittest.TestCase):
     def test_player_promotion_flow(self):
         """Se o jogador terminar no Top 2 da Divisão de Acesso, ascende à Divisão Nobre."""
         # Força o jogador a vencer todas as partidas com folga
-        for r in range(1, 8):
+        for r in range(1, self.league.rounds_per_season + 1):
             self.league.process_round_simulations(
                 round_num=r,
                 player_pe_for=10,
@@ -143,7 +143,7 @@ class TestLeagueV2(unittest.TestCase):
         )
 
         # Força derrotas pesadas em todas as partidas
-        for r in range(1, 8):
+        for r in range(1, self.league.rounds_per_season + 1):
             self.league.process_round_simulations(
                 round_num=r,
                 player_pe_for=0,

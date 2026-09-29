@@ -3,7 +3,16 @@
  * Comunica-se com o backend Python local (http.server nativo da biblioteca padrão).
  */
 
-import type { GameState, InventoryItem, SaveSlotInfo, CraftOptions, CraftPreview, MaterialSheet } from './mockData'
+import type {
+  GameState,
+  InventoryItem,
+  SaveSlotInfo,
+  CraftOptions,
+  CraftPreview,
+  MaterialSheet,
+  MedicalFacilityInfo,
+  Hero
+} from './mockData'
 
 const API_BASE = 'http://localhost:8000/api'
 
@@ -15,6 +24,10 @@ export interface ApiResponse<T = any> {
   error?: string
   saves?: SaveSlotInfo[]
   slot?: string
+  gold?: number
+  facilities?: MedicalFacilityInfo
+  hero?: Hero
+  new_level?: number
 }
 
 export async function checkBackendLive(): Promise<boolean> {
@@ -305,4 +318,106 @@ export async function newGameBackend(slot?: string): Promise<ApiResponse | null>
   }
   return null
 }
+
+export async function fetchMedicalFacilitiesBackend(): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/medical_facilities`)
+    if (res.ok) {
+      return (await res.json()) as ApiResponse
+    }
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao carregar instalações médicas:', err)
+  }
+  return null
+}
+
+export async function upgradeMedicalFacilityBackend(): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/upgrade_medical`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    })
+    const data = await res.json()
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao modernizar departamento médico:', err)
+  }
+  return null
+}
+
+export async function treatHeroMassageBackend(heroId: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/hr/massage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hero_id: heroId }),
+    })
+    const data = await res.json()
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao aplicar massagem:', err)
+  }
+  return null
+}
+
+export async function accelerateInjuryBackend(heroId: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/hr/accelerate_injury`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hero_id: heroId }),
+    })
+    const data = await res.json()
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao acelerar tratamento de lesão:', err)
+  }
+  return null
+}
+
+export async function collectiveBanquetBackend(): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/hr/banquet`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    })
+    const data = await res.json()
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao realizar banquete coletivo:', err)
+  }
+  return null
+}
+
+export async function renewContractBackend(heroId: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/hr/renew_contract`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hero_id: heroId }),
+    })
+    const data = await res.json()
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao renovar contrato:', err)
+  }
+  return null
+}
+
+export async function releaseContractBackend(heroId: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/hr/release_contract`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hero_id: heroId }),
+    })
+    const data = await res.json()
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao rescindir contrato:', err)
+  }
+  return null
+}
+
 

@@ -240,7 +240,14 @@ function AppContent() {
           <Route
             path="/phase1"
             element={
-              <Phase1HR team={gameState.team} onAdvance={advancePhase} />
+              <Phase1HR
+                team={gameState.team}
+                gold={gameState.gold}
+                medicalFacilities={gameState.medical_facilities}
+                pendingRenewals={gameState.pending_contract_renewals}
+                onAdvance={advancePhase}
+                onStateUpdate={handleStateChange as any}
+              />
             }
           />
           <Route

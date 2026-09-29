@@ -72,6 +72,8 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             query_params = parse_qs(parsed.query)
             material_id = query_params.get('id', [''])[0]
             self._send_json(controller.get_material_sheet(material_id))
+        elif path == '/api/medical_facilities':
+            self._send_json(controller.get_medical_facilities())
         elif path.startswith('/api/'):
             self._send_json({"error": "Endpoint não encontrado"}, status=404)
         else:
@@ -152,6 +154,50 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             body = self._read_json_body()
             branch = body.get('branch', 'Ferragem')
             result = controller.upgrade_workshop(branch)
+            self._send_json({
+                "result": result,
+                "state": controller.get_state()
+            })
+        elif path == '/api/upgrade_medical':
+            result = controller.upgrade_medical_facility()
+            self._send_json({
+                "result": result,
+                "state": controller.get_state()
+            })
+        elif path == '/api/hr/massage':
+            body = self._read_json_body()
+            hero_id = body.get('hero_id')
+            result = controller.treat_hero_massage(hero_id)
+            self._send_json({
+                "result": result,
+                "state": controller.get_state()
+            })
+        elif path == '/api/hr/accelerate_injury':
+            body = self._read_json_body()
+            hero_id = body.get('hero_id')
+            result = controller.accelerate_hero_injury(hero_id)
+            self._send_json({
+                "result": result,
+                "state": controller.get_state()
+            })
+        elif path == '/api/hr/banquet':
+            result = controller.collective_banquet()
+            self._send_json({
+                "result": result,
+                "state": controller.get_state()
+            })
+        elif path == '/api/hr/renew_contract':
+            body = self._read_json_body()
+            hero_id = body.get('hero_id')
+            result = controller.renew_hero_contract(hero_id)
+            self._send_json({
+                "result": result,
+                "state": controller.get_state()
+            })
+        elif path == '/api/hr/release_contract':
+            body = self._read_json_body()
+            hero_id = body.get('hero_id')
+            result = controller.release_hero_contract(hero_id)
             self._send_json({
                 "result": result,
                 "state": controller.get_state()

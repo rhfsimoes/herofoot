@@ -19,6 +19,15 @@ export interface Hero {
   injury_weeks_left?: number
   age?: number
   level?: number
+  contract_seasons_left?: number
+  season_appearances?: number
+  happiness?: number
+  pending_renewal?: boolean
+  renewal_demand?: {
+    salary: number
+    signing_bonus: number
+    seasons: number
+  } | null
 }
 
 export interface InventoryItem {
@@ -277,6 +286,52 @@ export interface MaterialSheet {
   }[]
 }
 
+export interface MedicalFacilityInfo {
+  current_level: number
+  max_level: number
+  facility_name: string
+  description: string
+  passive_recovery: number
+  weekly_maintenance: number
+  injury_reduction_pct: number
+  next_upgrade?: {
+    level: number
+    name: string
+    cost: number
+    passive_recovery: number
+    weekly_maintenance: number
+  } | null
+  actions: {
+    massage?: {
+      name: string
+      description: string
+      cost: number
+      fatigue_relief: number
+    }
+    accelerate_injury?: {
+      name: string
+      description: string
+      cost: number
+      weeks_reduced: number
+    }
+    collective_banquet?: {
+      name: string
+      description: string
+      cost: number
+      fatigue_relief_all: number
+    }
+  }
+}
+
+export interface PendingContractRenewal {
+  hero_id: string
+  hero_name: string
+  current_salary: number
+  demanded_salary: number
+  signing_bonus: number
+  seasons: number
+}
+
 export interface GameState {
   day: number
   week: number
@@ -320,6 +375,9 @@ export interface GameState {
   divisions?: DivisionData[]
   current_division?: DivisionInfo
   season_summary?: SeasonSummary | null
+  medical_level?: number
+  medical_facilities?: MedicalFacilityInfo
+  pending_contract_renewals?: PendingContractRenewal[]
 }
 
 export const MATERIAL_LABELS: Record<string, string> = {
@@ -418,11 +476,11 @@ export const MOCK_STATE: GameState = {
     },
   ],
   team: [
-    { id: 'hero_01', name: 'Valdris, o Escudeiro Sênior', class_name: 'Guerreiro', specialization_name: 'Espadachim', current_power: 66, fatigue: 20, status: 'Apto', salary: 60 },
-    { id: 'hero_02', name: 'Seren Ironthorn, a Berserker', class_name: 'Guerreiro', specialization_name: 'Berserker', current_power: 52, fatigue: 65, status: 'Fatigado', salary: 50 },
-    { id: 'hero_03', name: 'Magister Vorn (Especialista em Fogo)', class_name: 'Mago', specialization_name: 'Piromante', current_power: 63, fatigue: 0, status: 'Apto', salary: 75 },
-    { id: 'hero_04', name: 'Reva, a Aprendiz de Alquimia', class_name: 'Clérigo', specialization_name: 'Clérigo de Apoio', current_power: 36, fatigue: 0, status: 'Afastado', salary: 35, injury_weeks_left: 1 },
-    { id: 'hero_05', name: 'Dorath Pedra-Cinza (Bárbaro Contratado)', class_name: 'Guerreiro', specialization_name: 'Berserker', current_power: 80, fatigue: 15, status: 'Apto', salary: 85 },
+    { id: 'hero_01', name: 'Valdris, o Escudeiro Sênior', class_name: 'Guerreiro', specialization_name: 'Espadachim', current_power: 66, fatigue: 20, status: 'Apto', salary: 60, contract_seasons_left: 2, season_appearances: 0, happiness: 85 },
+    { id: 'hero_02', name: 'Seren Ironthorn, a Berserker', class_name: 'Guerreiro', specialization_name: 'Berserker', current_power: 52, fatigue: 65, status: 'Fatigado', salary: 50, contract_seasons_left: 2, season_appearances: 0, happiness: 75 },
+    { id: 'hero_03', name: 'Magister Vorn (Especialista em Fogo)', class_name: 'Mago', specialization_name: 'Piromante', current_power: 63, fatigue: 0, status: 'Apto', salary: 75, contract_seasons_left: 1, season_appearances: 0, happiness: 90 },
+    { id: 'hero_04', name: 'Reva, a Aprendiz de Alquimia', class_name: 'Clérigo', specialization_name: 'Clérigo de Apoio', current_power: 36, fatigue: 0, status: 'Afastado', salary: 35, injury_weeks_left: 1, contract_seasons_left: 2, season_appearances: 0, happiness: 60 },
+    { id: 'hero_05', name: 'Dorath Pedra-Cinza (Bárbaro Contratado)', class_name: 'Guerreiro', specialization_name: 'Berserker', current_power: 80, fatigue: 15, status: 'Apto', salary: 85, contract_seasons_left: 2, season_appearances: 0, happiness: 80 },
   ],
   league_table: [
     { rank: 1, guild_name: 'Ordem do Grifo Dourado', is_player: false, played: 0, wins: 0, draws: 0, losses: 0, points: 0, pe_for: 0, pe_against: 0, pe_diff: 0 },

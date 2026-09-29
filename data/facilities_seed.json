@@ -1,0 +1,74 @@
+{
+  "medical_facilities": [
+    {
+      "level": 1,
+      "name": "Tenda de Curativos de Campanha",
+      "description": "Instalação rústica com bandagens básicas e repouso mínimo sob lonas de campo.",
+      "passive_recovery": 15,
+      "upgrade_cost": 0,
+      "weekly_maintenance": 20,
+      "injury_duration_reduction_pct": 0.0,
+      "severe_injury_mitigation": 0.0
+    },
+    {
+      "level": 2,
+      "name": "Enfermaria de Alívio & Unguentos",
+      "description": "Leitos cobertos com atendimento de herbalistas e aplicação de emplastros medicinais.",
+      "passive_recovery": 22,
+      "upgrade_cost": 450,
+      "weekly_maintenance": 45,
+      "injury_duration_reduction_pct": 0.15,
+      "severe_injury_mitigation": 0.10
+    },
+    {
+      "level": 3,
+      "name": "Casa de Banhos Termais & Hidromassagem",
+      "description": "Piscinas de águas ricas em enxofre e vapor mineral para descompressão muscular profunda.",
+      "passive_recovery": 30,
+      "upgrade_cost": 900,
+      "weekly_maintenance": 80,
+      "injury_duration_reduction_pct": 0.30,
+      "severe_injury_mitigation": 0.25
+    },
+    {
+      "level": 4,
+      "name": "Sanatório de Massagem Rúnica & Fisioterapia",
+      "description": "Bancadas de tração rúnica, massagistas especializados e cataplasmas revigorantes.",
+      "passive_recovery": 40,
+      "upgrade_cost": 1800,
+      "weekly_maintenance": 130,
+      "injury_duration_reduction_pct": 0.45,
+      "severe_injury_mitigation": 0.40
+    },
+    {
+      "level": 5,
+      "name": "Complexo Médico-Hospitalar da Coroa",
+      "description": "Infraestrutura clínica de ponta com cirurgiões reais, câmaras de cura e regeneração celular.",
+      "passive_recovery": 55,
+      "upgrade_cost": 3500,
+      "weekly_maintenance": 200,
+      "injury_duration_reduction_pct": 0.60,
+      "severe_injury_mitigation": 0.60
+    }
+  ],
+  "medical_actions": {
+    "massage": {
+      "name": "Sessão de Massagem & Banhos Termais",
+      "description": "Atendimento intensivo avulso para alívio imediato da musculatura de um herói.",
+      "cost": 75,
+      "fatigue_relief": 40
+    },
+    "accelerate_injury": {
+      "name": "Tratamento Alquímico Especializado",
+      "description": "Honorários de especialista da corte para acelerar o processo biológico de cicatrização.",
+      "cost": 180,
+      "weeks_reduced": 1
+    },
+    "collective_banquet": {
+      "name": "Banquete de Descompressão Coletiva",
+      "description": "Confraternização institucional com refeições finas para desanuviar a mente de todo o plantel.",
+      "cost": 350,
+      "fatigue_relief_all": 25
+    }
+  }
+}

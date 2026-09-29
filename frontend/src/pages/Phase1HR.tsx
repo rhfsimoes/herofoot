@@ -1,60 +1,238 @@
 import { useState } from 'react'
-import { Zap, Swords, HeartPulse, Bed, UserX, AlertTriangle, ArrowRight } from 'lucide-react'
-import type { Hero } from '../mockData'
+import {
+  Zap,
+  Swords,
+  HeartPulse,
+  Sparkles,
+  Bed,
+  UserX,
+  AlertTriangle,
+  ArrowRight,
+  ShieldCheck,
+  Building,
+  DollarSign,
+  Utensils,
+  Clock,
+  Smile
+} from 'lucide-react'
+import type { Hero, MedicalFacilityInfo, PendingContractRenewal, GameState } from '../mockData'
 import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
+import {
+  upgradeMedicalFacilityBackend,
+  treatHeroMassageBackend,
+  accelerateInjuryBackend,
+  collectiveBanquetBackend,
+  renewContractBackend,
+  releaseContractBackend
+} from '../api'
 
 interface Phase1HRProps {
   team: Hero[]
+  gold?: number
+  medicalFacilities?: MedicalFacilityInfo
+  pendingRenewals?: PendingContractRenewal[]
   onAdvance: () => void
+  onStateUpdate?: (newState: Partial<GameState>) => void
 }
 
-export default function Phase1HR({ team: initialTeam, onAdvance }: Phase1HRProps) {
+export default function Phase1HR({
+  team: initialTeam,
+  gold = 1000,
+  medicalFacilities: initialFacilities,
+  pendingRenewals: initialRenewals = [],
+  onAdvance,
+  onStateUpdate
+}: Phase1HRProps) {
   const [team, setTeam] = useState<Hero[]>(initialTeam)
+  const [currentGold, setCurrentGold] = useState<number>(gold)
+  const [facilities, setFacilities] = useState<MedicalFacilityInfo | undefined>(initialFacilities)
+  const [renewals, setRenewals] = useState<PendingContractRenewal[]>(initialRenewals)
   const [actionLog, setActionLog] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  // Função rápida: Descanso (-30% fadiga por 10 ouro)
-  function handleRest(heroId: string) {
-    setTeam(prev =>
-      prev.map(h => {
-        if (h.id === heroId) {
-          const newFatigue = Math.max(0, h.fatigue - 30)
-          const newStatus = newFatigue <= 50 && !h.injured ? 'Apto' : h.status
-          setActionLog(l => [`[RH] ${h.name} realizou procedimento de descanso monitorado (-30% fadiga).`, ...l])
-          return { ...h, fatigue: newFatigue, status: newStatus as Hero['status'] }
+  // Modernização do Departamento Médico
+  async function handleUpgradeFacility() {
+    setIsLoading(true)
+    try {
+      const res = await upgradeMedicalFacilityBackend()
+      if (res && res.success) {
+        if (res.state) {
+          setTeam(res.state.team)
+          setCurrentGold(res.state.gold)
+          setFacilities(res.state.medical_facilities)
+          onStateUpdate?.(res.state)
+        } else if (res.gold !== undefined) {
+          setCurrentGold(res.gold)
+          if (res.facilities) setFacilities(res.facilities)
+          onStateUpdate?.({ gold: res.gold, medical_facilities: res.facilities })
         }
-        return h
-      })
-    )
-  }
-
-  // Função rápida: Tratamento intensivo de lesão
-  function handleTreat(heroId: string) {
-    setTeam(prev =>
-      prev.map(h => {
-        if (h.id === heroId) {
-          setActionLog(l => [`[Ambulatório] Cuidados intensivos aplicados em ${h.name}. Tempo de afastamento reduzido.`, ...l])
-          const remaining = Math.max(0, (h.injury_weeks_left ?? 1) - 1)
-          return {
-            ...h,
-            injury_weeks_left: remaining,
-            injured: remaining > 0,
-            status: remaining === 0 ? 'Apto' : 'Afastado'
-          }
-        }
-        return h
-      })
-    )
-  }
-
-  // Função rápida: Dispensar herói do elenco
-  function handleDismiss(heroId: string) {
-    const hero = team.find(h => h.id === heroId)
-    if (!hero) return
-    if (confirm(`Confirmar rescisão contratual de ${hero.name}?`)) {
-      setTeam(prev => prev.filter(h => h.id !== heroId))
-      setActionLog(l => [`[Departamento Pessoal] Contrato de ${hero.name} rescindido conforme normas da guilda.`, ...l])
+        setActionLog(l => [res.message || 'Departamento Médico modernizado com sucesso.', ...l])
+      } else {
+        alert(res?.message || 'Falha ao processar modernização predial.')
+      }
+    } catch {
+      alert('Erro de conexão com o servidor de obras.')
+    } finally {
+      setIsLoading(false)
     }
   }
+
+  // Massagem e Banhos Termais avulsa
+  async function handleMassage(heroId: string) {
+    setIsLoading(true)
+    try {
+      const res = await treatHeroMassageBackend(heroId)
+      if (res && res.success) {
+        if (res.state) {
+          setTeam(res.state.team)
+          setCurrentGold(res.state.gold)
+          onStateUpdate?.(res.state)
+        } else if (res.hero) {
+          setTeam(prev => prev.map(h => (h.id === heroId ? { ...h, ...res.hero } : h)))
+          if (res.gold !== undefined) {
+            setCurrentGold(res.gold)
+            onStateUpdate?.({ gold: res.gold })
+          }
+        }
+        setActionLog(l => [res.message || 'Sessão de massagem realizada.', ...l])
+      } else {
+        alert(res?.message || 'Não foi possível autorizar a sessão de massagem.')
+      }
+    } catch {
+      alert('Erro de conexão ao solicitar procedimento terapêutico.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Tratamento especializado para acelerar lesão
+  async function handleAccelerateInjury(heroId: string) {
+    setIsLoading(true)
+    try {
+      const res = await accelerateInjuryBackend(heroId)
+      if (res && res.success) {
+        if (res.state) {
+          setTeam(res.state.team)
+          setCurrentGold(res.state.gold)
+          onStateUpdate?.(res.state)
+        } else if (res.hero) {
+          setTeam(prev => prev.map(h => (h.id === heroId ? { ...h, ...res.hero } : h)))
+          if (res.gold !== undefined) {
+            setCurrentGold(res.gold)
+            onStateUpdate?.({ gold: res.gold })
+          }
+        }
+        setActionLog(l => [res.message || 'Tratamento de lesão administrado.', ...l])
+      } else {
+        alert(res?.message || 'Não foi possível ministrar o tratamento alquímico.')
+      }
+    } catch {
+      alert('Erro de conexão com o corpo clínico.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Banquete coletivo
+  async function handleCollectiveBanquet() {
+    setIsLoading(true)
+    try {
+      const res = await collectiveBanquetBackend()
+      if (res && res.success) {
+        if (res.state) {
+          setTeam(res.state.team)
+          setCurrentGold(res.state.gold)
+          onStateUpdate?.(res.state)
+        } else if (res.gold !== undefined) {
+          setCurrentGold(res.gold)
+          setTeam(prev =>
+            prev.map(h => ({
+              ...h,
+              fatigue: Math.max(0, h.fatigue - 25),
+              status: h.fatigue - 25 < 70 && !h.injured ? 'Apto' : h.status,
+              happiness: Math.min(100, (h.happiness ?? 80) + 10)
+            }))
+          )
+          onStateUpdate?.({ gold: res.gold })
+        }
+        setActionLog(l => [res.message || 'Banquete Institucional realizado.', ...l])
+      } else {
+        alert(res?.message || 'Recursos insuficientes para o banquete.')
+      }
+    } catch {
+      alert('Falha na comunicação com o refeitório central.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Homologar renovação de contrato
+  async function handleRenewContract(heroId: string) {
+    setIsLoading(true)
+    try {
+      const res = await renewContractBackend(heroId)
+      if (res && res.success) {
+        if (res.state) {
+          setTeam(res.state.team)
+          setCurrentGold(res.state.gold)
+          setRenewals(res.state.pending_contract_renewals || [])
+          onStateUpdate?.(res.state)
+        } else {
+          if (res.hero) {
+            setTeam(prev => prev.map(h => (h.id === heroId ? { ...h, ...res.hero } : h)))
+          }
+          if (res.gold !== undefined) {
+            setCurrentGold(res.gold)
+            onStateUpdate?.({ gold: res.gold })
+          }
+          setRenewals(prev => prev.filter(r => r.hero_id !== heroId))
+        }
+        setActionLog(l => [res.message || 'Contrato homologado e luvas quitadas.', ...l])
+      } else {
+        alert(res?.message || 'Falha ao homologar renovação contratual.')
+      }
+    } catch {
+      alert('Erro ao submeter aditivo contratual ao cartório da guilda.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Rescisão amigável de contrato
+  async function handleReleaseContract(heroId: string) {
+    if (!confirm('Confirmar rescisão contratual imediata deste aventureiro? Esta decisão é irrevogável.')) {
+      return
+    }
+    setIsLoading(true)
+    try {
+      const res = await releaseContractBackend(heroId)
+      if (res && res.success) {
+        if (res.state) {
+          setTeam(res.state.team)
+          setCurrentGold(res.state.gold)
+          setRenewals(res.state.pending_contract_renewals || [])
+          onStateUpdate?.(res.state)
+        } else {
+          setTeam(prev => prev.filter(h => h.id !== heroId))
+          setRenewals(prev => prev.filter(r => r.hero_id !== heroId))
+        }
+        setActionLog(l => [res.message || 'Rescisão homologada. Aventureiro desligado do quadro.', ...l])
+      } else {
+        alert(res?.message || 'Falha ao processar rescisão funcional.')
+      }
+    } catch {
+      alert('Erro de conexão com o departamento de desligamento.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const currentLevel = facilities?.current_level ?? 1
+  const facilityName = facilities?.facility_name ?? 'Tenda de Curativos de Campanha'
+  const passiveRecovery = facilities?.passive_recovery ?? 15
+  const weeklyMaint = facilities?.weekly_maintenance ?? 20
+  const injuryMitigation = Math.round((facilities?.injury_reduction_pct ?? 0) * 100)
+  const nextUpgrade = facilities?.next_upgrade
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
@@ -64,26 +242,200 @@ export default function Phase1HR({ team: initialTeam, onAdvance }: Phase1HRProps
           <div className="flex items-center gap-2">
             <span className="text-amber-500 font-mono text-xs uppercase tracking-widest font-bold">Fase I</span>
             <span className="text-stone-600">·</span>
-            <span className="text-stone-400 text-xs">Gestão do Efetivo</span>
+            <span className="text-stone-400 text-xs">Gestão do Efetivo & Bem-Estar</span>
           </div>
           <h2 className="text-amber-100 text-xl font-black mt-0.5 tracking-wide">
-            Cuidado da Equipe, Ambulatório & Academia
+            Recursos Humanos, Medicina Ocupacional & Contratos
           </h2>
           <p className="text-stone-400 text-xs mt-1">
-            Auditoria médica de fadiga, concessão de atestados e liberação física dos colaboradores para a temporada.
+            Auditoria médica, recuperação física, renovação de vínculos funcionais e modernização predial da guilda.
           </p>
         </div>
 
         <button
           onClick={onAdvance}
-          className="bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl shadow-lg shadow-amber-950/40 hover:brightness-110 transition flex items-center gap-2"
+          disabled={isLoading}
+          className="bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-xs uppercase tracking-wider px-5 py-2.5 rounded-xl shadow-lg shadow-amber-950/40 hover:brightness-110 transition flex items-center gap-2 disabled:opacity-50"
         >
-          <span>Homologar Elenco & Ir para Oficina</span>
+          <span>Homologar Expediente & Avançar p/ Oficina</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
 
-      {/* Tabela de Elenco da Guilda */}
+      {/* Seção 1: Painel do Departamento Médico & Ações Coletivas */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Cartão de Instalação Médica */}
+        <div className="md:col-span-2 bg-[#1c1917] border border-amber-950/40 rounded-xl p-5 shadow-xl flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between gap-2 border-b border-stone-800 pb-3 mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-amber-950/40 border border-amber-800/40 text-amber-400">
+                  <Building className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-400 text-xs font-mono font-bold uppercase tracking-wider">
+                      Instalação Nível {currentLevel} de 5
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-stone-800 text-stone-300 border border-stone-700">
+                      Manutenção: ⬡ {weeklyMaint}/sem
+                    </span>
+                  </div>
+                  <h3 className="text-amber-100 text-base font-black tracking-wide">
+                    {facilityName}
+                  </h3>
+                </div>
+              </div>
+
+              {/* Botão de Upgrade */}
+              {nextUpgrade ? (
+                <button
+                  onClick={handleUpgradeFacility}
+                  disabled={isLoading || currentGold < nextUpgrade.cost}
+                  className="px-3.5 py-2 rounded-lg bg-amber-900/60 hover:bg-amber-800 border border-amber-700/60 text-amber-200 text-xs font-bold transition flex items-center gap-1.5 shadow disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                  title={`Custo: ${nextUpgrade.cost} Ouro`}
+                >
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span>
+                    Modernizar para Nível {nextUpgrade.level} (⬡ {nextUpgrade.cost})
+                  </span>
+                </button>
+              ) : (
+                <span className="px-3 py-1.5 rounded-lg bg-emerald-950/60 border border-emerald-800/50 text-emerald-400 text-xs font-bold flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4" />
+                  Nível Máximo Atingido
+                </span>
+              )}
+            </div>
+
+            <p className="text-stone-400 text-xs leading-relaxed">
+              {facilities?.description || 'Instalação médica para tratamento e descompressão do efetivo da guilda.'}
+            </p>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-stone-800/70 grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="bg-stone-900/80 p-2 rounded-lg border border-stone-800">
+              <span className="text-stone-500 text-[10px] block uppercase font-mono">Recuperação Passiva</span>
+              <strong className="text-emerald-400 text-sm font-mono">+{passiveRecovery}% / sem</strong>
+            </div>
+            <div className="bg-stone-900/80 p-2 rounded-lg border border-stone-800">
+              <span className="text-stone-500 text-[10px] block uppercase font-mono">Atenuação de Licenças</span>
+              <strong className="text-amber-400 text-sm font-mono">-{injuryMitigation}% semanas</strong>
+            </div>
+            <div className="bg-stone-900/80 p-2 rounded-lg border border-stone-800">
+              <span className="text-stone-500 text-[10px] block uppercase font-mono">Custo Operacional</span>
+              <strong className="text-stone-300 text-sm font-mono">⬡ {weeklyMaint} / sem</strong>
+            </div>
+          </div>
+        </div>
+
+        {/* Cartão de Ações Coletivas */}
+        <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-5 shadow-xl flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-amber-400 mb-2">
+              <Utensils className="w-4 h-4" />
+              <h4 className="text-amber-200 text-xs font-black uppercase tracking-wider">
+                Bem-Estar Coletivo & Moral
+              </h4>
+            </div>
+            <p className="text-stone-400 text-xs mb-4">
+              Realize eventos de integração e descompressão para aliviar o esgotamento profissional de todo o quadro simultaneamente.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <button
+              onClick={handleCollectiveBanquet}
+              disabled={isLoading || currentGold < 350}
+              className="w-full py-2.5 px-3 rounded-lg bg-stone-900 hover:bg-stone-800 border border-amber-900/50 hover:border-amber-700/60 text-stone-200 text-xs font-bold transition flex items-center justify-between disabled:opacity-40 disabled:cursor-not-allowed shadow"
+            >
+              <div className="flex items-center gap-2">
+                <Utensils className="w-4 h-4 text-amber-500" />
+                <div className="text-left">
+                  <div className="text-stone-100 text-xs">Banquete Institucional</div>
+                  <div className="text-[10px] text-stone-400">-25 Fadiga & +10 Felicidade Geral</div>
+                </div>
+              </div>
+              <span className="text-amber-400 font-mono text-xs font-bold">⬡ 350 Ouro</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Seção 2: Pendências de Renovação Contratual de Temporada */}
+      {renewals.length > 0 && (
+        <div className="bg-rose-950/20 border-2 border-rose-800/60 rounded-xl p-5 shadow-2xl space-y-4">
+          <div className="flex items-center gap-2.5 text-rose-300 border-b border-rose-800/40 pb-3">
+            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+            <div>
+              <h3 className="text-rose-200 text-sm font-black uppercase tracking-wider">
+                Pendências de Renovação Contratual ({renewals.length})
+              </h3>
+              <p className="text-rose-300/80 text-xs">
+                A vigência dos contratos de temporada expirou. Homologue a renovação mediante pagamento das luvas exigidas ou realize a rescisão funcional amigável.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {renewals.map(r => (
+              <div
+                key={r.hero_id}
+                className="bg-stone-900/90 border border-stone-800 rounded-lg p-3.5 flex flex-col justify-between gap-3 shadow-md"
+              >
+                <div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-stone-100 font-bold text-xs">{r.hero_name}</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-rose-950/80 text-rose-300 border border-rose-800/50">
+                      Vínculo Vencido
+                    </span>
+                  </div>
+                  <div className="mt-2 text-xs space-y-1 text-stone-400">
+                    <div className="flex justify-between">
+                      <span>Salário Atual vs Exigido:</span>
+                      <strong className="text-amber-300 font-mono">
+                        ⬡ {r.current_salary} ➔ ⬡ {r.demanded_salary}/sem
+                      </strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Bônus de Assinatura (Luvas):</span>
+                      <strong className="text-rose-300 font-mono">⬡ {r.signing_bonus} Ouro</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Novo Prazo Contratual:</span>
+                      <strong className="text-stone-200 font-mono">{r.seasons} Temporadas</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2 border-t border-stone-800">
+                  <button
+                    onClick={() => handleRenewContract(r.hero_id)}
+                    disabled={isLoading || currentGold < r.signing_bonus}
+                    className="flex-1 py-1.5 px-3 rounded bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-200 text-xs font-bold transition flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                    title={`Pagar ⬡ ${r.signing_bonus} Ouro`}
+                  >
+                    <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Homologar Renovação (⬡ {r.signing_bonus})</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleReleaseContract(r.hero_id)}
+                    disabled={isLoading}
+                    className="py-1.5 px-3 rounded bg-stone-900 hover:bg-rose-950 border border-stone-700 hover:border-rose-900 text-stone-400 hover:text-rose-300 text-xs font-bold transition flex items-center gap-1"
+                    title="Rescindir vínculo sem custos"
+                  >
+                    <UserX className="w-3.5 h-3.5" />
+                    <span>Rescindir</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Seção 3: Tabela de Elenco da Guilda */}
       <div className="bg-[#1c1917] border border-amber-950/40 rounded-xl overflow-hidden shadow-2xl">
         <div className="px-5 py-3.5 bg-stone-950/80 border-b border-stone-800 flex justify-between items-center flex-wrap gap-2">
           <div className="flex items-center gap-2">
@@ -93,9 +445,9 @@ export default function Phase1HR({ team: initialTeam, onAdvance }: Phase1HRProps
             </h3>
           </div>
           <span className="text-stone-500 text-xs">
-            Folha de Pagamento Total:{' '}
+            Folha Semanal Total:{' '}
             <strong className="text-amber-400 font-mono">
-              ⬡ {team.reduce((s, h) => s + h.salary, 0)} Ouro/dia
+              ⬡ {team.reduce((s, h) => s + h.salary, 0)} Ouro/semana
             </strong>
           </span>
         </div>
@@ -105,12 +457,13 @@ export default function Phase1HR({ team: initialTeam, onAdvance }: Phase1HRProps
             <thead>
               <tr className="text-stone-400 text-[11px] uppercase tracking-wider bg-stone-950/40 border-b border-stone-800">
                 <th className="py-3 px-4 text-left font-semibold">Aventureiro</th>
-                <th className="py-3 px-3 text-left font-semibold">Classe Operacional</th>
+                <th className="py-3 px-3 text-left font-semibold">Classe & Esp.</th>
                 <th className="py-3 px-3 text-center font-semibold">Poder Bruto</th>
-                <th className="py-3 px-3 text-center font-semibold">Condição Física (Fadiga)</th>
-                <th className="py-3 px-3 text-center font-semibold">Status Funcional</th>
-                <th className="py-3 px-3 text-right font-semibold">Salário/Dia</th>
-                <th className="py-3 px-4 text-right font-semibold">Intervenção</th>
+                <th className="py-3 px-3 text-center font-semibold">Fadiga</th>
+                <th className="py-3 px-3 text-center font-semibold">Contrato & Moral</th>
+                <th className="py-3 px-3 text-center font-semibold">Status</th>
+                <th className="py-3 px-3 text-right font-semibold">Salário/sem</th>
+                <th className="py-3 px-4 text-right font-semibold">Intervenção Clínica</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-800/60">
@@ -118,8 +471,10 @@ export default function Phase1HR({ team: initialTeam, onAdvance }: Phase1HRProps
                 const isInjured = hero.status === 'Afastado' || hero.injured
                 const isEven = index % 2 === 0
                 const power = hero.current_power ?? hero.power ?? 50
+                const seasonsLeft = hero.contract_seasons_left ?? 2
+                const happiness = hero.happiness ?? 80
 
-                // Badges de Fadiga/Status conforme a especificação Overgeared
+                // Badges de Fadiga/Status
                 let fatigueBadgeClass = 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/50'
                 let fatigueLabel = 'Pronto'
                 if (hero.fatigue > 50 || isInjured) {
@@ -143,20 +498,26 @@ export default function Phase1HR({ team: initialTeam, onAdvance }: Phase1HRProps
                         <div className="w-7 h-7 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center font-bold text-amber-400 text-xs shrink-0">
                           {hero.name[0]}
                         </div>
-                        <span className="truncate max-w-[180px] font-semibold">{hero.name}</span>
+                        <div>
+                          <span className="truncate max-w-[180px] font-semibold block">{hero.name}</span>
+                          {hero.age && <span className="text-[10px] text-stone-500">{hero.age} anos</span>}
+                        </div>
                       </div>
                     </td>
 
-                    {/* Classe */}
+                    {/* Classe & Esp */}
                     <td className="py-3 px-3 text-stone-400">
-                      {hero.class_name ?? hero.class ?? 'Combatente'}
+                      <div>{hero.class_name ?? hero.class ?? 'Combatente'}</div>
+                      {hero.specialization_name && (
+                        <div className="text-[10px] text-stone-500">{hero.specialization_name}</div>
+                      )}
                     </td>
 
-                    {/* Coluna de Poder com Zap e Gradiente Dourado */}
+                    {/* Poder com Zap */}
                     <td className="py-3 px-3 text-center">
                       <div className="inline-flex items-center gap-1">
                         <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400/20" />
-                        <span className={`${GOLD_GRADIENT_TEXT} text-sm font-mono`}>
+                        <span className={`${GOLD_GRADIENT_TEXT} text-sm font-mono font-bold`}>
                           {power}
                         </span>
                       </div>
@@ -164,11 +525,11 @@ export default function Phase1HR({ team: initialTeam, onAdvance }: Phase1HRProps
 
                     {/* Barra de Fadiga */}
                     <td className="py-3 px-3">
-                      <div className="max-w-[130px] mx-auto space-y-1">
+                      <div className="max-w-[110px] mx-auto space-y-1">
                         <div className="flex justify-between text-[10px] text-stone-400 font-mono">
                           <span>{hero.fatigue}%</span>
                           <span className={hero.fatigue > 50 ? 'text-rose-400 font-bold' : ''}>
-                            {hero.fatigue > 50 ? 'Alto Risco' : 'Estável'}
+                            {hero.fatigue > 50 ? 'Risco' : 'Estável'}
                           </span>
                         </div>
                         <div className="w-full bg-stone-950 rounded-full h-1.5 overflow-hidden border border-stone-800">
@@ -182,9 +543,23 @@ export default function Phase1HR({ team: initialTeam, onAdvance }: Phase1HRProps
                       </div>
                     </td>
 
+                    {/* Contrato & Felicidade */}
+                    <td className="py-3 px-3 text-center">
+                      <div className="inline-flex flex-col items-center gap-0.5">
+                        <span className="text-[10px] font-mono text-stone-300 flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-amber-400" />
+                          {seasonsLeft} temp.
+                        </span>
+                        <span className="text-[10px] font-mono text-stone-400 flex items-center gap-1">
+                          <Smile className="w-3 h-3 text-emerald-400" />
+                          {happiness}%
+                        </span>
+                      </div>
+                    </td>
+
                     {/* Badge de Status */}
                     <td className="py-3 px-3 text-center">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-wide inline-block ${fatigueBadgeClass}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide inline-block ${fatigueBadgeClass}`}>
                         {fatigueLabel}
                       </span>
                     </td>
@@ -194,34 +569,36 @@ export default function Phase1HR({ team: initialTeam, onAdvance }: Phase1HRProps
                       ⬡ {hero.salary}
                     </td>
 
-                    {/* Ações Rápidas por Linha */}
+                    {/* Ações Clínicas */}
                     <td className="py-3 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         {isInjured ? (
                           <button
-                            onClick={() => handleTreat(hero.id)}
-                            className="p-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-800/60 text-rose-300 text-[10px] flex items-center gap-1 transition"
-                            title="Aplicar atadura e acelerar recuperação"
+                            onClick={() => handleAccelerateInjury(hero.id)}
+                            disabled={isLoading || currentGold < 180}
+                            className="p-1.5 rounded-lg bg-rose-950/70 hover:bg-rose-900 border border-rose-800/60 text-rose-300 text-[10px] flex items-center gap-1 transition disabled:opacity-40"
+                            title={`Tratar lesão com especialista (-1 sem.) [180 Ouro]`}
                           >
                             <HeartPulse className="w-3.5 h-3.5 text-rose-400" />
-                            <span>Tratar</span>
+                            <span>Tratar (⬡ 180)</span>
                           </button>
                         ) : (
                           <button
-                            onClick={() => handleRest(hero.id)}
-                            disabled={hero.fatigue === 0}
+                            onClick={() => handleMassage(hero.id)}
+                            disabled={isLoading || hero.fatigue === 0 || currentGold < 75}
                             className="p-1.5 rounded-lg bg-stone-800 hover:bg-amber-950/60 border border-stone-700 hover:border-amber-700/60 text-stone-300 hover:text-amber-200 text-[10px] flex items-center gap-1 transition disabled:opacity-30 disabled:cursor-not-allowed"
-                            title="Conceder descanso (-30% fadiga)"
+                            title={`Massagem & Banhos Termais (-40 Fadiga) [75 Ouro]`}
                           >
                             <Bed className="w-3.5 h-3.5 text-amber-400" />
-                            <span>Descansar</span>
+                            <span>Massagem (⬡ 75)</span>
                           </button>
                         )}
 
                         <button
-                          onClick={() => handleDismiss(hero.id)}
+                          onClick={() => handleReleaseContract(hero.id)}
+                          disabled={isLoading}
                           className="p-1.5 rounded-lg bg-stone-900 hover:bg-rose-950/80 border border-stone-800 hover:border-rose-900 text-stone-500 hover:text-rose-400 transition"
-                          title="Rescindir contrato"
+                          title="Rescindir contrato amigavelmente"
                         >
                           <UserX className="w-3.5 h-3.5" />
                         </button>
@@ -241,7 +618,7 @@ export default function Phase1HR({ team: initialTeam, onAdvance }: Phase1HRProps
           <p className="text-stone-400 text-xs uppercase tracking-wider font-bold mb-2">
             Diário Médico & Despachos Administrativos
           </p>
-          {actionLog.slice(0, 4).map((log, i) => (
+          {actionLog.slice(0, 5).map((log, i) => (
             <p key={i} className="text-stone-300 text-xs font-mono">
               · {log}
             </p>
@@ -255,7 +632,7 @@ export default function Phase1HR({ team: initialTeam, onAdvance }: Phase1HRProps
         <div className="space-y-0.5">
           <p className="text-stone-200 font-bold">Norma Regulamentadora de Expedição (Cláusula 12):</p>
           <p>
-            Colaboradores escalados com índice de fadiga superior a 50% sofrem perda de 20% de precisão e possuem probabilidade quadruplicada de sofrerem acidentes de trabalho com lesões perfurocortantes.
+            Colaboradores escalados com índice de fadiga superior a 50% sofrem severa perda de rendimento e possuem probabilidade quadruplicada de sofrerem acidentes graves em masmorras. A manutenção das instalações médicas consome recursos semanais da guilda (DRE), mas acelera a regeneração de todo o contingente.
           </p>
         </div>
       </div>

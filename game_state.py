@@ -29,6 +29,8 @@ SERIALIZED_FIELDS = [
     "known_affixes",
     "known_recipes",
     "catalog_version",
+    "medical_level",
+    "pending_contract_renewals",
 ]
 
 TRANSIENT_FIELDS = [
@@ -46,6 +48,8 @@ class GameState:
         self.week = 1              # Sinônimo canônico de rodada
         self.season = 1            # Temporada anual da Liga
         self.gold = 1000
+        self.medical_level = 1     # Nível do Departamento de Saúde & Bem-Estar Ocupacional (1 a 5)
+        self.pending_contract_renewals = []  # Heróis aguardando renovação contratual
         self.team = []             # Lista de heróis contratados
         self.inventory = []        # Itens no almoxarifado
         self.showcase = []         # Itens em negociação

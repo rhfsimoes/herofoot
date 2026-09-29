@@ -54,7 +54,7 @@
     "manual_offer_count": 2
   },
   "league": {
-    "rounds_per_season": 7,
+    "rounds_per_season": 28,
     "promotion_spots": 2,
     "relegation_spots": 2,
     "season_rewards": {
@@ -73,6 +73,13 @@
         "default": 100
       }
     }
+  },
+  "contracts": {
+    "default_duration_seasons": 2,
+    "renewal_salary_multiplier_base": 1.25,
+    "star_raise_threshold_power": 65,
+    "star_raise_multiplier": 1.45,
+    "signing_bonus_pct": 0.20
   },
   "provisional_rescale_factor": 0.55
 }

@@ -11,12 +11,17 @@ from constants import normalize_slot
 
 
 class PhaseService:
-    def __init__(self, state, dungeons, league_engine, market_engine, match_engine=None):
+    def __init__(self, state, dungeons, league_engine, market_engine, match_engine=None, hero_service=None):
         self.state = state
         self.dungeons = dungeons
         self.league_engine = league_engine
         self.market_engine = market_engine
         self.match_engine = match_engine
+        if hero_service:
+            self.hero_service = hero_service
+        else:
+            from services.hero_service import HeroService
+            self.hero_service = HeroService(self.state)
 
     def get_current_dungeon(self) -> dict:
         if not self.dungeons:
@@ -61,19 +66,22 @@ class PhaseService:
         return result
 
     def phase_1_cuidado(self) -> dict:
-        """Fase 1: Recuperação de fadiga, atestados médicos e altas."""
+        """Fase 1: Recuperação de fadiga em instalações médicas, atestados e altas."""
         report = []
         balance = get_balance()
         fatigue_cfg = balance.get("fatigue", {})
-        recovery_val = fatigue_cfg.get("recovery_per_week", 20)
+        
+        fac_data = self.hero_service.get_medical_facilities_data() if hasattr(self, "hero_service") else {}
+        recovery_val = fac_data.get("passive_recovery", fatigue_cfg.get("recovery_per_week", 20))
         recov_thresh = fatigue_cfg.get("recovered_threshold", 50)
+        facility_name = fac_data.get("facility_name", "Tenda de Curativos")
 
         for hero in self.state.team:
             if hero.get("fatigue", 0) > 0:
                 hero["fatigue"] = max(0, hero["fatigue"] - recovery_val)
                 if hero.get("status") == "Fatigado" and hero["fatigue"] < recov_thresh:
                     hero["status"] = "Apto"
-                report.append(f"{hero.get('name', 'Herói')} realizou descompressão (-{recovery_val} fadiga).")
+                report.append(f"{hero.get('name', 'Herói')} realizou repouso em '{facility_name}' (-{recovery_val} fadiga).")
 
             if hero.get("injured", False) and hero.get("injury_weeks_left", 0) > 0:
                 hero["injury_weeks_left"] -= 1
@@ -261,6 +269,7 @@ class PhaseService:
 
         for h in starter_heroes:
             h["fatigue"] = min(100, h.get("fatigue", 0) + gain_val)
+            h["season_appearances"] = h.get("season_appearances", 0) + 1
             if h["fatigue"] >= fatigued_thresh:
                 h["status"] = "Fatigado"
 
@@ -295,19 +304,50 @@ class PhaseService:
         }
 
     def phase_5_results(self) -> dict:
-        """Fase 5: Balanço financeiro semanal e fechamento da rodada."""
+        """Fase 5: Balanço financeiro semanal, despesas de manutenção predial/médica e fechamento."""
         balance = get_balance()
         econ_cfg = balance.get("economy", {})
-        maintenance = econ_cfg.get("weekly_maintenance", 50)
+        base_maintenance = econ_cfg.get("weekly_maintenance", 50)
         expedition_revenue = econ_cfg.get("base_expedition_revenue", 250)
+
+        fac_data = self.hero_service.get_medical_facilities_data() if hasattr(self, "hero_service") else {}
+        medical_maintenance = fac_data.get("weekly_maintenance", 20)
+        total_maintenance = base_maintenance + medical_maintenance
 
         season_award = 0
         season_summary = getattr(self.league_engine, "season_summary", None)
         if season_summary:
             season_award = season_summary.get("award_gold", 0)
 
+            # Processamento de contratos no encerramento da temporada
+            for hero in self.state.team:
+                hero["contract_seasons_left"] = max(0, hero.get("contract_seasons_left", 2) - 1)
+                if hero["contract_seasons_left"] == 0 and not hero.get("pending_renewal"):
+                    curr_sal = hero.get("salary", 50)
+                    is_star = hero.get("current_power", 50) >= 65 or hero.get("season_appearances", 0) >= 10
+                    mult = 1.45 if is_star else 1.25
+                    demanded_sal = round(curr_sal * mult)
+                    signing_bonus = round(demanded_sal * 3)
+                    hero["pending_renewal"] = True
+                    hero["renewal_demand"] = {
+                        "salary": demanded_sal,
+                        "signing_bonus": signing_bonus,
+                        "seasons": 2
+                    }
+                    if not hasattr(self.state, "pending_contract_renewals"):
+                        self.state.pending_contract_renewals = []
+                    self.state.pending_contract_renewals.append({
+                        "hero_id": hero["id"],
+                        "hero_name": hero["name"],
+                        "current_salary": curr_sal,
+                        "demanded_salary": demanded_sal,
+                        "signing_bonus": signing_bonus,
+                        "seasons": 2
+                    })
+                hero["season_appearances"] = 0
+
         salary_cost = sum(h.get("salary", 50) for h in self.state.team)
-        net = expedition_revenue + season_award - salary_cost - maintenance
+        net = expedition_revenue + season_award - salary_cost - total_maintenance
         self.state.gold += net
 
         self.state.season = getattr(self.league_engine, "season_number", 1)
@@ -318,7 +358,9 @@ class PhaseService:
                 "revenue": expedition_revenue,
                 "season_award": season_award,
                 "salaries": salary_cost,
-                "maintenance": maintenance,
+                "maintenance": total_maintenance,
+                "base_maintenance": base_maintenance,
+                "medical_maintenance": medical_maintenance,
                 "net": net,
             },
             "gold": self.state.gold,
@@ -327,4 +369,5 @@ class PhaseService:
             "current_division": self.league_engine.get_current_division_info(),
             "season": self.state.season,
             "season_summary": season_summary,
+            "pending_contract_renewals": getattr(self.state, "pending_contract_renewals", []),
         }

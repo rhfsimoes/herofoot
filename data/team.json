@@ -13,6 +13,9 @@
     "salary": 60,
     "injured": false,
     "injury_weeks_left": 0,
+    "contract_seasons_left": 2,
+    "season_appearances": 0,
+    "happiness": 85,
     "hidden_attributes": {
       "str": 36,
       "agi": 36,
@@ -40,6 +43,9 @@
     "salary": 50,
     "injured": false,
     "injury_weeks_left": 0,
+    "contract_seasons_left": 2,
+    "season_appearances": 0,
+    "happiness": 80,
     "hidden_attributes": {
       "str": 47,
       "agi": 19,
@@ -67,6 +73,9 @@
     "salary": 75,
     "injured": false,
     "injury_weeks_left": 0,
+    "contract_seasons_left": 2,
+    "season_appearances": 0,
+    "happiness": 90,
     "hidden_attributes": {
       "str": 1,
       "agi": 11,
@@ -94,6 +103,9 @@
     "salary": 35,
     "injured": true,
     "injury_weeks_left": 1,
+    "contract_seasons_left": 3,
+    "season_appearances": 0,
+    "happiness": 85,
     "hidden_attributes": {
       "str": 6,
       "agi": 6,
@@ -121,6 +133,9 @@
     "salary": 85,
     "injured": false,
     "injury_weeks_left": 0,
+    "contract_seasons_left": 1,
+    "season_appearances": 0,
+    "happiness": 75,
     "hidden_attributes": {
       "str": 72,
       "agi": 29,

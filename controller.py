@@ -22,6 +22,7 @@ from services.phase_service import PhaseService
 from services.crafting_service import CraftingService
 from services.sales_service import SalesService
 from services.market_service import MarketService
+from services.hero_service import HeroService, calculate_hero_power
 
 _CLASSES_CACHE = None
 
@@ -50,8 +51,9 @@ class GameController:
 
         # Serviços delegados
         self.tactics_service = TacticsService(self.state)
+        self.hero_service = HeroService(self.state)
         self.phase_service = PhaseService(
-            self.state, self.dungeons, self.league_engine, self.market_engine, match_engine
+            self.state, self.dungeons, self.league_engine, self.market_engine, match_engine, self.hero_service
         )
         self.crafting_service = CraftingService(self.state, self.crafting_engine)
         self.sales_service = SalesService(self.state, self.counter_sales, self.market_engine)
@@ -60,7 +62,9 @@ class GameController:
     def _rebind_services(self):
         """Reatualiza as referências do estado e motores nos serviços após operações in-place."""
         self.tactics_service.state = self.state
+        self.hero_service.state = self.state
         self.phase_service.state = self.state
+        self.phase_service.hero_service = self.hero_service
         self.phase_service.league_engine = self.league_engine
         self.phase_service.market_engine = self.market_engine
         self.crafting_service.state = self.state
@@ -97,6 +101,7 @@ class GameController:
             h["class_name"] = c_name
             h["specialization_name"] = spec.get("name", c_name)
             h["stat_weight_profile"] = spec.get("stat_weight_profile", h.get("stat_weight_profile", {}))
+            h["current_power"] = calculate_hero_power(h)
             decorated_team.append(h)
 
         # Montagem das receitas com ingredientes a partir do catálogo normalizado
@@ -147,6 +152,8 @@ class GameController:
             "known_affixes": getattr(self.state, "known_affixes", []),
             "known_recipes": getattr(self.state, "known_recipes", []),
             "catalog_version": getattr(self.state, "catalog_version", 1),
+            "medical_facilities": self.hero_service.get_medical_facilities_data(),
+            "pending_contract_renewals": getattr(self.state, "pending_contract_renewals", []),
             "active_slot": self.active_slot,
         }
 
@@ -279,3 +286,25 @@ class GameController:
                 self.state.starters.remove(hero_id)
             return {"success": True, "message": f"Colaborador dispensado do quadro."}
         return {"success": False, "message": "Colaborador não localizado."}
+
+    # Operações de Saúde Ocupacional & Contratos (Onda 3)
+    def get_medical_facilities(self) -> dict:
+        return self.hero_service.get_medical_facilities_data()
+
+    def upgrade_medical_facility(self) -> dict:
+        return self.hero_service.upgrade_medical_facility()
+
+    def treat_hero_massage(self, hero_id: str) -> dict:
+        return self.hero_service.treat_hero_massage(hero_id)
+
+    def accelerate_hero_injury(self, hero_id: str) -> dict:
+        return self.hero_service.accelerate_hero_injury(hero_id)
+
+    def collective_banquet(self) -> dict:
+        return self.hero_service.collective_banquet()
+
+    def renew_hero_contract(self, hero_id: str) -> dict:
+        return self.hero_service.renew_contract(hero_id)
+
+    def release_hero_contract(self, hero_id: str) -> dict:
+        return self.hero_service.release_hero(hero_id)

@@ -97,6 +97,26 @@
       },
       "required": ["star_potential", "is_potential_revealed"],
       "additionalProperties": false
+    },
+    "contract_seasons_left": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Número de temporadas restantes no contrato com a guilda"
+    },
+    "season_appearances": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Número de expedições disputadas na temporada vigente"
+    },
+    "happiness": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Índice de moral e satisfação do aventureiro (0 a 100)"
+    },
+    "pending_renewal": {
+      "type": "boolean",
+      "description": "Indica se o aventureiro está em negociação de renovação de contrato"
     }
   },
   "required": [
@@ -114,7 +134,10 @@
     "injured",
     "injury_weeks_left",
     "hidden_attributes",
-    "potential"
+    "potential",
+    "contract_seasons_left",
+    "season_appearances",
+    "happiness"
   ],
   "additionalProperties": false
 }
