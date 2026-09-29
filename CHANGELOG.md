@@ -5,7 +5,31 @@ O formato baseia-se em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ---
 
-## [0.5.0-alpha] — 2026-09-29
+## [0.5.0] — 2026-09-29
+
+### ⚒️ Forja v3: Progressão de Bancada por XP & Bônus de Nível
+- **Acúmulo de Experiência Fabril:** Inserção do campo serializado `workshop_xp` em `game_state.py` para as quatro filiais (`Ferragem`, `Alquimia`, `Joalheria`, `Culinária`).
+- **Ganho Dinâmico por Complexidade:** Itens forjados concedem XP lido de `data/workshops_seed.json["xp_progression"]` (Tier 1: 10 XP, Tier 2: 25 XP, Tier 3: 60 XP).
+- **Modernização com Consumo de XP:** Expansão de filiais (`upgrade_workshop`) agora consome a meta acumulada de XP necessária (`xp_to_next_level`), além de debitar o ouro tabelado pela Câmara dos Mercadores.
+- **Interface da Oficina (Fase 2):** Barras animadas de progresso de XP em gradiente dourado, quadro de homologação com os benefícios do próximo nível e trava de dupla chave (XP + Ouro).
+
+### 🧪 Forja Experimental (*Tinkering*) & Homologação de Receitas
+- **Manufatura de Alto Risco:** Capacidade de forjar receitas de nível técnico superior ao da filial (`is_tinkering=True`).
+- **Cálculo de Risco Estocástico:** Probabilidade de sucesso $P = \max(0.05, 1 - \text{gap} \times 0.35)$, com sorteio via RNG injetável.
+  - **Em caso de Sucesso:** Produção normal do artefato com qualidade de bancada, ganho de 1.5x XP e homologação imediata da receita em `known_recipes`.
+  - **Em caso de Falha:** Produção de *Gororoba Experimental* (item de refugo, valor base 20 ouro, slot correspondente à receita), concessão de 5 XP de aprendizado e **homologação permanente da receita no catálogo da guilda**.
+- **Painel de Risco na UI:** Exibição dinâmica de probabilidade de êxito em cores corporativas e botão *"Assumir Risco e Forjar Experimentalmente"*.
+
+### 📜 Sistema de Eventos Corporativos Interativos
+- **Motor de Incidentes Semanais (`services/event_service.py`):** Sorteio determinístico (`roll_weekly_event`) de incidentes catalogados em `data/events_seed.json` no início da semana, priorizando eventos inéditos na temporada.
+- **Resolução de Pareceres:** Homologação de decisões executivas impactando tesouraria (ouro), desgaste do plantel (fadiga), reputação institucional (`contractor_confidence`) e bônus operacional temporário de suprimentos.
+- **Componente `CorporateEventModal.tsx`:** Modal notarial imersivo com selo imperial `CrownSeal`, classificação administrativa e pílulas visuais de impacto orçamentário.
+- **Novos Endpoints:** `GET /api/events/active` e `POST /api/events/resolve`.
+
+### 🏰 Fundações da v0.6.0 Antecipadas
+- **Matriz de Rivais (`data/rival_traits_seed.json`):** 16 traços únicos (8 táticos e 8 corporativos com rigorosos trade-offs).
+- **Catálogo VIP (`data/vip_orders_seed.json`):** 10 encomendas especiais da nobreza e câmara com validade de 2 semanas e bônus de ouro/confiança.
+- **Especificação de Liquidação Judicial (`docs/DESIGN_SPEC_V060.md`):** Regras para dissolução de guildas rebaixadas, liberação de atletas e refundação procedural.
 
 ### 🤖 Novos Agentes & Expansão de Estrutura de Desenvolvimento
 - **Cobertura de Funções de Indústria:** Criação formal e inclusão no roadmap de 4 novos agentes especializados:
