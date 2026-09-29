@@ -420,4 +420,89 @@ export async function releaseContractBackend(heroId: string): Promise<ApiRespons
   return null
 }
 
+export async function fetchAcademyBackend(): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/academy`)
+    if (res.ok) {
+      return (await res.json()) as ApiResponse
+    }
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao carregar dados da academia:', err)
+  }
+  return null
+}
+
+export async function promoteYouthBackend(heroId: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/academy/promote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hero_id: heroId }),
+    })
+    const data = await res.json()
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao promover aprendiz:', err)
+  }
+  return null
+}
+
+export async function dismissYouthBackend(heroId: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/academy/dismiss`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hero_id: heroId }),
+    })
+    const data = await res.json()
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao dispensar aprendiz:', err)
+  }
+  return null
+}
+
+export async function fetchTransferMarketBackend(): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/transfer_market`)
+    if (res.ok) {
+      return (await res.json()) as ApiResponse
+    }
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao carregar bolsa de transferências:', err)
+  }
+  return null
+}
+
+export async function scoutMarketHeroBackend(heroId: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/market/scout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hero_id: heroId }),
+    })
+    const data = await res.json()
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro na auditoria de olheiro:', err)
+  }
+  return null
+}
+
+export async function hireMarketHeroBackend(heroId: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/market/hire`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hero_id: heroId }),
+    })
+    const data = await res.json()
+    return data as ApiResponse
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao contratar herói:', err)
+  }
+  return null
+}
+
+
 

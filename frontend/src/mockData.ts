@@ -28,6 +28,11 @@ export interface Hero {
     signing_bonus: number
     seasons: number
   } | null
+  potential?: {
+    star_potential: number
+    is_potential_revealed: boolean
+  }
+  transfer_fee?: number
 }
 
 export interface InventoryItem {
@@ -332,6 +337,13 @@ export interface PendingContractRenewal {
   seasons: number
 }
 
+export interface TransferMarketData {
+  listings: Hero[]
+  scout_fee: number
+  team_size: number
+  max_team_size: number
+}
+
 export interface GameState {
   day: number
   week: number
@@ -378,6 +390,8 @@ export interface GameState {
   medical_level?: number
   medical_facilities?: MedicalFacilityInfo
   pending_contract_renewals?: PendingContractRenewal[]
+  youth_academy?: Hero[]
+  transfer_market?: TransferMarketData
 }
 
 export const MATERIAL_LABELS: Record<string, string> = {
@@ -523,5 +537,81 @@ export const MOCK_STATE: GameState = {
       headline: 'Ruptura de fornecimento eleva a demanda por Armaduras junto à Câmara dos Mercadores.',
     },
   },
+  youth_academy: [
+    {
+      id: 'youth_01',
+      name: 'Elysia Carvalho',
+      class_name: 'Guerreiro',
+      specialization_name: 'Espadachim',
+      age: 16,
+      level: 1,
+      current_power: 42,
+      fatigue: 0,
+      status: 'Apto',
+      salary: 15,
+      contract_seasons_left: 0,
+      season_appearances: 0,
+      happiness: 95,
+      potential: { star_potential: 4, is_potential_revealed: true }
+    },
+    {
+      id: 'youth_02',
+      name: 'Kaelan Sombras',
+      class_name: 'Ladino',
+      specialization_name: 'Arqueiro',
+      age: 17,
+      level: 1,
+      current_power: 38,
+      fatigue: 0,
+      status: 'Apto',
+      salary: 15,
+      contract_seasons_left: 0,
+      season_appearances: 0,
+      happiness: 90,
+      potential: { star_potential: 5, is_potential_revealed: true }
+    }
+  ],
+  transfer_market: {
+    scout_fee: 150,
+    team_size: 5,
+    max_team_size: 12,
+    listings: [
+      {
+        id: 'mkt_hero_01',
+        name: 'Garrick Martel',
+        class_name: 'Guerreiro',
+        specialization_name: 'Berserker',
+        age: 23,
+        level: 2,
+        current_power: 58,
+        fatigue: 0,
+        status: 'Apto',
+        salary: 65,
+        transfer_fee: 380,
+        contract_seasons_left: 2,
+        season_appearances: 0,
+        happiness: 85,
+        potential: { star_potential: 3, is_potential_revealed: false }
+      },
+      {
+        id: 'mkt_hero_02',
+        name: 'Isolde Névoa',
+        class_name: 'Mago',
+        specialization_name: 'Piromante',
+        age: 26,
+        level: 3,
+        current_power: 68,
+        fatigue: 0,
+        status: 'Apto',
+        salary: 80,
+        transfer_fee: 520,
+        contract_seasons_left: 2,
+        season_appearances: 0,
+        happiness: 80,
+        potential: { star_potential: 4, is_potential_revealed: false }
+      }
+    ]
+  }
 }
+
 

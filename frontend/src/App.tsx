@@ -245,6 +245,7 @@ function AppContent() {
                 gold={gameState.gold}
                 medicalFacilities={gameState.medical_facilities}
                 pendingRenewals={gameState.pending_contract_renewals}
+                youthAcademy={gameState.youth_academy}
                 onAdvance={advancePhase}
                 onStateUpdate={handleStateChange as any}
               />
@@ -263,6 +264,7 @@ function AppContent() {
                 onSellItem={handleSellItem}
                 onResolveOffer={handleResolveOffer}
                 onLearnAffix={handleLearnAffix}
+                onStateUpdate={handleStateChange as any}
               />
             }
           />

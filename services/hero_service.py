@@ -7,6 +7,7 @@ renovações, e o Departamento de Saúde & Bem-Estar Ocupacional (Money Sinks).
 import os
 import json
 import copy
+import random
 from balance import get_balance
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
@@ -34,6 +35,129 @@ SPEC_PROFILES = {
     s["id"]: s.get("stat_weight_profile", {})
     for s in CLASSES_DATA.get("specializations", [])
 }
+
+FIRST_NAMES = [
+    "Kaelen", "Elira", "Dorn", "Orin", "Thalor", "Vespera", "Aldous",
+    "Barris", "Lyanna", "Marek", "Elysia", "Kaelan", "Rowan", "Sylas",
+    "Branwyn", "Theron", "Garrick", "Finnian", "Isolde", "Cedric",
+    "Morrigan", "Alistair", "Caelum", "Brenna", "Gwilym", "Darian"
+]
+
+LAST_NAMES = [
+    "Vane", "Sombras", "Martel", "Vento-Gélido", "Coroa-de-Ferro", "Sol-Poente",
+    "Escriba", "Guarda-Real", "Folha-Verde", "Quebra-Escudo", "Aurora", "Carvalho",
+    "Pederneira", "Fosso-Fundo", "Vigia", "Punho-de-Aço", "Brasas", "Névoa", "Alvorecer"
+]
+
+
+def generate_hero(
+    hero_id: str = None,
+    is_youth: bool = False,
+    star_potential: int = None,
+    rng: random.Random = None
+) -> dict:
+    if rng is None:
+        rng = random.Random()
+
+    classes = CLASSES_DATA.get("classes", [])
+    if classes:
+        chosen_class = rng.choice(classes)
+        class_id = chosen_class["id"]
+        specs = [s for s in CLASSES_DATA.get("specializations", []) if s.get("class_id") == class_id]
+        chosen_spec = rng.choice(specs) if specs else None
+        spec_id = chosen_spec["id"] if chosen_spec else "spec_warrior_berserker"
+    else:
+        class_id = "class_warrior"
+        spec_id = "spec_warrior_berserker"
+
+    profile = SPEC_PROFILES.get(spec_id, {"str": 0.3, "agi": 0.3, "vit": 0.3, "int": 0.1, "wis": 0.1, "lck": 0.1})
+
+    fname = rng.choice(FIRST_NAMES)
+    lname = rng.choice(LAST_NAMES)
+    name = f"{fname} {lname}"
+
+    if is_youth:
+        age = rng.randint(16, 18)
+        level = 1
+        xp = 0
+        base_min, base_max = 20, 45
+        if star_potential is None:
+            roll = rng.random()
+            if roll < 0.15:
+                star_potential = 1
+            elif roll < 0.45:
+                star_potential = 2
+            elif roll < 0.80:
+                star_potential = 3
+            elif roll < 0.95:
+                star_potential = 4
+            else:
+                star_potential = 5
+        is_revealed = True
+        contract_seasons = 0
+    else:
+        age = rng.randint(19, 32)
+        level = min(4, max(1, 1 + (age - 18) // 4))
+        xp = 0
+        base_min, base_max = 30, 70
+        if star_potential is None:
+            roll = rng.random()
+            if roll < 0.20:
+                star_potential = 1
+            elif roll < 0.50:
+                star_potential = 2
+            elif roll < 0.80:
+                star_potential = 3
+            elif roll < 0.95:
+                star_potential = 4
+            else:
+                star_potential = 5
+        is_revealed = False
+        contract_seasons = 2
+
+    hidden_attributes = {}
+    for attr in ["str", "agi", "vit", "int", "wis", "lck"]:
+        weight = profile.get(attr, 0.05)
+        bias = int(weight * 25)
+        val = rng.randint(base_min, base_max) + bias
+        hidden_attributes[attr] = max(1, min(100, val))
+
+    hero_stub = {
+        "id": hero_id or f"hero_{rng.randint(100000, 999999)}",
+        "name": name,
+        "class_id": class_id,
+        "specialization_id": spec_id,
+        "age": age,
+        "level": level,
+        "xp": xp,
+        "current_power": 50,
+        "status": "Apto",
+        "fatigue": 0,
+        "salary": 50,
+        "injured": False,
+        "injury_weeks_left": 0,
+        "hidden_attributes": hidden_attributes,
+        "potential": {
+            "star_potential": star_potential,
+            "is_potential_revealed": is_revealed
+        },
+        "contract_seasons_left": contract_seasons,
+        "season_appearances": 0,
+        "happiness": 85,
+        "pending_renewal": False,
+        "transfer_fee": 0
+    }
+
+    hero_stub["current_power"] = calculate_hero_power(hero_stub)
+    pwr = hero_stub["current_power"]
+    if is_youth:
+        hero_stub["salary"] = 15
+        hero_stub["transfer_fee"] = 0
+    else:
+        hero_stub["salary"] = max(30, round(pwr * 1.1))
+        hero_stub["transfer_fee"] = max(120, round(pwr * 8 + (34 - age) * 12))
+
+    return hero_stub
 
 
 def calculate_hero_power(hero: dict, fit_multiplier: float = 1.0) -> int:
@@ -279,4 +403,231 @@ class HeroService:
             "success": True,
             "message": f"Rescisão Contratual Efetivada: {hero['name']} foi desligado dos quadros da guilda.",
             "gold": self.state.gold
+        }
+
+    # ----------------------------------------------------
+    # Academia de Base & Olheiros
+    # ----------------------------------------------------
+    def get_academy_data(self) -> dict:
+        balance = get_balance()
+        acad_cfg = balance.get("academy", {})
+        return {
+            "youth_academy": getattr(self.state, "youth_academy", []),
+            "max_slots": acad_cfg.get("max_youth_slots", 4),
+            "weekly_maintenance": acad_cfg.get("weekly_maintenance", 40)
+        }
+
+    def replenish_academy(self, rng=None):
+        if not hasattr(self.state, "youth_academy") or self.state.youth_academy is None:
+            self.state.youth_academy = []
+        balance = get_balance()
+        max_slots = balance.get("academy", {}).get("max_youth_slots", 4)
+        while len(self.state.youth_academy) < max_slots:
+            y = generate_hero(is_youth=True, rng=rng)
+            self.state.youth_academy.append(y)
+
+    def promote_youth_apprentice(self, hero_id: str) -> dict:
+        balance = get_balance()
+        max_team = balance.get("roster", {}).get("max_team_size", 12)
+        if len(self.state.team) >= max_team:
+            return {
+                "success": False,
+                "message": f"Capacidade máxima do alojamento atingida: o quadro profissional já possui o limite de {max_team} colaboradores."
+            }
+
+        youth_list = getattr(self.state, "youth_academy", [])
+        apprentice = next((h for h in youth_list if h["id"] == hero_id), None)
+        if not apprentice:
+            return {"success": False, "message": f"Aprendiz '{hero_id}' não localizado no alojamento da base."}
+
+        youth_list.remove(apprentice)
+        acad_cfg = balance.get("academy", {})
+        apprentice["salary"] = acad_cfg.get("promotion_initial_salary", 35)
+        apprentice["contract_seasons_left"] = acad_cfg.get("promotion_contract_seasons", 2)
+        apprentice["season_appearances"] = 0
+        apprentice["happiness"] = 90
+        apprentice["pending_renewal"] = False
+        self.state.team.append(apprentice)
+
+        return {
+            "success": True,
+            "message": f"Ordem de Promoção Homologada: O jovem {apprentice['name']} foi promovido ao quadro profissional da guilda com vínculo de {apprentice['contract_seasons_left']} temporadas.",
+            "hero": apprentice,
+            "youth_academy": self.state.youth_academy,
+            "team": self.state.team
+        }
+
+    def dismiss_youth_apprentice(self, hero_id: str) -> dict:
+        youth_list = getattr(self.state, "youth_academy", [])
+        apprentice = next((h for h in youth_list if h["id"] == hero_id), None)
+        if not apprentice:
+            return {"success": False, "message": f"Aprendiz '{hero_id}' não localizado."}
+
+        youth_list.remove(apprentice)
+        return {
+            "success": True,
+            "message": f"Desligamento Homologado: O jovem {apprentice['name']} foi dispensado da formação de base da guilda.",
+            "youth_academy": self.state.youth_academy
+        }
+
+    # ----------------------------------------------------
+    # Mercado de Transferências & Agentes Livres
+    # ----------------------------------------------------
+    def get_transfer_market_data(self) -> dict:
+        balance = get_balance()
+        t_cfg = balance.get("transfer_market", {})
+        r_cfg = balance.get("roster", {})
+        return {
+            "listings": getattr(self.state, "transfer_market_listings", []),
+            "scout_fee": t_cfg.get("scout_fee", 150),
+            "current_team_size": len(self.state.team),
+            "max_team_size": r_cfg.get("max_team_size", 12)
+        }
+
+    def refresh_transfer_market(self, rng=None) -> list:
+        balance = get_balance()
+        count = balance.get("transfer_market", {}).get("listings_count", 5)
+        new_listings = [generate_hero(is_youth=False, rng=rng) for _ in range(count)]
+        self.state.transfer_market_listings = new_listings
+        return new_listings
+
+    def scout_market_hero(self, hero_id: str) -> dict:
+        listings = getattr(self.state, "transfer_market_listings", [])
+        hero = next((h for h in listings if h["id"] == hero_id), None)
+        if not hero:
+            return {"success": False, "message": f"Aventureiro '{hero_id}' não catalogado na bolsa de transferências."}
+
+        if hero.get("potential", {}).get("is_potential_revealed", False):
+            return {"success": False, "message": f"Laudo Pericial já emitido: O potencial de {hero['name']} já foi auditado."}
+
+        balance = get_balance()
+        fee = balance.get("transfer_market", {}).get("scout_fee", 150)
+        if self.state.gold < fee:
+            return {
+                "success": False,
+                "message": f"Tesouraria insuficiente. Honorários de auditoria pericial exigem {fee} Ouro. Saldo: {self.state.gold} Ouro."
+            }
+
+        self.state.gold -= fee
+        hero["potential"]["is_potential_revealed"] = True
+
+        stars = hero["potential"].get("star_potential", 3)
+        return {
+            "success": True,
+            "message": f"Laudo de Olheiro Homologado: A auditoria pericial concluiu que {hero['name']} possui Potencial de {stars} Estrelas.",
+            "hero": hero,
+            "gold": self.state.gold
+        }
+
+    def hire_market_hero(self, hero_id: str) -> dict:
+        balance = get_balance()
+        max_team = balance.get("roster", {}).get("max_team_size", 12)
+        if len(self.state.team) >= max_team:
+            return {
+                "success": False,
+                "message": f"Capacidade máxima do plantel atingida ({max_team} heróis). Rescinda contratos antes de novas aquisições."
+            }
+
+        listings = getattr(self.state, "transfer_market_listings", [])
+        hero = next((h for h in listings if h["id"] == hero_id), None)
+        if not hero:
+            return {"success": False, "message": f"Aventureiro '{hero_id}' não disponível para contratação."}
+
+        cost = hero.get("transfer_fee", 200)
+        if self.state.gold < cost:
+            return {
+                "success": False,
+                "message": f"Recursos financeiros insuficientes. Custo de aquisição de {hero['name']}: {cost} Ouro. Saldo: {self.state.gold} Ouro."
+            }
+
+        self.state.gold -= cost
+        listings.remove(hero)
+        hero["contract_seasons_left"] = balance.get("transfer_market", {}).get("contract_duration_seasons", 2)
+        hero["season_appearances"] = 0
+        hero["happiness"] = 85
+        hero["pending_renewal"] = False
+        self.state.team.append(hero)
+
+        return {
+            "success": True,
+            "message": f"Contrato de Aquisição Homologado: {hero['name']} foi integrado ao quadro profissional da guilda.",
+            "hero": hero,
+            "gold": self.state.gold,
+            "team": self.state.team,
+            "transfer_market_listings": self.state.transfer_market_listings
+        }
+
+    # ----------------------------------------------------
+    # Envelhecimento & Evolução Anual
+    # ----------------------------------------------------
+    def process_annual_development_and_aging(self, rng=None) -> dict:
+        if rng is None:
+            rng = random.Random()
+        balance = get_balance()
+        dev_cfg = balance.get("development", {})
+        growth_max_age = dev_cfg.get("growth_age_max", 28)
+        decline_min_age = dev_cfg.get("decline_age_min", 32)
+        min_appearances = dev_cfg.get("min_appearances_for_growth", 8)
+
+        evolved_heroes = []
+        declined_heroes = []
+
+        for hero in self.state.team:
+            old_age = hero.get("age", 22)
+            hero["age"] = old_age + 1
+            curr_power = hero.get("current_power", 50)
+
+            # Jovem em desenvolvimento
+            if hero["age"] <= growth_max_age and hero.get("season_appearances", 0) >= min_appearances:
+                stars = hero.get("potential", {}).get("star_potential", 3)
+                growth_pts = max(1, min(3, stars - 1))
+                attrs = hero.get("hidden_attributes", {})
+                spec_id = hero.get("specialization_id")
+                profile = SPEC_PROFILES.get(spec_id, {})
+
+                for attr, weight in profile.items():
+                    if weight >= 0.20 and attr in attrs:
+                        attrs[attr] = min(100, attrs[attr] + growth_pts)
+
+                new_power = calculate_hero_power(hero)
+                hero["current_power"] = new_power
+                evolved_heroes.append({
+                    "hero_name": hero["name"],
+                    "age": hero["age"],
+                    "old_power": curr_power,
+                    "new_power": new_power
+                })
+
+            # Veterano em declínio físico
+            elif hero["age"] >= decline_min_age:
+                attrs = hero.get("hidden_attributes", {})
+                for attr in ["str", "agi", "vit"]:
+                    if attr in attrs:
+                        attrs[attr] = max(10, attrs[attr] - rng.randint(1, 2))
+                new_power = calculate_hero_power(hero)
+                hero["current_power"] = new_power
+                declined_heroes.append({
+                    "hero_name": hero["name"],
+                    "age": hero["age"],
+                    "old_power": curr_power,
+                    "new_power": new_power
+                })
+
+        # Processamento na Academia de Base
+        graduated_count = 0
+        if hasattr(self.state, "youth_academy"):
+            remaining_youth = []
+            for y in self.state.youth_academy:
+                y["age"] = y.get("age", 17) + 1
+                if y["age"] > 18:
+                    graduated_count += 1
+                else:
+                    remaining_youth.append(y)
+            self.state.youth_academy = remaining_youth
+            self.replenish_academy(rng=rng)
+
+        return {
+            "evolved": evolved_heroes,
+            "declined": declined_heroes,
+            "graduated_youth": graduated_count
         }

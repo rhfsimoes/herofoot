@@ -104,6 +104,28 @@ class GameController:
             h["current_power"] = calculate_hero_power(h)
             decorated_team.append(h)
 
+        decorated_youth = []
+        for y in getattr(self.state, "youth_academy", []):
+            h = dict(y)
+            c_name = class_map.get(h.get("class_id"), h.get("class_name", "Combatente"))
+            spec = spec_map.get(h.get("specialization_id"), {})
+            h["class_name"] = c_name
+            h["specialization_name"] = spec.get("name", c_name)
+            h["stat_weight_profile"] = spec.get("stat_weight_profile", h.get("stat_weight_profile", {}))
+            h["current_power"] = calculate_hero_power(h)
+            decorated_youth.append(h)
+
+        decorated_market = []
+        for m in getattr(self.state, "transfer_market_listings", []):
+            h = dict(m)
+            c_name = class_map.get(h.get("class_id"), h.get("class_name", "Combatente"))
+            spec = spec_map.get(h.get("specialization_id"), {})
+            h["class_name"] = c_name
+            h["specialization_name"] = spec.get("name", c_name)
+            h["stat_weight_profile"] = spec.get("stat_weight_profile", h.get("stat_weight_profile", {}))
+            h["current_power"] = calculate_hero_power(h)
+            decorated_market.append(h)
+
         # Montagem das receitas com ingredientes a partir do catálogo normalizado
         from catalog import get_catalog
         cat = get_catalog()
@@ -154,6 +176,13 @@ class GameController:
             "catalog_version": getattr(self.state, "catalog_version", 1),
             "medical_facilities": self.hero_service.get_medical_facilities_data(),
             "pending_contract_renewals": getattr(self.state, "pending_contract_renewals", []),
+            "youth_academy": decorated_youth,
+            "transfer_market": {
+                "listings": decorated_market,
+                "scout_fee": 150,
+                "team_size": len(self.state.team),
+                "max_team_size": 12,
+            },
             "active_slot": self.active_slot,
         }
 
@@ -308,3 +337,23 @@ class GameController:
 
     def release_hero_contract(self, hero_id: str) -> dict:
         return self.hero_service.release_hero(hero_id)
+
+    # Operações de Academia de Base & Transferências (Onda 4)
+    def get_academy(self) -> dict:
+        return self.hero_service.get_academy_data()
+
+    def promote_youth(self, hero_id: str) -> dict:
+        return self.hero_service.promote_youth_apprentice(hero_id)
+
+    def dismiss_youth(self, hero_id: str) -> dict:
+        return self.hero_service.dismiss_youth_apprentice(hero_id)
+
+    def get_transfer_market(self) -> dict:
+        return self.hero_service.get_transfer_market_data()
+
+    def scout_market_hero(self, hero_id: str) -> dict:
+        return self.hero_service.scout_market_hero(hero_id)
+
+    def hire_market_hero(self, hero_id: str) -> dict:
+        return self.hero_service.hire_market_hero(hero_id)
+

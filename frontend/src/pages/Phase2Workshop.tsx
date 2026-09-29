@@ -17,6 +17,10 @@ import {
   Check,
   AlertTriangle,
   Compass,
+  Users,
+  Search,
+  Star,
+  Zap,
 } from 'lucide-react'
 import {
   MOCK_RECIPES,
@@ -38,6 +42,8 @@ import {
   fetchCraftOptionsBackend,
   fetchCraftPreviewBackend,
   fetchMaterialSheetBackend,
+  scoutMarketHeroBackend,
+  hireMarketHeroBackend,
 } from '../api'
 
 interface Phase2WorkshopProps {
@@ -50,9 +56,10 @@ interface Phase2WorkshopProps {
   onSellItem?: (instanceId: string, margin: string) => Promise<any>
   onResolveOffer?: (offerId: string, accept: boolean) => Promise<any>
   onLearnAffix?: (affixId: string) => Promise<any>
+  onStateUpdate?: (newState: Partial<GameState>) => void
 }
 
-type MainTab = 'oficina' | 'balcao'
+type MainTab = 'oficina' | 'balcao' | 'transferencias'
 type MarketSubTab = 'vender' | 'comprar_prontos' | 'comprar_insumos' | 'manuais'
 
 const BRANCHES: { name: WorkshopBranch; icon: any; key: string }[] = [
@@ -87,10 +94,54 @@ export default function Phase2Workshop({
   onSellItem,
   onResolveOffer,
   onLearnAffix,
+  onStateUpdate,
 }: Phase2WorkshopProps) {
   const [mainTab, setMainTab] = useState<MainTab>('oficina')
   const [selectedBranch, setSelectedBranch] = useState<WorkshopBranch>('Ferragem')
   const [marketSubTab, setMarketSubTab] = useState<MarketSubTab>('vender')
+
+  // Mercado de Transferências (Onda 4)
+  const marketListings = state.transfer_market?.listings ?? []
+  const scoutFee = state.transfer_market?.scout_fee ?? 150
+  const currentTeamSize = state.transfer_market?.team_size ?? (state.team?.length ?? 0)
+  const maxTeamSize = state.transfer_market?.max_team_size ?? 12
+  const [isScoutingOrHiring, setIsScoutingOrHiring] = useState<boolean>(false)
+
+  async function handleScout(heroId: string) {
+    setIsScoutingOrHiring(true)
+    try {
+      const res = await scoutMarketHeroBackend(heroId)
+      if (res && res.success) {
+        if (res.state) {
+          onStateUpdate?.(res.state)
+        }
+      } else {
+        alert(res?.message || 'Falha na auditoria de olheiro.')
+      }
+    } catch {
+      alert('Erro de conexão com o corpo de olheiros.')
+    } finally {
+      setIsScoutingOrHiring(false)
+    }
+  }
+
+  async function handleHire(heroId: string) {
+    setIsScoutingOrHiring(true)
+    try {
+      const res = await hireMarketHeroBackend(heroId)
+      if (res && res.success) {
+        if (res.state) {
+          onStateUpdate?.(res.state)
+        }
+      } else {
+        alert(res?.message || 'Falha ao efetivar contratação.')
+      }
+    } catch {
+      alert('Erro de conexão ao homologar contratação.')
+    } finally {
+      setIsScoutingOrHiring(false)
+    }
+  }
 
   // Estados locais sincronizados
   const [inventory, setInventory] = useState<InventoryItem[]>(state.inventory)
@@ -574,28 +625,39 @@ export default function Phase2Workshop({
       </div>
 
       {/* Tabs Principais */}
-      <div className="flex border-b border-stone-800 bg-stone-950/60 p-1 rounded-xl max-w-md gap-1">
+      <div className="flex border-b border-stone-800 bg-stone-950/60 p-1 rounded-xl max-w-lg gap-1">
         <button
           onClick={() => setMainTab('oficina')}
-          className={`flex-1 py-2 px-4 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
+          className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
             mainTab === 'oficina'
               ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
               : 'text-stone-400 hover:text-stone-200'
           }`}
         >
           <Hammer className="w-4 h-4 text-amber-500" />
-          <span>Oficina de Produção</span>
+          <span>Oficina</span>
         </button>
         <button
           onClick={() => setMainTab('balcao')}
-          className={`flex-1 py-2 px-4 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
+          className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
             mainTab === 'balcao'
               ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
               : 'text-stone-400 hover:text-stone-200'
           }`}
         >
           <Coins className="w-4 h-4 text-amber-500" />
-          <span>Balcão & Mercado</span>
+          <span>Balcão & Loja</span>
+        </button>
+        <button
+          onClick={() => setMainTab('transferencias')}
+          className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            mainTab === 'transferencias'
+              ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
+              : 'text-stone-400 hover:text-stone-200'
+          }`}
+        >
+          <Users className="w-4 h-4 text-amber-500" />
+          <span>Bolsa de Heróis ({marketListings.length})</span>
         </button>
       </div>
 
@@ -1392,6 +1454,150 @@ export default function Phase2Workshop({
                   <p key={i} className="text-amber-300/80">· {log}</p>
                 ))}
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────
+          CONTEÚDO: BOLSA DE CONTRATAÇÕES & TRANSFERÊNCIAS (ONDA 4)
+         ───────────────────────────────────────────── */}
+      {mainTab === 'transferencias' && (
+        <div className="space-y-6">
+          {/* Banner de Diretrizes da Bolsa */}
+          <div className="bg-[#1c1917] border border-amber-950/40 rounded-xl p-5 shadow-xl flex items-start gap-4">
+            <div className="p-2.5 rounded-xl bg-amber-950/50 border border-amber-800/40 text-amber-400 shrink-0 mt-0.5">
+              <Users className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="text-amber-100 text-sm font-black uppercase tracking-wide">
+                  Bolsa de Transferências & Agentes Livres
+                </h3>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-stone-900 border border-stone-800 text-stone-300">
+                  Lotação do Plantel: {currentTeamSize} de {maxTeamSize} heróis
+                </span>
+              </div>
+              <p className="text-stone-400 text-xs leading-relaxed">
+                <strong className="text-amber-300 font-bold">O Trade-Off do Potencial:</strong> No mercado aberto, o potencial em estrelas dos aventureiros é estritamente <strong className="text-stone-200">Oculto ([???])</strong>.
+                Você pode assumir o risco da contratação imediata ou encomendar uma <strong className="text-amber-400 font-bold">Auditoria Pericial de Olheiro (⬡ {scoutFee} Ouro)</strong> para auditar a projeção máxima do herói antes da compra.
+              </p>
+            </div>
+          </div>
+
+          {/* Grid de Aventureiros Disponíveis */}
+          {marketListings.length === 0 ? (
+            <div className="text-center py-12 bg-[#1c1917] border border-stone-800 rounded-xl text-stone-500 text-xs italic">
+              Nenhum aventureiro listado na bolsa no momento. Novos agentes chegam a cada semana.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {marketListings.map(hero => {
+                const isRevealed = hero.potential?.is_potential_revealed ?? false
+                const stars = hero.potential?.star_potential ?? 3
+                const transferCost = hero.transfer_fee ?? 300
+                const salaryCost = hero.salary ?? 60
+
+                return (
+                  <div
+                    key={hero.id}
+                    className="bg-[#1c1917] border border-stone-800 hover:border-amber-900/60 rounded-xl p-4 shadow-xl flex flex-col justify-between gap-4 transition"
+                  >
+                    <div className="space-y-3">
+                      {/* Cabeçalho do Card */}
+                      <div className="flex items-start justify-between gap-2 border-b border-stone-800/80 pb-2.5">
+                        <div>
+                          <h4 className="text-stone-100 font-black text-sm tracking-wide">{hero.name}</h4>
+                          <span className="text-[10px] text-stone-400">
+                            {hero.age} anos · Nível {hero.level ?? 1} · {hero.class_name ?? hero.class ?? 'Combatente'}
+                          </span>
+                          {hero.specialization_name && (
+                            <div className="text-[10px] text-amber-500/90 font-medium">
+                              {hero.specialization_name}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <div className="inline-flex items-center gap-1 text-amber-400 font-mono text-sm font-bold">
+                            <Zap className="w-3.5 h-3.5 fill-amber-400/20" />
+                            <span>{hero.current_power ?? 50}</span>
+                          </div>
+                          <span className="text-[9px] text-stone-500 uppercase block font-mono">Poder Bruto</span>
+                        </div>
+                      </div>
+
+                      {/* Caixa de Potencial Estelar */}
+                      <div className="p-2.5 rounded-lg bg-stone-950/80 border border-stone-800 space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-stone-400 text-[11px]">Potencial Auditado:</span>
+                          {isRevealed ? (
+                            <div className="flex items-center gap-0.5">
+                              {[1, 2, 3, 4, 5].map(s => (
+                                <Star
+                                  key={s}
+                                  className={`w-3.5 h-3.5 ${
+                                    s <= stars
+                                      ? 'text-amber-400 fill-amber-400'
+                                      : 'text-stone-700'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-950/40 text-amber-300 border border-amber-800/40">
+                              [???] Não Auditado
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-stone-500 block">
+                          {isRevealed
+                            ? `Auditoria pericial homologada: teto de ${stars} Estrelas.`
+                            : 'Contrate no escuro ou envie um olheiro para avaliar.'}
+                        </span>
+                      </div>
+
+                      {/* Custos Financeiros */}
+                      <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                        <div className="bg-stone-900/60 p-2 rounded border border-stone-800">
+                          <span className="text-[10px] text-stone-500 block uppercase">Passe / Aquisição</span>
+                          <strong className="text-amber-300">⬡ {transferCost} Ouro</strong>
+                        </div>
+                        <div className="bg-stone-900/60 p-2 rounded border border-stone-800">
+                          <span className="text-[10px] text-stone-500 block uppercase">Vencimento Semanal</span>
+                          <strong className="text-stone-200">⬡ {salaryCost}/sem</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Ações: Olheiro e Contratar */}
+                    <div className="space-y-2 pt-2 border-t border-stone-800">
+                      {!isRevealed && (
+                        <button
+                          onClick={() => handleScout(hero.id)}
+                          disabled={isScoutingOrHiring || state.gold < scoutFee}
+                          className="w-full py-1.5 px-3 rounded-lg bg-stone-900 hover:bg-stone-800 border border-amber-900/40 hover:border-amber-700/50 text-amber-200 text-xs font-bold transition flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow cursor-pointer"
+                        >
+                          <Search className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Auditoria de Olheiro (⬡ {scoutFee})</span>
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => handleHire(hero.id)}
+                        disabled={isScoutingOrHiring || state.gold < transferCost || currentTeamSize >= maxTeamSize}
+                        className="w-full py-2 px-3 rounded-lg bg-emerald-950 hover:bg-emerald-900 border border-emerald-800/80 text-emerald-200 text-xs font-bold transition flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed shadow cursor-pointer"
+                      >
+                        <Coins className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>
+                          {currentTeamSize >= maxTeamSize
+                            ? 'Plantel Lotado (Máx 12)'
+                            : `Homologar Aquisição (⬡ ${transferCost})`}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>

@@ -74,6 +74,10 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             self._send_json(controller.get_material_sheet(material_id))
         elif path == '/api/medical_facilities':
             self._send_json(controller.get_medical_facilities())
+        elif path == '/api/academy':
+            self._send_json(controller.get_academy())
+        elif path == '/api/transfer_market':
+            self._send_json(controller.get_transfer_market())
         elif path.startswith('/api/'):
             self._send_json({"error": "Endpoint não encontrado"}, status=404)
         else:
@@ -198,6 +202,38 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             body = self._read_json_body()
             hero_id = body.get('hero_id')
             result = controller.release_hero_contract(hero_id)
+            self._send_json({
+                "result": result,
+                "state": controller.get_state()
+            })
+        elif path == '/api/academy/promote':
+            body = self._read_json_body()
+            hero_id = body.get('hero_id')
+            result = controller.promote_youth(hero_id)
+            self._send_json({
+                "result": result,
+                "state": controller.get_state()
+            })
+        elif path == '/api/academy/dismiss':
+            body = self._read_json_body()
+            hero_id = body.get('hero_id')
+            result = controller.dismiss_youth(hero_id)
+            self._send_json({
+                "result": result,
+                "state": controller.get_state()
+            })
+        elif path == '/api/market/scout':
+            body = self._read_json_body()
+            hero_id = body.get('hero_id')
+            result = controller.scout_market_hero(hero_id)
+            self._send_json({
+                "result": result,
+                "state": controller.get_state()
+            })
+        elif path == '/api/market/hire':
+            body = self._read_json_body()
+            hero_id = body.get('hero_id')
+            result = controller.hire_market_hero(hero_id)
             self._send_json({
                 "result": result,
                 "state": controller.get_state()

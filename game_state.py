@@ -31,6 +31,8 @@ SERIALIZED_FIELDS = [
     "catalog_version",
     "medical_level",
     "pending_contract_renewals",
+    "youth_academy",
+    "transfer_market_listings",
 ]
 
 TRANSIENT_FIELDS = [
@@ -50,6 +52,8 @@ class GameState:
         self.gold = 1000
         self.medical_level = 1     # Nível do Departamento de Saúde & Bem-Estar Ocupacional (1 a 5)
         self.pending_contract_renewals = []  # Heróis aguardando renovação contratual
+        self.youth_academy = []    # Aprendizes em formação na Academia de Base
+        self.transfer_market_listings = []  # Aventureiros disponíveis para transferência/contratação
         self.team = []             # Lista de heróis contratados
         self.inventory = []        # Itens no almoxarifado
         self.showcase = []         # Itens em negociação
@@ -165,6 +169,22 @@ class GameState:
                 rid for rid, r in cat.recipes.items()
                 if r.get("unlock", {}).get("method") == "start"
             ]
+        except Exception:
+            pass
+
+        # Inicialização da Academia de Base e Bolsa de Transferências
+        try:
+            from services.hero_service import generate_hero
+            import random
+            rng = random.Random(self.world_seed)
+            if not self.youth_academy:
+                balance = get_balance()
+                initial_youth = balance.get("academy", {}).get("initial_youth_count", 3)
+                self.youth_academy = [generate_hero(is_youth=True, rng=rng) for _ in range(initial_youth)]
+            if not self.transfer_market_listings:
+                balance = get_balance()
+                initial_listings = balance.get("transfer_market", {}).get("listings_count", 5)
+                self.transfer_market_listings = [generate_hero(is_youth=False, rng=rng) for _ in range(initial_listings)]
         except Exception:
             pass
 

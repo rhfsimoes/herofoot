@@ -81,5 +81,30 @@
     "star_raise_multiplier": 1.45,
     "signing_bonus_pct": 0.20
   },
+  "roster": {
+    "max_team_size": 12
+  },
+  "academy": {
+    "max_youth_slots": 4,
+    "weekly_maintenance": 40,
+    "min_age": 16,
+    "max_age": 18,
+    "initial_youth_count": 3,
+    "promotion_contract_seasons": 2,
+    "promotion_initial_salary": 35
+  },
+  "transfer_market": {
+    "listings_count": 5,
+    "scout_fee": 150,
+    "contract_duration_seasons": 2
+  },
+  "development": {
+    "growth_age_max": 28,
+    "prime_age_max": 31,
+    "decline_age_min": 32,
+    "min_appearances_for_growth": 8,
+    "growth_points_max": 3,
+    "decay_points_max": 2
+  },
   "provisional_rescale_factor": 0.55
 }

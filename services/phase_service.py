@@ -43,6 +43,9 @@ class PhaseService:
         if phase == 1:
             result = self.phase_1_cuidado()
             self.state.current_phase = 2
+            if hasattr(self, "hero_service"):
+                if not getattr(self.state, "transfer_market_listings", []):
+                    self.hero_service.refresh_transfer_market()
         elif phase == 2:
             self.state.current_phase = 3
             result = {"phase": 2, "message": "Operações de oficina e mercado encerradas."}
@@ -58,6 +61,9 @@ class PhaseService:
             self.state.day += 1
             self.state.week = self.state.day
             self.market_engine.refresh_market(self.state.day)
+            if hasattr(self, "hero_service"):
+                self.hero_service.refresh_transfer_market()
+                self.hero_service.replenish_academy()
 
         result["current_phase"] = self.state.current_phase
         result["day"] = self.state.day
@@ -304,7 +310,7 @@ class PhaseService:
         }
 
     def phase_5_results(self) -> dict:
-        """Fase 5: Balanço financeiro semanal, despesas de manutenção predial/médica e fechamento."""
+        """Fase 5: Balanço financeiro semanal, despesas de manutenção predial/médica/base e fechamento."""
         balance = get_balance()
         econ_cfg = balance.get("economy", {})
         base_maintenance = econ_cfg.get("weekly_maintenance", 50)
@@ -312,12 +318,19 @@ class PhaseService:
 
         fac_data = self.hero_service.get_medical_facilities_data() if hasattr(self, "hero_service") else {}
         medical_maintenance = fac_data.get("weekly_maintenance", 20)
-        total_maintenance = base_maintenance + medical_maintenance
+        acad_cfg = balance.get("academy", {})
+        academy_maintenance = acad_cfg.get("weekly_maintenance", 40)
+        total_maintenance = base_maintenance + medical_maintenance + academy_maintenance
 
         season_award = 0
+        development_report = None
         season_summary = getattr(self.league_engine, "season_summary", None)
         if season_summary:
             season_award = season_summary.get("award_gold", 0)
+
+            # Processamento anual de evolução de atributos, declínio físico e envelhecimento
+            if hasattr(self, "hero_service"):
+                development_report = self.hero_service.process_annual_development_and_aging()
 
             # Processamento de contratos no encerramento da temporada
             for hero in self.state.team:
@@ -361,8 +374,10 @@ class PhaseService:
                 "maintenance": total_maintenance,
                 "base_maintenance": base_maintenance,
                 "medical_maintenance": medical_maintenance,
+                "academy_maintenance": academy_maintenance,
                 "net": net,
             },
+            "development_report": development_report,
             "gold": self.state.gold,
             "standings": self.league_engine.get_standings(),
             "divisions": self.league_engine.get_divisions_data(),
