@@ -332,7 +332,7 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
 def run():
     server_address = ('', PORT)
     httpd = HTTPServer(server_address, HeroFootAPIHandler)
-    print(f"🏰 [HeroFoot] Servidor ativo em http://localhost:{PORT}")
+    print(f"[HeroFoot] Servidor ativo em http://localhost:{PORT}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
