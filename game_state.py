@@ -14,6 +14,7 @@ SERIALIZED_FIELDS = [
     "world_seed",
     "day",
     "week",
+    "season",
     "gold",
     "team",
     "inventory",
@@ -43,6 +44,7 @@ class GameState:
         self.world_seed = world_seed
         self.day = 1               # Rodada / Semana do campeonato
         self.week = 1              # Sinônimo canônico de rodada
+        self.season = 1            # Temporada anual da Liga
         self.gold = 1000
         self.team = []             # Lista de heróis contratados
         self.inventory = []        # Itens no almoxarifado

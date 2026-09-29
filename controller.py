@@ -136,6 +136,10 @@ class GameController:
                 for k, v in self.state.pending_offers.items()
             },
             "league_table": self.league_engine.get_standings(),
+            "divisions": self.league_engine.get_divisions_data(),
+            "current_division": self.league_engine.get_current_division_info(),
+            "season": getattr(self.state, "season", 1),
+            "season_summary": getattr(self.league_engine, "season_summary", None),
             "last_round_matches": self.league_engine.last_round_matches,
             "current_fixture": self.league_engine.get_player_match(self.state.day),
             "market": self.market_engine.get_market_data(),

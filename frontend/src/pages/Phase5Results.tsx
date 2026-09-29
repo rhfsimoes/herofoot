@@ -1,4 +1,18 @@
-import { Coins, Package, ArrowRight, TrendingUp, TrendingDown, Award } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import {
+  Coins,
+  Package,
+  ArrowRight,
+  TrendingUp,
+  TrendingDown,
+  Award,
+  Crown,
+  ArrowUpRight,
+  ArrowDownRight,
+  Sparkles,
+  Shield,
+  X,
+} from 'lucide-react'
 import type { GameState } from '../mockData'
 import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
 
@@ -8,12 +22,37 @@ interface Phase5ResultsProps {
 }
 
 export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) {
+  const [selectedDivisionId, setSelectedDivisionId] = useState<string>(
+    state.current_division?.id || 'div_acesso'
+  )
+  const [showSeasonModal, setShowSeasonModal] = useState<boolean>(false)
+
+  // Dispara modal de encerramento se houver season_summary nesta rodada
+  useEffect(() => {
+    if (state.season_summary) {
+      setShowSeasonModal(true)
+    }
+  }, [state.season_summary])
+
+  // Atualiza a aba da divisão quando a divisão ativa mudar
+  useEffect(() => {
+    if (state.current_division?.id) {
+      setSelectedDivisionId(state.current_division.id)
+    }
+  }, [state.current_division?.id])
+
   const salaryTotal = state.team.reduce((sum, h) => sum + h.salary, 0)
   const maintenance = 50
   const expeditionRevenue = 250
   const salesRevenue = 120
-  const totalRevenue = expeditionRevenue + salesRevenue
+  const seasonAward = state.season_summary?.award_gold || 0
+  const totalRevenue = expeditionRevenue + salesRevenue + seasonAward
   const netResult = totalRevenue - salaryTotal - maintenance
+
+  // Divisão selecionada para visualização
+  const divisions = state.divisions || []
+  const activeDivision = divisions.find(d => d.id === selectedDivisionId)
+  const rowsToDisplay = activeDivision ? activeDivision.standings : state.league_table
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
@@ -24,22 +63,38 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
             <span className="text-amber-500 font-mono text-xs uppercase tracking-widest font-bold">Fase V</span>
             <span className="text-stone-600">·</span>
             <span className="text-stone-400 text-xs">Fechamento do Ciclo</span>
+            <span className="text-stone-600">·</span>
+            <span className="text-amber-300 font-bold font-mono text-xs bg-amber-950/80 border border-amber-800/60 px-2 py-0.5 rounded">
+              Temporada {state.season || 1}
+            </span>
           </div>
-          <h2 className="text-amber-100 text-xl font-black mt-0.5 tracking-wide">
-            Resultados Oficiais, Balanço Financeiro & Classificação
+          <h2 className="text-amber-100 text-xl font-black mt-0.5 tracking-wide flex items-center gap-2">
+            <span>Resultados Oficiais, Balanço Financeiro & Classificação</span>
           </h2>
           <p className="text-stone-400 text-xs mt-1">
-            Consolidação de receitas de expedição, liquidação de despesas com folha de pagamento e atualização da tabela da liga.
+            Consolidação de receitas operacionais, folha de pagamento corporativa e atualização das divisões da liga.
           </p>
         </div>
 
-        <button
-          onClick={onAdvance}
-          className="bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-base py-3 px-8 rounded-xl hover:brightness-110 shadow-lg shadow-amber-900/30 transition flex items-center gap-2"
-        >
-          <span>Arquivar Relatório & Iniciar Próxima Rodada</span>
-          <ArrowRight className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-3">
+          {state.season_summary && (
+            <button
+              onClick={() => setShowSeasonModal(true)}
+              className="bg-amber-950/80 border border-amber-500/70 text-amber-300 hover:bg-amber-900/60 font-bold text-xs py-2.5 px-4 rounded-xl transition flex items-center gap-2"
+            >
+              <Crown className="w-4 h-4 text-amber-400" />
+              <span>Ver Laudo da Temporada</span>
+            </button>
+          )}
+
+          <button
+            onClick={onAdvance}
+            className="bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-sm py-3 px-6 rounded-xl hover:brightness-110 shadow-lg shadow-amber-900/30 transition flex items-center gap-2 cursor-pointer"
+          >
+            <span>Arquivar Relatório & Iniciar Próxima Rodada</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* ─────────────────────────────────────────────
@@ -104,7 +159,9 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
           <h3 className="text-amber-200 text-xs font-black uppercase tracking-wider">
             Demonstrativo de Resultado do Exercício (Extrato da Semana)
           </h3>
-          <span className="text-stone-500 text-xs font-mono">Semana {state.day}</span>
+          <span className="text-stone-500 text-xs font-mono">
+            Semana {state.week ?? state.day} · Temporada {state.season ?? 1}
+          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -123,6 +180,15 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
                 <span>Receita Comercial de Balcão (Vendas)</span>
                 <span className="font-mono text-emerald-400 font-bold">+⬡ {salesRevenue}</span>
               </div>
+              {seasonAward > 0 && (
+                <div className="flex justify-between text-amber-300 font-bold bg-amber-950/40 p-1.5 rounded border border-amber-800/60">
+                  <span className="flex items-center gap-1.5">
+                    <Crown className="w-3.5 h-3.5 text-amber-400" />
+                    Bonificação Régia de Fim de Temporada
+                  </span>
+                  <span className="font-mono text-amber-400">+⬡ {seasonAward}</span>
+                </div>
+              )}
               <div className="border-t border-stone-800 pt-2 flex justify-between font-bold text-stone-100">
                 <span>Total de Receitas</span>
                 <span className="font-mono text-emerald-400">+⬡ {totalRevenue} Ouro</span>
@@ -169,14 +235,69 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
       </div>
 
       {/* ─────────────────────────────────────────────
-          TABELA ATUALIZADA DA LIGA (COM LINHA DA LOJA DESTACADA)
+          TABELA ATUALIZADA DA LIGA (COM SELETOR DE DIVISÕES)
          ───────────────────────────────────────────── */}
       <div className="bg-[#1c1917] border border-amber-950/40 rounded-xl p-5 shadow-lg space-y-4">
-        <div className="flex items-center justify-between border-b border-stone-800/80 pb-2">
-          <h3 className="text-amber-200 text-xs font-black uppercase tracking-wider">
-            Classificação Geral da Liga das Guildas
-          </h3>
-          <span className="text-stone-500 text-xs font-mono">Semana {state.day} Encerrada</span>
+        <div className="flex items-center justify-between border-b border-stone-800/80 pb-3 flex-wrap gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-amber-500" />
+              <h3 className="text-amber-200 text-xs font-black uppercase tracking-wider">
+                Quadro de Classificação das Divisões
+              </h3>
+            </div>
+            <p className="text-stone-400 text-[11px] mt-0.5">
+              8 guildas por divisão · 2 vagas de Acesso e 2 vagas de Descenso regulamentadas pela Coroa
+            </p>
+          </div>
+
+          {/* Abas de Divisão */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedDivisionId('div_acesso')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                selectedDivisionId === 'div_acesso'
+                  ? 'bg-amber-600 text-stone-950 shadow'
+                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              <span>Divisão de Acesso Mercante</span>
+              {state.current_division?.id === 'div_acesso' && (
+                <span className="text-[9px] bg-stone-950 text-amber-300 px-1.5 py-0.2 rounded font-mono">
+                  Sua Divisão
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setSelectedDivisionId('div_nobre')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                selectedDivisionId === 'div_nobre'
+                  ? 'bg-amber-600 text-stone-950 shadow'
+                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200'
+              }`}
+            >
+              <Crown className="w-3.5 h-3.5" />
+              <span>Divisão Nobre da Coroa</span>
+              {state.current_division?.id === 'div_nobre' && (
+                <span className="text-[9px] bg-stone-950 text-amber-300 px-1.5 py-0.2 rounded font-mono">
+                  Sua Divisão
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Legenda de Acesso e Descenso */}
+        <div className="flex items-center gap-4 text-[11px] font-mono text-stone-400 px-1">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded bg-emerald-500/80 inline-block" />
+            <span className="text-emerald-300">Top 2: Zona de Acesso (Promoção)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded bg-rose-500/80 inline-block" />
+            <span className="text-rose-300">Bottom 2: Zona de Descenso (Rebaixamento)</span>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -185,6 +306,7 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
               <tr className="text-stone-400 uppercase tracking-wider border-b border-stone-800 bg-stone-950/40">
                 <th className="py-2.5 px-3 text-left w-8">#</th>
                 <th className="py-2.5 px-3 text-left">Guilda</th>
+                <th className="py-2.5 px-3 text-center w-28">Status de Tabela</th>
                 <th className="py-2.5 px-3 text-right w-12 font-bold text-amber-400">Pts</th>
                 <th className="py-2.5 px-3 text-right w-10">J</th>
                 <th className="py-2.5 px-3 text-right w-10">V</th>
@@ -196,22 +318,41 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-800/50">
-              {state.league_table.map(row => {
+              {rowsToDisplay.map(row => {
                 const isPlayer = row.is_player || row.guild_name === 'Guilda do Jogador'
+                const isPromotion = row.is_promotion_zone || (selectedDivisionId === 'div_acesso' && row.rank <= 2)
+                const isRelegation = row.is_relegation_zone || (selectedDivisionId === 'div_nobre' && row.rank >= 7)
+
+                let rowStyle = 'text-stone-300 hover:bg-stone-800/40'
+                if (isPlayer) {
+                  rowStyle = 'bg-amber-500/20 border-l-4 border-l-amber-400 font-bold text-amber-200'
+                } else if (isPromotion) {
+                  rowStyle = 'bg-emerald-950/20 border-l-2 border-l-emerald-500/60 text-stone-300'
+                } else if (isRelegation) {
+                  rowStyle = 'bg-rose-950/20 border-l-2 border-l-rose-500/60 text-stone-400'
+                }
 
                 return (
-                  <tr
-                    key={row.rank}
-                    className={`transition-colors ${
-                      isPlayer
-                        ? 'bg-amber-500/20 border border-amber-500/50 font-bold text-amber-300'
-                        : 'text-stone-300 hover:bg-stone-800/40'
-                    }`}
-                  >
-                    <td className="py-2.5 px-3 font-mono">{row.rank}</td>
+                  <tr key={row.rank} className={`transition-colors ${rowStyle}`}>
+                    <td className="py-2.5 px-3 font-mono font-bold">{row.rank}</td>
                     <td className="py-2.5 px-3 flex items-center gap-1.5 font-semibold">
                       {isPlayer && <span className="text-amber-400 text-xs">▶</span>}
                       <span>{row.guild_name}</span>
+                    </td>
+                    <td className="py-2.5 px-3 text-center">
+                      {isPromotion ? (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 inline-flex items-center gap-1">
+                          <ArrowUpRight className="w-3 h-3 text-emerald-400" />
+                          <span>Acesso</span>
+                        </span>
+                      ) : isRelegation ? (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 inline-flex items-center gap-1">
+                          <ArrowDownRight className="w-3 h-3 text-rose-400" />
+                          <span>Descenso</span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-mono text-stone-500">Permanência</span>
+                      )}
                     </td>
                     <td className="py-2.5 px-3 text-right font-black text-amber-400 font-mono">{row.points}</td>
                     <td className="py-2.5 px-3 text-right text-stone-400 font-mono">{row.played}</td>
@@ -235,10 +376,95 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
         </div>
       </div>
 
+      {/* ─────────────────────────────────────────────
+          MODAL: HOMOLOGAÇÃO DE FIM DE TEMPORADA
+         ───────────────────────────────────────────── */}
+      {showSeasonModal && state.season_summary && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-[#1c1917] border-2 border-amber-500 rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-6 shadow-[0_0_60px_rgba(245,158,11,0.4)] relative">
+            <button
+              onClick={() => setShowSeasonModal(false)}
+              className="absolute top-4 right-4 text-stone-400 hover:text-stone-200 p-1.5 rounded-lg hover:bg-stone-900 transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center space-y-2">
+              <span className="text-[10px] bg-gradient-to-r from-amber-600 to-yellow-500 text-stone-950 font-black px-4 py-1.5 rounded-full uppercase tracking-widest font-mono inline-block">
+                ★ ENCERRAMENTO DE EXERCÍCIO FISCAL · TEMPORADA {state.season_summary.season} ★
+              </span>
+              <h3 className="text-2xl font-black text-amber-100">
+                Laudo dos Oficiais da Liga das Guildas
+              </h3>
+              <p className="text-xs text-stone-400">
+                Tribunal Régio de Arbitragem e Homologação de Divisões
+              </p>
+            </div>
+
+            {/* Veredito Régio */}
+            <div className="p-4 bg-stone-950 rounded-2xl border border-amber-900/70 text-xs text-stone-200 leading-relaxed font-serif italic">
+              "{state.season_summary.verdict}"
+            </div>
+
+            {/* KPIs do Desfecho */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-stone-900/90 border border-stone-800 rounded-xl p-3">
+                <span className="text-[10px] uppercase font-mono text-stone-400 block">Colocação Final</span>
+                <span className="text-base font-black text-amber-300 font-mono">
+                  {state.season_summary.player_rank}º Lugar
+                </span>
+                <span className="text-[10px] text-stone-500 block">{state.season_summary.player_division_name}</span>
+              </div>
+
+              <div className="bg-stone-900/90 border border-stone-800 rounded-xl p-3">
+                <span className="text-[10px] uppercase font-mono text-stone-400 block">Bonificação da Coroa</span>
+                <span className="text-base font-black text-emerald-400 font-mono">
+                  +⬡ {state.season_summary.award_gold} Ouro
+                </span>
+                <span className="text-[10px] text-stone-500 block">Creditado na Tesouraria</span>
+              </div>
+            </div>
+
+            {/* Movimentações de Acesso e Descenso */}
+            <div className="p-3.5 bg-stone-900/50 rounded-xl border border-stone-800/80 space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-emerald-400 font-bold flex items-center gap-1">
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                  Guildas Promovidas (Acesso à Elite):
+                </span>
+                <span className="text-stone-300 font-mono">
+                  {state.season_summary.promoted_guilds.join(', ') || 'Nenhuma'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-rose-400 font-bold flex items-center gap-1">
+                  <ArrowDownRight className="w-3.5 h-3.5" />
+                  Guildas Rebaixadas (Descenso ao Acesso):
+                </span>
+                <span className="text-stone-300 font-mono">
+                  {state.season_summary.relegated_guilds.join(', ') || 'Nenhuma'}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setShowSeasonModal(false)
+                onAdvance()
+              }}
+              className="w-full py-3 bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-stone-950 font-black uppercase tracking-wider text-xs rounded-xl transition cursor-pointer shadow-lg hover:brightness-110 flex items-center justify-center gap-2"
+            >
+              <Sparkles className="w-4 h-4 text-stone-950" />
+              <span>Homologar Laudo & Abrir Temporada {state.season_summary.season + 1}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Botão de Rodapé */}
       <button
         onClick={onAdvance}
-        className="w-full bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-base py-3 px-8 rounded-xl hover:brightness-110 shadow-lg shadow-amber-900/30 transition flex items-center justify-center gap-2"
+        className="w-full bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-base py-3 px-8 rounded-xl hover:brightness-110 shadow-lg shadow-amber-900/30 transition flex items-center justify-center gap-2 cursor-pointer"
       >
         <span>Arquivar Relatório & Iniciar Próxima Rodada</span>
         <ArrowRight className="w-5 h-5" />

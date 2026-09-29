@@ -100,7 +100,7 @@ Poder_Efetivo     = (Poder_Base_Equipe + Bônus_Slots) × (1 − penalidade_terr
 | D2 | Potencial e idade governam atributos, não o Poder | fechado |
 | D3 | Party de 6, Reserva de 3, Guilda sem limite | fechado (limite a descobrir por simulação) |
 | D4 | 4 classes: Guerreiro (Berserker, Espadachim), Ladino (Arqueiro, Assassino), Mago (Piromante), Clérigo (Suporte) | fechado por ora |
-| D5 | Mundo povoado por ligas com divisões; ligas iniciantes têm heróis piores | fechado (Onda 2) |
+| D5 | Mundo povoado por ligas com divisões; ligas iniciantes têm heróis piores | fechado |
 | D6 | Partida de duração variável: roda até os Suprimentos zerarem. O Boss só é resolvido para quem chega até ele | fechado |
 | D7 | Bônus de slots limitado a +15; terreno em percentual | provisório |
 | D8 | Preço do Balcão calculado no servidor; Boletim multiplica a demanda | fechado |
@@ -109,4 +109,6 @@ Poder_Efetivo     = (Poder_Base_Equipe + Bônus_Slots) × (1 − penalidade_terr
 | D11 | `workshops_seed.json` substitui o antigo `specializations_seed.json` (que confundia com especialização de herói) | fechado |
 | D12 | Autenticação e autoridade do servidor sobre escalação e loadout | fechado |
 | D13 | Crafting v2: catálogo normalizado com material no centro, prefixos e sufixos modulares | fechado |
+| D14 | Onda 2: Sistema de divisões (Nobre e Acesso), 8 guildas por divisão, temporadas de 7 rodadas com promoção/rebaixamento, bonificação régia e elencos rivais com atributos reais | fechado |
+
 

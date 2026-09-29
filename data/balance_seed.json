@@ -53,5 +53,26 @@
   "crafting": {
     "manual_offer_count": 2
   },
+  "league": {
+    "rounds_per_season": 7,
+    "promotion_spots": 2,
+    "relegation_spots": 2,
+    "season_rewards": {
+      "div_nobre": {
+        "1": 1500,
+        "2": 1000,
+        "3": 600,
+        "4": 400,
+        "default": 200
+      },
+      "div_acesso": {
+        "1": 800,
+        "2": 500,
+        "3": 300,
+        "4": 200,
+        "default": 100
+      }
+    }
+  },
   "provisional_rescale_factor": 0.55
 }

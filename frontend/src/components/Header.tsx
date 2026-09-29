@@ -250,10 +250,10 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
                 {isBackendOnline ? '● ONLINE' : '○ LOCAL'}
               </span>
             </div>
-            <p className="text-stone-400 text-[11px] flex items-center gap-1">
-              <span>Alvará Real de Expedições</span>
+            <p className="text-stone-400 text-[11px] flex items-center gap-1.5 flex-wrap">
+              <span className="text-amber-300 font-bold">Temporada {state.season ?? 1}</span>
               <span className="text-stone-600">·</span>
-              <span className="text-stone-400">Nível Operacional II</span>
+              <span className="text-stone-300">{state.current_division?.name ?? 'Divisão de Acesso Mercante'}</span>
             </p>
           </div>
         </div>

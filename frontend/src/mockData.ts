@@ -70,6 +70,43 @@ export interface LeagueEntry {
   pe_for: number
   pe_against: number
   pe_diff: number
+  is_promotion_zone?: boolean
+  is_relegation_zone?: boolean
+}
+
+export interface DivisionInfo {
+  id: string
+  name: string
+  tier: number
+  promotion_spots: number
+  relegation_spots: number
+  season?: number
+  rounds_per_season?: number
+}
+
+export interface DivisionData {
+  id: string
+  name: string
+  tier: number
+  promotion_spots: number
+  relegation_spots: number
+  is_player_division: boolean
+  standings: LeagueEntry[]
+}
+
+export interface SeasonSummary {
+  season: number
+  player_division_id: string
+  player_division_name: string
+  player_rank: number
+  player_promoted: boolean
+  player_relegated: boolean
+  award_gold: number
+  verdict: string
+  promoted_guilds: string[]
+  relegated_guilds: string[]
+  champion_nobre?: string
+  champion_acesso?: string
 }
 
 export interface MatchResult {
@@ -279,6 +316,10 @@ export interface GameState {
   known_affixes?: string[]
   known_recipes?: string[]
   catalog_version?: number
+  season?: number
+  divisions?: DivisionData[]
+  current_division?: DivisionInfo
+  season_summary?: SeasonSummary | null
 }
 
 export const MATERIAL_LABELS: Record<string, string> = {
@@ -336,8 +377,18 @@ export const MOCK_RECIPES: Recipe[] = [
 export const MOCK_STATE: GameState = {
   day: 1,
   week: 1,
+  season: 1,
   gold: 1000,
   current_phase: 1,
+  current_division: {
+    id: 'div_acesso',
+    name: 'Divisão de Acesso Mercante',
+    tier: 2,
+    promotion_spots: 2,
+    relegation_spots: 0,
+    season: 1,
+    rounds_per_season: 7,
+  },
   workshop_levels: { Ferragem: 1, Alquimia: 1, Joalheria: 1, Culinária: 1 },
   materials: {
     mat_iron_ore: 10,

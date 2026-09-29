@@ -57,6 +57,7 @@ class PhaseService:
         result["current_phase"] = self.state.current_phase
         result["day"] = self.state.day
         result["week"] = self.state.week
+        result["season"] = getattr(self.state, "season", 1)
         return result
 
     def phase_1_cuidado(self) -> dict:
@@ -180,7 +181,7 @@ class PhaseService:
         rival_slot_bonus = rival_cfg.get("default_slot_bonus", 6)
         rival_mit_prob = rival_cfg.get("mitigation_probability", 0.5)
         rival_has_mitigation = (round_rng.random() < rival_mit_prob) if required_mitigation else True
-        rival_agi = rival_base_power
+        rival_agi = rival_guild_info.get("average_agi", rival_base_power) if rival_guild_info else rival_base_power
 
         player_pe = 0
         rival_pe = 0
@@ -300,18 +301,30 @@ class PhaseService:
         maintenance = econ_cfg.get("weekly_maintenance", 50)
         expedition_revenue = econ_cfg.get("base_expedition_revenue", 250)
 
+        season_award = 0
+        season_summary = getattr(self.league_engine, "season_summary", None)
+        if season_summary:
+            season_award = season_summary.get("award_gold", 0)
+
         salary_cost = sum(h.get("salary", 50) for h in self.state.team)
-        net = expedition_revenue - salary_cost - maintenance
+        net = expedition_revenue + season_award - salary_cost - maintenance
         self.state.gold += net
+
+        self.state.season = getattr(self.league_engine, "season_number", 1)
 
         return {
             "phase": 5,
             "financials": {
                 "revenue": expedition_revenue,
+                "season_award": season_award,
                 "salaries": salary_cost,
                 "maintenance": maintenance,
                 "net": net,
             },
             "gold": self.state.gold,
             "standings": self.league_engine.get_standings(),
+            "divisions": self.league_engine.get_divisions_data(),
+            "current_division": self.league_engine.get_current_division_info(),
+            "season": self.state.season,
+            "season_summary": season_summary,
         }

@@ -3,15 +3,1545 @@
     "id": "g_player",
     "name": "Guilda do Jogador",
     "is_player": true,
-    "power_rating": 61
+    "power_rating": 61,
+    "division_id": "div_acesso"
   },
+  "divisions": [
+    {
+      "id": "div_nobre",
+      "name": "Divisão Nobre da Coroa",
+      "tier": 1,
+      "promotion_spots": 0,
+      "relegation_spots": 2,
+      "guild_ids": [
+        "g_grifo",
+        "g_dragao",
+        "g_aco",
+        "g_sol",
+        "g_alvorada",
+        "g_leao",
+        "g_falcao",
+        "g_serpente"
+      ]
+    },
+    {
+      "id": "div_acesso",
+      "name": "Divisão de Acesso Mercante",
+      "tier": 2,
+      "promotion_spots": 2,
+      "relegation_spots": 0,
+      "guild_ids": [
+        "g_player",
+        "g_corvo",
+        "g_prata",
+        "g_pedra",
+        "g_martelo",
+        "g_crepusculo",
+        "g_bastiao",
+        "g_rosa"
+      ]
+    }
+  ],
   "rival_guilds": [
-    { "id": "g_grifo", "name": "Ordem do Grifo Dourado", "is_player": false, "power_rating": 74 },
-    { "id": "g_aco", "name": "Irmandade do Aço Negro", "is_player": false, "power_rating": 69 },
-    { "id": "g_alvorada", "name": "Lança da Alvorada", "is_player": false, "power_rating": 63 },
-    { "id": "g_corvo", "name": "Corvo e Osso", "is_player": false, "power_rating": 58 },
-    { "id": "g_prata", "name": "Sentinelas da Prata", "is_player": false, "power_rating": 55 },
-    { "id": "g_pedra", "name": "Vigia de Pedra", "is_player": false, "power_rating": 52 },
-    { "id": "g_crepusculo", "name": "Legião do Crepúsculo", "is_player": false, "power_rating": 50 }
+    {
+      "id": "g_grifo",
+      "name": "Ordem do Grifo Dourado",
+      "is_player": false,
+      "power_rating": 76,
+      "division_id": "div_nobre",
+      "average_agi": 75,
+      "roster": [
+        {
+          "id": "hero_g_grifo_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 76,
+          "attributes": {
+            "str": 82,
+            "agi": 66,
+            "vit": 80,
+            "int": 56,
+            "wis": 61,
+            "lck": 71
+          }
+        },
+        {
+          "id": "hero_g_grifo_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 76,
+          "attributes": {
+            "str": 82,
+            "agi": 66,
+            "vit": 80,
+            "int": 56,
+            "wis": 61,
+            "lck": 71
+          }
+        },
+        {
+          "id": "hero_g_grifo_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 76,
+          "attributes": {
+            "str": 71,
+            "agi": 88,
+            "vit": 71,
+            "int": 61,
+            "wis": 66,
+            "lck": 84
+          }
+        },
+        {
+          "id": "hero_g_grifo_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 76,
+          "attributes": {
+            "str": 71,
+            "agi": 88,
+            "vit": 71,
+            "int": 61,
+            "wis": 66,
+            "lck": 84
+          }
+        },
+        {
+          "id": "hero_g_grifo_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 76,
+          "attributes": {
+            "str": 51,
+            "agi": 74,
+            "vit": 66,
+            "int": 90,
+            "wis": 84,
+            "lck": 76
+          }
+        },
+        {
+          "id": "hero_g_grifo_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 76,
+          "attributes": {
+            "str": 71,
+            "agi": 68,
+            "vit": 80,
+            "int": 80,
+            "wis": 88,
+            "lck": 74
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_dragao",
+      "name": "Baluarte do Dragão Vermelho",
+      "is_player": false,
+      "power_rating": 74,
+      "division_id": "div_nobre",
+      "average_agi": 73,
+      "roster": [
+        {
+          "id": "hero_g_dragao_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 74,
+          "attributes": {
+            "str": 80,
+            "agi": 64,
+            "vit": 78,
+            "int": 54,
+            "wis": 59,
+            "lck": 69
+          }
+        },
+        {
+          "id": "hero_g_dragao_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 74,
+          "attributes": {
+            "str": 80,
+            "agi": 64,
+            "vit": 78,
+            "int": 54,
+            "wis": 59,
+            "lck": 69
+          }
+        },
+        {
+          "id": "hero_g_dragao_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 74,
+          "attributes": {
+            "str": 69,
+            "agi": 86,
+            "vit": 69,
+            "int": 59,
+            "wis": 64,
+            "lck": 82
+          }
+        },
+        {
+          "id": "hero_g_dragao_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 74,
+          "attributes": {
+            "str": 69,
+            "agi": 86,
+            "vit": 69,
+            "int": 59,
+            "wis": 64,
+            "lck": 82
+          }
+        },
+        {
+          "id": "hero_g_dragao_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 74,
+          "attributes": {
+            "str": 49,
+            "agi": 72,
+            "vit": 64,
+            "int": 88,
+            "wis": 82,
+            "lck": 74
+          }
+        },
+        {
+          "id": "hero_g_dragao_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 74,
+          "attributes": {
+            "str": 69,
+            "agi": 66,
+            "vit": 78,
+            "int": 78,
+            "wis": 86,
+            "lck": 72
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_aco",
+      "name": "Irmandade do Aço Negro",
+      "is_player": false,
+      "power_rating": 71,
+      "division_id": "div_nobre",
+      "average_agi": 70,
+      "roster": [
+        {
+          "id": "hero_g_aco_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 71,
+          "attributes": {
+            "str": 77,
+            "agi": 61,
+            "vit": 75,
+            "int": 51,
+            "wis": 56,
+            "lck": 66
+          }
+        },
+        {
+          "id": "hero_g_aco_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 71,
+          "attributes": {
+            "str": 77,
+            "agi": 61,
+            "vit": 75,
+            "int": 51,
+            "wis": 56,
+            "lck": 66
+          }
+        },
+        {
+          "id": "hero_g_aco_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 71,
+          "attributes": {
+            "str": 66,
+            "agi": 83,
+            "vit": 66,
+            "int": 56,
+            "wis": 61,
+            "lck": 79
+          }
+        },
+        {
+          "id": "hero_g_aco_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 71,
+          "attributes": {
+            "str": 66,
+            "agi": 83,
+            "vit": 66,
+            "int": 56,
+            "wis": 61,
+            "lck": 79
+          }
+        },
+        {
+          "id": "hero_g_aco_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 71,
+          "attributes": {
+            "str": 46,
+            "agi": 69,
+            "vit": 61,
+            "int": 85,
+            "wis": 79,
+            "lck": 71
+          }
+        },
+        {
+          "id": "hero_g_aco_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 71,
+          "attributes": {
+            "str": 66,
+            "agi": 63,
+            "vit": 75,
+            "int": 75,
+            "wis": 83,
+            "lck": 69
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_sol",
+      "name": "Falange do Sol Radiante",
+      "is_player": false,
+      "power_rating": 69,
+      "division_id": "div_nobre",
+      "average_agi": 68,
+      "roster": [
+        {
+          "id": "hero_g_sol_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 69,
+          "attributes": {
+            "str": 75,
+            "agi": 59,
+            "vit": 73,
+            "int": 49,
+            "wis": 54,
+            "lck": 64
+          }
+        },
+        {
+          "id": "hero_g_sol_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 69,
+          "attributes": {
+            "str": 75,
+            "agi": 59,
+            "vit": 73,
+            "int": 49,
+            "wis": 54,
+            "lck": 64
+          }
+        },
+        {
+          "id": "hero_g_sol_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 69,
+          "attributes": {
+            "str": 64,
+            "agi": 81,
+            "vit": 64,
+            "int": 54,
+            "wis": 59,
+            "lck": 77
+          }
+        },
+        {
+          "id": "hero_g_sol_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 69,
+          "attributes": {
+            "str": 64,
+            "agi": 81,
+            "vit": 64,
+            "int": 54,
+            "wis": 59,
+            "lck": 77
+          }
+        },
+        {
+          "id": "hero_g_sol_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 69,
+          "attributes": {
+            "str": 44,
+            "agi": 67,
+            "vit": 59,
+            "int": 83,
+            "wis": 77,
+            "lck": 69
+          }
+        },
+        {
+          "id": "hero_g_sol_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 69,
+          "attributes": {
+            "str": 64,
+            "agi": 61,
+            "vit": 73,
+            "int": 73,
+            "wis": 81,
+            "lck": 67
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_alvorada",
+      "name": "Lança da Alvorada",
+      "is_player": false,
+      "power_rating": 67,
+      "division_id": "div_nobre",
+      "average_agi": 66,
+      "roster": [
+        {
+          "id": "hero_g_alvorada_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 67,
+          "attributes": {
+            "str": 73,
+            "agi": 57,
+            "vit": 71,
+            "int": 47,
+            "wis": 52,
+            "lck": 62
+          }
+        },
+        {
+          "id": "hero_g_alvorada_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 67,
+          "attributes": {
+            "str": 73,
+            "agi": 57,
+            "vit": 71,
+            "int": 47,
+            "wis": 52,
+            "lck": 62
+          }
+        },
+        {
+          "id": "hero_g_alvorada_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 67,
+          "attributes": {
+            "str": 62,
+            "agi": 79,
+            "vit": 62,
+            "int": 52,
+            "wis": 57,
+            "lck": 75
+          }
+        },
+        {
+          "id": "hero_g_alvorada_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 67,
+          "attributes": {
+            "str": 62,
+            "agi": 79,
+            "vit": 62,
+            "int": 52,
+            "wis": 57,
+            "lck": 75
+          }
+        },
+        {
+          "id": "hero_g_alvorada_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 67,
+          "attributes": {
+            "str": 42,
+            "agi": 65,
+            "vit": 57,
+            "int": 81,
+            "wis": 75,
+            "lck": 67
+          }
+        },
+        {
+          "id": "hero_g_alvorada_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 67,
+          "attributes": {
+            "str": 62,
+            "agi": 59,
+            "vit": 71,
+            "int": 71,
+            "wis": 79,
+            "lck": 65
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_leao",
+      "name": "Vigia do Leão Real",
+      "is_player": false,
+      "power_rating": 66,
+      "division_id": "div_nobre",
+      "average_agi": 65,
+      "roster": [
+        {
+          "id": "hero_g_leao_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 66,
+          "attributes": {
+            "str": 72,
+            "agi": 56,
+            "vit": 70,
+            "int": 46,
+            "wis": 51,
+            "lck": 61
+          }
+        },
+        {
+          "id": "hero_g_leao_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 66,
+          "attributes": {
+            "str": 72,
+            "agi": 56,
+            "vit": 70,
+            "int": 46,
+            "wis": 51,
+            "lck": 61
+          }
+        },
+        {
+          "id": "hero_g_leao_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 66,
+          "attributes": {
+            "str": 61,
+            "agi": 78,
+            "vit": 61,
+            "int": 51,
+            "wis": 56,
+            "lck": 74
+          }
+        },
+        {
+          "id": "hero_g_leao_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 66,
+          "attributes": {
+            "str": 61,
+            "agi": 78,
+            "vit": 61,
+            "int": 51,
+            "wis": 56,
+            "lck": 74
+          }
+        },
+        {
+          "id": "hero_g_leao_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 66,
+          "attributes": {
+            "str": 41,
+            "agi": 64,
+            "vit": 56,
+            "int": 80,
+            "wis": 74,
+            "lck": 66
+          }
+        },
+        {
+          "id": "hero_g_leao_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 66,
+          "attributes": {
+            "str": 61,
+            "agi": 58,
+            "vit": 70,
+            "int": 70,
+            "wis": 78,
+            "lck": 64
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_falcao",
+      "name": "Ordem do Falcão Real",
+      "is_player": false,
+      "power_rating": 65,
+      "division_id": "div_nobre",
+      "average_agi": 64,
+      "roster": [
+        {
+          "id": "hero_g_falcao_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 65,
+          "attributes": {
+            "str": 71,
+            "agi": 55,
+            "vit": 69,
+            "int": 45,
+            "wis": 50,
+            "lck": 60
+          }
+        },
+        {
+          "id": "hero_g_falcao_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 65,
+          "attributes": {
+            "str": 71,
+            "agi": 55,
+            "vit": 69,
+            "int": 45,
+            "wis": 50,
+            "lck": 60
+          }
+        },
+        {
+          "id": "hero_g_falcao_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 65,
+          "attributes": {
+            "str": 60,
+            "agi": 77,
+            "vit": 60,
+            "int": 50,
+            "wis": 55,
+            "lck": 73
+          }
+        },
+        {
+          "id": "hero_g_falcao_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 65,
+          "attributes": {
+            "str": 60,
+            "agi": 77,
+            "vit": 60,
+            "int": 50,
+            "wis": 55,
+            "lck": 73
+          }
+        },
+        {
+          "id": "hero_g_falcao_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 65,
+          "attributes": {
+            "str": 40,
+            "agi": 63,
+            "vit": 55,
+            "int": 79,
+            "wis": 73,
+            "lck": 65
+          }
+        },
+        {
+          "id": "hero_g_falcao_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 65,
+          "attributes": {
+            "str": 60,
+            "agi": 57,
+            "vit": 69,
+            "int": 69,
+            "wis": 77,
+            "lck": 63
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_serpente",
+      "name": "Círculo da Serpente de Ferro",
+      "is_player": false,
+      "power_rating": 64,
+      "division_id": "div_nobre",
+      "average_agi": 63,
+      "roster": [
+        {
+          "id": "hero_g_serpente_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 64,
+          "attributes": {
+            "str": 70,
+            "agi": 54,
+            "vit": 68,
+            "int": 44,
+            "wis": 49,
+            "lck": 59
+          }
+        },
+        {
+          "id": "hero_g_serpente_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 64,
+          "attributes": {
+            "str": 70,
+            "agi": 54,
+            "vit": 68,
+            "int": 44,
+            "wis": 49,
+            "lck": 59
+          }
+        },
+        {
+          "id": "hero_g_serpente_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 64,
+          "attributes": {
+            "str": 59,
+            "agi": 76,
+            "vit": 59,
+            "int": 49,
+            "wis": 54,
+            "lck": 72
+          }
+        },
+        {
+          "id": "hero_g_serpente_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 64,
+          "attributes": {
+            "str": 59,
+            "agi": 76,
+            "vit": 59,
+            "int": 49,
+            "wis": 54,
+            "lck": 72
+          }
+        },
+        {
+          "id": "hero_g_serpente_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 64,
+          "attributes": {
+            "str": 39,
+            "agi": 62,
+            "vit": 54,
+            "int": 78,
+            "wis": 72,
+            "lck": 64
+          }
+        },
+        {
+          "id": "hero_g_serpente_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 64,
+          "attributes": {
+            "str": 59,
+            "agi": 56,
+            "vit": 68,
+            "int": 68,
+            "wis": 76,
+            "lck": 62
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_corvo",
+      "name": "Corvo e Osso",
+      "is_player": false,
+      "power_rating": 59,
+      "division_id": "div_acesso",
+      "average_agi": 58,
+      "roster": [
+        {
+          "id": "hero_g_corvo_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 59,
+          "attributes": {
+            "str": 65,
+            "agi": 49,
+            "vit": 63,
+            "int": 39,
+            "wis": 44,
+            "lck": 54
+          }
+        },
+        {
+          "id": "hero_g_corvo_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 59,
+          "attributes": {
+            "str": 65,
+            "agi": 49,
+            "vit": 63,
+            "int": 39,
+            "wis": 44,
+            "lck": 54
+          }
+        },
+        {
+          "id": "hero_g_corvo_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 59,
+          "attributes": {
+            "str": 54,
+            "agi": 71,
+            "vit": 54,
+            "int": 44,
+            "wis": 49,
+            "lck": 67
+          }
+        },
+        {
+          "id": "hero_g_corvo_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 59,
+          "attributes": {
+            "str": 54,
+            "agi": 71,
+            "vit": 54,
+            "int": 44,
+            "wis": 49,
+            "lck": 67
+          }
+        },
+        {
+          "id": "hero_g_corvo_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 59,
+          "attributes": {
+            "str": 34,
+            "agi": 57,
+            "vit": 49,
+            "int": 73,
+            "wis": 67,
+            "lck": 59
+          }
+        },
+        {
+          "id": "hero_g_corvo_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 59,
+          "attributes": {
+            "str": 54,
+            "agi": 51,
+            "vit": 63,
+            "int": 63,
+            "wis": 71,
+            "lck": 57
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_prata",
+      "name": "Sentinelas da Prata",
+      "is_player": false,
+      "power_rating": 56,
+      "division_id": "div_acesso",
+      "average_agi": 55,
+      "roster": [
+        {
+          "id": "hero_g_prata_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 56,
+          "attributes": {
+            "str": 62,
+            "agi": 46,
+            "vit": 60,
+            "int": 36,
+            "wis": 41,
+            "lck": 51
+          }
+        },
+        {
+          "id": "hero_g_prata_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 56,
+          "attributes": {
+            "str": 62,
+            "agi": 46,
+            "vit": 60,
+            "int": 36,
+            "wis": 41,
+            "lck": 51
+          }
+        },
+        {
+          "id": "hero_g_prata_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 56,
+          "attributes": {
+            "str": 51,
+            "agi": 68,
+            "vit": 51,
+            "int": 41,
+            "wis": 46,
+            "lck": 64
+          }
+        },
+        {
+          "id": "hero_g_prata_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 56,
+          "attributes": {
+            "str": 51,
+            "agi": 68,
+            "vit": 51,
+            "int": 41,
+            "wis": 46,
+            "lck": 64
+          }
+        },
+        {
+          "id": "hero_g_prata_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 56,
+          "attributes": {
+            "str": 31,
+            "agi": 54,
+            "vit": 46,
+            "int": 70,
+            "wis": 64,
+            "lck": 56
+          }
+        },
+        {
+          "id": "hero_g_prata_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 56,
+          "attributes": {
+            "str": 51,
+            "agi": 48,
+            "vit": 60,
+            "int": 60,
+            "wis": 68,
+            "lck": 54
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_pedra",
+      "name": "Vigia de Pedra",
+      "is_player": false,
+      "power_rating": 54,
+      "division_id": "div_acesso",
+      "average_agi": 53,
+      "roster": [
+        {
+          "id": "hero_g_pedra_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 54,
+          "attributes": {
+            "str": 60,
+            "agi": 44,
+            "vit": 58,
+            "int": 34,
+            "wis": 39,
+            "lck": 49
+          }
+        },
+        {
+          "id": "hero_g_pedra_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 54,
+          "attributes": {
+            "str": 60,
+            "agi": 44,
+            "vit": 58,
+            "int": 34,
+            "wis": 39,
+            "lck": 49
+          }
+        },
+        {
+          "id": "hero_g_pedra_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 54,
+          "attributes": {
+            "str": 49,
+            "agi": 66,
+            "vit": 49,
+            "int": 39,
+            "wis": 44,
+            "lck": 62
+          }
+        },
+        {
+          "id": "hero_g_pedra_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 54,
+          "attributes": {
+            "str": 49,
+            "agi": 66,
+            "vit": 49,
+            "int": 39,
+            "wis": 44,
+            "lck": 62
+          }
+        },
+        {
+          "id": "hero_g_pedra_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 54,
+          "attributes": {
+            "str": 29,
+            "agi": 52,
+            "vit": 44,
+            "int": 68,
+            "wis": 62,
+            "lck": 54
+          }
+        },
+        {
+          "id": "hero_g_pedra_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 54,
+          "attributes": {
+            "str": 49,
+            "agi": 46,
+            "vit": 58,
+            "int": 58,
+            "wis": 66,
+            "lck": 52
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_martelo",
+      "name": "Companhia do Martelo Rúnico",
+      "is_player": false,
+      "power_rating": 53,
+      "division_id": "div_acesso",
+      "average_agi": 52,
+      "roster": [
+        {
+          "id": "hero_g_martelo_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 53,
+          "attributes": {
+            "str": 59,
+            "agi": 43,
+            "vit": 57,
+            "int": 33,
+            "wis": 38,
+            "lck": 48
+          }
+        },
+        {
+          "id": "hero_g_martelo_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 53,
+          "attributes": {
+            "str": 59,
+            "agi": 43,
+            "vit": 57,
+            "int": 33,
+            "wis": 38,
+            "lck": 48
+          }
+        },
+        {
+          "id": "hero_g_martelo_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 53,
+          "attributes": {
+            "str": 48,
+            "agi": 65,
+            "vit": 48,
+            "int": 38,
+            "wis": 43,
+            "lck": 61
+          }
+        },
+        {
+          "id": "hero_g_martelo_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 53,
+          "attributes": {
+            "str": 48,
+            "agi": 65,
+            "vit": 48,
+            "int": 38,
+            "wis": 43,
+            "lck": 61
+          }
+        },
+        {
+          "id": "hero_g_martelo_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 53,
+          "attributes": {
+            "str": 28,
+            "agi": 51,
+            "vit": 43,
+            "int": 67,
+            "wis": 61,
+            "lck": 53
+          }
+        },
+        {
+          "id": "hero_g_martelo_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 53,
+          "attributes": {
+            "str": 48,
+            "agi": 45,
+            "vit": 57,
+            "int": 57,
+            "wis": 65,
+            "lck": 51
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_crepusculo",
+      "name": "Legião do Crepúsculo",
+      "is_player": false,
+      "power_rating": 51,
+      "division_id": "div_acesso",
+      "average_agi": 50,
+      "roster": [
+        {
+          "id": "hero_g_crepusculo_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 51,
+          "attributes": {
+            "str": 57,
+            "agi": 41,
+            "vit": 55,
+            "int": 31,
+            "wis": 36,
+            "lck": 46
+          }
+        },
+        {
+          "id": "hero_g_crepusculo_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 51,
+          "attributes": {
+            "str": 57,
+            "agi": 41,
+            "vit": 55,
+            "int": 31,
+            "wis": 36,
+            "lck": 46
+          }
+        },
+        {
+          "id": "hero_g_crepusculo_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 51,
+          "attributes": {
+            "str": 46,
+            "agi": 63,
+            "vit": 46,
+            "int": 36,
+            "wis": 41,
+            "lck": 59
+          }
+        },
+        {
+          "id": "hero_g_crepusculo_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 51,
+          "attributes": {
+            "str": 46,
+            "agi": 63,
+            "vit": 46,
+            "int": 36,
+            "wis": 41,
+            "lck": 59
+          }
+        },
+        {
+          "id": "hero_g_crepusculo_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 51,
+          "attributes": {
+            "str": 26,
+            "agi": 49,
+            "vit": 41,
+            "int": 65,
+            "wis": 59,
+            "lck": 51
+          }
+        },
+        {
+          "id": "hero_g_crepusculo_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 51,
+          "attributes": {
+            "str": 46,
+            "agi": 43,
+            "vit": 55,
+            "int": 55,
+            "wis": 63,
+            "lck": 49
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_bastiao",
+      "name": "Bastião dos Desbravadores",
+      "is_player": false,
+      "power_rating": 49,
+      "division_id": "div_acesso",
+      "average_agi": 48,
+      "roster": [
+        {
+          "id": "hero_g_bastiao_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 49,
+          "attributes": {
+            "str": 55,
+            "agi": 39,
+            "vit": 53,
+            "int": 29,
+            "wis": 34,
+            "lck": 44
+          }
+        },
+        {
+          "id": "hero_g_bastiao_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 49,
+          "attributes": {
+            "str": 55,
+            "agi": 39,
+            "vit": 53,
+            "int": 29,
+            "wis": 34,
+            "lck": 44
+          }
+        },
+        {
+          "id": "hero_g_bastiao_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 49,
+          "attributes": {
+            "str": 44,
+            "agi": 61,
+            "vit": 44,
+            "int": 34,
+            "wis": 39,
+            "lck": 57
+          }
+        },
+        {
+          "id": "hero_g_bastiao_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 49,
+          "attributes": {
+            "str": 44,
+            "agi": 61,
+            "vit": 44,
+            "int": 34,
+            "wis": 39,
+            "lck": 57
+          }
+        },
+        {
+          "id": "hero_g_bastiao_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 49,
+          "attributes": {
+            "str": 24,
+            "agi": 47,
+            "vit": 39,
+            "int": 63,
+            "wis": 57,
+            "lck": 49
+          }
+        },
+        {
+          "id": "hero_g_bastiao_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 49,
+          "attributes": {
+            "str": 44,
+            "agi": 41,
+            "vit": 53,
+            "int": 53,
+            "wis": 61,
+            "lck": 47
+          }
+        }
+      ]
+    },
+    {
+      "id": "g_rosa",
+      "name": "Milícia da Rosa de Cinzas",
+      "is_player": false,
+      "power_rating": 48,
+      "division_id": "div_acesso",
+      "average_agi": 47,
+      "roster": [
+        {
+          "id": "hero_g_rosa_1",
+          "name": "Aldren Lâmina-Fiel",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_swordsman",
+          "power": 48,
+          "attributes": {
+            "str": 54,
+            "agi": 38,
+            "vit": 52,
+            "int": 28,
+            "wis": 33,
+            "lck": 43
+          }
+        },
+        {
+          "id": "hero_g_rosa_2",
+          "name": "Gromm Quebra-Escudos",
+          "class_id": "class_warrior",
+          "specialization_id": "spec_warrior_berserker",
+          "power": 48,
+          "attributes": {
+            "str": 54,
+            "agi": 38,
+            "vit": 52,
+            "int": 28,
+            "wis": 33,
+            "lck": 43
+          }
+        },
+        {
+          "id": "hero_g_rosa_3",
+          "name": "Sariel Vento-Noturno",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_archer",
+          "power": 48,
+          "attributes": {
+            "str": 43,
+            "agi": 60,
+            "vit": 43,
+            "int": 33,
+            "wis": 38,
+            "lck": 56
+          }
+        },
+        {
+          "id": "hero_g_rosa_4",
+          "name": "Nalia Sombra-Ágil",
+          "class_id": "class_rogue",
+          "specialization_id": "spec_rogue_assassin",
+          "power": 48,
+          "attributes": {
+            "str": 43,
+            "agi": 60,
+            "vit": 43,
+            "int": 33,
+            "wis": 38,
+            "lck": 56
+          }
+        },
+        {
+          "id": "hero_g_rosa_5",
+          "name": "Ignis Brasa-Viva",
+          "class_id": "class_mage",
+          "specialization_id": "spec_mage_pyromancer",
+          "power": 48,
+          "attributes": {
+            "str": 23,
+            "agi": 46,
+            "vit": 38,
+            "int": 62,
+            "wis": 56,
+            "lck": 48
+          }
+        },
+        {
+          "id": "hero_g_rosa_6",
+          "name": "Madre Teresa",
+          "class_id": "class_cleric",
+          "specialization_id": "spec_cleric_support",
+          "power": 48,
+          "attributes": {
+            "str": 43,
+            "agi": 40,
+            "vit": 52,
+            "int": 52,
+            "wis": 60,
+            "lck": 46
+          }
+        }
+      ]
+    }
   ]
 }
