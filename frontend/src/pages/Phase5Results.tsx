@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import type { GameState } from '../mockData'
 import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
+import { CrownSeal, NobleDivisionEmblem, AccessDivisionEmblem } from '../components/art'
 
 interface Phase5ResultsProps {
   state: GameState
@@ -276,9 +277,9 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
       {state.crown_goals && (
         <div className="bg-[#1c1917] border border-amber-950/60 rounded-xl p-5 shadow-lg space-y-4">
           <div className="flex justify-between items-center border-b border-stone-800/80 pb-3 flex-wrap gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-amber-950 border border-amber-700/60 flex items-center justify-center text-amber-400">
-                <Crown className="w-4 h-4" />
+            <div className="flex items-center gap-3">
+              <div className="shrink-0 -my-1">
+                <CrownSeal size={50} withRibbon={true} withGlow={state.crown_goals.is_audit_week} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -455,6 +456,7 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
                   : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200'
               }`}
             >
+              <AccessDivisionEmblem size={18} />
               <span>Divisão de Acesso Mercante</span>
               {state.current_division?.id === 'div_acesso' && (
                 <span className="text-[9px] bg-stone-950 text-amber-300 px-1.5 py-0.2 rounded font-mono">
@@ -465,13 +467,13 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
 
             <button
               onClick={() => setSelectedDivisionId('div_nobre')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
                 selectedDivisionId === 'div_nobre'
                   ? 'bg-amber-600 text-stone-950 shadow'
                   : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200'
               }`}
             >
-              <Crown className="w-3.5 h-3.5" />
+              <NobleDivisionEmblem size={18} />
               <span>Divisão Nobre da Coroa</span>
               {state.current_division?.id === 'div_nobre' && (
                 <span className="text-[9px] bg-stone-950 text-amber-300 px-1.5 py-0.2 rounded font-mono">
