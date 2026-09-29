@@ -6,16 +6,16 @@
   "expedition": {
     "max_rooms": 10,
     "base_energy": 100,
-    "base_energy_cost_per_room": 10,
+    "base_energy_cost_per_room": 12.5,
     "room_cost_variance": 0.25,
-    "room_encounter_probability": 0.65,
+    "room_encounter_probability": 0.60,
     "solo_clear_base": 0.6,
     "agi_energy_reduction_max": 0.20,
-    "miniboss_draw_margin": 0.08,
+    "miniboss_draw_margin": 0.28,
     "miniboss_points": 1,
     "boss_threshold_pct": 0.15,
     "boss_win_points": 2,
-    "boss_joint_points": 1
+    "boss_joint_points": 2
   },
   "loadout": {
     "slot_bonus_factor": 0.15,
@@ -105,6 +105,17 @@
     "min_appearances_for_growth": 8,
     "growth_points_max": 3,
     "decay_points_max": 2
+  },
+  "crown_goals": {
+    "cycle_length_weeks": 8,
+    "subsidy_reward_base": 400,
+    "penalty_tax_base": 200,
+    "min_goals_to_pass": 2,
+    "quarterly_targets": {
+      "min_gold": 1000,
+      "min_cycle_league_points": 8,
+      "max_injured_heroes": 0
+    }
   },
   "provisional_rescale_factor": 0.55
 }

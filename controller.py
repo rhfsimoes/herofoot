@@ -183,6 +183,7 @@ class GameController:
                 "team_size": len(self.state.team),
                 "max_team_size": 12,
             },
+            "crown_goals": self.get_crown_goals(),
             "active_slot": self.active_slot,
         }
 
@@ -356,4 +357,9 @@ class GameController:
 
     def hire_market_hero(self, hero_id: str) -> dict:
         return self.hero_service.hire_market_hero(hero_id)
+
+    # Diretrizes e Metas da Coroa
+    def get_crown_goals(self) -> dict:
+        from services.crown_service import get_crown_goals_data
+        return get_crown_goals_data(self.state, self.league_engine)
 

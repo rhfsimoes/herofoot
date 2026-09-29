@@ -33,6 +33,7 @@ SERIALIZED_FIELDS = [
     "pending_contract_renewals",
     "youth_academy",
     "transfer_market_listings",
+    "crown_goals",
 ]
 
 TRANSIENT_FIELDS = [
@@ -54,6 +55,7 @@ class GameState:
         self.pending_contract_renewals = []  # Heróis aguardando renovação contratual
         self.youth_academy = []    # Aprendizes em formação na Academia de Base
         self.transfer_market_listings = []  # Aventureiros disponíveis para transferência/contratação
+        self.crown_goals = {}      # Metas da Coroa e diretrizes trimestrais
         self.team = []             # Lista de heróis contratados
         self.inventory = []        # Itens no almoxarifado
         self.showcase = []         # Itens em negociação
@@ -185,6 +187,9 @@ class GameState:
                 balance = get_balance()
                 initial_listings = balance.get("transfer_market", {}).get("listings_count", 5)
                 self.transfer_market_listings = [generate_hero(is_youth=False, rng=rng) for _ in range(initial_listings)]
+            if not self.crown_goals:
+                from services.crown_service import init_crown_goals
+                init_crown_goals(self)
         except Exception:
             pass
 

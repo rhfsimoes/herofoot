@@ -504,5 +504,18 @@ export async function hireMarketHeroBackend(heroId: string): Promise<ApiResponse
   return null
 }
 
+export async function fetchCrownGoalsBackend(): Promise<any | null> {
+  try {
+    const res = await fetch(`${API_BASE}/crown_goals`)
+    if (res.ok) {
+      return await res.json()
+    }
+  } catch (err) {
+    console.error('[HeroFoot API] Erro ao consultar metas da coroa:', err)
+  }
+  return null
+}
+
+
 
 

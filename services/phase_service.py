@@ -360,7 +360,23 @@ class PhaseService:
                 hero["season_appearances"] = 0
 
         salary_cost = sum(h.get("salary", 50) for h in self.state.team)
-        net = expedition_revenue + season_award - salary_cost - total_maintenance
+
+        # Auditoria Trimestral das Metas da Coroa
+        from services.crown_service import get_crown_goals_data, process_quarterly_audit
+        crown_audit_report = None
+        crown_subsidy = 0
+        crown_penalty = 0
+        crown_data = get_crown_goals_data(self.state, self.league_engine)
+        if crown_data.get("is_audit_week"):
+            crown_audit_report = process_quarterly_audit(self.state, self.league_engine)
+            if crown_audit_report:
+                delta = crown_audit_report.get("delta_gold", 0)
+                if delta > 0:
+                    crown_subsidy = delta
+                else:
+                    crown_penalty = abs(delta)
+
+        net = expedition_revenue + season_award + crown_subsidy - crown_penalty - salary_cost - total_maintenance
         self.state.gold += net
 
         self.state.season = getattr(self.league_engine, "season_number", 1)
@@ -370,6 +386,8 @@ class PhaseService:
             "financials": {
                 "revenue": expedition_revenue,
                 "season_award": season_award,
+                "crown_subsidy": crown_subsidy,
+                "crown_penalty": crown_penalty,
                 "salaries": salary_cost,
                 "maintenance": total_maintenance,
                 "base_maintenance": base_maintenance,
@@ -377,6 +395,8 @@ class PhaseService:
                 "academy_maintenance": academy_maintenance,
                 "net": net,
             },
+            "crown_audit": crown_audit_report,
+            "crown_goals": get_crown_goals_data(self.state, self.league_engine),
             "development_report": development_report,
             "gold": self.state.gold,
             "standings": self.league_engine.get_standings(),

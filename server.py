@@ -78,6 +78,8 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             self._send_json(controller.get_academy())
         elif path == '/api/transfer_market':
             self._send_json(controller.get_transfer_market())
+        elif path == '/api/crown_goals':
+            self._send_json(controller.get_crown_goals())
         elif path.startswith('/api/'):
             self._send_json({"error": "Endpoint não encontrado"}, status=404)
         else:

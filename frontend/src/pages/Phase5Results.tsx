@@ -12,6 +12,9 @@ import {
   Sparkles,
   Shield,
   X,
+  CheckCircle2,
+  AlertTriangle,
+  Scale,
 } from 'lucide-react'
 import type { GameState } from '../mockData'
 import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
@@ -46,8 +49,19 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
   const expeditionRevenue = 250
   const salesRevenue = 120
   const seasonAward = state.season_summary?.award_gold || 0
-  const totalRevenue = expeditionRevenue + salesRevenue + seasonAward
-  const netResult = totalRevenue - salaryTotal - maintenance
+
+  const crownAuditThisWeek =
+    state.crown_goals?.last_audit_report &&
+    state.crown_goals.last_audit_report.audit_week === (state.week ?? state.day)
+      ? state.crown_goals.last_audit_report
+      : null
+
+  const crownSubsidy = crownAuditThisWeek && crownAuditThisWeek.delta_gold > 0 ? crownAuditThisWeek.delta_gold : 0
+  const crownPenalty = crownAuditThisWeek && crownAuditThisWeek.delta_gold < 0 ? Math.abs(crownAuditThisWeek.delta_gold) : 0
+
+  const totalRevenue = expeditionRevenue + salesRevenue + seasonAward + crownSubsidy
+  const totalExpenses = salaryTotal + maintenance + crownPenalty
+  const netResult = totalRevenue - totalExpenses
 
   // Divisão selecionada para visualização
   const divisions = state.divisions || []
@@ -189,6 +203,15 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
                   <span className="font-mono text-amber-400">+⬡ {seasonAward}</span>
                 </div>
               )}
+              {crownSubsidy > 0 && (
+                <div className="flex justify-between text-emerald-300 font-bold bg-emerald-950/40 p-1.5 rounded border border-emerald-800/60">
+                  <span className="flex items-center gap-1.5">
+                    <Crown className="w-3.5 h-3.5 text-emerald-400" />
+                    Subsídio Imperial da Coroa (Metas Aprovadas)
+                  </span>
+                  <span className="font-mono text-emerald-400">+⬡ {crownSubsidy}</span>
+                </div>
+              )}
               <div className="border-t border-stone-800 pt-2 flex justify-between font-bold text-stone-100">
                 <span>Total de Receitas</span>
                 <span className="font-mono text-emerald-400">+⬡ {totalRevenue} Ouro</span>
@@ -211,9 +234,18 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
                 <span>Custos de Manutenção Predial da Sede</span>
                 <span className="font-mono text-rose-400 font-bold">-⬡ {maintenance}</span>
               </div>
+              {crownPenalty > 0 && (
+                <div className="flex justify-between text-rose-300 font-bold bg-rose-950/60 p-1.5 rounded border border-rose-800/60">
+                  <span className="flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+                    Autuação Fiscal da Coroa (Metas Descumpridas)
+                  </span>
+                  <span className="font-mono text-rose-400">-⬡ {crownPenalty}</span>
+                </div>
+              )}
               <div className="border-t border-stone-800 pt-2 flex justify-between font-bold text-stone-100">
                 <span>Total de Despesas</span>
-                <span className="font-mono text-rose-400">-⬡ {salaryTotal + maintenance} Ouro</span>
+                <span className="font-mono text-rose-400">-⬡ {totalExpenses} Ouro</span>
               </div>
             </div>
           </div>
@@ -233,6 +265,164 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
           </span>
         </div>
       </div>
+
+      {/* ─────────────────────────────────────────────
+          METAS DA COROA & AUDITORIA IMPERIAL
+         ───────────────────────────────────────────── */}
+      {state.crown_goals && (
+        <div className="bg-[#1c1917] border border-amber-950/60 rounded-xl p-5 shadow-lg space-y-4">
+          <div className="flex justify-between items-center border-b border-stone-800/80 pb-3 flex-wrap gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-amber-950 border border-amber-700/60 flex items-center justify-center text-amber-400">
+                <Crown className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-amber-200 text-xs font-black uppercase tracking-wider">
+                    Decretos & Metas da Coroa Imperial
+                  </h3>
+                  <span className="text-[10px] font-mono bg-amber-950/80 border border-amber-800/70 text-amber-300 px-2 py-0.5 rounded font-bold">
+                    Trimestre Fiscal {state.crown_goals.current_cycle}
+                  </span>
+                </div>
+                <p className="text-stone-400 text-xs mt-0.5">
+                  Ciclo de Avaliação: Semanas {state.crown_goals.cycle_start_week} a {state.crown_goals.cycle_deadline_week} ·{' '}
+                  {state.crown_goals.is_audit_week ? (
+                    <span className="text-amber-400 font-bold animate-pulse">
+                      Auditoria Pericial em Execução Nesta Semana!
+                    </span>
+                  ) : (
+                    <span className="text-stone-300 font-mono">
+                      {state.crown_goals.weeks_remaining} semana(s) até a auditoria pericial
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400 block">
+                  Metas Homologadas
+                </span>
+                <span className="text-sm font-mono font-bold text-amber-400">
+                  {state.crown_goals.goals_completed_count} de {state.crown_goals.goals.length}
+                </span>
+              </div>
+              <div
+                className={`px-3 py-1.5 rounded-lg border text-xs font-bold font-mono ${
+                  state.crown_goals.goals_completed_count >= state.crown_goals.min_goals_to_pass
+                    ? 'bg-emerald-950/60 border-emerald-800/60 text-emerald-300'
+                    : 'bg-amber-950/60 border-amber-800/60 text-amber-300'
+                }`}
+              >
+                {state.crown_goals.goals_completed_count >= state.crown_goals.min_goals_to_pass
+                  ? 'Apto ao Subsídio'
+                  : 'Risco de Autuação'}
+              </div>
+            </div>
+          </div>
+
+          {/* Notificação de Laudo de Auditoria se houver */}
+          {crownAuditThisWeek && (
+            <div
+              className={`p-3.5 rounded-xl border flex items-start gap-3 ${
+                crownAuditThisWeek.passed
+                  ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-200'
+                  : 'bg-rose-950/40 border-rose-800/60 text-rose-200'
+              }`}
+            >
+              {crownAuditThisWeek.passed ? (
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+              ) : (
+                <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+              )}
+              <div className="flex-1">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-xs uppercase tracking-wide">
+                    {crownAuditThisWeek.headline}
+                  </span>
+                  <span className="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-black/40">
+                    {crownAuditThisWeek.delta_gold >= 0
+                      ? `+⬡ ${crownAuditThisWeek.delta_gold} Ouro`
+                      : `-⬡ ${Math.abs(crownAuditThisWeek.delta_gold)} Ouro`}
+                  </span>
+                </div>
+                <p className="text-xs opacity-90 mt-1">
+                  {crownAuditThisWeek.passed
+                    ? `A Junta Real homologou ${crownAuditThisWeek.goals_completed} de ${crownAuditThisWeek.total_goals} metas com êxito. O Subsídio de Fomento foi creditado na conta corporativa da guilda.`
+                    : `Apenas ${crownAuditThisWeek.goals_completed} de ${crownAuditThisWeek.total_goals} metas foram atingidas. A Coroa reteve ${Math.abs(crownAuditThisWeek.delta_gold)} Moedas de Ouro a título de sanção tributária.`}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Grid dos 3 KPIs */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {state.crown_goals.goals.map(g => (
+              <div
+                key={g.id}
+                className={`p-3.5 rounded-xl border flex flex-col justify-between transition ${
+                  g.completed
+                    ? 'bg-stone-900/80 border-emerald-900/40 shadow-sm'
+                    : 'bg-stone-900/80 border-stone-800'
+                }`}
+              >
+                <div>
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-stone-200">{g.title}</span>
+                    <span
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${
+                        g.completed
+                          ? 'bg-emerald-950 border border-emerald-800/80 text-emerald-300'
+                          : 'bg-stone-800 border border-stone-700 text-stone-400'
+                      }`}
+                    >
+                      {g.completed ? 'Atingida' : 'Pendente'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-400 mb-3">{g.description}</p>
+                </div>
+
+                <div className="space-y-1.5 pt-2 border-t border-stone-800/80">
+                  <div className="flex justify-between text-xs font-mono">
+                    <span className="text-stone-400">Progresso:</span>
+                    <span className={g.completed ? 'text-emerald-400 font-bold' : 'text-stone-300'}>
+                      {g.id === 'financial_solvency' ? `⬡ ${g.current}` : g.current} /{' '}
+                      {g.id === 'financial_solvency' ? `⬡ ${g.target}` : g.target} {g.unit}
+                    </span>
+                  </div>
+                  <div className="w-full bg-stone-950 h-1.5 rounded-full overflow-hidden border border-stone-800">
+                    <div
+                      className={`h-full transition-all duration-500 ${
+                        g.completed ? 'bg-emerald-500' : 'bg-amber-600'
+                      }`}
+                      style={{
+                        width: `${Math.min(
+                          100,
+                          g.target > 0 ? (g.current / g.target) * 100 : g.current === 0 ? 100 : 0
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Rodapé Informativo */}
+          <div className="p-3 bg-stone-950/60 rounded-lg border border-stone-800/60 flex items-center justify-between text-[11px] text-stone-400 font-mono">
+            <span className="flex items-center gap-1.5">
+              <Scale className="w-3.5 h-3.5 text-amber-500" />
+              <span>Regulamento: Mínimo de {state.crown_goals.min_goals_to_pass} metas aprovadas para subsídio.</span>
+            </span>
+            <span className="text-stone-300">
+              Subsídio: <strong className="text-emerald-400">+⬡ {state.crown_goals.subsidy_reward}</strong> · Multa:{' '}
+              <strong className="text-rose-400">-⬡ {state.crown_goals.penalty_tax}</strong>
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ─────────────────────────────────────────────
           TABELA ATUALIZADA DA LIGA (COM SELETOR DE DIVISÕES)

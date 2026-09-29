@@ -11,6 +11,7 @@ import {
   AlertCircle,
   CheckCircle2,
   X,
+  Crown,
 } from 'lucide-react'
 import type { GameState, SaveSlotInfo } from '../mockData'
 import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
@@ -281,6 +282,24 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
               </span>
             </div>
           </div>
+
+          {/* Metas da Coroa */}
+          {state.crown_goals && (
+            <div
+              className="hidden lg:flex bg-[#1c1917] border border-amber-950/60 rounded-xl px-3.5 py-1.5 items-center gap-2.5 shadow-md cursor-default"
+              title={`Metas da Coroa: ${state.crown_goals.goals_completed_count} de ${state.crown_goals.goals.length} aprovadas. Prazo: Semana ${state.crown_goals.cycle_deadline_week}.`}
+            >
+              <Crown className="w-4 h-4 text-amber-400" />
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-stone-400 block -mb-0.5">
+                  Metas Reais (T{state.crown_goals.current_cycle})
+                </span>
+                <span className="text-xs font-mono font-bold text-amber-300">
+                  {state.crown_goals.goals_completed_count}/3 Homologadas
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Confiança da População */}
           <div className="hidden md:flex bg-[#1c1917] border border-stone-800 rounded-xl px-3.5 py-1.5 items-center gap-2.5 shadow-md">

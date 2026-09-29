@@ -337,6 +337,49 @@ export interface PendingContractRenewal {
   seasons: number
 }
 
+export interface CrownGoal {
+  id: string
+  title: string
+  description: string
+  target: number
+  current: number
+  unit: string
+  completed: boolean
+}
+
+export interface CrownAuditReport {
+  cycle: number
+  audit_week: number
+  status: 'Aprovado' | 'Autuado' | string
+  passed: boolean
+  goals_completed: number
+  total_goals: number
+  delta_gold: number
+  headline: string
+  details: {
+    title: string
+    target: number
+    current: number
+    unit: string
+    completed: boolean
+  }[]
+}
+
+export interface CrownGoalsData {
+  current_cycle: number
+  cycle_start_week: number
+  cycle_deadline_week: number
+  weeks_remaining: number
+  is_audit_week: boolean
+  min_goals_to_pass: number
+  subsidy_reward: number
+  penalty_tax: number
+  goals: CrownGoal[]
+  goals_completed_count: number
+  last_audit_report?: CrownAuditReport | null
+  audit_history?: CrownAuditReport[]
+}
+
 export interface TransferMarketData {
   listings: Hero[]
   scout_fee: number
@@ -392,6 +435,7 @@ export interface GameState {
   pending_contract_renewals?: PendingContractRenewal[]
   youth_academy?: Hero[]
   transfer_market?: TransferMarketData
+  crown_goals?: CrownGoalsData
 }
 
 export const MATERIAL_LABELS: Record<string, string> = {
@@ -609,6 +653,46 @@ export const MOCK_STATE: GameState = {
         season_appearances: 0,
         happiness: 80,
         potential: { star_potential: 4, is_potential_revealed: false }
+      }
+    ]
+  },
+  crown_goals: {
+    current_cycle: 1,
+    cycle_start_week: 1,
+    cycle_deadline_week: 8,
+    weeks_remaining: 7,
+    is_audit_week: false,
+    min_goals_to_pass: 2,
+    subsidy_reward: 400,
+    penalty_tax: 200,
+    goals_completed_count: 2,
+    goals: [
+      {
+        id: 'financial_solvency',
+        title: 'Superávit e Solvência de Caixa',
+        description: 'Manter saldo em caixa de pelo menos 1000 Moedas de Ouro no encerramento pericial.',
+        target: 1000,
+        current: 1000,
+        unit: 'Ouro',
+        completed: true
+      },
+      {
+        id: 'league_performance',
+        title: 'Eficácia Competitiva na Liga',
+        description: 'Conquistar pelo menos 8 pontos na Liga das Guildas durante o trimestre fiscal.',
+        target: 8,
+        current: 0,
+        unit: 'Pontos',
+        completed: false
+      },
+      {
+        id: 'operational_health',
+        title: 'Conformidade e Segurança Ocupacional',
+        description: 'Apresentar no máximo 0 herói(s) afastado(s) por lesão na auditoria do Conselho.',
+        target: 0,
+        current: 0,
+        unit: 'Afastados',
+        completed: true
       }
     ]
   }
