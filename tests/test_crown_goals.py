@@ -26,7 +26,7 @@ class TestCrownGoals(unittest.TestCase):
         self.assertEqual(data["cycle_deadline_week"], 8)
         self.assertEqual(len(data["goals"]), 3)
         self.assertEqual(data["subsidy_reward"], 400)
-        self.assertEqual(data["penalty_tax"], 200)
+        self.assertEqual(data["penalty_tax"], 0)
 
     def test_goals_progress_tracking(self):
         """Verifica rastreamento dinâmico de metas (ouro, pontos da liga e heróis lesionados)."""
@@ -47,7 +47,7 @@ class TestCrownGoals(unittest.TestCase):
             self.assertTrue(g["completed"])
 
     def test_successful_quarterly_audit(self):
-        """Verifica homologação com louvor imperial e crédito de subsídio de 400 ouro."""
+        """Verifica homologação com louvor e crédito de subsídio de 400 ouro."""
         self.state.week = 8
         self.state.gold = 1200
         div_id = self.league.current_division_id
@@ -59,7 +59,8 @@ class TestCrownGoals(unittest.TestCase):
         self.assertTrue(audit["passed"])
         self.assertEqual(audit["status"], "Aprovado")
         self.assertEqual(audit["delta_gold"], 400)
-        self.assertIn("Louvor Imperial", audit["headline"])
+        self.assertEqual(self.state.contractor_confidence, 90)
+        self.assertIn("Louvor da Contratante", audit["headline"])
 
         # Deve avançar para ciclo 2 (semanas 9 a 16)
         self.assertEqual(self.state.crown_goals["current_cycle"], 2)
@@ -67,7 +68,7 @@ class TestCrownGoals(unittest.TestCase):
         self.assertEqual(self.state.crown_goals["cycle_deadline_week"], 16)
 
     def test_failed_quarterly_audit(self):
-        """Verifica autuação fiscal com retenção tributária de 200 ouro por descumprimento."""
+        """Verifica meta não atingida sem multa em ouro (delta_gold = 0) e com queda na confiança da contratante."""
         self.state.week = 8
         self.state.gold = 400  # Abaixo de 1000
         div_id = self.league.current_division_id
@@ -82,9 +83,10 @@ class TestCrownGoals(unittest.TestCase):
         audit = process_quarterly_audit(self.state, self.league)
         self.assertIsNotNone(audit)
         self.assertFalse(audit["passed"])
-        self.assertEqual(audit["status"], "Autuado")
-        self.assertEqual(audit["delta_gold"], -200)
-        self.assertIn("Autuação Fiscal", audit["headline"])
+        self.assertEqual(audit["status"], "Não Atingido")
+        self.assertEqual(audit["delta_gold"], 0)
+        self.assertEqual(self.state.contractor_confidence, 60)
+        self.assertIn("Laudo de Conformidade", audit["headline"])
 
     def test_phase_5_quarterly_audit_integration(self):
         """Verifica se a Fase 5 processa a auditoria no término do ciclo e reflete no DRE."""

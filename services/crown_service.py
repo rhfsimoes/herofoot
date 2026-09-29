@@ -149,14 +149,23 @@ def process_quarterly_audit(state: Any, league_engine: Optional[Any] = None) -> 
     min_to_pass = data["min_goals_to_pass"]
     passed = (completed_count >= min_to_pass)
 
+    balance = get_balance()
+    crown_cfg = balance.get("crown_goals", {})
+    conf_bonus = crown_cfg.get("confidence_bonus", 15)
+    conf_penalty = crown_cfg.get("confidence_penalty", 15)
+
     if passed:
         delta_gold = data["subsidy_reward"]
         status = "Aprovado"
-        headline = "Decreto de Louvor Imperial: Metas Operacionais Homologadas com Sucesso."
+        headline = "Decreto de Louvor da Contratante: Metas Operacionais Homologadas com Fomento Régio."
+        if hasattr(state, "contractor_confidence"):
+            state.contractor_confidence = min(100, state.contractor_confidence + conf_bonus)
     else:
-        delta_gold = -data["penalty_tax"]
-        status = "Autuado"
-        headline = "Autuação Fiscal da Coroa: Descumprimento de Diretrizes e Retenção Tributária."
+        delta_gold = 0
+        status = "Não Atingido"
+        headline = "Laudo de Conformidade: Metas Parciais. Ausência de Fomento e Redução de Confiança da Contratante."
+        if hasattr(state, "contractor_confidence"):
+            state.contractor_confidence = max(0, state.contractor_confidence - conf_penalty)
 
     audit_report = {
         "cycle": data["current_cycle"],
@@ -166,6 +175,7 @@ def process_quarterly_audit(state: Any, league_engine: Optional[Any] = None) -> 
         "goals_completed": completed_count,
         "total_goals": len(data["goals"]),
         "delta_gold": delta_gold,
+        "contractor_confidence": getattr(state, "contractor_confidence", 75),
         "headline": headline,
         "details": [
             {

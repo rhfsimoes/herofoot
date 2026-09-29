@@ -36,6 +36,7 @@ SERIALIZED_FIELDS = [
     "crown_goals",
     "last_expedition_starters",
     "weekly_sales_revenue",
+    "contractor_confidence",
 ]
 
 TRANSIENT_FIELDS = [
@@ -94,6 +95,7 @@ class GameState:
         # DRE e Expedição
         self.last_expedition_starters = []
         self.weekly_sales_revenue = 0
+        self.contractor_confidence = 75  # Confiança da Contratante/Conselho (0 a 100)
 
         # Campos transientes de execução
         self.last_match_result = None

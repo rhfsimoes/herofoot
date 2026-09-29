@@ -366,6 +366,24 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
             </div>
 
             <div className="flex items-center gap-3">
+              {state.contractor_confidence !== undefined && (
+                <div className="text-right">
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400 block">
+                    Confiança Contratante
+                  </span>
+                  <span
+                    className={`text-sm font-mono font-bold ${
+                      state.contractor_confidence >= 70
+                        ? 'text-emerald-400'
+                        : state.contractor_confidence >= 40
+                        ? 'text-amber-400'
+                        : 'text-rose-400'
+                    }`}
+                  >
+                    {state.contractor_confidence}%
+                  </span>
+                </div>
+              )}
               <div className="text-right">
                 <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400 block">
                   Metas Homologadas
@@ -383,7 +401,7 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
               >
                 {state.crown_goals.goals_completed_count >= state.crown_goals.min_goals_to_pass
                   ? 'Apto ao Subsídio'
-                  : 'Risco de Autuação'}
+                  : 'Meta em Aberto'}
               </div>
             </div>
           </div>
@@ -394,13 +412,13 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
               className={`p-3.5 rounded-xl border flex items-start gap-3 ${
                 crownAuditThisWeek.passed
                   ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-200'
-                  : 'bg-rose-950/40 border-rose-800/60 text-rose-200'
+                  : 'bg-amber-950/40 border-amber-800/60 text-amber-200'
               }`}
             >
               {crownAuditThisWeek.passed ? (
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
               ) : (
-                <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+                <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
               )}
               <div className="flex-1">
                 <div className="flex justify-between items-center">
@@ -408,15 +426,15 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
                     {crownAuditThisWeek.headline}
                   </span>
                   <span className="font-mono text-xs font-extrabold px-2 py-0.5 rounded bg-black/40">
-                    {crownAuditThisWeek.delta_gold >= 0
+                    {crownAuditThisWeek.delta_gold > 0
                       ? `+⬡ ${crownAuditThisWeek.delta_gold} Ouro`
-                      : `-⬡ ${Math.abs(crownAuditThisWeek.delta_gold)} Ouro`}
+                      : `0 Ouro (Sem Multa)`}
                   </span>
                 </div>
                 <p className="text-xs opacity-90 mt-1">
                   {crownAuditThisWeek.passed
-                    ? `A Junta Real homologou ${crownAuditThisWeek.goals_completed} de ${crownAuditThisWeek.total_goals} metas com êxito. O Subsídio de Fomento foi creditado na conta corporativa da guilda.`
-                    : `Apenas ${crownAuditThisWeek.goals_completed} de ${crownAuditThisWeek.total_goals} metas foram atingidas. A Coroa reteve ${Math.abs(crownAuditThisWeek.delta_gold)} Moedas de Ouro a título de sanção tributária.`}
+                    ? `A Contratante homologou ${crownAuditThisWeek.goals_completed} de ${crownAuditThisWeek.total_goals} metas operacionais com êxito. O Subsídio de Fomento Régio foi creditado (+⬡ ${crownAuditThisWeek.delta_gold}) e a Confiança subiu.`
+                    : `Metas de ciclo parciais (${crownAuditThisWeek.goals_completed} de ${crownAuditThisWeek.total_goals}). Conforme as diretrizes, não há cobrança de multa em ouro, incidindo apenas ajuste no índice de Confiança da Contratante.`}
                 </p>
               </div>
             </div>

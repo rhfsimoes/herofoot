@@ -415,6 +415,10 @@ class PhaseService:
                     })
                 hero["season_appearances"] = 0
 
+            # Desativa o gatilho da engine para não reprocessar anualmente em todas as semanas seguintes
+            self.state.season_summary = season_summary
+            self.league_engine.season_summary = None
+
         salary_cost = sum(h.get("salary", 50) for h in self.state.team)
 
         # Auditoria Trimestral das Metas da Coroa

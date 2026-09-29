@@ -79,25 +79,25 @@ def run_simulation(rounds=100, seed=42):
         current_season = getattr(c.state, "season", 1)
 
         # =====================================================================
-        # FASE 1: RECURSOS HUMANOS, SAÚDE & CONTRATOS
+        # FASE 1: RECURSOS HUMANOS, SAÚDE & CONTRATOS (GESTÃO ENXUTA)
         # =====================================================================
         c.state.current_phase = 1
         p1_res = c.phase_service.phase_1_cuidado()
 
-        # 1.1 Gerenciar Fadiga: se herói titular tiver fadiga >= 40, pagar massagem se tiver ouro
+        # 1.1 Gerenciar Fadiga: alívio por massagem apenas em emergência extrema (fadiga > 85)
         for hero in c.state.team:
-            if hero.get("fatigue", 0) >= 40 and c.state.gold >= 150:
+            if hero.get("fatigue", 0) >= 85 and c.state.gold >= 500:
                 mass_res = c.hero_service.treat_hero_massage(hero["id"])
                 if mass_res.get("success"):
                     stats["massages_bought"] += 1
 
-        # 1.2 Upgrades da Ala Médica se tesouraria for folgada (> 800 ouro)
-        if c.state.gold >= 800:
+        # 1.2 Upgrades da Ala Médica apenas com caixa superavitário (> 3000 ouro)
+        if c.state.gold >= 3000:
             up_fac = c.hero_service.upgrade_medical_facility()
             if up_fac.get("success"):
                 stats["facility_upgrades"] += 1
 
-        # 1.3 Homologar Renovações de Contrato pendentes
+        # 1.3 Homologar Renovações de Contrato pendentes dos titulares
         pending = list(getattr(c.state, "pending_contract_renewals", []))
         for ren in pending:
             hid = ren.get("hero_id")
@@ -108,48 +108,70 @@ def run_simulation(rounds=100, seed=42):
                     stats["contracts_renewed"] += 1
                     stats["signing_bonuses_paid"] += bonus
 
-        # 1.4 Promover Aprendizes se houver vaga e ouro
-        if len(c.state.team) < 10 and c.state.gold >= 300:
-            academy = c.hero_service.get_academy_data().get("prospects", [])
+        # 1.4 Promover Aprendizes para manter o elenco enxuto de 7 a 8 heróis (6 titulares + 1 ou 2 reservas)
+        while len(c.state.team) < 7:
+            academy = getattr(c.state, "youth_academy", [])
+            if not academy:
+                c.hero_service.replenish_academy()
+                academy = getattr(c.state, "youth_academy", [])
             if academy:
                 best_youth = max(academy, key=lambda y: y.get("current_power", 40))
-                prom_res = c.hero_service.promote_youth(best_youth["id"])
+                prom_res = c.hero_service.promote_youth_apprentice(best_youth["id"])
                 if prom_res.get("success"):
                     stats["youth_promoted"] += 1
+                else:
+                    break
+            else:
+                break
 
         # Avança para Fase 2
         c.state.current_phase = 2
 
         # =====================================================================
-        # FASE 2: OFICINA, ALMOXARIFADO & BALCÃO COMERCIAL
+        # FASE 2: OFICINA, ALMOXARIFADO & BALCÃO COMERCIAL (MAXIMIZADOR DE LUCRO)
         # =====================================================================
-        # 2.1 Upgrades de Bancada se tesouraria tiver caixa (> 500 ouro)
-        if c.state.gold >= 500:
+        # 2.1 Upgrades de Bancada apenas com superávit consolidado (> 2500 ouro)
+        if c.state.gold >= 2500:
             target_branch = random.choice(BRANCHES)
             up_w = c.crafting_service.upgrade_workshop(target_branch)
             if up_w.get("success"):
                 stats["workshop_upgrades"] += 1
 
-        # 2.2 Compra de Matérias-Primas no Atacado se faltar no estoque
-        if c.state.gold >= 250:
-            mats_market = getattr(c.market_engine, "materials_for_sale", [])
-            if mats_market:
-                sample_mat = random.choice(mats_market)
-                qty = min(sample_mat.get("batch_size", 3), sample_mat.get("available_quantity", 3))
-                if qty > 0:
-                    buy_res = c.market_service.buy_material(sample_mat["material_id"], quantity=qty)
-                    if buy_res.get("success"):
-                        stats["materials_bought"] += qty
+        active_bulletin = getattr(c.market_engine, "bulletin", None)
+        bulletin_target = active_bulletin.get("target") if active_bulletin else None
 
-        # 2.3 Forja Modular de Itens
+        # 2.2 Aquisição Estratégica de Insumos: compra matérias baratas para forjar itens de alto valor
+        if c.state.gold >= 250:
+            mats_market = list(getattr(c.market_engine, "materials_for_sale", []))
+            recipe_material_ids = {"mat_iron_ore", "mat_scaly_leather", "mat_mana_crystal", "mat_eucalyptus_herb", "mat_flour"}
+            for m in mats_market:
+                mid = m.get("material_id")
+                if mid in recipe_material_ids and c.state.materials.get(mid, 0) < 6:
+                    avail = m.get("available_quantity", 0)
+                    to_buy = min(avail, 3)
+                    if to_buy > 0 and c.state.gold >= (m.get("unit_price", 20) * to_buy):
+                        buy_res = c.market_service.buy_material(mid, quantity=to_buy)
+                        if buy_res.get("success"):
+                            stats["materials_bought"] += to_buy
+
+        # 2.3 Forja Modular Contínua (Priorizando Itens do Boletim e Excedentes)
         known_recs = [rec for rec in all_recipes if rec.get("recipe_id") in getattr(c.state, "known_recipes", [])]
+        # Prioriza receitas que combinam com o slot do Boletim da rodada
+        known_recs.sort(key=lambda r: 100 if r.get("slot") == bulletin_target else r.get("market_value_base", 100), reverse=True)
+
+        crafted_this_week = 0
         for rec in known_recs:
+            if crafted_this_week >= 4:
+                break
             branch = rec.get("branch", "Ferragem")
             if c.state.workshop_levels.get(branch, 1) < rec.get("min_workshop_level", 1):
                 continue
             ingrs = catalog.get_recipe_ingredients(rec["recipe_id"])
-            has_mats = all(c.state.materials.get(i["material_id"], 0) >= i["quantity"] for i in ingrs)
-            if has_mats:
+
+            while crafted_this_week < 4:
+                has_mats = all(c.state.materials.get(i["material_id"], 0) >= i["quantity"] for i in ingrs)
+                if not has_mats:
+                    break
                 pfxs = [aid for aid in c.state.known_affixes if aid.startswith("pref_")]
                 sfxs = [aid for aid in c.state.known_affixes if aid.startswith("suff_")]
                 pfx = random.choice(pfxs) if pfxs and random.random() < 0.6 else None
@@ -157,18 +179,24 @@ def run_simulation(rounds=100, seed=42):
                 craft_res = c.crafting_service.craft_item(rec["recipe_id"], prefix_id=pfx, suffix_id=sfx)
                 if craft_res.get("success"):
                     stats["items_crafted"] += 1
+                    crafted_this_week += 1
                     q = craft_res.get("item", {}).get("quality", "Normal")
                     stats["craft_quality"][q] = stats["craft_quality"].get(q, 0) + 1
+                else:
                     break
 
-        # 2.4 Balcão Comercial: Venda de Excedentes com Margens
+        # 2.4 Balcão Comercial Inteligente: Vende Excedentes a Preço Justo (100% de Conversão)
         unequipped_items = [it for it in c.state.inventory if not c.state.is_equipped(it.get("item_instance_id"))]
         if unequipped_items:
-            for item_to_sell in unequipped_items[:2]:
+            def sales_priority(it):
+                is_bull = 100 if it.get("slot_type") == bulletin_target else 0
+                return is_bull + it.get("market_value_base", 100)
+            unequipped_items.sort(key=sales_priority, reverse=True)
+
+            # Vende até 5 itens por semana para gerar fluxo de caixa agressivo
+            for item_to_sell in unequipped_items[:5]:
                 iid = item_to_sell.get("item_instance_id")
-                margin = random.choice(["Promoção", "Preço Justo", "Preço Abusivo"])
-                if margin == "Preço Abusivo" and c.state.gold < 30:
-                    margin = "Preço Justo"
+                margin = "Preço Justo"
                 stats["sales_listed"][margin] += 1
                 sell_res = c.sales_service.list_item_for_sale(iid, margin_type=margin)
                 if sell_res.get("listing_fee"):
@@ -180,7 +208,7 @@ def run_simulation(rounds=100, seed=42):
                     off_id = sell_res.get("offer_id")
                     c_price = sell_res.get("counter_offer", 0)
                     a_price = sell_res.get("asked_price", 1)
-                    accept = (c_price / a_price) >= 0.70
+                    accept = (c_price / a_price) >= 0.60
                     c.sales_service.resolve_counter_offer(off_id, accept)
                     if accept:
                         stats["sales_success"] += 1
@@ -191,15 +219,21 @@ def run_simulation(rounds=100, seed=42):
         c.state.current_phase = 3
 
         # =====================================================================
-        # FASE 3: ENGENHARIA TÁTICA & ALOCAÇÃO DE LOADOUT
+        # FASE 3: ENGENHARIA TÁTICA & ALOCAÇÃO DE LOADOUT (MAXIMIZANDO PODER EFETIVO)
         # =====================================================================
         current_dungeon = c.get_current_dungeon()
         current_climate = c.phase_service.get_current_climate()
 
-        # 3.1 Seleção Inteligente de Starters e Reserves por Fadiga e Poder
+        # 3.1 Seleção Inteligente de Titulares por Poder Efetivo e Rotação de Fadiga
         apt_heroes = [h for h in c.state.team if h.get("status") != "Afastado" and not h.get("injured", False)]
-        # Ordena por menor fadiga primeiro (para rodar o elenco), depois maior poder
-        apt_heroes.sort(key=lambda h: (h.get("fatigue", 0) > 60, -h.get("current_power", 50)))
+        # Calcula Poder Efetivo real considerando fadiga
+        def hero_effective_power(h):
+            fat = h.get("fatigue", 0)
+            if fat >= 50:  # Descansa na reserva para recuperar 20 fadiga/semana naturalmente sem custos
+                return -100 + h.get("current_power", 50)
+            return h.get("current_power", 50) * (1.0 - 0.30 * (fat / 100.0))
+
+        apt_heroes.sort(key=hero_effective_power, reverse=True)
         new_starters = [h["id"] for h in apt_heroes[:6]]
         new_reserves = [h["id"] for h in apt_heroes[6:9]]
 

@@ -5,6 +5,25 @@ O formato baseia-se em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ---
 
+## [0.4.1] — 2026-09-29
+
+### 👑 Metas da Contratante & Auditorias Não Punitivas
+- **Meta de Confiança da Contratante:** Reformulação do sistema de auditorias trimestrais periciais para focar exclusivamente na confiança institucional. Auditorias não atingidas não debitam mais ouro (`delta_gold = 0` e `penalty_tax = 0`), eliminando espirais punitivas de falência e aplicando apenas variação percentual na `contractor_confidence` (-15% se reprovada, +15% se aprovada).
+- **Exibição de Confiança na Interface:** Integrado o indicador de `contractor_confidence` no card das Metas da Coroa na Fase 5 e no estado serializado do jogo.
+
+### 🐛 Correções Críticas de Engenharia
+- **Desativação de Gatilho de Temporada em Loop:** Corrigido bug em `phase_service.py` onde `self.league_engine.season_summary` não era limpo após a apuração da Fase 5, evitando o reprocessamento errôneo semanal de contratos e envelhecimento anual a cada rodada subsequente.
+- **Promoção de Aprendizes na Academia:** Normalizada chamada de método para `promote_youth_apprentice` e saneada a recuperação de registros da base.
+
+### 📈 Prova de Viabilidade Econômica (Stress Test de 100 Rodadas)
+- **Simulação com Maximização de Lucro e Sobrevivência Competitiva:**
+  - **Tesouraria Inicial vs Final:** De ⬡ 1.000 para **⬡ 57.689 de Ouro** (saldo 100% solvente durante todo o percurso, com superávit patrimonial líquido de +56.689 moedas).
+  - **Forja Modular & Vendas no Balcão:** 312 artefatos de alto valor produzidos (120 Lendários e 104 Ótimos) e 312 vendas concretizadas a Preço Justo e multiplicadores de Boletim de Mercado (100% de conversão comercial).
+  - **Auditorias da Coroa / Contratante:** 12 aprovações em 12 auditorias (100% de taxa de sucesso), com ⬡ 4.800 em subsídios de fomento régio recebidos e 0 multas.
+  - **Competitividade na Liga:** 42 vitórias e 16 empates, garantindo acesso e consolidação na **Divisão Nobre da Coroa**.
+
+---
+
 ## [0.4.0] — 2026-09-29
 
 ### 🏰 Identidade Visual & Arte

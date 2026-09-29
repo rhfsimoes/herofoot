@@ -391,6 +391,7 @@ export interface CrownAuditReport {
   goals_completed: number
   total_goals: number
   delta_gold: number
+  contractor_confidence?: number
   headline: string
   details: {
     title: string
@@ -427,6 +428,7 @@ export interface GameState {
   day: number
   week: number
   gold: number
+  contractor_confidence?: number
   current_phase: number
   active_slot?: string | null
   workshop_levels: Record<string, number>
@@ -715,6 +717,7 @@ export const MOCK_STATE: GameState = {
   week: 1,
   season: 1,
   gold: 1000,
+  contractor_confidence: 75,
   current_phase: 1,
   current_dungeon: {
     ...DUNGEONS_CATALOG[0],
