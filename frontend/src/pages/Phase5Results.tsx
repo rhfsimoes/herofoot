@@ -17,7 +17,7 @@ import {
   Scale,
 } from 'lucide-react'
 import type { GameState } from '../mockData'
-import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
+import { GOLD_GRADIENT_TEXT, MATERIAL_RARITY_STYLES, getMaterialRarity } from '../utils/rarityStyles'
 import { CrownSeal, NobleDivisionEmblem, AccessDivisionEmblem } from '../components/art'
 
 interface Phase5ResultsProps {
@@ -49,11 +49,21 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
     }
   }
 
-  const salaryTotal = state.team.reduce((sum, h) => sum + h.salary, 0)
-  const maintenance = 50
-  const expeditionRevenue = 250
-  const salesRevenue = 120
-  const seasonAward = state.season_summary?.award_gold || 0
+  const fin = state.financials ?? state.last_financial_statement
+
+  // Folha de pagamento real da guilda
+  const salaryTotal = fin?.salaries ?? state.team.reduce((sum, h) => sum + (h.salary ?? 0), 0)
+
+  // Custos de manutenção real da guilda: Base (50) + Ambulatório (20) + Academia (40)
+  const baseMaintenance = fin?.base_maintenance ?? 50
+  const medicalMaintenance = fin?.medical_maintenance ?? (state.medical_facilities?.weekly_maintenance ?? 20)
+  const academyMaintenance = fin?.academy_maintenance ?? 40
+  const maintenance = fin?.maintenance ?? (baseMaintenance + medicalMaintenance + academyMaintenance)
+
+  // Receitas reais
+  const expeditionRevenue = fin?.expedition_revenue ?? fin?.revenue ?? 250
+  const salesRevenue = state.weekly_sales_revenue ?? fin?.sales_revenue ?? 0
+  const seasonAward = fin?.season_award ?? (state.season_summary?.award_gold || 0)
 
   const crownAuditThisWeek =
     state.crown_goals?.last_audit_report &&
@@ -61,12 +71,14 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
       ? state.crown_goals.last_audit_report
       : null
 
-  const crownSubsidy = crownAuditThisWeek && crownAuditThisWeek.delta_gold > 0 ? crownAuditThisWeek.delta_gold : 0
-  const crownPenalty = crownAuditThisWeek && crownAuditThisWeek.delta_gold < 0 ? Math.abs(crownAuditThisWeek.delta_gold) : 0
+  const crownSubsidy =
+    fin?.crown_subsidy ?? (crownAuditThisWeek && crownAuditThisWeek.delta_gold > 0 ? crownAuditThisWeek.delta_gold : 0)
+  const crownPenalty =
+    fin?.crown_penalty ?? (crownAuditThisWeek && crownAuditThisWeek.delta_gold < 0 ? Math.abs(crownAuditThisWeek.delta_gold) : 0)
 
   const totalRevenue = expeditionRevenue + salesRevenue + seasonAward + crownSubsidy
   const totalExpenses = salaryTotal + maintenance + crownPenalty
-  const netResult = totalRevenue - totalExpenses
+  const netResult = fin?.net ?? (totalRevenue - totalExpenses)
 
   // Divisão selecionada para visualização
   const divisions = state.divisions || []
@@ -120,16 +132,24 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
           LOOT DA EXPEDIÇÃO (GRID DE CARDS COMPACTOS)
          ───────────────────────────────────────────── */}
       <div className="bg-[#1c1917] border border-amber-950/40 rounded-xl p-5 shadow-lg space-y-3">
-        <div className="flex items-center gap-2 border-b border-stone-800/80 pb-2">
-          <Award className="w-4 h-4 text-amber-500" />
-          <h3 className="text-amber-200 text-xs font-black uppercase tracking-wider">
-            Espólio Recolhido na Masmorra (Loot da Força-Tarefa)
-          </h3>
+        <div className="flex items-center justify-between border-b border-stone-800/80 pb-2">
+          <div className="flex items-center gap-2">
+            <Award className="w-4 h-4 text-amber-500" />
+            <h3 className="text-amber-200 text-xs font-black uppercase tracking-wider">
+              Espólio Recolhido na Masmorra (Loot da Força-Tarefa)
+            </h3>
+          </div>
+          <span className="text-[11px] text-stone-500 font-mono">
+            {state.last_expedition?.rooms_explored_player
+              ? `${state.last_expedition.rooms_explored_player} câmaras desbravadas`
+              : 'Incursão Homologada'}
+          </span>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {/* Card 1: Rendimento em Ouro da Expedição */}
           <div className="bg-stone-900 border border-stone-800 rounded-xl p-3.5 flex items-center gap-3 shadow">
-            <div className="w-9 h-9 rounded-lg bg-amber-950/80 border border-amber-800/60 flex items-center justify-center text-amber-400">
+            <div className="w-9 h-9 rounded-lg bg-amber-950/80 border border-amber-800/60 flex items-center justify-center text-amber-400 shrink-0">
               <Coins className="w-4 h-4" />
             </div>
             <div>
@@ -138,35 +158,70 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
             </div>
           </div>
 
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-3.5 flex items-center gap-3 shadow">
-            <div className="w-9 h-9 rounded-lg bg-purple-950/80 border border-purple-800/60 flex items-center justify-center text-purple-400">
-              <Package className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400 block">Minério Raro</span>
-              <span className="text-stone-200 text-xs font-bold font-mono">3x Cristais de Mana</span>
-            </div>
-          </div>
+          {/* Cards Dinâmicos de Loot Real ou Resumo Operacional */}
+          {state.last_expedition_loot && state.last_expedition_loot.length > 0 ? (
+            state.last_expedition_loot.map((loot, idx) => {
+              const rarity = getMaterialRarity(loot.material_id, loot.name, loot.rarity)
+              const rStyle = MATERIAL_RARITY_STYLES[rarity]
+              return (
+                <div
+                  key={loot.material_id || idx}
+                  className={`${rStyle.bg} border ${rStyle.border} ${rStyle.glow} rounded-xl p-3.5 flex items-center gap-3 shadow transition-all`}
+                >
+                  <div className="w-9 h-9 rounded-lg bg-stone-950/80 border border-stone-800 flex items-center justify-center shrink-0">
+                    <Package className="w-4 h-4 text-stone-300" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className={rStyle.badge}>{rarity}</span>
+                    <span className="text-stone-200 text-xs font-bold font-mono truncate block mt-0.5">
+                      {loot.quantity}x {loot.name}
+                    </span>
+                  </div>
+                </div>
+              )
+            })
+          ) : (
+            <>
+              {/* Card 2: Pontos de Exploração */}
+              <div className="bg-stone-900 border border-stone-800 rounded-xl p-3.5 flex items-center gap-3 shadow">
+                <div className="w-9 h-9 rounded-lg bg-amber-950/80 border border-amber-800/60 flex items-center justify-center text-amber-400 shrink-0">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400 block">Exploração</span>
+                  <span className="text-stone-200 text-xs font-bold font-mono">
+                    +{state.last_expedition?.player_pe ?? 45} PE
+                  </span>
+                </div>
+              </div>
 
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-3.5 flex items-center gap-3 shadow">
-            <div className="w-9 h-9 rounded-lg bg-blue-950/80 border border-blue-800/60 flex items-center justify-center text-blue-400">
-              <Package className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400 block">Couro Fino</span>
-              <span className="text-stone-200 text-xs font-bold font-mono">2x Couro Escamoso</span>
-            </div>
-          </div>
+              {/* Card 3: Câmaras Desbravadas */}
+              <div className="bg-stone-900 border border-stone-800 rounded-xl p-3.5 flex items-center gap-3 shadow">
+                <div className="w-9 h-9 rounded-lg bg-sky-950/80 border border-sky-800/60 flex items-center justify-center text-sky-400 shrink-0">
+                  <Shield className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400 block">Progressão</span>
+                  <span className="text-stone-200 text-xs font-bold font-mono">
+                    {state.last_expedition?.rooms_explored_player ?? 4} Câmaras
+                  </span>
+                </div>
+              </div>
 
-          <div className="bg-stone-900 border border-stone-800 rounded-xl p-3.5 flex items-center gap-3 shadow">
-            <div className="w-9 h-9 rounded-lg bg-emerald-950/80 border border-emerald-800/60 flex items-center justify-center text-emerald-400">
-              <Award className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400 block">Certificação</span>
-              <span className="text-stone-200 text-xs font-bold">Laudo Sem Infrações</span>
-            </div>
-          </div>
+              {/* Card 4: Certificação Sanitária */}
+              <div className="bg-stone-900 border border-stone-800 rounded-xl p-3.5 flex items-center gap-3 shadow">
+                <div className="w-9 h-9 rounded-lg bg-emerald-950/80 border border-emerald-800/60 flex items-center justify-center text-emerald-400 shrink-0">
+                  <Award className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-stone-400 block">Certificação</span>
+                  <span className="text-stone-200 text-xs font-bold truncate block">
+                    {state.last_expedition?.exit_reason_player || 'Laudo Sem Infrações'}
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -236,7 +291,12 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
                 <span className="font-mono text-rose-400 font-bold">-⬡ {salaryTotal}</span>
               </div>
               <div className="flex justify-between text-stone-300">
-                <span>Custos de Manutenção Predial da Sede</span>
+                <div>
+                  <span>Custos de Manutenção Operacional da Sede</span>
+                  <div className="text-[10px] text-stone-500 font-mono">
+                    Base: {baseMaintenance} · Ambulatório: {medicalMaintenance} · Academia: {academyMaintenance}
+                  </div>
+                </div>
                 <span className="font-mono text-rose-400 font-bold">-⬡ {maintenance}</span>
               </div>
               {crownPenalty > 0 && (

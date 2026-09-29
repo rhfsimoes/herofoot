@@ -215,6 +215,29 @@ export interface ExpeditionSummary {
   climate?: DungeonClimateInfo
 }
 
+export interface ExpeditionLootItem {
+  material_id?: string
+  name: string
+  quantity: number
+  rarity?: string
+}
+
+export interface FinancialStatement {
+  revenue?: number
+  expedition_revenue?: number
+  sales_revenue?: number
+  season_award?: number
+  crown_subsidy?: number
+  crown_penalty?: number
+  salaries?: number
+  maintenance?: number
+  base_maintenance?: number
+  medical_maintenance?: number
+  academy_maintenance?: number
+  net?: number
+}
+
+
 export interface AffixManual {
   affix_id: string
   name: string
@@ -449,6 +472,10 @@ export interface GameState {
   youth_academy?: Hero[]
   transfer_market?: TransferMarketData
   crown_goals?: CrownGoalsData
+  financials?: FinancialStatement
+  last_financial_statement?: FinancialStatement
+  weekly_sales_revenue?: number
+  last_expedition_loot?: ExpeditionLootItem[]
 }
 
 export const MATERIAL_LABELS: Record<string, string> = {
@@ -760,11 +787,34 @@ export const MOCK_STATE: GameState = {
   },
   market: {
     materials_for_sale: [
-      { material_id: 'mat_iron_ore', name: 'Minério de Ferro', unit_price: 20, available_quantity: 6 },
-      { material_id: 'mat_scaly_leather', name: 'Couro Escamoso', unit_price: 35, available_quantity: 4 },
-      { material_id: 'mat_mana_crystal', name: 'Cristal de Mana', unit_price: 55, available_quantity: 2 },
+      { material_id: 'mat_iron_ore', name: 'Minério de Ferro', unit_price: 20, available_quantity: 8 },
+      { material_id: 'mat_soapstone', name: 'Pedra-Sabão', unit_price: 22, available_quantity: 6 },
+      { material_id: 'mat_ember_coal', name: 'Brasa de Carvão', unit_price: 30, available_quantity: 5 },
+      { material_id: 'mat_granite_dust', name: 'Pó de Granito', unit_price: 28, available_quantity: 5 },
+      { material_id: 'mat_mithril_ingot', name: 'Lingote de Mithril', unit_price: 120, available_quantity: 3 },
+      { material_id: 'mat_black_steel', name: 'Aço Negro', unit_price: 110, available_quantity: 3 },
+      { material_id: 'mat_adamantite_ore', name: 'Minério de Adamante', unit_price: 280, available_quantity: 2 },
+      { material_id: 'mat_runic_gold', name: 'Ouro Rúnico', unit_price: 550, available_quantity: 1 },
+      { material_id: 'mat_common_ash', name: 'Freixo Comum', unit_price: 18, available_quantity: 7 },
+      { material_id: 'mat_ancient_wood', name: 'Madeira Antiga', unit_price: 95, available_quantity: 4 },
+      { material_id: 'mat_glowing_moss', name: 'Musgo Brilhante', unit_price: 24, available_quantity: 6 },
       { material_id: 'mat_eucalyptus_herb', name: 'Erva de Eucalipto', unit_price: 25, available_quantity: 5 },
+      { material_id: 'mat_mandrake_root', name: 'Raiz de Mandrágora', unit_price: 85, available_quantity: 3 },
+      { material_id: 'mat_moonlight_herb', name: 'Erva do Luar', unit_price: 240, available_quantity: 2 },
+      { material_id: 'mat_tanned_leather', name: 'Couro Curtido', unit_price: 26, available_quantity: 6 },
+      { material_id: 'mat_scaly_leather', name: 'Couro Escamoso', unit_price: 35, available_quantity: 4 },
+      { material_id: 'mat_basilisk_scale', name: 'Escama de Basilisco', unit_price: 105, available_quantity: 3 },
+      { material_id: 'mat_griffin_claw', name: 'Garra de Grifo', unit_price: 115, available_quantity: 3 },
+      { material_id: 'mat_chimera_horn', name: 'Chifre de Quimera', unit_price: 260, available_quantity: 2 },
+      { material_id: 'mat_ancient_dragon_scale', name: 'Escama de Dragão Ancestral', unit_price: 600, available_quantity: 1 },
+      { material_id: 'mat_lapis_powder', name: 'Pó de Lápis-Lazúli', unit_price: 32, available_quantity: 5 },
+      { material_id: 'mat_mana_crystal', name: 'Cristal de Mana', unit_price: 55, available_quantity: 4 },
+      { material_id: 'mat_pure_ectoplasm', name: 'Ectoplasma Puro', unit_price: 130, available_quantity: 3 },
+      { material_id: 'mat_liquid_mana_crystal', name: 'Cristal de Mana Líquida', unit_price: 310, available_quantity: 2 },
+      { material_id: 'mat_fire_golem_core', name: 'Núcleo de Golem de Fogo', unit_price: 350, available_quantity: 2 },
+      { material_id: 'mat_soul_stone', name: 'Pedra da Alma', unit_price: 650, available_quantity: 1 },
       { material_id: 'mat_flour', name: 'Farinha de Trigo', unit_price: 15, available_quantity: 8 },
+      { material_id: 'mat_wild_honey', name: 'Mel Silvestre', unit_price: 22, available_quantity: 6 },
     ],
     ready_items_for_sale: [
       { market_item_id: 'mkt_01', name: 'Espada de Cavalaria', slot_type: 'Arma', quality: 'Normal', power_bonus: 18, price: 220 },
@@ -892,7 +942,26 @@ export const MOCK_STATE: GameState = {
         completed: true
       }
     ]
-  }
+  },
+  financials: {
+    revenue: 250,
+    sales_revenue: 120,
+    salaries: 340,
+    base_maintenance: 50,
+    medical_maintenance: 20,
+    academy_maintenance: 40,
+    maintenance: 110,
+    season_award: 0,
+    crown_subsidy: 0,
+    crown_penalty: 0,
+    net: -80,
+  },
+  weekly_sales_revenue: 120,
+  last_expedition_loot: [
+    { material_id: 'mat_mana_crystal', name: 'Cristal de Mana', quantity: 2, rarity: 'Raro' },
+    { material_id: 'mat_scaly_leather', name: 'Couro Escamoso', quantity: 3, rarity: 'Comum' },
+    { material_id: 'mat_iron_ore', name: 'Minério de Ferro', quantity: 4, rarity: 'Comum' },
+  ],
 }
 
 
