@@ -3,48 +3,196 @@
     "id": "mat_iron_ore",
     "name": "Minério de Ferro",
     "category": "mineral",
-    "is_raw": true
+    "is_raw": true,
+    "rarity": "Comum"
   },
   {
-    "id": "mat_scaly_leather",
-    "name": "Couro Escamoso",
-    "category": "animal",
-    "is_raw": true
-  },
-  {
-    "id": "mat_mana_crystal",
-    "name": "Cristal de Mana",
-    "category": "arcano",
-    "is_raw": true
-  },
-  {
-    "id": "mat_eucalyptus_herb",
-    "name": "Erva de Eucalipto",
-    "category": "herbal",
-    "is_raw": true
-  },
-  {
-    "id": "mat_flour",
-    "name": "Farinha de Trigo",
-    "category": "alimento",
-    "is_raw": true
+    "id": "mat_soapstone",
+    "name": "Pedra-Sabão",
+    "category": "mineral",
+    "is_raw": true,
+    "rarity": "Comum"
   },
   {
     "id": "mat_ember_coal",
     "name": "Brasa de Carvão",
     "category": "mineral",
-    "is_raw": true
+    "is_raw": true,
+    "rarity": "Comum"
   },
   {
     "id": "mat_granite_dust",
     "name": "Pó de Granito",
     "category": "mineral",
-    "is_raw": true
+    "is_raw": true,
+    "rarity": "Comum"
+  },
+  {
+    "id": "mat_mithril_ingot",
+    "name": "Lingote de Mithril",
+    "category": "mineral",
+    "is_raw": false,
+    "rarity": "Raro"
+  },
+  {
+    "id": "mat_black_steel",
+    "name": "Aço Negro",
+    "category": "mineral",
+    "is_raw": false,
+    "rarity": "Raro"
+  },
+  {
+    "id": "mat_adamantite_ore",
+    "name": "Minério de Adamante",
+    "category": "mineral",
+    "is_raw": true,
+    "rarity": "Épico"
+  },
+  {
+    "id": "mat_runic_gold",
+    "name": "Ouro Rúnico",
+    "category": "mineral",
+    "is_raw": true,
+    "rarity": "Lendário"
+  },
+  {
+    "id": "mat_common_ash",
+    "name": "Freixo Comum",
+    "category": "madeira",
+    "is_raw": true,
+    "rarity": "Comum"
+  },
+  {
+    "id": "mat_ancient_wood",
+    "name": "Madeira Antiga",
+    "category": "madeira",
+    "is_raw": true,
+    "rarity": "Raro"
+  },
+  {
+    "id": "mat_glowing_moss",
+    "name": "Musgo Brilhante",
+    "category": "herbal",
+    "is_raw": true,
+    "rarity": "Comum"
+  },
+  {
+    "id": "mat_eucalyptus_herb",
+    "name": "Erva de Eucalipto",
+    "category": "herbal",
+    "is_raw": true,
+    "rarity": "Comum"
+  },
+  {
+    "id": "mat_mandrake_root",
+    "name": "Raiz de Mandrágora",
+    "category": "herbal",
+    "is_raw": true,
+    "rarity": "Raro"
+  },
+  {
+    "id": "mat_moonlight_herb",
+    "name": "Erva do Luar",
+    "category": "herbal",
+    "is_raw": true,
+    "rarity": "Épico"
+  },
+  {
+    "id": "mat_tanned_leather",
+    "name": "Couro Curtido",
+    "category": "animal",
+    "is_raw": false,
+    "rarity": "Comum"
+  },
+  {
+    "id": "mat_scaly_leather",
+    "name": "Couro Escamoso",
+    "category": "animal",
+    "is_raw": true,
+    "rarity": "Comum"
+  },
+  {
+    "id": "mat_basilisk_scale",
+    "name": "Escama de Basilisco",
+    "category": "animal",
+    "is_raw": true,
+    "rarity": "Raro"
+  },
+  {
+    "id": "mat_griffin_claw",
+    "name": "Garra de Grifo",
+    "category": "animal",
+    "is_raw": true,
+    "rarity": "Raro"
+  },
+  {
+    "id": "mat_chimera_horn",
+    "name": "Chifre de Quimera",
+    "category": "animal",
+    "is_raw": true,
+    "rarity": "Épico"
+  },
+  {
+    "id": "mat_ancient_dragon_scale",
+    "name": "Escama de Dragão Ancestral",
+    "category": "animal",
+    "is_raw": true,
+    "rarity": "Lendário"
+  },
+  {
+    "id": "mat_lapis_powder",
+    "name": "Pó de Lápis-Lazúli",
+    "category": "arcano",
+    "is_raw": true,
+    "rarity": "Comum"
+  },
+  {
+    "id": "mat_mana_crystal",
+    "name": "Cristal de Mana",
+    "category": "arcano",
+    "is_raw": true,
+    "rarity": "Raro"
+  },
+  {
+    "id": "mat_pure_ectoplasm",
+    "name": "Ectoplasma Puro",
+    "category": "arcano",
+    "is_raw": true,
+    "rarity": "Raro"
+  },
+  {
+    "id": "mat_liquid_mana_crystal",
+    "name": "Cristal de Mana Líquida",
+    "category": "arcano",
+    "is_raw": true,
+    "rarity": "Épico"
+  },
+  {
+    "id": "mat_fire_golem_core",
+    "name": "Núcleo de Golem de Fogo",
+    "category": "arcano",
+    "is_raw": true,
+    "rarity": "Épico"
+  },
+  {
+    "id": "mat_soul_stone",
+    "name": "Pedra da Alma",
+    "category": "arcano",
+    "is_raw": true,
+    "rarity": "Lendário"
+  },
+  {
+    "id": "mat_flour",
+    "name": "Farinha de Trigo",
+    "category": "alimento",
+    "is_raw": true,
+    "rarity": "Comum"
   },
   {
     "id": "mat_wild_honey",
     "name": "Mel Silvestre",
     "category": "alimento",
-    "is_raw": true
+    "is_raw": true,
+    "rarity": "Comum"
   }
 ]

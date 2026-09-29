@@ -171,5 +171,191 @@
     "slot": "Inscrição",
     "affix_id": "suf_prevencao_hipotermia",
     "quantity": 1
+  },
+  {
+    "material_id": "mat_black_steel",
+    "slot": "Arma",
+    "affix_id": "pref_predatorio",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_griffin_claw",
+    "slot": "Arma",
+    "affix_id": "pref_predatorio",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_mithril_ingot",
+    "slot": "Arma",
+    "affix_id": "pref_galvanizado",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_mithril_ingot",
+    "slot": "Armadura",
+    "affix_id": "pref_galvanizado",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_moonlight_herb",
+    "slot": "Inscrição",
+    "affix_id": "pref_glacial",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_ancient_wood",
+    "slot": "Inscrição",
+    "affix_id": "pref_glacial",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_fire_golem_core",
+    "slot": "Inscrição",
+    "affix_id": "pref_vulcanico",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_ember_coal",
+    "slot": "Inscrição",
+    "affix_id": "pref_vulcanico",
+    "quantity": 2
+  },
+  {
+    "material_id": "mat_soapstone",
+    "slot": "Armadura",
+    "affix_id": "pref_macico",
+    "quantity": 2
+  },
+  {
+    "material_id": "mat_granite_dust",
+    "slot": "Armadura",
+    "affix_id": "pref_macico",
+    "quantity": 2
+  },
+  {
+    "material_id": "mat_adamantite_ore",
+    "slot": "Armadura",
+    "affix_id": "pref_impenetravel",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_black_steel",
+    "slot": "Armadura",
+    "affix_id": "pref_impenetravel",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_ancient_dragon_scale",
+    "slot": "Armadura",
+    "affix_id": "pref_impenetravel",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_soul_stone",
+    "slot": "Joia",
+    "affix_id": "pref_penitente",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_lapis_powder",
+    "slot": "Joia",
+    "affix_id": "pref_penitente",
+    "quantity": 2
+  },
+  {
+    "material_id": "mat_pure_ectoplasm",
+    "slot": "Joia",
+    "affix_id": "pref_penitente",
+    "quantity": 2
+  },
+  {
+    "material_id": "mat_lapis_powder",
+    "slot": "Joia",
+    "affix_id": "pref_economico",
+    "quantity": 2
+  },
+  {
+    "material_id": "mat_soapstone",
+    "slot": "Joia",
+    "affix_id": "pref_economico",
+    "quantity": 2
+  },
+  {
+    "material_id": "mat_common_ash",
+    "slot": "Arma",
+    "affix_id": "suf_risco_calculado",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_iron_ore",
+    "slot": "Arma",
+    "affix_id": "suf_risco_calculado",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_runic_gold",
+    "slot": "Joia",
+    "affix_id": "suf_eficiencia_tributaria",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_lapis_powder",
+    "slot": "Joia",
+    "affix_id": "suf_eficiencia_tributaria",
+    "quantity": 2
+  },
+  {
+    "material_id": "mat_chimera_horn",
+    "slot": "Arma",
+    "affix_id": "suf_rescisao_imediata",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_black_steel",
+    "slot": "Arma",
+    "affix_id": "suf_rescisao_imediata",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_ember_coal",
+    "slot": "Arma",
+    "affix_id": "suf_rescisao_imediata",
+    "quantity": 2
+  },
+  {
+    "material_id": "mat_mandrake_root",
+    "slot": "Consumível",
+    "affix_id": "suf_turno_extraordinario",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_glowing_moss",
+    "slot": "Consumível",
+    "affix_id": "suf_turno_extraordinario",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_liquid_mana_crystal",
+    "slot": "Inscrição",
+    "affix_id": "suf_compliance_magico",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_mana_crystal",
+    "slot": "Inscrição",
+    "affix_id": "suf_compliance_magico",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_tanned_leather",
+    "slot": "Armadura",
+    "affix_id": "suf_responsabilidade_limitada",
+    "quantity": 2
+  },
+  {
+    "material_id": "mat_basilisk_scale",
+    "slot": "Armadura",
+    "affix_id": "suf_responsabilidade_limitada",
+    "quantity": 1
   }
 ]
