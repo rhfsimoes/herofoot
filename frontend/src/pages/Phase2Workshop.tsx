@@ -21,10 +21,13 @@ import {
   Search,
   Star,
   Zap,
+  Flame,
 } from 'lucide-react'
 import {
   MOCK_RECIPES,
   MATERIAL_LABELS,
+  WORKSHOP_XP_TABLE,
+  WORKSHOP_LEVEL_BENEFITS,
   type GameState,
   type InventoryItem,
   type ItemQuality,
@@ -37,6 +40,7 @@ import {
   type MaterialSheet,
   type AffixManual,
 } from '../mockData'
+import { useSound } from '../hooks/useSound'
 import {
   RARITY_CARD_STYLES,
   RARITY_BADGE_STYLES,
@@ -86,13 +90,7 @@ const TERRAIN_NAMES: Record<string, string> = {
   unstable_mine: 'Mina Instável',
 }
 
-const UPGRADE_COSTS: Record<number, number> = {
-  1: 500,
-  2: 900,
-  3: 1600,
-  4: 2800,
-  5: 5000,
-}
+
 
 export default function Phase2Workshop({
   state,
@@ -153,11 +151,18 @@ export default function Phase2Workshop({
     }
   }
 
-  // Estados locais sincronizados
+  const { play: playSfx } = useSound()
   const [inventory, setInventory] = useState<InventoryItem[]>(state.inventory)
   const [materials, setMaterials] = useState<Record<string, number>>(state.materials)
   const [gold, setGold] = useState<number>(state.gold)
   const [lastCraft, setLastCraft] = useState<InventoryItem | null>(null)
+  const [lastCraftResult, setLastCraftResult] = useState<{
+    item: InventoryItem
+    xpGained: number
+    isTinkering: boolean
+    tinkeringSuccess: boolean
+    branch: WorkshopBranch
+  } | null>(null)
 
   // Crafting v2 Seleções
   const recipesList: Recipe[] = useMemo(
@@ -260,6 +265,13 @@ export default function Phase2Workshop({
 
   const activeBranchInfo = BRANCHES.find(b => b.name === selectedBranch)!
   const currentBranchLevel = state.workshop_levels[activeBranchInfo.key] ?? 1
+  const currentBranchXp = state.workshop_xp?.[selectedBranch] ?? 0
+  const xpConfig = WORKSHOP_XP_TABLE[currentBranchLevel] ?? { xp_to_next: null, upgrade_cost: 0 }
+  const xpReq = xpConfig.xp_to_next
+  const upgradeCost = xpConfig.upgrade_cost
+  const hasEnoughXp = xpReq === null ? false : currentBranchXp >= xpReq
+  const hasEnoughGold = gold >= upgradeCost
+  const xpPercent = xpReq ? Math.min(100, Math.round((currentBranchXp / xpReq) * 100)) : 100
 
   function handleSelectBranch(branchName: WorkshopBranch) {
     setSelectedBranch(branchName)
@@ -288,7 +300,7 @@ export default function Phase2Workshop({
     const minLevel = recipe?.min_workshop_level ?? 1
     if (branchLevel < minLevel) {
       reasons.push(
-        `Nível de oficina insuficiente (${branchLevel}/${minLevel} na filial de ${recipe?.branch ?? 'Ferragem'})`
+        `Nível de bancada insuficiente (${branchLevel}/${minLevel} na filial de ${recipe?.branch ?? 'Ferragem'}). Requer Forja Experimental (Tinkering).`
       )
     }
 
@@ -482,11 +494,21 @@ export default function Phase2Workshop({
   // ─────────────────────────────────────────────
   // AÇÕES DE CRAFTING v2
   // ─────────────────────────────────────────────
-  async function handleExecuteCraft() {
-    if (!selectedRecipeId || isLoadingCraft || !craftPreview?.can_craft) {
-      if (!craftPreview?.can_craft && craftPreview?.reasons) {
+  async function handleExecuteCraft(isTinkering: boolean = false) {
+    if (!selectedRecipeId || isLoadingCraft) return
+    const rec = recipesList.find(r => (r.recipe_id || r.id) === selectedRecipeId)
+    const minLevel = rec?.min_workshop_level ?? 1
+    const actualTinkering = isTinkering || minLevel > currentBranchLevel
+
+    if (!actualTinkering && !craftPreview?.can_craft) {
+      if (craftPreview?.reasons) {
         alert(`Não é possível forjar este ativo corporativo:\n- ${craftPreview.reasons.join('\n- ')}`)
       }
+      return
+    }
+
+    if (actualTinkering && craftPreview?.materials_summary?.some(m => !m.has_enough)) {
+      alert('Almoxarifado sem insumos suficientes para realizar o procedimento experimental de forja.')
       return
     }
 
@@ -496,6 +518,11 @@ export default function Phase2Workshop({
       branch: selectedBranch,
       prefix_id: selectedPrefixId,
       suffix_id: selectedSuffixId,
+      is_tinkering: actualTinkering,
+    }
+
+    if (actualTinkering) {
+      playSfx('sfx_craft_tinkering')
     }
 
     if (onCraft) {
@@ -504,11 +531,46 @@ export default function Phase2Workshop({
         const isSuccess = (res?.result?.success ?? res?.success) ?? false
         if (res && isSuccess) {
           const item: InventoryItem = res.result?.item || (res as any).item
-          if (item) setLastCraft(item)
+          const xpGained: number = res.result?.xp_gained ?? (actualTinkering ? (res.result?.tinkering_success ? (minLevel >= 3 ? 90 : 38) : 5) : (minLevel >= 3 ? 60 : (minLevel === 2 ? 25 : 10)))
+          const tinkeringSuccess: boolean = res.result?.tinkering_success ?? (!item?.name?.toLowerCase().includes('gororoba') && item?.quality !== 'Fraco')
+
+          if (item) {
+            setLastCraft(item)
+            setLastCraftResult({
+              item,
+              xpGained,
+              isTinkering: actualTinkering,
+              tinkeringSuccess,
+              branch: selectedBranch,
+            })
+          }
           if (res.state) {
             setInventory(res.state.inventory)
             setMaterials(res.state.materials)
             setGold(res.state.gold)
+            onStateUpdate?.(res.state)
+          }
+
+          if (actualTinkering) {
+            if (tinkeringSuccess) {
+              playSfx('sfx_forge_success')
+              setTransactionLog(l => [
+                `[Forja Experimental] Inovação técnica validada! '${item?.name}' forjado com +50% XP (+${xpGained} XP).`,
+                ...l,
+              ])
+            } else {
+              playSfx('sfx_forge_fail')
+              setTransactionLog(l => [
+                `[Forja Experimental] Falha técnica operacional: Gororoba produzida (+${xpGained} XP). Fórmula arquivada nos registros.`,
+                ...l,
+              ])
+            }
+          } else {
+            playSfx('sfx_forge_success')
+            setTransactionLog(l => [
+              `[Oficina] Produção de '${item?.name || 'Ativo'}' autorizada pelo controle de qualidade (+${xpGained} XP).`,
+              ...l,
+            ])
           }
 
           if (item?.quality === 'Lendário') {
@@ -520,7 +582,6 @@ export default function Phase2Workshop({
               specialEffectDescription: 'Multiplicador de 180% de poder + ativação integral de cláusula mística especial.',
             })
           }
-          setTransactionLog(l => [`[Oficina] Produção de '${item?.name || 'Ativo'}' autorizada pelo controle de qualidade.`, ...l])
         } else if (res && !isSuccess) {
           alert(res.result?.message || res.message || 'Falha na homologação do processo de forja.')
         }
@@ -674,9 +735,17 @@ export default function Phase2Workshop({
   }
 
   async function handleUpgradeWorkshop() {
-    const cost = UPGRADE_COSTS[currentBranchLevel]
-    if (!cost) {
-      alert(`A filial de ${selectedBranch} já opera na capacidade máxima regulamentada (Nível 6).`)
+    const xpConfig = WORKSHOP_XP_TABLE[currentBranchLevel]
+    const cost = xpConfig?.upgrade_cost ?? 500
+    const xpReq = xpConfig?.xp_to_next
+    if (currentBranchLevel >= 6 || xpReq === null) {
+      alert(`A filial de ${selectedBranch} já opera na capacidade máxima regulamentada (Nível 6 — Ateliê Imperial de Referência).`)
+      return
+    }
+    if (currentBranchXp < xpReq) {
+      alert(
+        `XP da Bancada insuficiente para homologação de expansão.\nRequerido: ${xpReq} XP acumulados na filial de ${selectedBranch}.\nXP Atual: ${currentBranchXp} XP.`
+      )
       return
     }
     if (gold < cost) {
@@ -690,16 +759,19 @@ export default function Phase2Workshop({
     if (onUpgradeWorkshop) {
       try {
         const res = await onUpgradeWorkshop(activeBranchInfo.key)
-        if (res && res.result && res.result.success) {
+        const isSuccess = (res?.result?.success ?? res?.success) ?? false
+        if (res && isSuccess) {
           if (res.state) {
             setGold(res.state.gold)
+            onStateUpdate?.(res.state)
           }
+          playSfx('sfx_league_promoted')
           setTransactionLog(l => [
-            `[Oficina] Filial de ${selectedBranch} modernizada para o Nível ${res.result.level}.`,
+            `[Oficina] Filial de ${selectedBranch} modernizada para o Nível ${res.result?.level || res.level || currentBranchLevel + 1} pela Câmara de Mercadores.`,
             ...l,
           ])
-        } else if (res && res.result && !res.result.success) {
-          alert(res.result.message)
+        } else if (res && !isSuccess) {
+          alert(res.result?.message || res.message || 'Falha ao modernizar oficina.')
         }
       } catch (err) {
         console.error('Erro ao expandir oficina:', err)
@@ -803,6 +875,14 @@ export default function Phase2Workshop({
     r => (r.recipe_id || r.id) === selectedRecipeId
   ) || branchRecipes[0]
 
+  const isTinkeringRequired = Boolean(selectedRecipe && (selectedRecipe.min_workshop_level ?? 1) > currentBranchLevel)
+  const tinkeringDiff = isTinkeringRequired && selectedRecipe ? Math.max(1, (selectedRecipe.min_workshop_level ?? 1) - currentBranchLevel) : 0
+  const tinkeringSuccessChance = isTinkeringRequired ? Math.max(0.05, 1 - tinkeringDiff * 0.35) : 1
+  const tinkeringSuccessPct = Math.round(tinkeringSuccessChance * 100)
+  const hasMissingMaterials = craftPreview?.materials_summary
+    ? craftPreview.materials_summary.some(m => !m.has_enough)
+    : false
+
   return (
     <div className="max-w-7xl mx-auto">
       {/* Banner de Onboarding — aparece apenas na primeira visita à Fase 2 */}
@@ -881,8 +961,10 @@ export default function Phase2Workshop({
             {BRANCHES.map(branch => {
               const Icon = branch.icon
               const lvl = state.workshop_levels[branch.key] ?? 1
+              const bXp = state.workshop_xp?.[branch.key] ?? 0
+              const bReq = WORKSHOP_XP_TABLE[lvl]?.xp_to_next
               const isSelected = selectedBranch === branch.name
-              const progressPct = Math.round((lvl / 6) * 100)
+              const progressPct = bReq ? Math.min(100, Math.round((bXp / bReq) * 100)) : 100
 
               return (
                 <div
@@ -907,8 +989,8 @@ export default function Phase2Workshop({
 
                   <div className="mt-3 space-y-1">
                     <div className="flex justify-between text-[10px] text-stone-400 font-mono">
-                      <span>Especialização</span>
-                      <span>{progressPct}%</span>
+                      <span>XP {lvl < 6 ? `(Nv ${lvl}→${lvl + 1})` : '(Mestre)'}</span>
+                      <span>{bReq ? `${bXp}/${bReq}` : '100%'}</span>
                     </div>
                     <div className="w-full bg-stone-950 rounded-full h-1.5 overflow-hidden border border-stone-800">
                       <div
@@ -920,6 +1002,85 @@ export default function Phase2Workshop({
                 </div>
               )
             })}
+          </div>
+
+          {/* Painel de Experiência & Progressão Técnica da Bancada Selecionada */}
+          <div className="bg-gradient-to-r from-[#1c1917] via-[#26201a] to-[#1c1917] border border-amber-900/60 rounded-xl p-5 shadow-xl space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-xl bg-stone-900 border border-amber-700/60 flex items-center justify-center shadow-inner shrink-0">
+                  <activeBranchInfo.icon className="w-6 h-6 text-amber-400" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-black text-amber-100 uppercase tracking-wide">
+                      Filial de {selectedBranch}
+                    </h2>
+                    <span className="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-950/80 border border-amber-600/70 text-amber-300 shadow">
+                      {currentBranchLevel < 6 ? `Nível ${currentBranchLevel} de 6` : 'Nível 6 — Ateliê Imperial'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    {WORKSHOP_LEVEL_BENEFITS[currentBranchLevel]?.title}: {WORKSHOP_LEVEL_BENEFITS[currentBranchLevel]?.summary}
+                  </p>
+                </div>
+              </div>
+
+              {/* Resumo de XP & Status */}
+              <div className="text-left md:text-right">
+                <span className="text-xs text-stone-300 font-mono block">
+                  {currentBranchLevel < 6 && xpReq !== null ? (
+                    <>
+                      XP da Bancada: <strong className="text-amber-300 font-bold text-sm">{currentBranchXp}</strong> / {xpReq} XP{' '}
+                      <span className="text-stone-400 text-[11px] font-semibold">(Nível {currentBranchLevel} → {currentBranchLevel + 1})</span>
+                    </>
+                  ) : (
+                    <span className="text-emerald-400 font-bold text-xs uppercase tracking-wider">
+                      Capacidade Máxima Homologada (Ateliê Mestre)
+                    </span>
+                  )}
+                </span>
+                {currentBranchLevel < 6 && (
+                  <span className="text-[10px] text-stone-500 font-mono">
+                    {hasEnoughXp ? (
+                      <span className="text-emerald-400 font-bold">✓ Cota de XP atingida para modernização</span>
+                    ) : (
+                      <span>Faltam {xpReq! - currentBranchXp} XP para autorização de expansão</span>
+                    )}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Barra de Progresso Animada em Gradiente Âmbar/Ouro */}
+            <div className="space-y-1.5">
+              <div className="w-full bg-stone-950/90 rounded-full h-3 overflow-hidden border border-stone-800 p-0.5 shadow-inner">
+                <div
+                  className="bg-gradient-to-r from-amber-700 via-amber-400 to-yellow-300 h-full rounded-full transition-all duration-700 shadow-[0_0_12px_rgba(245,158,11,0.5)] animate-pulse"
+                  style={{ width: `${currentBranchLevel >= 6 ? 100 : xpPercent}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Destaque dos Benefícios do Próximo Nível (Roadmap & Lore Corporativo) */}
+            {currentBranchLevel < 6 && (
+              <div className="bg-stone-950/70 border border-stone-800/80 rounded-lg p-3 text-xs flex items-start gap-2.5">
+                <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <span className="font-bold text-amber-200">
+                    Benefícios da Próxima Homologação (Nível {currentBranchLevel + 1} — {WORKSHOP_LEVEL_BENEFITS[currentBranchLevel + 1]?.title}):
+                  </span>
+                  <p className="text-stone-300 text-[11px] leading-relaxed">
+                    {WORKSHOP_LEVEL_BENEFITS[currentBranchLevel + 1]?.summary}
+                    {WORKSHOP_LEVEL_BENEFITS[currentBranchLevel + 1]?.branchBonus?.[selectedBranch] && (
+                      <span className="block text-amber-300/90 font-medium mt-0.5">
+                        ★ Bônus Exclusivo de {selectedBranch}: {WORKSHOP_LEVEL_BENEFITS[currentBranchLevel + 1]?.branchBonus?.[selectedBranch]}
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Insumos no Almoxarifado com Ficha Técnica Clicável */}
@@ -982,9 +1143,16 @@ export default function Phase2Workshop({
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-sm text-stone-200">{r.name || r.base_item}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-stone-900 text-amber-400 border border-stone-700 font-mono">
-                          {r.slot}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {((r.min_workshop_level ?? 1) > currentBranchLevel) && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-orange-950/80 border border-orange-600/70 text-orange-300 font-mono font-bold">
+                              Tinkering (Nv {r.min_workshop_level})
+                            </span>
+                          )}
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-stone-900 text-amber-400 border border-stone-700 font-mono">
+                            {r.slot}
+                          </span>
+                        </div>
                       </div>
                       <div className="flex items-center gap-3 text-xs text-stone-400 mt-2 font-mono">
                         {r.base_power ? <span>Poder Base: +{r.base_power}</span> : null}
@@ -1005,26 +1173,42 @@ export default function Phase2Workshop({
                   </div>
                   <span className="text-xs text-stone-400 font-mono">Nível {currentBranchLevel}/6</span>
                 </div>
-                {currentBranchLevel < 6 ? (
+                {currentBranchLevel < 6 && xpReq !== null ? (
                   <>
                     <p className="text-xs text-stone-400 leading-relaxed">
-                      Eleva a probabilidade estatística de obtenção de itens de padrão Ótimo e Lendário.
+                      Homologação de expansão na Câmara dos Mercadores para liberar processos avançados de forja.
                     </p>
-                    <div className="flex items-center justify-between pt-1">
-                      <div className="text-xs font-mono text-stone-300">
-                        Custo: <strong className="text-amber-400 font-bold">{UPGRADE_COSTS[currentBranchLevel]} Ouro</strong>
+                    <div className="bg-stone-950/80 border border-stone-800 rounded-lg p-3 space-y-2 text-xs font-mono">
+                      <div className="flex items-center justify-between">
+                        <span className="text-stone-400">Custo em Tesouraria:</span>
+                        <span className={hasEnoughGold ? 'text-amber-400 font-bold' : 'text-rose-400 font-bold'}>
+                          ⬡ {upgradeCost} Ouro
+                        </span>
                       </div>
-                      <button
-                        onClick={handleUpgradeWorkshop}
-                        disabled={isUpgrading || gold < (UPGRADE_COSTS[currentBranchLevel] ?? 1000)}
-                        className="bg-amber-600 hover:bg-amber-500 text-stone-950 font-black px-3.5 py-1.5 rounded-lg text-xs transition cursor-pointer disabled:opacity-30 disabled:pointer-events-none shadow"
-                      >
-                        {isUpgrading ? 'Expandindo...' : 'Modernizar'}
-                      </button>
+                      <div className="flex items-center justify-between">
+                        <span className="text-stone-400">XP da Bancada Requerida:</span>
+                        <span className={hasEnoughXp ? 'text-emerald-400 font-bold' : 'text-amber-400 font-bold'}>
+                          {currentBranchXp} / {xpReq} XP {hasEnoughXp ? '✓ Aprovado' : `(Falta ${xpReq - currentBranchXp})`}
+                        </span>
+                      </div>
                     </div>
+                    <button
+                      onClick={handleUpgradeWorkshop}
+                      disabled={isUpgrading || !hasEnoughGold || !hasEnoughXp}
+                      className="w-full bg-amber-600 hover:bg-amber-500 text-stone-950 font-black py-2.5 rounded-lg text-xs transition cursor-pointer disabled:opacity-30 disabled:pointer-events-none shadow uppercase tracking-wider flex items-center justify-center gap-1.5"
+                    >
+                      <ArrowUpCircle className="w-4 h-4" />
+                      {isUpgrading
+                        ? 'Homologando Expansão...'
+                        : !hasEnoughXp
+                        ? `XP Insuficiente (${currentBranchXp}/${xpReq})`
+                        : !hasEnoughGold
+                        ? `Ouro Insuficiente (${gold}/${upgradeCost})`
+                        : `Modernizar para Nível ${currentBranchLevel + 1}`}
+                    </button>
                   </>
                 ) : (
-                  <p className="text-xs text-emerald-400 italic">Filial operando em capacidade máxima regulamentada.</p>
+                  <p className="text-xs text-emerald-400 italic">Filial operando em capacidade máxima regulamentada (Nível 6 — Ateliê Imperial).</p>
                 )}
               </div>
             </div>
@@ -1331,60 +1515,203 @@ export default function Phase2Workshop({
                         </div>
                       </div>
 
-                      {/* Motivos de Bloqueio se não puder craftar */}
-                      {!craftPreview.can_craft && (
-                        <div className="bg-rose-950/40 border border-rose-800 rounded-lg p-3 text-xs text-rose-300 flex items-start gap-2">
-                          <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                          <div>
-                            <span className="font-bold block">Ordem de Forja Impedida pelo Controle Interno:</span>
-                            <ul className="list-disc list-inside mt-0.5 space-y-0.5 text-[11px]">
-                              {craftPreview.reasons.map((r, i) => (
-                                <li key={i}>{r}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      )}
+                      {/* Bloco de Ação: Forja Padrão vs Forja Experimental (Tinkering) */}
+                      {isTinkeringRequired ? (
+                        <div className="bg-gradient-to-b from-[#2a170d] via-[#1e130b] to-[#17100a] border-2 border-amber-600/80 rounded-xl p-5 shadow-2xl space-y-4 relative overflow-hidden">
+                          {/* Cabeçalho do Card de Tinkering */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-amber-800/40">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-9 h-9 rounded-lg bg-amber-950 border border-amber-500/70 flex items-center justify-center shrink-0 shadow">
+                                <AlertTriangle className="w-5 h-5 text-amber-400 animate-bounce" />
+                              </div>
+                              <div>
+                                <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold block">
+                                  Protocolo de Risco Técnico
+                                </span>
+                                <h4 className="text-sm sm:text-base font-black text-amber-100">
+                                  Ordem de Manufatura de Alto Risco — Forja Experimental (Tinkering)
+                                </h4>
+                              </div>
+                            </div>
 
-                      {/* Botão de Forjar Ativo */}
-                      <button
-                        onClick={handleExecuteCraft}
-                        disabled={!craftPreview.can_craft || isLoadingCraft}
-                        className={`w-full py-3 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition cursor-pointer ${
-                          craftPreview.can_craft && !isLoadingCraft
-                            ? 'bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-stone-950 hover:brightness-110 shadow-amber-950/50'
-                            : 'bg-stone-900 border border-stone-800 text-stone-600 cursor-not-allowed opacity-50'
-                        }`}
-                      >
-                        <Sparkles className="w-4 h-4" />
-                        <span>{isLoadingCraft ? 'Homologando Forja...' : 'Forjar Ativo Corporativo'}</span>
-                      </button>
+                            {/* Badge Dinâmica com Chance de Sucesso */}
+                            <div
+                              className={`px-3 py-1.5 rounded-lg border font-mono font-black text-xs flex items-center gap-1.5 self-start sm:self-center shadow ${
+                                tinkeringSuccessPct >= 60
+                                  ? 'bg-amber-950/90 border-amber-500/80 text-amber-300'
+                                  : tinkeringSuccessPct >= 30
+                                  ? 'bg-orange-950/90 border-orange-500/80 text-orange-300'
+                                  : 'bg-rose-950/90 border-rose-600/80 text-rose-300'
+                              }`}
+                            >
+                              <Zap className="w-3.5 h-3.5" />
+                              <span>
+                                Chance de Sucesso: {tinkeringSuccessPct}% (
+                                {tinkeringSuccessPct >= 60
+                                  ? 'Risco Moderado'
+                                  : tinkeringSuccessPct >= 30
+                                  ? 'Alto Risco'
+                                  : 'Risco Crítico'}
+                                )
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Alerta do Laudo Pericial */}
+                          <div className="bg-stone-950/90 border border-amber-900/50 rounded-lg p-3 text-xs space-y-1.5 text-stone-300">
+                            <div className="flex items-center gap-1.5 font-bold text-amber-300">
+                              <Info className="w-3.5 h-3.5 text-amber-400" />
+                              <span>Laudo Técnico & Homologação Permanente:</span>
+                            </div>
+                            <p className="italic text-stone-300 text-[11px] leading-relaxed">
+                              &ldquo;Em caso de falha mecânica, o lote resultará em Gororoba Comercializável, mas a fórmula técnica será homologada definitivamente nos arquivos da guilda.&rdquo;
+                            </p>
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1 text-[10px] text-stone-400 font-mono border-t border-stone-800/80">
+                              <span>• Sucesso: Item Completo + <strong className="text-amber-300">+50% XP Bônus</strong></span>
+                              <span>• Falha: Refugo (20 Ouro) + <strong className="text-amber-300">+5 XP</strong> + Receita Homologada</span>
+                            </div>
+                          </div>
+
+                          {/* Bloqueio por falta de insumos se houver */}
+                          {hasMissingMaterials && (
+                            <div className="bg-rose-950/50 border border-rose-800 rounded-lg p-2.5 text-xs text-rose-300 flex items-center gap-2">
+                              <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+                              <span>Almoxarifado sem insumos suficientes para realizar o procedimento experimental de bancada.</span>
+                            </div>
+                          )}
+
+                          {/* Botão de Forjar Experimentalmente */}
+                          <button
+                            onClick={() => handleExecuteCraft(true)}
+                            disabled={hasMissingMaterials || isLoadingCraft}
+                            className={`w-full py-3.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-2xl transition cursor-pointer border ${
+                              !hasMissingMaterials && !isLoadingCraft
+                                ? 'bg-gradient-to-r from-amber-600 via-orange-500 to-amber-500 text-stone-950 hover:brightness-110 shadow-amber-950/70 border-amber-400'
+                                : 'bg-stone-900 border-stone-800 text-stone-600 cursor-not-allowed opacity-50'
+                            }`}
+                          >
+                            <Flame className="w-4 h-4 text-stone-950" />
+                            <span>{isLoadingCraft ? 'Iniciando Forja de Alto Risco...' : 'Assumir Risco e Forjar Experimentalmente'}</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          {/* Motivos de Bloqueio se não puder craftar */}
+                          {!craftPreview.can_craft && (
+                            <div className="bg-rose-950/40 border border-rose-800 rounded-lg p-3 text-xs text-rose-300 flex items-start gap-2">
+                              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                              <div>
+                                <span className="font-bold block">Ordem de Forja Impedida pelo Almoxarifado:</span>
+                                <ul className="list-disc list-inside mt-0.5 space-y-0.5 text-[11px]">
+                                  {craftPreview.reasons.map((r, i) => (
+                                    <li key={i}>{r}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Botão de Forjar Ativo Padrão */}
+                          <button
+                            onClick={() => handleExecuteCraft(false)}
+                            disabled={!craftPreview.can_craft || isLoadingCraft}
+                            className={`w-full py-3 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition cursor-pointer ${
+                              craftPreview.can_craft && !isLoadingCraft
+                                ? 'bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-stone-950 hover:brightness-110 shadow-amber-950/50'
+                                : 'bg-stone-900 border border-stone-800 text-stone-600 cursor-not-allowed opacity-50'
+                            }`}
+                          >
+                            <Sparkles className="w-4 h-4" />
+                            <span>{isLoadingCraft ? 'Homologando Forja...' : 'Forjar Ativo Corporativo'}</span>
+                          </button>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Card do Último Craft com Tratamento Overgeared */}
-              {lastCraft && (
-                <div className={`rounded-xl p-5 shadow-xl transition-all ${RARITY_CARD_STYLES[lastCraft.quality]}`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs uppercase tracking-wider font-bold">Laudo de Inspeção do Artesão</span>
-                    <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold ${RARITY_BADGE_STYLES[lastCraft.quality]}`}>
-                      {lastCraft.quality}
-                    </span>
+              {/* Card do Último Craft com Tratamento Overgeared & Badges de Tinkering / XP */}
+              {(lastCraftResult || lastCraft) && (
+                <div
+                  className={`rounded-xl p-5 shadow-2xl transition-all border ${
+                    lastCraftResult?.isTinkering
+                      ? lastCraftResult.tinkeringSuccess
+                        ? 'bg-[#241a0e] border-amber-500/80 shadow-amber-950/40'
+                        : 'bg-[#1e1514] border-amber-700/60 shadow-red-950/30'
+                      : RARITY_CARD_STYLES[((lastCraftResult?.item || lastCraft!).quality as ItemQuality) || 'Normal']
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-stone-800/80 gap-2 mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs uppercase tracking-wider font-black text-amber-200">
+                        Laudo de Inspeção do Artesão
+                      </span>
+                      {lastCraftResult && (
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-stone-900 text-stone-400 font-mono">
+                          Filial de {lastCraftResult.branch}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {lastCraftResult?.isTinkering && (
+                        lastCraftResult.tinkeringSuccess ? (
+                          <span className="text-[11px] px-3 py-1 rounded-full font-black bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-400 text-stone-950 border border-yellow-200 shadow flex items-center gap-1">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            Inovação Técnica Homologada! (+50% XP)
+                          </span>
+                        ) : (
+                          <span className="text-[11px] px-3 py-1 rounded-full font-black bg-amber-950 border border-amber-600 text-amber-300 shadow flex items-center gap-1">
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                            Falha Operacional: Gororoba Produzida (Fórmula Homologada nos Arquivos)
+                          </span>
+                        )
+                      )}
+
+                      <span
+                        className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold ${
+                          RARITY_BADGE_STYLES[((lastCraftResult?.item || lastCraft!).quality as ItemQuality) || 'Normal']
+                        }`}
+                      >
+                        {(lastCraftResult?.item || lastCraft!).quality}
+                      </span>
+
+                      {/* Badge de XP obtido */}
+                      {lastCraftResult && (
+                        <span className="text-[11px] px-2.5 py-0.5 rounded-full font-mono font-bold bg-amber-950/90 border border-amber-600/70 text-amber-300 shadow">
+                          +{lastCraftResult.xpGained} XP
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <p className="font-extrabold text-base text-stone-100">{lastCraft.name}</p>
-                  <div className="flex gap-4 text-xs mt-2 text-stone-300 font-mono flex-wrap">
-                    <span>Slot: {lastCraft.slot_type}</span>
-                    {lastCraft.power_bonus ? <span>Poder: +{lastCraft.power_bonus}</span> : null}
-                    {lastCraft.energy_bonus ? <span>Suprimentos: +{lastCraft.energy_bonus}</span> : null}
-                    {lastCraft.charges ? <span>Cargas: {lastCraft.charges}</span> : null}
-                    {lastCraft.terrain_mitigation ? (
+
+                  <p className="font-extrabold text-base text-stone-100">
+                    {(lastCraftResult?.item || lastCraft!).name}
+                  </p>
+                  {lastCraftResult?.isTinkering && !lastCraftResult.tinkeringSuccess && (
+                    <p className="text-xs text-amber-400/80 mt-1 italic">
+                      Refugo de forja disponível para liquidação rápida no Balcão por irrisórios 20 Ouro. O projeto técnico foi homologado definitivamente no catálogo da guilda.
+                    </p>
+                  )}
+
+                  <div className="flex gap-4 text-xs mt-3 text-stone-300 font-mono flex-wrap pt-2 border-t border-stone-800/60">
+                    <span>Slot: {(lastCraftResult?.item || lastCraft!).slot_type}</span>
+                    {(lastCraftResult?.item || lastCraft!).power_bonus ? (
+                      <span>Poder: +{(lastCraftResult?.item || lastCraft!).power_bonus}</span>
+                    ) : null}
+                    {(lastCraftResult?.item || lastCraft!).energy_bonus ? (
+                      <span>Suprimentos: +{(lastCraftResult?.item || lastCraft!).energy_bonus}</span>
+                    ) : null}
+                    {(lastCraftResult?.item || lastCraft!).charges ? (
+                      <span>Cargas: {(lastCraftResult?.item || lastCraft!).charges}</span>
+                    ) : null}
+                    {(lastCraftResult?.item || lastCraft!).terrain_mitigation ? (
                       <span className="text-emerald-300">
-                        Mitiga: {TERRAIN_NAMES[lastCraft.terrain_mitigation] || lastCraft.terrain_mitigation}
+                        Mitiga: {TERRAIN_NAMES[(lastCraftResult?.item || lastCraft!).terrain_mitigation!] || (lastCraftResult?.item || lastCraft!).terrain_mitigation}
                       </span>
                     ) : null}
-                    <span>Valor Contábil: ⬡ {lastCraft.market_value_base} Ouro</span>
+                    <span>Valor Contábil: ⬡ {(lastCraftResult?.item || lastCraft!).market_value_base} Ouro</span>
                   </div>
                 </div>
               )}

@@ -28,6 +28,10 @@ export interface ApiResponse<T = any> {
   facilities?: MedicalFacilityInfo
   hero?: Hero
   new_level?: number
+  xp_gained?: number
+  is_tinkering?: boolean
+  tinkering_success?: boolean
+  recipe_unlocked?: boolean
 }
 
 export async function checkBackendLive(): Promise<boolean> {
@@ -119,16 +123,25 @@ export async function fetchCraftPreviewBackend(payload: {
   return null
 }
 
+export interface CraftPayload {
+  recipe_id: string
+  branch?: string
+  prefix_id?: string | null
+  suffix_id?: string | null
+  prefix_material_id?: string | null
+  suffix_material_id?: string | null
+  is_tinkering?: boolean
+}
+
 export async function craftItemBackend(
-  recipeIdOrPayload: string | {
-    recipe_id: string
-    branch?: string
-    prefix_id?: string | null
-    suffix_id?: string | null
-    prefix_material_id?: string | null
-    suffix_material_id?: string | null
-  }
-): Promise<ApiResponse<{ item: InventoryItem }> | null> {
+  recipeIdOrPayload: string | CraftPayload
+): Promise<ApiResponse<{
+  item: InventoryItem
+  xp_gained?: number
+  is_tinkering?: boolean
+  tinkering_success?: boolean
+  recipe_unlocked?: boolean
+}> | null> {
   try {
     const body = typeof recipeIdOrPayload === 'string'
       ? { recipe_id: recipeIdOrPayload }
@@ -138,7 +151,13 @@ export async function craftItemBackend(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     })
-    return (await res.json()) as ApiResponse<{ item: InventoryItem }>
+    return (await res.json()) as ApiResponse<{
+      item: InventoryItem
+      xp_gained?: number
+      is_tinkering?: boolean
+      tinkering_success?: boolean
+      recipe_unlocked?: boolean
+    }>
   } catch (err) {
     console.error('[HeroFoot API] Erro ao produzir item:', err)
   }
