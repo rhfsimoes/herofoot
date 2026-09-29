@@ -4,7 +4,7 @@ Gerencia a negociação de excedentes no balcão e a resolução de contrapropos
 """
 
 import uuid
-from constants import normalize_margin, normalize_slot
+from constants import normalize_margin, normalize_slot, normalize_quality, QUALITIES
 
 
 class SalesService:
@@ -190,4 +190,80 @@ class SalesService:
                 "accepted": False,
                 "message": "Contraproposta rejeitada. Ativo retornou ao almoxarifado.",
             }
+
+    def fulfill_vip_order(self, item_instance_id: str) -> dict:
+        """Entrega encomenda VIP da Nobreza com validação de requisitos, liquidação e bonificação."""
+        active_order = getattr(self.market_engine, "active_vip_order", None) if self.market_engine else None
+        if not active_order:
+            return {
+                "success": False,
+                "message": "Nenhum edital de encomenda VIP ativo no Boletim de Mercado.",
+            }
+
+        item = next(
+            (i for i in self.state.inventory if i.get("item_instance_id") == item_instance_id),
+            None
+        )
+        if not item:
+            return {"success": False, "message": "Ativo não localizado no almoxarifado."}
+
+        # Valida que o ativo não está equipado no loadout
+        if hasattr(self.state, "is_equipped") and self.state.is_equipped(item_instance_id):
+            return {
+                "success": False,
+                "message": "Ativo em uso na expedição. Desequipe antes de realizar a entrega do edital comissionado.",
+            }
+
+        # Valida conformidade do compartimento (slot)
+        item_slot = normalize_slot(item.get("slot_type", item.get("slot", "")))
+        target_slot = normalize_slot(active_order.get("target_slot", ""))
+        if item_slot != target_slot:
+            return {
+                "success": False,
+                "message": f"Laudo de conformidade técnica: o compartimento do ativo ({item_slot}) diverge da especificação do edital ({target_slot}).",
+            }
+
+        # Valida conformidade da qualidade
+        quality_ranks = {q: i for i, q in enumerate(QUALITIES)}
+        item_quality = normalize_quality(item.get("quality", "Normal"))
+        required_quality = normalize_quality(active_order.get("required_quality", "Normal"))
+
+        if quality_ranks.get(item_quality, 1) < quality_ranks.get(required_quality, 1):
+            return {
+                "success": False,
+                "message": f"Laudo de conformidade técnica: o padrão de qualidade do ativo ({item_quality}) é inferior à especificação exigida pelo edital ({required_quality}).",
+            }
+
+        # Cálculo de recompensa com lastro no preço base
+        reference_price = item.get("market_value_base")
+        if reference_price is None:
+            reference_price = item.get("base_price", 100)
+        reference_price = int(reference_price)
+
+        reward_multiplier = float(active_order.get("reward_multiplier", 1.0))
+        gold_paid = round(reference_price * reward_multiplier)
+
+        # Atualiza tesouraria e faturamento
+        self.state.gold += gold_paid
+        if hasattr(self.state, "weekly_sales_revenue"):
+            self.state.weekly_sales_revenue = getattr(self.state, "weekly_sales_revenue", 0) + gold_paid
+
+        # Credita reputação da contratante (cap em 100)
+        confidence_reward = int(active_order.get("confidence_reward", 10))
+        current_confidence = getattr(self.state, "contractor_confidence", 75)
+        self.state.contractor_confidence = min(100, current_confidence + confidence_reward)
+
+        # Baixa do ativo no almoxarifado
+        self.state.inventory.remove(item)
+
+        # Encerra o edital comissionado no mercado
+        if self.market_engine:
+            self.market_engine.active_vip_order = None
+
+        return {
+            "success": True,
+            "gold_earned": gold_paid,
+            "confidence_earned": confidence_reward,
+            "message": "Encomenda VIP entregue com sucesso à Câmara dos Mercadores!",
+        }
 

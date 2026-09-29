@@ -572,3 +572,29 @@ export async function resolveEventChoiceBackend(
   }
   return null
 }
+
+export async function fulfillVipOrderBackend(itemInstanceId: string): Promise<ApiResponse> {
+  try {
+    const res = await fetch(`${API_BASE}/fulfill_vip_order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ item_instance_id: itemInstanceId }),
+      signal: AbortSignal.timeout(3000),
+    })
+    if (res.ok) {
+      return (await res.json()) as ApiResponse
+    }
+    const errData = await res.json().catch(() => ({}))
+    return {
+      success: false,
+      message: errData.message || 'Falha ao homologar cumprimento do Edital VIP perante a Câmara.',
+    }
+  } catch (err) {
+    console.warn('[HeroFoot API] Backend indisponível para liquidação VIP:', err)
+    return {
+      success: false,
+      message: 'Falha de comunicação com a junta comercial da Câmara dos Mercadores.',
+    }
+  }
+}
+

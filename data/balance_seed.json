@@ -47,7 +47,9 @@
     "bulletin_multiplier_min": 1.5,
     "bulletin_multiplier_max": 3.0,
     "listing_fee_rate": 0.08,
-    "listing_fee_min": 10
+    "listing_fee_min": 10,
+    "vip_order_chance": 0.35,
+    "vip_order_duration_rounds": 2
   },
   "rival": {
     "default_slot_bonus": 6,
@@ -67,6 +69,8 @@
     "rounds_per_season": 28,
     "promotion_spots": 2,
     "relegation_spots": 2,
+    "new_guild_power_min": 50,
+    "new_guild_power_max": 54,
     "season_rewards": {
       "div_nobre": {
         "1": 1500,
