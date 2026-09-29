@@ -8,6 +8,7 @@ import json
 from constants import normalize_branch
 from balance import get_balance
 
+from typing import Optional, Dict, Any, List
 import copy
 
 SERIALIZED_FIELDS = [
@@ -25,6 +26,7 @@ SERIALIZED_FIELDS = [
     "reserves",
     "loadout",
     "workshop_levels",
+    "workshop_xp",
     "materials",
     "known_affixes",
     "known_recipes",
@@ -37,6 +39,9 @@ SERIALIZED_FIELDS = [
     "last_expedition_starters",
     "weekly_sales_revenue",
     "contractor_confidence",
+    "active_event",
+    "resolved_events_history",
+    "supplies_bonus",
 ]
 
 TRANSIENT_FIELDS = [
@@ -85,6 +90,12 @@ class GameState:
             "Joalheria": 1,
             "Culinária": 1,
         }
+        self.workshop_xp = {
+            "Ferragem": 0,
+            "Alquimia": 0,
+            "Joalheria": 0,
+            "Culinária": 0,
+        }
         self.materials = {}        # {"mat_id": quantidade}
 
         # Crafting v2
@@ -96,6 +107,11 @@ class GameState:
         self.last_expedition_starters = []
         self.weekly_sales_revenue = 0
         self.contractor_confidence = 75  # Confiança da Contratante/Conselho (0 a 100)
+
+        # Incidentes Corporativos Interativos (v0.5.0)
+        self.active_event: Optional[Dict[str, Any]] = None
+        self.resolved_events_history: List[str] = []
+        self.supplies_bonus: int = 0
 
         # Campos transientes de execução
         self.last_match_result = None
@@ -121,6 +137,23 @@ class GameState:
         for field in SERIALIZED_FIELDS:
             if field in data:
                 setattr(self, field, copy.deepcopy(data[field]))
+        if not hasattr(self, "active_event"):
+            self.active_event = None
+        if not hasattr(self, "resolved_events_history") or not isinstance(self.resolved_events_history, list):
+            self.resolved_events_history = []
+        if not hasattr(self, "supplies_bonus"):
+            self.supplies_bonus = 0
+        if not hasattr(self, "workshop_xp") or not isinstance(self.workshop_xp, dict):
+            self.workshop_xp = {
+                "Ferragem": 0,
+                "Alquimia": 0,
+                "Joalheria": 0,
+                "Culinária": 0,
+            }
+        else:
+            for b in ["Ferragem", "Alquimia", "Joalheria", "Culinária"]:
+                if b not in self.workshop_xp:
+                    self.workshop_xp[b] = 0
         return self
 
     def load_initial_data(self):
@@ -228,6 +261,17 @@ class GameState:
     def get_workshop_level(self, branch: str) -> int:
         norm_branch = normalize_branch(branch)
         return self.workshop_levels.get(norm_branch, 1)
+
+    def get_workshop_xp(self, branch: str) -> int:
+        norm_branch = normalize_branch(branch)
+        if not hasattr(self, "workshop_xp") or not isinstance(self.workshop_xp, dict):
+            self.workshop_xp = {
+                "Ferragem": 0,
+                "Alquimia": 0,
+                "Joalheria": 0,
+                "Culinária": 0,
+            }
+        return self.workshop_xp.get(norm_branch, 0)
 
     def has_materials_for(self, recipe: dict) -> bool:
         """Verifica se o jogador possui os insumos necessários para uma receita."""

@@ -6,7 +6,7 @@ Fachada que unifica o GameState e delega operações para os serviços especiali
 import os
 import json
 from game_state import GameState
-from crafting import CraftingEngine
+from crafting import CraftingEngine, get_workshops_data
 from counter_sales import CounterSales
 from league_engine import LeagueEngine
 from market_engine import MarketEngine
@@ -148,6 +148,8 @@ class GameController:
             "gold": self.state.gold,
             "current_phase": self.state.current_phase,
             "workshop_levels": self.state.workshop_levels,
+            "workshop_xp": getattr(self.state, "workshop_xp", {"Ferragem": 0, "Alquimia": 0, "Joalheria": 0, "Culinária": 0}),
+            "xp_progression": get_workshops_data().get("xp_progression", {}),
             "materials": self.state.materials,
             "inventory": self.state.inventory,
             "team": decorated_team,
@@ -244,6 +246,7 @@ class GameController:
         suffix_id: str = None,
         prefix_material_id: str = None,
         suffix_material_id: str = None,
+        is_tinkering: bool = False,
         rng=None,
     ) -> dict:
         return self.crafting_service.craft_item(
@@ -253,6 +256,7 @@ class GameController:
             suffix_id=suffix_id,
             prefix_material_id=prefix_material_id,
             suffix_material_id=suffix_material_id,
+            is_tinkering=is_tinkering,
             rng=rng,
         )
 

@@ -424,6 +424,56 @@ export interface TransferMarketData {
   max_team_size: number
 }
 
+export interface WorkshopXPProgression {
+  xp_to_next_level: number | null
+  xp_per_craft_tier1: number
+  xp_per_craft_tier2: number
+  xp_per_craft_tier3: number | null
+  upgrade_cost_gold: number | null
+}
+
+export const WORKSHOP_XP_TABLE: Record<number, { xp_to_next: number | null; upgrade_cost: number }> = {
+  1: { xp_to_next: 100, upgrade_cost: 500 },
+  2: { xp_to_next: 150, upgrade_cost: 1000 },
+  3: { xp_to_next: 225, upgrade_cost: 2000 },
+  4: { xp_to_next: 338, upgrade_cost: 4000 },
+  5: { xp_to_next: 506, upgrade_cost: 8000 },
+  6: { xp_to_next: null, upgrade_cost: 0 },
+}
+
+export const WORKSHOP_LEVEL_BENEFITS: Record<number, { title: string; summary: string; branchBonus?: Record<string, string> }> = {
+  1: {
+    title: 'Bancada Básica',
+    summary: 'Homologação para projetos comuns de Tier 1. Qualidades Fraco e Normal.',
+  },
+  2: {
+    title: 'Processos Padronizados',
+    summary: 'Desbloqueio de qualidade Ótimo e primeira calibragem estatística favorável na forja.',
+  },
+  3: {
+    title: 'Economia de Escala (Aprendiz de Apoio)',
+    summary: 'Redução de 15% no desperdício de insumos principais das ordens de serviço deste ramo.',
+  },
+  4: {
+    title: 'Expansão de Linha Operacional',
+    summary: 'Autorização plena de projetos Tier 2 (itens complexos) e novos afixos corporativos.',
+  },
+  5: {
+    title: 'Mestre de Bancada Residente (Corpo Técnico)',
+    summary: 'Contratação permanente de um mestre de ofício com bonificação exclusiva de filial.',
+    branchBonus: {
+      'Ferragem': 'Mestre Armeiro: Permite forjar projetos Tier 3 e concede probabilidade de afixo duplo.',
+      'Alquimia': 'Mestre Boticário: +1 carga operacional máxima para todos os elixires e tônicos forjados.',
+      'Joalheria': 'Mestre Lapidador: +20% de tolerância e aceitação de margens no Balcão de Vendas.',
+      'Culinária': 'Chefe de Intendência: Rações e suprimentos restauram +15 de energia na expedição.',
+    },
+  },
+  6: {
+    title: 'Ateliê Imperial de Referência',
+    summary: 'Acesso a projetos e afixos Lendários exclusivos + Selo Imperial que valoriza peças em +25%.',
+  },
+}
+
 export interface GameState {
   day: number
   week: number
@@ -432,6 +482,8 @@ export interface GameState {
   current_phase: number
   active_slot?: string | null
   workshop_levels: Record<string, number>
+  workshop_xp?: Record<string, number>
+  xp_progression?: Record<string | number, WorkshopXPProgression>
   materials: Record<string, number>
   inventory: InventoryItem[]
   team: Hero[]
@@ -495,14 +547,34 @@ export const MOCK_RECIPES: Recipe[] = [
   {
     id: 'rec_01', recipe_id: 'rec_01', name: 'Espada Longa de Aço', branch: 'Ferragem',
     slot: 'Arma', prefix: 'Afiada', base_item: 'Espada Longa de Aço', base_item_id: 'item_wep_01',
-    suffix: 'do Acidente de Trabalho',
+    suffix: 'do Acidente de Trabalho', min_workshop_level: 1,
     ingredients: [{ item_id: 'mat_iron_ore', label: 'Minério de Ferro', quantity: 3 }],
     base_power: 25, market_value_base: 250,
   },
   {
+    id: 'rec_fe_02', recipe_id: 'rec_fe_02', name: 'Machado de Guerra Pesado', branch: 'Ferragem',
+    slot: 'Arma', prefix: 'Pesado', base_item: 'Machado de Guerra', base_item_id: 'item_wep_02',
+    suffix: 'da Alta Produtividade', min_workshop_level: 2,
+    ingredients: [
+      { item_id: 'mat_iron_ore', label: 'Minério de Ferro', quantity: 4 },
+      { item_id: 'mat_scaly_leather', label: 'Couro Escamoso', quantity: 2 },
+    ],
+    base_power: 45, market_value_base: 450,
+  },
+  {
+    id: 'rec_fe_03', recipe_id: 'rec_fe_03', name: 'Armadura de Placas do Comendador', branch: 'Ferragem',
+    slot: 'Armadura', prefix: 'Impenetrável', base_item: 'Armadura de Placas', base_item_id: 'item_arm_04',
+    suffix: 'da Blindagem Contábil', min_workshop_level: 3,
+    ingredients: [
+      { item_id: 'mat_iron_ore', label: 'Minério de Ferro', quantity: 6 },
+      { item_id: 'mat_scaly_leather', label: 'Couro Escamoso', quantity: 4 },
+    ],
+    base_power: 70, market_value_base: 850,
+  },
+  {
     id: 'rec_03', recipe_id: 'rec_03', name: 'Cota de Malha Reforçada', branch: 'Ferragem',
     slot: 'Armadura', prefix: 'Reforçada', base_item: 'Cota de Malha', base_item_id: 'item_arm_03',
-    suffix: 'do Laudo Pericial Aprovado',
+    suffix: 'do Laudo Pericial Aprovado', min_workshop_level: 1,
     ingredients: [
       { item_id: 'mat_scaly_leather', label: 'Couro Escamoso', quantity: 3 },
       { item_id: 'mat_iron_ore', label: 'Minério de Ferro', quantity: 1 }
@@ -512,23 +584,53 @@ export const MOCK_RECIPES: Recipe[] = [
   {
     id: 'rec_04', recipe_id: 'rec_04', name: 'Poção de Cura Concentrada', branch: 'Alquimia',
     slot: 'Consumível', prefix: 'Concentrada', base_item: 'Poção de Cura', base_item_id: 'item_cons_03',
-    suffix: 'do Prontuário Médico Padrão',
+    suffix: 'do Prontuário Médico Padrão', min_workshop_level: 1,
     ingredients: [{ item_id: 'mat_eucalyptus_herb', label: 'Erva de Eucalipto', quantity: 2 }],
-    base_power: 0, market_value_base: 120,
+    base_power: 0, energy_restore: 25, market_value_base: 120,
+  },
+  {
+    id: 'rec_al_02', recipe_id: 'rec_al_02', name: 'Elixir de Vigor Operacional', branch: 'Alquimia',
+    slot: 'Consumível', prefix: 'Revigorante', base_item: 'Elixir de Vigor', base_item_id: 'item_cons_05',
+    suffix: 'do Adicional de Produtividade', min_workshop_level: 2,
+    ingredients: [
+      { item_id: 'mat_eucalyptus_herb', label: 'Erva de Eucalipto', quantity: 3 },
+      { item_id: 'mat_mana_crystal', label: 'Cristal de Mana', quantity: 1 },
+    ],
+    base_power: 0, energy_restore: 50, market_value_base: 320, charges: 4,
   },
   {
     id: 'rec_02', recipe_id: 'rec_02', name: 'Amuleto de Guarda-Alma', branch: 'Joalheria',
     slot: 'Joia', prefix: 'Encantado', base_item: 'Amuleto de Guarda-Alma', base_item_id: 'item_jwl_03',
-    suffix: 'do Adicional de Insalubridade',
+    suffix: 'do Adicional de Insalubridade', min_workshop_level: 1,
     ingredients: [{ item_id: 'mat_mana_crystal', label: 'Cristal de Mana', quantity: 2 }],
     base_power: 15, market_value_base: 180,
   },
   {
+    id: 'rec_jw_02', recipe_id: 'rec_jw_02', name: 'Sinete de Chancela Imperial', branch: 'Joalheria',
+    slot: 'Joia', prefix: 'Régio', base_item: 'Sinete de Chancela', base_item_id: 'item_jwl_04',
+    suffix: 'da Autorização Notarial', min_workshop_level: 2,
+    ingredients: [
+      { item_id: 'mat_mana_crystal', label: 'Cristal de Mana', quantity: 3 },
+      { item_id: 'mat_iron_ore', label: 'Minério de Ferro', quantity: 1 },
+    ],
+    base_power: 32, market_value_base: 400,
+  },
+  {
     id: 'rec_05', recipe_id: 'rec_05', name: 'Ração de Batalha Gourmet', branch: 'Culinária',
     slot: 'Consumível', prefix: 'Nutritiva', base_item: 'Ração de Batalha', base_item_id: 'item_cons_04',
-    suffix: 'da Produtividade Sem Pausa',
+    suffix: 'da Produtividade Sem Pausa', min_workshop_level: 1,
     ingredients: [{ item_id: 'mat_flour', label: 'Farinha de Trigo', quantity: 3 }],
-    base_power: 5, market_value_base: 140,
+    base_power: 5, energy_restore: 35, market_value_base: 140,
+  },
+  {
+    id: 'rec_ck_02', recipe_id: 'rec_ck_02', name: 'Banquete de Prestação de Contas', branch: 'Culinária',
+    slot: 'Consumível', prefix: 'Farto', base_item: 'Banquete de Prestação de Contas', base_item_id: 'item_cons_06',
+    suffix: 'da Auditoria Sem Ressalvas', min_workshop_level: 2,
+    ingredients: [
+      { item_id: 'mat_flour', label: 'Farinha de Trigo', quantity: 4 },
+      { item_id: 'mat_wild_honey', label: 'Mel Silvestre', quantity: 2 },
+    ],
+    base_power: 12, energy_restore: 65, market_value_base: 350, charges: 5,
   },
 ];
 
@@ -733,12 +835,21 @@ export const MOCK_STATE: GameState = {
     rounds_per_season: 7,
   },
   workshop_levels: { Ferragem: 1, Alquimia: 1, Joalheria: 1, Culinária: 1 },
+  workshop_xp: {
+    Ferragem: 45,
+    Alquimia: 20,
+    Joalheria: 0,
+    Culinária: 10,
+  },
   materials: {
-    mat_iron_ore: 10,
-    mat_scaly_leather: 6,
-    mat_mana_crystal: 4,
-    mat_eucalyptus_herb: 5,
-    mat_flour: 8,
+    mat_iron_ore: 18,
+    mat_scaly_leather: 10,
+    mat_mana_crystal: 8,
+    mat_eucalyptus_herb: 10,
+    mat_flour: 12,
+    mat_wild_honey: 6,
+    mat_ember_coal: 6,
+    mat_granite_dust: 6,
   },
   inventory: [
     {

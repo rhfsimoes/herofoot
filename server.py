@@ -47,7 +47,7 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             payload["success"] = result.get("success", True)
             if "message" in result:
                 payload["message"] = result["message"]
-            for k in ("gold", "facilities", "hero", "new_level", "saves", "slot"):
+            for k in ("gold", "facilities", "hero", "new_level", "saves", "slot", "item", "quality", "tinkering", "tinkering_success", "recipe_unlocked", "xp_gained", "current_xp", "level", "cost", "xp_consumed"):
                 if k in result:
                     payload[k] = result[k]
         else:
@@ -136,6 +136,7 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             suffix_id = body.get('suffix_id')
             prefix_material_id = body.get('prefix_material_id')
             suffix_material_id = body.get('suffix_material_id')
+            is_tinkering = body.get('is_tinkering', False)
             result = controller.ui_request_craft(
                 recipe_id,
                 branch=branch,
@@ -143,6 +144,7 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
                 suffix_id=suffix_id,
                 prefix_material_id=prefix_material_id,
                 suffix_material_id=suffix_material_id,
+                is_tinkering=is_tinkering,
             )
             self._send_action_result(result)
         elif path == '/api/craft_preview':

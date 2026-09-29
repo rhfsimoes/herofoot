@@ -21,10 +21,13 @@ import {
   Search,
   Star,
   Zap,
+  Flame,
 } from 'lucide-react'
 import {
   MOCK_RECIPES,
   MATERIAL_LABELS,
+  WORKSHOP_XP_TABLE,
+  WORKSHOP_LEVEL_BENEFITS,
   type GameState,
   type InventoryItem,
   type ItemQuality,
@@ -55,6 +58,7 @@ import {
 import OnboardingBanner from '../components/OnboardingBanner'
 import EmptyState from '../components/EmptyState'
 import Tooltip from '../components/Tooltip'
+import { useSound } from '../hooks/useSound'
 
 interface Phase2WorkshopProps {
   state: GameState
@@ -88,10 +92,10 @@ const TERRAIN_NAMES: Record<string, string> = {
 
 const UPGRADE_COSTS: Record<number, number> = {
   1: 500,
-  2: 900,
-  3: 1600,
-  4: 2800,
-  5: 5000,
+  2: 1000,
+  3: 2000,
+  4: 4000,
+  5: 8000,
 }
 
 export default function Phase2Workshop({
@@ -158,6 +162,15 @@ export default function Phase2Workshop({
   const [materials, setMaterials] = useState<Record<string, number>>(state.materials)
   const [gold, setGold] = useState<number>(state.gold)
   const [lastCraft, setLastCraft] = useState<InventoryItem | null>(null)
+  interface CraftResultInfo {
+    item: InventoryItem
+    xpGained: number
+    isTinkering: boolean
+    tinkeringSuccess: boolean
+    branch: WorkshopBranch
+  }
+  const [lastCraftResult, setLastCraftResult] = useState<CraftResultInfo | null>(null)
+  const { play: playSfx } = useSound()
 
   // Crafting v2 Seleções
   const recipesList: Recipe[] = useMemo(

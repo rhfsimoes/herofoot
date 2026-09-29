@@ -8,7 +8,7 @@ import Phase2Workshop from './pages/Phase2Workshop'
 import Phase3Tactics from './pages/Phase3Tactics'
 import Phase4Dungeon from './pages/Phase4Dungeon'
 import Phase5Results from './pages/Phase5Results'
-import { MOCK_STATE, MOCK_RECIPES, type GameState, type InventoryItem, type Recipe } from './mockData'
+import { MOCK_STATE, MOCK_RECIPES, WORKSHOP_XP_TABLE, type GameState, type InventoryItem, type Recipe } from './mockData'
 import {
   checkBackendLive,
   fetchStateFromBackend,
@@ -21,6 +21,7 @@ import {
   sellItemBackend,
   resolveOfferBackend,
   learnAffixBackend,
+  type CraftPayload,
 } from './api'
 import './index.css'
 
@@ -137,7 +138,7 @@ function AppContent() {
   }
 
   // Handlers para o módulo de Oficina e Balcão
-  async function handleCraft(payload: string | { recipe_id: string; branch?: string; prefix_id?: string | null; suffix_id?: string | null; prefix_material_id?: string | null; suffix_material_id?: string | null }) {
+  async function handleCraft(payload: string | CraftPayload) {
     if (isBackendOnline) {
       const res = await craftItemBackend(payload)
       if (res && res.state) {
@@ -149,12 +150,18 @@ function AppContent() {
     const recipeId = typeof payload === 'string' ? payload : payload.recipe_id
     const prefixId = typeof payload === 'string' ? null : payload.prefix_id
     const suffixId = typeof payload === 'string' ? null : payload.suffix_id
+    const isTinkering = typeof payload === 'string' ? false : (payload.is_tinkering ?? false)
     let createdItem: InventoryItem | null = null
     let updatedState: GameState | null = null
+    let xpGained = 10
+    let tinkeringSuccess = true
 
     setGameState((prev: GameState): GameState => {
       const recipes: Recipe[] = prev.recipes ? Object.values(prev.recipes) : MOCK_RECIPES
       const rec = recipes.find(r => (r.recipe_id || r.id) === recipeId) || recipes[0]
+      const branch = (typeof payload !== 'string' && payload.branch) ? payload.branch : (rec?.branch || 'Ferragem')
+      const currentBranchLvl = prev.workshop_levels?.[branch] ?? 1
+      const recipeMinLvl = rec?.min_workshop_level ?? 1
       const newMaterials = { ...prev.materials }
       
       // Deduct ingredients
@@ -166,27 +173,70 @@ function AppContent() {
         })
       }
 
-      const itemObj: InventoryItem = {
-        item_instance_id: `item_craft_${Date.now()}`,
-        name: `${prefixId ? prefixId + ' ' : ''}${rec?.base_item || rec?.name || 'Item'}${suffixId ? ' ' + suffixId : ''}`.trim(),
-        slot_type: (rec?.slot as any) || 'Arma',
-        quality: 'Normal',
-        power_bonus: rec?.base_power || 20,
-        market_value_base: rec?.market_value_base || 150,
+      if (isTinkering) {
+        const diff = Math.max(1, recipeMinLvl - currentBranchLvl)
+        const successChance = Math.max(0.05, 1 - diff * 0.35)
+        tinkeringSuccess = Math.random() <= successChance
+
+        if (tinkeringSuccess) {
+          const nominalXp = recipeMinLvl >= 3 ? 60 : (recipeMinLvl === 2 ? 25 : 10)
+          xpGained = Math.round(nominalXp * 1.5)
+          createdItem = {
+            item_instance_id: `item_craft_${Date.now()}`,
+            name: `${prefixId ? prefixId + ' ' : ''}${rec?.base_item || rec?.name || 'Item'}${suffixId ? ' ' + suffixId : ''}`.trim(),
+            slot_type: (rec?.slot as any) || 'Arma',
+            quality: 'Normal',
+            power_bonus: rec?.base_power || 20,
+            market_value_base: rec?.market_value_base || 150,
+          }
+        } else {
+          xpGained = 5
+          createdItem = {
+            item_instance_id: `item_craft_gororoba_${Date.now()}`,
+            name: `Gororoba Experimental de ${rec?.name || 'Projeto'}`,
+            slot_type: 'Consumível',
+            quality: 'Fraco',
+            power_bonus: 0,
+            market_value_base: 20,
+          }
+        }
+      } else {
+        xpGained = recipeMinLvl >= 3 ? 60 : (recipeMinLvl === 2 ? 25 : 10)
+        createdItem = {
+          item_instance_id: `item_craft_${Date.now()}`,
+          name: `${prefixId ? prefixId + ' ' : ''}${rec?.base_item || rec?.name || 'Item'}${suffixId ? ' ' + suffixId : ''}`.trim(),
+          slot_type: (rec?.slot as any) || 'Arma',
+          quality: 'Normal',
+          power_bonus: rec?.base_power || 20,
+          market_value_base: rec?.market_value_base || 150,
+        }
       }
-      createdItem = itemObj
+
+      const curBranchXp = prev.workshop_xp?.[branch] ?? 0
+      const newWorkshopXp = {
+        ...(prev.workshop_xp || {}),
+        [branch]: curBranchXp + xpGained,
+      }
 
       updatedState = {
         ...prev,
         materials: newMaterials,
-        inventory: [itemObj, ...prev.inventory],
+        inventory: [createdItem, ...prev.inventory],
+        workshop_xp: newWorkshopXp,
       }
       return updatedState
     })
 
     return {
       success: true,
-      result: { success: true, item: createdItem },
+      result: {
+        success: true,
+        item: createdItem,
+        xp_gained: xpGained,
+        is_tinkering: isTinkering,
+        tinkering_success: isTinkering ? tinkeringSuccess : undefined,
+        recipe_unlocked: true,
+      },
       state: updatedState ?? undefined,
     } as any
   }
@@ -213,8 +263,12 @@ function AppContent() {
     let updatedState: GameState | null = null
     setGameState((prev: GameState): GameState => {
       const currentLvl = prev.workshop_levels?.[branch] ?? 1
-      const cost = currentLvl * 200
-      if (prev.gold < cost) return prev
+      if (currentLvl >= 6) return prev
+      const cost = WORKSHOP_XP_TABLE[currentLvl]?.upgrade_cost ?? 500
+      const xpReq = WORKSHOP_XP_TABLE[currentLvl]?.xp_to_next ?? 100
+      const curXp = prev.workshop_xp?.[branch] ?? 0
+      if (prev.gold < cost || curXp < xpReq) return prev
+
       updatedState = {
         ...prev,
         gold: prev.gold - cost,
@@ -222,10 +276,14 @@ function AppContent() {
           ...prev.workshop_levels,
           [branch]: currentLvl + 1,
         },
+        workshop_xp: {
+          ...(prev.workshop_xp || {}),
+          [branch]: Math.max(0, curXp - xpReq),
+        },
       }
       return updatedState
     })
-    return { success: true, state: updatedState ?? undefined } as any
+    return { success: true, result: { success: true, level: (updatedState as any)?.workshop_levels?.[branch] }, state: updatedState ?? undefined } as any
   }
 
   async function handleBuyMaterial(matId: string, qty: number) {
