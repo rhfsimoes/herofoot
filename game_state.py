@@ -34,6 +34,8 @@ SERIALIZED_FIELDS = [
     "youth_academy",
     "transfer_market_listings",
     "crown_goals",
+    "last_expedition_starters",
+    "weekly_sales_revenue",
 ]
 
 TRANSIENT_FIELDS = [
@@ -41,6 +43,8 @@ TRANSIENT_FIELDS = [
     "last_round_results",
     "current_dungeon",
     "active_save_slot",
+    "last_expedition_loot",
+    "last_financial_statement",
 ]
 
 
@@ -87,11 +91,17 @@ class GameState:
         self.known_recipes = []
         self.catalog_version = 1
 
+        # DRE e Expedição
+        self.last_expedition_starters = []
+        self.weekly_sales_revenue = 0
+
         # Campos transientes de execução
         self.last_match_result = None
         self.last_round_results = None
         self.current_dungeon = None
         self.active_save_slot = None
+        self.last_expedition_loot = []
+        self.last_financial_statement = {}
 
         self.load_initial_data()
 

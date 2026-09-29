@@ -92,15 +92,22 @@ class PhaseService:
         
         fac_data = self.hero_service.get_medical_facilities_data() if hasattr(self, "hero_service") else {}
         recovery_val = fac_data.get("passive_recovery", fatigue_cfg.get("recovery_per_week", 20))
+        starter_recovery_val = fatigue_cfg.get("starter_recovery_per_week", 5)
         recov_thresh = fatigue_cfg.get("recovered_threshold", 50)
         facility_name = fac_data.get("facility_name", "Tenda de Curativos")
+        last_starters = set(getattr(self.state, "last_expedition_starters", []))
 
         for hero in self.state.team:
             if hero.get("fatigue", 0) > 0:
-                hero["fatigue"] = max(0, hero["fatigue"] - recovery_val)
+                is_starter = hero.get("id") in last_starters
+                actual_recovery = starter_recovery_val if is_starter else recovery_val
+                hero["fatigue"] = max(0, hero["fatigue"] - actual_recovery)
                 if hero.get("status") == "Fatigado" and hero["fatigue"] < recov_thresh:
                     hero["status"] = "Apto"
-                report.append(f"{hero.get('name', 'Herói')} realizou repouso em '{facility_name}' (-{recovery_val} fadiga).")
+                if is_starter:
+                    report.append(f"{hero.get('name', 'Herói')} em repouso pós-expedição (-{actual_recovery} fadiga residual).")
+                else:
+                    report.append(f"{hero.get('name', 'Herói')} realizou repouso em '{facility_name}' (-{actual_recovery} fadiga).")
 
             if hero.get("injured", False) and hero.get("injury_weeks_left", 0) > 0:
                 hero["injury_weeks_left"] -= 1
@@ -294,7 +301,7 @@ class PhaseService:
 
         # 5. Adiciona fadiga aos titulares que exploraram a masmorra
         fatigue_cfg = balance.get("fatigue", {})
-        gain_val = fatigue_cfg.get("gain_per_expedition", 20)
+        gain_val = fatigue_cfg.get("gain_per_expedition", 25)
         fatigued_thresh = fatigue_cfg.get("fatigued_threshold", 70)
 
         # Habilidade Prece de Sustentação (Clérigo/Apoio):
@@ -309,6 +316,20 @@ class PhaseService:
             h["season_appearances"] = h.get("season_appearances", 0) + 1
             if h["fatigue"] >= fatigued_thresh:
                 h["status"] = "Fatigado"
+
+        # Registro dos titulares da última expedição
+        self.state.last_expedition_starters = [h["id"] for h in starter_heroes] if starter_heroes else list(self.state.starters)
+
+        # Geração e Registro Real de Espólios de Masmorras (Loot Real)
+        rooms_player = sim_result.get("rooms_explored_player", 0)
+        dungeon_terrain = dungeon.get("terrain", "neutral")
+        loot_dropped = self._generate_dungeon_loot(dungeon_terrain, rooms_player, round_rng)
+        self.state.last_expedition_loot = loot_dropped
+        for item in loot_dropped:
+            mat_id = item["material_id"]
+            qty = item["quantity"]
+            self.state.materials[mat_id] = self.state.materials.get(mat_id, 0) + qty
+            match_log.append(f"[Logística de Espólios] Recuperado: {qty}x '{item.get('name', mat_id)}' ({item.get('rarity', 'Comum')}).")
 
         # 6. Simulação de TODOS os confrontos da Liga
         round_results = self.league_engine.process_round_simulations(
@@ -339,6 +360,7 @@ class PhaseService:
                 "exit_reason_rival": sim_result.get("exit_reason_rival", ""),
             },
             "consumable_report": consumable_report,
+            "loot_dropped": loot_dropped,
             "round_results": round_results,
             "standings": self.league_engine.get_standings(),
         }
@@ -410,25 +432,37 @@ class PhaseService:
                 else:
                     crown_penalty = abs(delta)
 
-        net = expedition_revenue + season_award + crown_subsidy - crown_penalty - salary_cost - total_maintenance
+        # Extrato DRE Dinâmico: apuração de receita de vendas e fechamento contábil
+        sales_revenue = getattr(self.state, "weekly_sales_revenue", 0)
+        self.state.weekly_sales_revenue = 0
+
+        net = expedition_revenue + sales_revenue + season_award + crown_subsidy - crown_penalty - salary_cost - total_maintenance
         self.state.gold += net
 
         self.state.season = getattr(self.league_engine, "season_number", 1)
 
+        last_financial_statement = {
+            "revenue": expedition_revenue,
+            "sales_revenue": sales_revenue,
+            "season_award": season_award,
+            "crown_subsidy": crown_subsidy,
+            "crown_penalty": crown_penalty,
+            "salaries": salary_cost,
+            "total_maintenance": total_maintenance,
+            "base_maintenance": base_maintenance,
+            "medical_maintenance": medical_maintenance,
+            "academy_maintenance": academy_maintenance,
+            "net": net,
+        }
+        self.state.last_financial_statement = last_financial_statement
+
         return {
             "phase": 5,
             "financials": {
-                "revenue": expedition_revenue,
-                "season_award": season_award,
-                "crown_subsidy": crown_subsidy,
-                "crown_penalty": crown_penalty,
-                "salaries": salary_cost,
+                **last_financial_statement,
                 "maintenance": total_maintenance,
-                "base_maintenance": base_maintenance,
-                "medical_maintenance": medical_maintenance,
-                "academy_maintenance": academy_maintenance,
-                "net": net,
             },
+            "last_financial_statement": last_financial_statement,
             "crown_audit": crown_audit_report,
             "crown_goals": get_crown_goals_data(self.state, self.league_engine),
             "development_report": development_report,
@@ -440,3 +474,61 @@ class PhaseService:
             "season_summary": season_summary,
             "pending_contract_renewals": getattr(self.state, "pending_contract_renewals", []),
         }
+
+    def _generate_dungeon_loot(self, terrain: str, rooms_explored: int, rng: random.Random) -> list:
+        """Sorteia insumos corporativos com base no terreno da masmorra e nas salas alcançadas."""
+        if rooms_explored <= 0:
+            return []
+
+        sources_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'material_sources_seed.json')
+        if not os.path.exists(sources_path):
+            return []
+
+        try:
+            with open(sources_path, 'r', encoding='utf-8') as f:
+                all_sources = json.load(f)
+        except Exception:
+            return []
+
+        materials_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'materials_seed.json')
+        materials_meta = {}
+        if os.path.exists(materials_path):
+            try:
+                with open(materials_path, 'r', encoding='utf-8') as f:
+                    for mat in json.load(f):
+                        materials_meta[mat.get("id")] = mat
+            except Exception:
+                pass
+
+        matching_sources = [s for s in all_sources if s.get("terrain") == terrain]
+        if not matching_sources:
+            matching_sources = [s for s in all_sources if s.get("terrain") == "neutral"]
+
+        loot = []
+        for src in matching_sources:
+            min_rooms = src.get("min_rooms_reached", 1)
+            if rooms_explored < min_rooms:
+                continue
+
+            boss_only = src.get("boss_only", False)
+            if boss_only and rooms_explored < 10:
+                continue
+
+            chance = src.get("chance", 0.0)
+            if rng.random() < chance:
+                qty_min = src.get("qty_min", 1)
+                qty_max = src.get("qty_max", 1)
+                qty = rng.randint(qty_min, qty_max)
+                mat_id = src.get("material_id")
+                mat_info = materials_meta.get(mat_id, {})
+                mat_name = mat_info.get("name", mat_id)
+                mat_rarity = mat_info.get("rarity", "Comum")
+
+                loot.append({
+                    "material_id": mat_id,
+                    "name": mat_name,
+                    "quantity": qty,
+                    "rarity": mat_rarity,
+                })
+
+        return loot
