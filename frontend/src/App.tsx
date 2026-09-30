@@ -421,6 +421,7 @@ function AppContent() {
     return null
   }
 
+
   // Nome do rival do dia
   const rivalGuild = gameState.current_fixture
     ? gameState.current_fixture.home_is_player

@@ -39,6 +39,7 @@ import {
   type CraftPreview,
   type MaterialSheet,
   type AffixManual,
+  type VipOrder,
 } from '../mockData'
 import { useSound } from '../hooks/useSound'
 import {
@@ -55,6 +56,7 @@ import {
   fetchMaterialSheetBackend,
   scoutMarketHeroBackend,
   hireMarketHeroBackend,
+  fulfillVipOrderBackend,
 } from '../api'
 import OnboardingBanner from '../components/OnboardingBanner'
 import EmptyState from '../components/EmptyState'
@@ -234,6 +236,42 @@ export default function Phase2Workshop({
   const [affixManuals, setAffixManuals] = useState<AffixManual[]>(
     state.market?.affix_manuals ?? []
   )
+
+  // Encomenda VIP da Nobreza
+  const vipOrder: VipOrder | null = (state.market?.active_vip_order as VipOrder) ?? null
+  const [vipSelectedItemId, setVipSelectedItemId] = useState<string>('')
+  const [isFulfillingVip, setIsFulfillingVip] = useState<boolean>(false)
+  const [vipFeedback, setVipFeedback] = useState<string | null>(null)
+
+  const QUALITY_RANK: Record<string, number> = { Fraco: 0, Normal: 1, Ótimo: 2, Lendário: 3 }
+
+  const vipEligibleItems = vipOrder
+    ? (state.inventory ?? []).filter(
+        (it) =>
+          it.slot_type?.toLowerCase() === vipOrder.item_type?.toLowerCase() &&
+          QUALITY_RANK[it.quality] >= QUALITY_RANK[vipOrder.min_quality]
+      )
+    : []
+
+  async function handleFulfillVip() {
+    if (!vipSelectedItemId || !vipOrder) return
+    setIsFulfillingVip(true)
+    setVipFeedback(null)
+    try {
+      const res = await fulfillVipOrderBackend(vipSelectedItemId)
+      if (res?.success) {
+        setVipFeedback(`✅ Encomenda entregue. +${vipOrder.reward_gold} ⬡ e +${vipOrder.reward_confidence}% Confiança.`)
+        if (res.state) onStateUpdate?.(res.state)
+        setVipSelectedItemId('')
+      } else {
+        setVipFeedback(`❌ ${res?.message || 'Entrega recusada pela Câmara.'}`)
+      }
+    } catch {
+      setVipFeedback('❌ Falha de comunicação com o Cartório da Câmara.')
+    } finally {
+      setIsFulfillingVip(false)
+    }
+  }
 
   // Filtros e busca no Mercado Atacadista de Matérias-Primas
   const [marketCategoryFilter, setMarketCategoryFilter] = useState<MaterialCategory>('Todas')
@@ -1745,6 +1783,67 @@ export default function Phase2Workshop({
             </div>
           )}
 
+          {/* ── Card de Encomenda VIP da Nobreza ── */}
+          {vipOrder && (
+            <div className="bg-amber-900/20 border border-amber-700/40 rounded-xl p-4 shadow-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">👑</span>
+                <span className="text-xs font-black uppercase tracking-widest text-amber-400">
+                  Encomenda da Nobreza
+                </span>
+                <span className="ml-auto text-[10px] text-stone-400 font-mono">
+                  Validade: {vipOrder.expires_in_rounds} rodada{vipOrder.expires_in_rounds !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <p className="text-xs text-stone-300 italic mb-3">"{vipOrder.headline}"</p>
+              <div className="grid grid-cols-3 gap-2 text-center mb-3">
+                <div className="bg-stone-900/60 rounded-lg p-2 border border-stone-700/50">
+                  <p className="text-[10px] text-stone-400 uppercase">Item</p>
+                  <p className="text-xs font-bold text-stone-200 capitalize">{vipOrder.item_type}</p>
+                </div>
+                <div className="bg-stone-900/60 rounded-lg p-2 border border-stone-700/50">
+                  <p className="text-[10px] text-stone-400 uppercase">Qualidade Mínima</p>
+                  <p className="text-xs font-bold text-amber-300">{vipOrder.min_quality}</p>
+                </div>
+                <div className="bg-stone-900/60 rounded-lg p-2 border border-stone-700/50">
+                  <p className="text-[10px] text-stone-400 uppercase">Recompensa</p>
+                  <p className="text-xs font-bold text-emerald-400">⬡ {vipOrder.reward_gold}</p>
+                  <p className="text-[10px] text-sky-400">+{vipOrder.reward_confidence}% Conf.</p>
+                </div>
+              </div>
+              {vipEligibleItems.length > 0 ? (
+                <div className="flex gap-2 items-center">
+                  <select
+                    value={vipSelectedItemId}
+                    onChange={(e) => setVipSelectedItemId(e.target.value)}
+                    className="flex-1 bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2 py-1.5"
+                  >
+                    <option value="">— Selecionar artefato —</option>
+                    {vipEligibleItems.map((it) => (
+                      <option key={it.item_instance_id} value={it.item_instance_id}>
+                        {it.name} ({it.quality})
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={handleFulfillVip}
+                    disabled={!vipSelectedItemId || isFulfillingVip}
+                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed text-stone-950 font-bold text-xs rounded-lg transition-colors cursor-pointer"
+                  >
+                    {isFulfillingVip ? 'Enviando…' : 'Cumprir'}
+                  </button>
+                </div>
+              ) : (
+                <p className="text-xs text-stone-500 italic text-center py-1">
+                  Nenhum item em estoque atende os requisitos da Câmara.
+                </p>
+              )}
+              {vipFeedback && (
+                <p className="text-xs mt-2 text-center font-semibold text-stone-300">{vipFeedback}</p>
+              )}
+            </div>
+          )}
+
           <div className="flex gap-2 border-b border-stone-800 pb-2 flex-wrap">
             <button
               onClick={() => setMarketSubTab('vender')}
@@ -2588,6 +2687,7 @@ export default function Phase2Workshop({
           </div>
         </div>
       )}
+
       </div>
     </div>
   )
