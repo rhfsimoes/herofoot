@@ -84,7 +84,9 @@ class PhaseService:
                 self.hero_service.refresh_transfer_market()
                 self.hero_service.replenish_academy()
 
-            # Transição semanal para Fase 1: Entrega de remessas dos contratos B2B
+            # Transição semanal para Fase 1: Reset de cotas spot e entrega de remessas B2B
+            if hasattr(self.state, "reset_weekly_spot_purchases"):
+                self.state.reset_weekly_spot_purchases()
             b2b_delivered = self.deliver_b2b_shipments()
             if b2b_delivered:
                 result["b2b_shipments_delivered"] = b2b_delivered
@@ -572,6 +574,10 @@ class PhaseService:
         # Extrato DRE Dinâmico: apuração de receita de vendas e fechamento contábil
         sales_revenue = getattr(self.state, "weekly_sales_revenue", 0)
         self.state.weekly_sales_revenue = 0
+        already_collected = getattr(self.state, "weekly_sales_cash_collected", 0)
+        self.state.weekly_sales_cash_collected = 0
+        sales_count = getattr(self.state, "weekly_sales_count", 0)
+        self.state.weekly_sales_count = 0
 
         net = (
             expedition_revenue
@@ -585,13 +591,14 @@ class PhaseService:
             - b2b_royalties_cost
             - assembly_workers_salaries
         )
-        self.state.gold += net
+        self.state.gold += (net - already_collected)
 
         self.state.season = getattr(self.league_engine, "season_number", 1)
 
         last_financial_statement = {
             "revenue": expedition_revenue,
             "sales_revenue": sales_revenue,
+            "sales_count": sales_count,
             "assembly_sales_revenue": assembly_sales_revenue,
             "b2b_royalties_cost": b2b_royalties_cost,
             "assembly_workers_salaries": assembly_workers_salaries,

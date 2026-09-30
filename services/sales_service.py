@@ -115,6 +115,8 @@ class SalesService:
             self.state.inventory.remove(item)
             self.state.gold += asked_price
             self.state.weekly_sales_revenue = getattr(self.state, "weekly_sales_revenue", 0) + asked_price
+            self.state.weekly_sales_count = getattr(self.state, "weekly_sales_count", 0) + 1
+            self.state.weekly_sales_cash_collected = getattr(self.state, "weekly_sales_cash_collected", 0) + asked_price
             return {
                 "success": True,
                 "status": "vendido",
@@ -178,13 +180,16 @@ class SalesService:
         offer = self.state.pending_offers.pop(offer_id)
 
         if accept:
-            self.state.gold += int(offer["price"])
-            self.state.weekly_sales_revenue = getattr(self.state, "weekly_sales_revenue", 0) + int(offer["price"])
+            accepted_price = int(offer["price"])
+            self.state.gold += accepted_price
+            self.state.weekly_sales_revenue = getattr(self.state, "weekly_sales_revenue", 0) + accepted_price
+            self.state.weekly_sales_count = getattr(self.state, "weekly_sales_count", 0) + 1
+            self.state.weekly_sales_cash_collected = getattr(self.state, "weekly_sales_cash_collected", 0) + accepted_price
             return {
                 "success": True,
                 "accepted": True,
-                "gold_received": int(offer["price"]),
-                "message": f"Contrato aceito. {int(offer['price'])} Moedas de Ouro creditadas.",
+                "gold_received": accepted_price,
+                "message": f"Contrato aceito. {accepted_price} Moedas de Ouro creditadas.",
             }
         else:
             self.state.inventory.append(offer["item"])

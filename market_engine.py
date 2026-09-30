@@ -313,11 +313,24 @@ class MarketEngine:
         if quantity <= 0:
             return {"success": False, "message": "Quantidade solicitada deve ser maior que zero."}
 
-        from b2b import get_parts_dict
+        from b2b import get_parts_dict, get_b2b_balance
         parts = get_parts_dict()
         part = parts.get(part_id)
         if not part:
             return {"success": False, "message": f"Peça modular '{part_id}' não localizada no catálogo industrial."}
+
+        # Cota semanal máxima de aquisição spot por peça (Anti-Exploit)
+        b2b_cfg = get_b2b_balance()
+        max_quota = int(b2b_cfg.get("weekly_spot_quota_per_part", 5))
+        already_bought = state.get_spot_purchases_this_week(part_id) if hasattr(state, "get_spot_purchases_this_week") else 0
+        if already_bought + quantity > max_quota:
+            remaining = max(0, max_quota - already_bought)
+            return {
+                "success": False,
+                "message": f"Cota semanal de aquisição spot esgotada para '{part.get('name', part_id)}': limite regulatório da junta comercial de {max_quota} un./semana (já adquirido: {already_bought}, cota restante: {remaining}).",
+                "quota_exceeded": True,
+                "remaining_quota": remaining,
+            }
 
         # Bloqueio de componentes avançados conforme nível de patrocínio ativo (Bronze: T1, Prata: T1+T2, Ouro: T1+T2+T3)
         tier = part.get("tier", 1)
@@ -354,6 +367,11 @@ class MarketEngine:
 
         state.gold -= total_cost
         state.add_warehouse_part(part_id, quantity)
+        if hasattr(state, "record_spot_purchase"):
+            state.record_spot_purchase(part_id, quantity)
+
+        new_bought = state.get_spot_purchases_this_week(part_id) if hasattr(state, "get_spot_purchases_this_week") else quantity
+        remaining_quota = max(0, max_quota - new_bought)
 
         return {
             "success": True,
@@ -364,7 +382,9 @@ class MarketEngine:
             "total_cost": total_cost,
             "gold": state.gold,
             "warehouse_parts": state.warehouse_parts,
-            "message": f"Ordem spot aprovada: {quantity}x '{part.get('name')}' adquiridas por {total_cost} Ouro.",
+            "spot_purchases_this_week": getattr(state, "spot_purchases_this_week", {}),
+            "remaining_quota": remaining_quota,
+            "message": f"Ordem spot aprovada: {quantity}x '{part.get('name')}' adquiridas por {total_cost} Ouro (Cota restante nesta semana: {remaining_quota} un.).",
         }
 
 

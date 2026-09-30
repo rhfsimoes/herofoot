@@ -590,6 +590,10 @@ class GameController:
             return {"success": False, "message": f"Tesouraria insuficiente para admissão do operário (Custo: {cost} Ouro, Saldo: {self.state.gold} Ouro)."}
 
         self.state.gold -= cost
+        active_contracts = getattr(self.state, "active_b2b_contracts", [])
+        default_corp = active_contracts[0].get("corp_id") if active_contracts else None
+        default_recipe = default_corp or (worker.get("allowed_recipes", [None])[0] if worker.get("allowed_recipes") else None)
+
         worker_instance = {
             "worker_instance_id": str(uuid.uuid4()),
             "worker_id": worker_id,
@@ -600,7 +604,8 @@ class GameController:
             "assigned_branch": norm_branch,
             "supported_branches": worker.get("supported_branches", []),
             "allowed_recipes": worker.get("allowed_recipes", []),
-            "target_recipe": worker.get("allowed_recipes", [None])[0] if worker.get("allowed_recipes") else None,
+            "target_recipe": default_recipe,
+            "target_corp_id": default_corp,
         }
         self.state.assembly_line_workers.append(worker_instance)
         return {
@@ -611,7 +616,7 @@ class GameController:
             "message": f"Operário '{worker.get('name')}' admitido e integrado à linha fabril de {norm_branch}.",
         }
 
-    def set_worker_order(self, worker_instance_id: str, target_recipe: str) -> dict:
+    def set_worker_order(self, worker_instance_id: str, target_order: str) -> dict:
         worker = next(
             (w for w in self.state.assembly_line_workers if w.get("worker_instance_id") == worker_instance_id or w.get("worker_id") == worker_instance_id),
             None
@@ -619,20 +624,40 @@ class GameController:
         if not worker:
             return {"success": False, "message": "Operário fabril não localizado na linha de montagem."}
 
+        from b2b import get_corporations_dict
+        corps = get_corporations_dict()
+        if target_order in corps or target_order.startswith("corp_"):
+            active_corp_ids = [c.get("corp_id") for c in getattr(self.state, "active_b2b_contracts", [])]
+            if target_order not in active_corp_ids:
+                corp_name = corps.get(target_order, {}).get("name", target_order)
+                return {
+                    "success": False,
+                    "message": f"Ordem técnica rejeitada: a guilda não possui convênio ativo com '{corp_name}'. Celebre um contrato antes de alocar a linha de montagem.",
+                }
+            worker["target_corp_id"] = target_order
+            worker["target_recipe"] = target_order
+            corp_name = corps.get(target_order, {}).get("name", target_order)
+            return {
+                "success": True,
+                "worker": worker,
+                "message": f"Ordem de manufatura seriada atribuída: Linha de produção voltada para '{corp_name}'.",
+            }
+
         from catalog import get_catalog
-        recipe = get_catalog().get_recipe(target_recipe)
+        recipe = get_catalog().get_recipe(target_order)
         if not recipe:
-            return {"success": False, "message": f"Receita '{target_recipe}' não localizada no catálogo corporativo."}
+            return {"success": False, "message": f"Ordem ou corporação '{target_order}' não localizada no catálogo corporativo."}
 
         allowed = worker.get("allowed_recipes", [])
-        if allowed and target_recipe not in allowed:
-            return {"success": False, "message": f"Ordem técnica rejeitada: operário não habilitado para produzir '{recipe.get('name', target_recipe)}'."}
+        if allowed and target_order not in allowed:
+            return {"success": False, "message": f"Ordem técnica rejeitada: operário não habilitado para produzir '{recipe.get('name', target_order)}'."}
 
-        worker["target_recipe"] = target_recipe
+        worker["target_recipe"] = target_order
+        worker["target_corp_id"] = None
         return {
             "success": True,
             "worker": worker,
-            "message": f"Ordem de fabricação atribuída com sucesso: '{recipe.get('name', target_recipe)}'.",
+            "message": f"Ordem de fabricação atribuída com sucesso: '{recipe.get('name', target_order)}'.",
         }
 
     def dismiss_assembly_worker(self, worker_instance_id: str) -> dict:

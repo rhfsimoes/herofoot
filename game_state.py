@@ -48,6 +48,9 @@ SERIALIZED_FIELDS = [
     "warehouse_parts",
     "brand_xp",
     "b2b_slots_locked",
+    "spot_purchases_this_week",
+    "weekly_sales_count",
+    "weekly_sales_cash_collected",
 ]
 
 TRANSIENT_FIELDS = [
@@ -126,6 +129,9 @@ class GameState:
         self.warehouse_parts: Dict[str, int] = {}
         self.brand_xp: Dict[str, int] = {}
         self.b2b_slots_locked: int = 0
+        self.spot_purchases_this_week: Dict[str, int] = {}
+        self.weekly_sales_count: int = 0
+        self.weekly_sales_cash_collected: int = 0
 
         # Campos transientes de execução
         self.last_match_result = None
@@ -180,7 +186,29 @@ class GameState:
             self.brand_xp = {}
         if not hasattr(self, "b2b_slots_locked"):
             self.b2b_slots_locked = 0
+        if not hasattr(self, "spot_purchases_this_week") or not isinstance(self.spot_purchases_this_week, dict):
+            self.spot_purchases_this_week = {}
+        if not hasattr(self, "weekly_sales_count"):
+            self.weekly_sales_count = 0
+        if not hasattr(self, "weekly_sales_cash_collected"):
+            self.weekly_sales_cash_collected = 0
         return self
+
+    def get_spot_purchases_this_week(self, part_id: str) -> int:
+        """Retorna o total de unidades de uma peça adquiridas no mercado spot no ciclo atual."""
+        if not hasattr(self, "spot_purchases_this_week") or not isinstance(self.spot_purchases_this_week, dict):
+            self.spot_purchases_this_week = {}
+        return self.spot_purchases_this_week.get(part_id, 0)
+
+    def record_spot_purchase(self, part_id: str, quantity: int) -> None:
+        """Registra a compra spot de peças para controle da cota semanal anti-exploit."""
+        if not hasattr(self, "spot_purchases_this_week") or not isinstance(self.spot_purchases_this_week, dict):
+            self.spot_purchases_this_week = {}
+        self.spot_purchases_this_week[part_id] = self.spot_purchases_this_week.get(part_id, 0) + quantity
+
+    def reset_weekly_spot_purchases(self) -> None:
+        """Reseta o teto semanal de aquisição spot no fechamento de ciclo."""
+        self.spot_purchases_this_week = {}
 
     def get_brand_xp(self, corp_id: str) -> int:
         """Retorna os pontos de EXP comercial acumulados com a corporação."""

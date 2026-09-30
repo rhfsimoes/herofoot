@@ -892,12 +892,13 @@ class CraftingService:
                 "active_workers": 0,
             }
 
-        from b2b import get_b2b_balance, get_parts_dict
+        from b2b import get_b2b_balance, get_parts_dict, get_corporations_dict
         from catalog import get_catalog
         b2b_cfg = get_b2b_balance()
         xp_rate = float(b2b_cfg.get("assembly_line_xp_rate", 0.10))
         price_factor = float(b2b_cfg.get("white_label_price_factor", b2b_cfg.get("white_label_resale_rate", 1.0)))
         parts_catalog = get_parts_dict()
+        corps_dict = get_corporations_dict()
         cat = get_catalog()
 
         items_produced = []
@@ -905,82 +906,193 @@ class CraftingService:
         active_workers_count = 0
 
         for worker in workers:
+            target_corp_id = worker.get("target_corp_id")
             target_recipe_id = worker.get("target_recipe")
-            if not target_recipe_id:
+            if not target_corp_id and not target_recipe_id:
                 continue
 
-            recipe = cat.get_recipe(target_recipe_id)
-            if not recipe:
-                continue
+            is_corp = False
+            corp_id = None
+            if target_corp_id and target_corp_id in corps_dict:
+                is_corp = True
+                corp_id = target_corp_id
+            elif target_recipe_id and (target_recipe_id in corps_dict or str(target_recipe_id).startswith("corp_")):
+                is_corp = True
+                corp_id = target_recipe_id
 
-            branch = worker.get("assigned_branch") or recipe.get("branch", "Ferragem")
+            branch = worker.get("assigned_branch", "Ferragem")
             capacity = int(worker.get("production_capacity", 1))
 
-            for _ in range(capacity):
-                available_branch_parts = [
-                    pid for pid, qty in self.state.warehouse_parts.items()
-                    if qty > 0 and parts_catalog.get(pid, {}).get("branch") == branch
-                ]
+            if is_corp:
+                corp_info = corps_dict.get(corp_id, {})
+                corp_name = corp_info.get("name", corp_id)
+                rival_id = corp_info.get("rival_corp_id")
+                brand_lvl = self.state.get_brand_level(corp_id) if hasattr(self.state, "get_brand_level") else 1
 
-                if len(available_branch_parts) < 2:
-                    available_branch_parts = [
+                if brand_lvl >= 7:
+                    batch_name = f"Lote Industrial de Elite ({corp_name})"
+                    base_val = 300
+                    base_pow = 45
+                    brand_xp_gain = 25
+                    item_quality = "Ótimo"
+                elif brand_lvl >= 3:
+                    batch_name = f"Remessa Comercial Reforçada ({corp_name})"
+                    base_val = 200
+                    base_pow = 28
+                    brand_xp_gain = 15
+                    item_quality = "Normal"
+                else:
+                    batch_name = f"Lote Comercial Básico ({corp_name})"
+                    base_val = 120
+                    base_pow = 15
+                    brand_xp_gain = 10
+                    item_quality = "Normal"
+
+                for _ in range(capacity):
+                    # Prioridade 1: peças da corporação alvo
+                    avail_parts = [
                         pid for pid, qty in self.state.warehouse_parts.items()
-                        if qty > 0
+                        if qty > 0 and parts_catalog.get(pid, {}).get("corp_id") == corp_id
                     ]
+                    # Prioridade 2: peças da filial do operário
+                    if sum(self.state.get_part_quantity(p) for p in avail_parts) < 2:
+                        avail_parts = [
+                            pid for pid, qty in self.state.warehouse_parts.items()
+                            if qty > 0 and (parts_catalog.get(pid, {}).get("corp_id") == corp_id or parts_catalog.get(pid, {}).get("branch") == branch)
+                        ]
+                    # Prioridade 3: quaisquer peças no almoxarifado
+                    if sum(self.state.get_part_quantity(p) for p in avail_parts) < 2:
+                        avail_parts = [
+                            pid for pid, qty in self.state.warehouse_parts.items()
+                            if qty > 0
+                        ]
 
-                total_units_available = sum(self.state.get_part_quantity(pid) for pid in available_branch_parts)
-                if total_units_available < 2:
-                    break
-
-                consumed_pids = []
-                for pid in available_branch_parts:
-                    while self.state.get_part_quantity(pid) > 0 and len(consumed_pids) < 2:
-                        self.state.consume_warehouse_part(pid, 1)
-                        consumed_pids.append(pid)
-                    if len(consumed_pids) >= 2:
+                    total_units = sum(self.state.get_part_quantity(p) for p in avail_parts)
+                    if total_units < 2:
                         break
 
-                if len(consumed_pids) < 2:
-                    break
+                    consumed_pids = []
+                    for pid in avail_parts:
+                        while self.state.get_part_quantity(pid) > 0 and len(consumed_pids) < 2:
+                            self.state.consume_warehouse_part(pid, 1)
+                            consumed_pids.append(pid)
+                        if len(consumed_pids) >= 2:
+                            break
 
-                active_workers_count += 1
-                recipe_tier = int(recipe.get("tier", 1))
-                raw_base_val = int(recipe.get("market_value_base", 120))
-                base_val = max(1, int(raw_base_val * price_factor))
-                base_pow = int(recipe.get("base_power", 20))
-                slot = recipe.get("slot", "Arsenal Ofensivo")
+                    if len(consumed_pids) < 2:
+                        break
 
-                white_label_item = {
-                    "item_instance_id": str(uuid.uuid4()),
-                    "name": f"{recipe.get('name', 'Artefato')} (White-label)",
-                    "slot": slot,
-                    "slot_type": slot,
-                    "branch": branch,
-                    "quality": "Normal",
-                    "power_bonus": base_pow,
-                    "energy_bonus": int(recipe.get("energy_restore", 0)),
-                    "market_value_base": base_val,
-                    "is_white_label": True,
-                    "assembler_id": worker.get("worker_instance_id"),
-                }
+                    active_workers_count += 1
+                    actual_val = max(1, int(base_val * price_factor))
+                    white_label_item = {
+                        "item_instance_id": str(uuid.uuid4()),
+                        "name": batch_name,
+                        "slot": "Arsenal Ofensivo",
+                        "slot_type": "Arsenal Ofensivo",
+                        "branch": branch,
+                        "corp_id": corp_id,
+                        "quality": item_quality,
+                        "power_bonus": base_pow,
+                        "energy_bonus": 0,
+                        "market_value_base": actual_val,
+                        "is_white_label": True,
+                        "assembler_id": worker.get("worker_instance_id"),
+                    }
 
-                sale_revenue = base_val
-                if hasattr(self, "sales_service") and self.sales_service:
-                    sale_res = self.sales_service.queue_auto_sale(white_label_item)
-                    sale_revenue = sale_res.get("sale_price", base_val)
+                    sale_revenue = actual_val
+                    if hasattr(self, "sales_service") and self.sales_service:
+                        sale_res = self.sales_service.queue_auto_sale(white_label_item)
+                        sale_revenue = sale_res.get("sale_price", actual_val)
 
-                total_assembly_revenue += sale_revenue
-                items_produced.append({
-                    "item_name": white_label_item["name"],
-                    "sale_price": sale_revenue,
-                    "worker_name": worker.get("name"),
-                })
+                    total_assembly_revenue += sale_revenue
+                    items_produced.append({
+                        "item_name": white_label_item["name"],
+                        "sale_price": sale_revenue,
+                        "worker_name": worker.get("name"),
+                        "corp_id": corp_id,
+                        "brand_xp_gained": brand_xp_gain,
+                    })
 
-                base_xp = 10 if recipe_tier == 1 else (25 if recipe_tier == 2 else 60)
-                xp_gain = max(1, int(base_xp * xp_rate))
-                if not hasattr(self.state, "workshop_xp") or not isinstance(self.state.workshop_xp, dict):
-                    self.state.workshop_xp = {"Ferragem": 0, "Alquimia": 0, "Joalheria": 0, "Culinária": 0}
-                self.state.workshop_xp[branch] = self.state.get_workshop_xp(branch) + xp_gain
+                    # Concede Brand XP à marca com dreno na rival
+                    if hasattr(self.state, "add_brand_xp"):
+                        self.state.add_brand_xp(corp_id, brand_xp_gain, rival_corp_id=rival_id)
+
+                    # Concede também XP de oficina da filial
+                    workshop_xp_gain = max(1, int(brand_xp_gain * xp_rate))
+                    if not hasattr(self.state, "workshop_xp") or not isinstance(self.state.workshop_xp, dict):
+                        self.state.workshop_xp = {"Ferragem": 0, "Alquimia": 0, "Joalheria": 0, "Culinária": 0}
+                    self.state.workshop_xp[branch] = self.state.get_workshop_xp(branch) + workshop_xp_gain
+
+            else:
+                recipe = cat.get_recipe(target_recipe_id)
+                if not recipe:
+                    continue
+
+                for _ in range(capacity):
+                    available_branch_parts = [
+                        pid for pid, qty in self.state.warehouse_parts.items()
+                        if qty > 0 and parts_catalog.get(pid, {}).get("branch") == branch
+                    ]
+
+                    if len(available_branch_parts) < 2:
+                        available_branch_parts = [
+                            pid for pid, qty in self.state.warehouse_parts.items()
+                            if qty > 0
+                        ]
+
+                    total_units_available = sum(self.state.get_part_quantity(pid) for pid in available_branch_parts)
+                    if total_units_available < 2:
+                        break
+
+                    consumed_pids = []
+                    for pid in available_branch_parts:
+                        while self.state.get_part_quantity(pid) > 0 and len(consumed_pids) < 2:
+                            self.state.consume_warehouse_part(pid, 1)
+                            consumed_pids.append(pid)
+                        if len(consumed_pids) >= 2:
+                            break
+
+                    if len(consumed_pids) < 2:
+                        break
+
+                    active_workers_count += 1
+                    recipe_tier = int(recipe.get("tier", 1))
+                    raw_base_val = int(recipe.get("market_value_base", 120))
+                    base_val = max(1, int(raw_base_val * price_factor))
+                    base_pow = int(recipe.get("base_power", 20))
+                    slot = recipe.get("slot", "Arsenal Ofensivo")
+
+                    white_label_item = {
+                        "item_instance_id": str(uuid.uuid4()),
+                        "name": f"{recipe.get('name', 'Artefato')} (White-label)",
+                        "slot": slot,
+                        "slot_type": slot,
+                        "branch": branch,
+                        "quality": "Normal",
+                        "power_bonus": base_pow,
+                        "energy_bonus": int(recipe.get("energy_restore", 0)),
+                        "market_value_base": base_val,
+                        "is_white_label": True,
+                        "assembler_id": worker.get("worker_instance_id"),
+                    }
+
+                    sale_revenue = base_val
+                    if hasattr(self, "sales_service") and self.sales_service:
+                        sale_res = self.sales_service.queue_auto_sale(white_label_item)
+                        sale_revenue = sale_res.get("sale_price", base_val)
+
+                    total_assembly_revenue += sale_revenue
+                    items_produced.append({
+                        "item_name": white_label_item["name"],
+                        "sale_price": sale_revenue,
+                        "worker_name": worker.get("name"),
+                    })
+
+                    base_xp = 10 if recipe_tier == 1 else (25 if recipe_tier == 2 else 60)
+                    xp_gain = max(1, int(base_xp * xp_rate))
+                    if not hasattr(self.state, "workshop_xp") or not isinstance(self.state.workshop_xp, dict):
+                        self.state.workshop_xp = {"Ferragem": 0, "Alquimia": 0, "Joalheria": 0, "Culinária": 0}
+                    self.state.workshop_xp[branch] = self.state.get_workshop_xp(branch) + xp_gain
 
         return {
             "items_produced": items_produced,

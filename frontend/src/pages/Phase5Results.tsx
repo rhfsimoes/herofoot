@@ -68,6 +68,7 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
   // Receitas reais
   const expeditionRevenue = fin?.expedition_revenue ?? fin?.revenue ?? 250
   const salesRevenue = (fin?.sales_revenue !== undefined ? fin.sales_revenue : state.weekly_sales_revenue) ?? 0
+  const salesCount = (fin as any)?.sales_count ?? (state as any)?.weekly_sales_count ?? 0
   const seasonAward = fin?.season_award ?? (state.season_summary?.award_gold || 0)
 
   // B2B & Linha de Montagem Modular
@@ -278,8 +279,21 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
                 <span>Prêmio de Exploração da Masmorra</span>
                 <span className="font-mono text-emerald-400 font-bold">+⬡ {expeditionRevenue}</span>
               </div>
-              <div className="flex justify-between text-stone-300">
-                <span>Receita Comercial de Balcão (Vendas)</span>
+              <div className="flex justify-between items-center text-stone-300">
+                <span className="flex items-center gap-1.5 flex-wrap">
+                  <Coins className="w-3.5 h-3.5 text-emerald-400" />
+                  Receita Comercial de Balcão
+                  {salesCount > 0 && (
+                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-stone-900 border border-stone-700 text-stone-300">
+                      {salesCount}x Ativos
+                    </span>
+                  )}
+                  {salesCount >= 10 && (
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-emerald-950 border border-emerald-700 text-emerald-300">
+                      Atacado Consolidado
+                    </span>
+                  )}
+                </span>
                 <span className="font-mono text-emerald-400 font-bold">+⬡ {salesRevenue}</span>
               </div>
               <div className="flex justify-between text-stone-300">

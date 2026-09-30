@@ -2727,22 +2727,38 @@ export default function Phase2Workshop({
                           {/* Seletor de Diretriz de Produção */}
                           <div className="pt-2 border-t border-stone-800 space-y-1.5">
                             <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
-                              Diretriz de Produção Seriada (Receita Alvo):
+                              Diretriz de Produção Seriada (Corporação / Convênio):
                             </label>
                             <select
-                              value={worker.target_recipe || ''}
+                              value={worker.target_corp_id || worker.target_recipe || ''}
                               onChange={e => handleSetWorkerOrder(worker.worker_instance_id, e.target.value)}
                               className="w-full bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-amber-500 focus:outline-none"
                             >
-                              <option value="">Selecione uma receita padronizada</option>
-                              {branchRecipesForWorker.map(rec => (
-                                <option key={rec.recipe_id || rec.id} value={rec.recipe_id || rec.id}>
-                                  {rec.name} ({rec.branch} - Nv. {rec.min_workshop_level ?? 1})
-                                </option>
-                              ))}
+                              <option value="">Selecione a corporação conveniada</option>
+                              {activeB2bContracts.length > 0 && (
+                                <optgroup label="Convênios B2B Ativos (Gera Brand XP)">
+                                  {activeB2bContracts.map(c => {
+                                    const corp = MOCK_CORPORATIONS.find(cp => cp.id === c.corp_id)
+                                    return (
+                                      <option key={c.contract_id} value={c.corp_id}>
+                                        {corp?.name || c.corp_id} (Convênio {c.tier} — Lote Padronizado)
+                                      </option>
+                                    )
+                                  })}
+                                </optgroup>
+                              )}
+                              {branchRecipesForWorker.length > 0 && (
+                                <optgroup label="Receitas Tradicionais da Filial (Legado)">
+                                  {branchRecipesForWorker.map(rec => (
+                                    <option key={rec.recipe_id || rec.id} value={rec.recipe_id || rec.id}>
+                                      {rec.name} ({rec.branch} - Nv. {rec.min_workshop_level ?? 1})
+                                    </option>
+                                  ))}
+                                </optgroup>
+                              )}
                             </select>
                             <p className="text-[10px] text-stone-400 italic">
-                              {candidateDef?.description || 'Operário focado em cadência constante de fabricação.'}
+                              {candidateDef?.description || 'Operários alocados a uma fornecedora geram lotes de atacado e Brand XP semanalmente (com dreno na rival).'}
                             </p>
                           </div>
                         </div>
@@ -3400,9 +3416,15 @@ export default function Phase2Workshop({
                     ? Math.round(baseCost * (1 - discountPct))
                     : Math.round(baseCost * 1.50)
 
-                  const qty = spotQuantities[pId] ?? 1
+                  const spotPurchasesThisWeek = (state as any).spot_purchases_this_week ?? {}
+                  const alreadyBought = spotPurchasesThisWeek[pId] ?? 0
+                  const maxWeeklyQuota = 5
+                  const remainingQuota = Math.max(0, maxWeeklyQuota - alreadyBought)
+                  const isQuotaExhausted = remainingQuota <= 0
+
+                  const qty = Math.min(Math.max(1, spotQuantities[pId] ?? 1), Math.max(1, remainingQuota))
                   const totalCost = unitPrice * qty
-                  const canAfford = gold >= totalCost && !isLockedBySponsorship
+                  const canAfford = gold >= totalCost && !isLockedBySponsorship && !isQuotaExhausted && remainingQuota >= qty
                   const inWarehouse = warehouseParts[pId] ?? 0
 
                   return (
@@ -3440,6 +3462,13 @@ export default function Phase2Workshop({
                         <div className="flex items-center justify-between text-xs font-mono text-stone-300">
                           <span>No Almoxarifado:</span>
                           <span className="text-amber-400 font-bold">{inWarehouse} un.</span>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs font-mono text-stone-300">
+                          <span>Cota Semanal:</span>
+                          <span className={`font-bold ${isQuotaExhausted ? 'text-rose-400' : 'text-emerald-400'}`}>
+                            {remainingQuota} / {maxWeeklyQuota} un. {isQuotaExhausted && '(Esgotada)'}
+                          </span>
                         </div>
 
                         {/* Tratamento de Preço Spot / Convênio */}
@@ -3483,7 +3512,8 @@ export default function Phase2Workshop({
                                   [pId]: Math.max(1, (prev[pId] ?? 1) - 1),
                                 }))
                               }}
-                              className="w-7 h-7 rounded bg-stone-900 border border-stone-700 text-stone-200 font-mono font-bold hover:bg-stone-800 cursor-pointer flex items-center justify-center text-xs"
+                              disabled={isQuotaExhausted}
+                              className="w-7 h-7 rounded bg-stone-900 border border-stone-700 text-stone-200 font-mono font-bold hover:bg-stone-800 cursor-pointer flex items-center justify-center text-xs disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                               -
                             </button>
@@ -3494,10 +3524,11 @@ export default function Phase2Workshop({
                               onClick={() => {
                                 setSpotQuantities(prev => ({
                                   ...prev,
-                                  [pId]: (prev[pId] ?? 1) + 1,
+                                  [pId]: Math.min(remainingQuota, (prev[pId] ?? 1) + 1),
                                 }))
                               }}
-                              className="w-7 h-7 rounded bg-stone-900 border border-stone-700 text-stone-200 font-mono font-bold hover:bg-stone-800 cursor-pointer flex items-center justify-center text-xs"
+                              disabled={isQuotaExhausted || qty >= remainingQuota}
+                              className="w-7 h-7 rounded bg-stone-900 border border-stone-700 text-stone-200 font-mono font-bold hover:bg-stone-800 cursor-pointer flex items-center justify-center text-xs disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                               +
                             </button>
@@ -3506,9 +3537,9 @@ export default function Phase2Workshop({
 
                         <button
                           onClick={() => handleBuySpot(pId)}
-                          disabled={!canAfford || isBuyingSpot || isLockedBySponsorship}
+                          disabled={!canAfford || isBuyingSpot || isLockedBySponsorship || isQuotaExhausted}
                           className={`w-full py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                            canAfford && !isBuyingSpot && !isLockedBySponsorship
+                            canAfford && !isBuyingSpot && !isLockedBySponsorship && !isQuotaExhausted
                               ? 'bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 hover:brightness-110 shadow-md'
                               : 'bg-stone-950 border border-stone-800 text-stone-600 cursor-not-allowed'
                           }`}
@@ -3517,6 +3548,11 @@ export default function Phase2Workshop({
                             <>
                               <Lock className="w-3.5 h-3.5 text-amber-500" />
                               <span>Requer Convênio {requiredTierName} (Nível {part.tier})</span>
+                            </>
+                          ) : isQuotaExhausted ? (
+                            <>
+                              <Lock className="w-3.5 h-3.5 text-rose-400" />
+                              <span>Cota Semanal Esgotada ({maxWeeklyQuota}/{maxWeeklyQuota} un.)</span>
                             </>
                           ) : (
                             <>

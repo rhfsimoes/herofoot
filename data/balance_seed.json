@@ -143,7 +143,8 @@
     "inter_brand_tinkering_success_chance": 0.60,
     "overclock_power_bonus_pct": 0.15,
     "gororoba_sell_value": 20,
-    "white_label_price_factor": 0.50
+    "white_label_price_factor": 0.50,
+    "weekly_spot_quota_per_part": 5
   },
   "provisional_rescale_factor": 0.55
 }

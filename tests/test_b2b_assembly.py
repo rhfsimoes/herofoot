@@ -351,6 +351,62 @@ class TestB2BAssembly(unittest.TestCase):
         self.assertEqual(stmt["net"], expected_net)
         self.assertEqual(self.state.gold, init_gold + expected_net)
 
+    def test_corporate_assembly_line_brand_xp_and_rival_drain(self):
+        """Operário direcionado para corporação B2B gera lotes da marca, concede Brand XP e drena rival."""
+        # Configura rival com 100 Brand XP
+        self.state.brand_xp["corp_valkyria"] = 100
+        self.state.brand_xp["corp_aethelgard"] = 0
+
+        # Contrata operário
+        hire_res = self.controller.hire_assembly_worker("worker_fitter_junior", "Ferragem")
+        worker = hire_res["worker"]
+
+        # Tentar definir ordem para corporação sem contrato ativo deve ser rejeitado
+        invalid_res = self.controller.set_worker_order(worker["worker_instance_id"], "corp_aethelgard")
+        self.assertFalse(invalid_res["success"])
+        self.assertIn("convênio ativo", invalid_res["message"].lower())
+
+        # Assina contrato com Aethelgard e aloca a ordem
+        self.controller.sign_b2b_contract("b2b_aethelgard_bronze")
+        order_res = self.controller.set_worker_order(worker["worker_instance_id"], "corp_aethelgard")
+        self.assertTrue(order_res["success"], order_res.get("message"))
+        self.assertEqual(worker["target_corp_id"], "corp_aethelgard")
+
+        # Fornece 2 peças no almoxarifado
+        self.state.warehouse_parts["part_aethelgard_blade"] = 2
+
+        # Executa montagem
+        rep = self.controller.crafting_service.process_assembly_line()
+        self.assertEqual(len(rep["items_produced"]), 1)
+        self.assertIn("Aethelgard", rep["items_produced"][0]["item_name"])
+
+        # Brand XP de Aethelgard aumentado (+10)
+        self.assertEqual(self.state.get_brand_xp("corp_aethelgard"), 10)
+        # Rival Valkyria sofreu dreno de 30% de 10 = 3 XP (100 -> 97)
+        self.assertEqual(self.state.get_brand_xp("corp_valkyria"), 97)
+
+    def test_counter_sales_dre_deduplication(self):
+        """Vendas massivas de balcão reportam volume no DRE e não sofrem dupla creditação na liquidação."""
+        init_gold = self.state.gold
+        self.state.weekly_sales_count = 20
+        self.state.weekly_sales_revenue = 3000
+        self.state.weekly_sales_cash_collected = 3000
+        # Simula que o dinheiro já entrou no caixa no momento da venda imediata
+        self.state.gold += 3000
+
+        gold_before_settlement = self.state.gold
+        dre = self.controller.phase_service.process_phase_5_settlement()
+        stmt = dre["last_financial_statement"]
+
+        self.assertEqual(stmt["sales_count"], 20)
+        self.assertEqual(stmt["sales_revenue"], 3000)
+
+        # O ouro após a liquidação NÃO pode conter os 3000 creditados novamente
+        # gold = gold_before_settlement + (net - already_collected)
+        # net includes +3000, already_collected is 3000, so net contribution to gold delta is 0!
+        expected_settlement_delta = stmt["net"] - 3000
+        self.assertEqual(self.state.gold, gold_before_settlement + expected_settlement_delta)
+
     def test_forbidden_terms_compliance(self):
         """Verifica se nenhum termo esportivo proibido vaza nas descrições de corporações, peças e operários."""
         corps = get_corporations()

@@ -327,6 +327,7 @@ export interface AssemblyWorkerInstance {
   supported_branches: string[]
   allowed_recipes: string[]
   target_recipe: string | null
+  target_corp_id?: string | null
 }
 
 export interface AffixManual {
