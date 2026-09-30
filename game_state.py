@@ -42,6 +42,10 @@ SERIALIZED_FIELDS = [
     "active_event",
     "resolved_events_history",
     "supplies_bonus",
+    "active_b2b_contracts",
+    "assembly_line_workers",
+    "corporate_exclusivity_tags",
+    "warehouse_parts",
 ]
 
 TRANSIENT_FIELDS = [
@@ -113,6 +117,12 @@ class GameState:
         self.resolved_events_history: List[str] = []
         self.supplies_bonus: int = 0
 
+        # Pivot B2B & Linha de Montagem Modular (v0.7.0)
+        self.active_b2b_contracts: List[Dict[str, Any]] = []
+        self.assembly_line_workers: List[Dict[str, Any]] = []
+        self.corporate_exclusivity_tags: List[str] = []
+        self.warehouse_parts: Dict[str, int] = {}
+
         # Campos transientes de execução
         self.last_match_result = None
         self.last_round_results = None
@@ -154,6 +164,14 @@ class GameState:
             for b in ["Ferragem", "Alquimia", "Joalheria", "Culinária"]:
                 if b not in self.workshop_xp:
                     self.workshop_xp[b] = 0
+        if not hasattr(self, "active_b2b_contracts") or not isinstance(self.active_b2b_contracts, list):
+            self.active_b2b_contracts = []
+        if not hasattr(self, "assembly_line_workers") or not isinstance(self.assembly_line_workers, list):
+            self.assembly_line_workers = []
+        if not hasattr(self, "corporate_exclusivity_tags") or not isinstance(self.corporate_exclusivity_tags, list):
+            self.corporate_exclusivity_tags = []
+        if not hasattr(self, "warehouse_parts") or not isinstance(self.warehouse_parts, dict):
+            self.warehouse_parts = {}
         return self
 
     def load_initial_data(self):
@@ -296,3 +314,34 @@ class GameState:
             mat_id = ingredient.get("material_id") or ingredient.get("item_id")
             qty_needed = ingredient.get("quantity", 1)
             self.materials[mat_id] = max(0, self.materials.get(mat_id, 0) - qty_needed)
+
+    def get_part_quantity(self, part_id: str) -> int:
+        """Retorna o saldo em almoxarifado de uma peça modular."""
+        if not hasattr(self, "warehouse_parts") or not isinstance(self.warehouse_parts, dict):
+            self.warehouse_parts = {}
+        return self.warehouse_parts.get(part_id, 0)
+
+    def add_warehouse_part(self, part_id: str, quantity: int = 1):
+        """Acrescenta peças modulares ao estoque do almoxarifado fabril."""
+        if not hasattr(self, "warehouse_parts") or not isinstance(self.warehouse_parts, dict):
+            self.warehouse_parts = {}
+        self.warehouse_parts[part_id] = self.warehouse_parts.get(part_id, 0) + quantity
+
+    def consume_warehouse_part(self, part_id: str, quantity: int = 1) -> bool:
+        """Consome peças modulares do almoxarifado se houver estoque suficiente."""
+        if not hasattr(self, "warehouse_parts") or not isinstance(self.warehouse_parts, dict):
+            self.warehouse_parts = {}
+        if self.warehouse_parts.get(part_id, 0) < quantity:
+            return False
+        self.warehouse_parts[part_id] -= quantity
+        return True
+
+    def has_active_contract(self, identifier: str) -> bool:
+        """Verifica se há convênio de fornecimento vigente com a corporação ou por ID de contrato."""
+        contracts = getattr(self, "active_b2b_contracts", [])
+        return any(c.get("corp_id") == identifier or c.get("contract_id") == identifier for c in contracts)
+
+    def has_exclusivity_tag(self, tag: str) -> bool:
+        """Verifica se a guilda possui uma cláusula de exclusividade corporativa ativa."""
+        tags = getattr(self, "corporate_exclusivity_tags", [])
+        return tag in tags

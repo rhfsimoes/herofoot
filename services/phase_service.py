@@ -11,12 +11,13 @@ from constants import normalize_slot
 
 
 class PhaseService:
-    def __init__(self, state, dungeons, league_engine, market_engine, match_engine=None, hero_service=None, event_service=None):
+    def __init__(self, state, dungeons, league_engine, market_engine, match_engine=None, hero_service=None, event_service=None, crafting_service=None):
         self.state = state
         self.dungeons = dungeons
         self.league_engine = league_engine
         self.market_engine = market_engine
         self.match_engine = match_engine
+        self.crafting_service = crafting_service
         if hero_service:
             self.hero_service = hero_service
         else:
@@ -83,7 +84,12 @@ class PhaseService:
                 self.hero_service.refresh_transfer_market()
                 self.hero_service.replenish_academy()
 
-            # Transição semanal para Fase 1: Sorteio de incidente corporativo com 50% de chance
+            # Transição semanal para Fase 1: Entrega de remessas dos contratos B2B
+            b2b_delivered = self.deliver_b2b_shipments()
+            if b2b_delivered:
+                result["b2b_shipments_delivered"] = b2b_delivered
+
+            # Sorteio de incidente corporativo com 50% de chance
             if hasattr(self, "event_service") and self.event_service:
                 balance = get_balance()
                 event_chance = balance.get("events", {}).get("weekly_trigger_chance", 0.5)
@@ -98,6 +104,35 @@ class PhaseService:
         result["week"] = self.state.week
         result["season"] = getattr(self.state, "season", 1)
         return result
+
+    def deliver_b2b_shipments(self) -> list:
+        """
+        Entrega as remessas semanais dos contratos B2B vigentes diretamente em warehouse_parts.
+        """
+        delivered = []
+        contracts = getattr(self.state, "active_b2b_contracts", [])
+        for contract in contracts:
+            shipment = contract.get("weekly_shipment", [])
+            for item in shipment:
+                pid = item.get("part_id")
+                qty = item.get("quantity", 1)
+                if pid and qty > 0:
+                    self.state.add_warehouse_part(pid, qty)
+                    delivered.append({
+                        "contract_id": contract.get("contract_id"),
+                        "part_id": pid,
+                        "quantity": qty
+                    })
+        return delivered
+
+    def advance_to_phase_1(self, rng=None) -> dict:
+        """Executa a transição explícita para a Fase 1 com entrega de remessas B2B."""
+        shipments = self.deliver_b2b_shipments()
+        return {
+            "phase": 1,
+            "b2b_shipments_delivered": shipments,
+            "warehouse_parts": getattr(self.state, "warehouse_parts", {}),
+        }
 
     def phase_1_cuidado(self) -> dict:
         """Fase 1: Recuperação de fadiga em instalações médicas, atestados e altas."""
@@ -458,11 +493,39 @@ class PhaseService:
                 else:
                     crown_penalty = abs(delta)
 
+        # Executa Linha de Montagem Autônoma de B2B se disponível
+        assembly_sales_revenue = 0
+        assembly_report = None
+        if hasattr(self, "crafting_service") and self.crafting_service:
+            assembly_report = self.crafting_service.process_assembly_line()
+            assembly_sales_revenue = int(assembly_report.get("assembly_sales_revenue", 0))
+
+        # Custos B2B: Royalties de contratos de fornecimento e salários de operários fabris
+        b2b_royalties_cost = sum(
+            int(c.get("weekly_royalty", 0))
+            for c in getattr(self.state, "active_b2b_contracts", [])
+        )
+        assembly_workers_salaries = sum(
+            int(w.get("weekly_salary", 0))
+            for w in getattr(self.state, "assembly_line_workers", [])
+        )
+
         # Extrato DRE Dinâmico: apuração de receita de vendas e fechamento contábil
         sales_revenue = getattr(self.state, "weekly_sales_revenue", 0)
         self.state.weekly_sales_revenue = 0
 
-        net = expedition_revenue + sales_revenue + season_award + crown_subsidy - crown_penalty - salary_cost - total_maintenance
+        net = (
+            expedition_revenue
+            + sales_revenue
+            + assembly_sales_revenue
+            + season_award
+            + crown_subsidy
+            - crown_penalty
+            - salary_cost
+            - total_maintenance
+            - b2b_royalties_cost
+            - assembly_workers_salaries
+        )
         self.state.gold += net
 
         self.state.season = getattr(self.league_engine, "season_number", 1)
@@ -470,6 +533,9 @@ class PhaseService:
         last_financial_statement = {
             "revenue": expedition_revenue,
             "sales_revenue": sales_revenue,
+            "assembly_sales_revenue": assembly_sales_revenue,
+            "b2b_royalties_cost": b2b_royalties_cost,
+            "assembly_workers_salaries": assembly_workers_salaries,
             "season_award": season_award,
             "crown_subsidy": crown_subsidy,
             "crown_penalty": crown_penalty,
@@ -489,6 +555,7 @@ class PhaseService:
                 "maintenance": total_maintenance,
             },
             "last_financial_statement": last_financial_statement,
+            "assembly_report": assembly_report,
             "crown_audit": crown_audit_report,
             "crown_goals": get_crown_goals_data(self.state, self.league_engine),
             "development_report": development_report,
@@ -500,6 +567,10 @@ class PhaseService:
             "season_summary": season_summary,
             "pending_contract_renewals": getattr(self.state, "pending_contract_renewals", []),
         }
+
+    def process_phase_5_settlement(self) -> dict:
+        """Alias pericial para fechamento contábil e apuração financeira da Fase 5."""
+        return self.phase_5_results()
 
     def _generate_dungeon_loot(self, terrain: str, rooms_explored: int, rng: random.Random) -> list:
         """Sorteia insumos corporativos com base no terreno da masmorra e nas salas alcançadas."""

@@ -1,0 +1,24 @@
+[
+  {
+    "worker_id": "worker_fitter_junior",
+    "name": "Ajustador de Bancada Júnior",
+    "tier": 1,
+    "hiring_cost": 150,
+    "weekly_salary": 40,
+    "production_capacity": 1,
+    "supported_branches": ["Ferragem", "Alquimia", "Joalheria", "Culinária"],
+    "allowed_recipes": ["rec_01", "rec_03", "rec_04", "rec_05"],
+    "description": "Montador treinado em processos repetitivos. Converte peças de almoxarifado em artefatos padronizados para revenda."
+  },
+  {
+    "worker_id": "worker_assembler_senior",
+    "name": "Operador Sênior de Linha Contínua",
+    "tier": 2,
+    "hiring_cost": 300,
+    "weekly_salary": 75,
+    "production_capacity": 2,
+    "supported_branches": ["Ferragem", "Alquimia", "Joalheria", "Culinária"],
+    "allowed_recipes": ["rec_01", "rec_02", "rec_03", "rec_04", "rec_05", "rec_06"],
+    "description": "Especialista em cadência industrial capaz de coordenar montagens duplas sem interrupção de fluxo fabril."
+  }
+]

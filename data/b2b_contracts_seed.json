@@ -1,0 +1,71 @@
+[
+  {
+    "contract_id": "b2b_aethelgard_bronze",
+    "corp_id": "corp_aethelgard",
+    "tier": "Bronze",
+    "title": "Convênio Fornecimento Aethelgard - Padrão Bronze",
+    "weekly_royalty": 50,
+    "is_exclusive": false,
+    "discount_pct": 0.10,
+    "weekly_shipment": [
+      { "part_id": "part_aethelgard_blade", "quantity": 1 },
+      { "part_id": "part_aethelgard_hilt", "quantity": 1 }
+    ],
+    "description": "Fornecimento regular de lâminas e empunhaduras para sustentação da linha de montagem básica."
+  },
+  {
+    "contract_id": "b2b_aethelgard_gold",
+    "corp_id": "corp_aethelgard",
+    "tier": "Ouro",
+    "title": "Aliança Estratégica Aethelgard - Parceiro Ouro",
+    "weekly_royalty": 180,
+    "is_exclusive": true,
+    "discount_pct": 0.25,
+    "weekly_shipment": [
+      { "part_id": "part_aethelgard_blade", "quantity": 3 },
+      { "part_id": "part_aethelgard_hilt", "quantity": 3 }
+    ],
+    "description": "Contrato exclusivo de exclusividade territorial. Proíbe parcerias B2B com o Consórcio Bélico Valkyria sob pena de rescisão sumária."
+  },
+  {
+    "contract_id": "b2b_valkyria_gold",
+    "corp_id": "corp_valkyria",
+    "tier": "Ouro",
+    "title": "Consórcio Bélico Valkyria - Parceiro Ouro",
+    "weekly_royalty": 190,
+    "is_exclusive": true,
+    "discount_pct": 0.25,
+    "weekly_shipment": [
+      { "part_id": "part_valkyria_guard", "quantity": 3 },
+      { "part_id": "part_valkyria_plate", "quantity": 2 }
+    ],
+    "description": "Exclusividade contratual com a vanguarda fabril Valkyria. Incompatível com acordos da Siderúrgica Aethelgard."
+  },
+  {
+    "contract_id": "b2b_flamel_standard",
+    "corp_id": "corp_flamel",
+    "tier": "Prata",
+    "title": "Homologação de Destilados Flamel - Nível Prata",
+    "weekly_royalty": 80,
+    "is_exclusive": false,
+    "discount_pct": 0.15,
+    "weekly_shipment": [
+      { "part_id": "part_flamel_catalyst", "quantity": 2 },
+      { "part_id": "part_flamel_vial", "quantity": 4 }
+    ],
+    "description": "Abastecimento semanal de frascos graduados e catalisadores certificados pela Guilda de Boticários."
+  },
+  {
+    "contract_id": "b2b_chancellor_silver",
+    "corp_id": "corp_chancellor",
+    "tier": "Prata",
+    "title": "Fornecimento de Gemas Chanceler - Nível Prata",
+    "weekly_royalty": 120,
+    "is_exclusive": false,
+    "discount_pct": 0.15,
+    "weekly_shipment": [
+      { "part_id": "part_chancellor_core", "quantity": 2 }
+    ],
+    "description": "Remessa de núcleos de safira polida para confecção seriada de amuletos corporativos."
+  }
+]

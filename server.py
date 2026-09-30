@@ -51,7 +51,8 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
                 "gold", "facilities", "hero", "new_level", "saves", "slot", "item", "quality",
                 "tinkering", "tinkering_success", "recipe_unlocked", "xp_gained", "current_xp",
                 "level", "cost", "xp_consumed", "consequence", "effects_applied", "active_event",
-                "gold_earned", "confidence_earned"
+                "gold_earned", "confidence_earned", "contract", "worker", "unit_price", "total_cost",
+                "warehouse_parts", "overclock", "items_produced", "assembly_sales_revenue"
             ):
                 if k in result:
                     payload[k] = result[k]
@@ -252,6 +253,46 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             body = self._read_json_body()
             item_id = body.get('item_instance_id')
             result = controller.fulfill_vip_order(item_id)
+            self._send_action_result(result)
+        elif path == '/api/b2b/sign_contract':
+            body = self._read_json_body()
+            contract_id = body.get('contract_id')
+            result = controller.sign_b2b_contract(contract_id)
+            self._send_action_result(result)
+        elif path == '/api/b2b/cancel_contract':
+            body = self._read_json_body()
+            contract_id = body.get('contract_id')
+            result = controller.cancel_b2b_contract(contract_id)
+            self._send_action_result(result)
+        elif path == '/api/b2b/hire_worker':
+            body = self._read_json_body()
+            worker_id = body.get('worker_id')
+            assigned_branch = body.get('assigned_branch', 'Ferragem')
+            result = controller.hire_assembly_worker(worker_id, assigned_branch=assigned_branch)
+            self._send_action_result(result)
+        elif path == '/api/b2b/set_worker_order':
+            body = self._read_json_body()
+            worker_instance_id = body.get('worker_instance_id')
+            target_recipe = body.get('target_recipe')
+            result = controller.set_worker_order(worker_instance_id, target_recipe)
+            self._send_action_result(result)
+        elif path == '/api/b2b/dismiss_worker':
+            body = self._read_json_body()
+            worker_instance_id = body.get('worker_instance_id')
+            result = controller.dismiss_assembly_worker(worker_instance_id)
+            self._send_action_result(result)
+        elif path == '/api/assemble_modular_item':
+            body = self._read_json_body()
+            part_ids = body.get('part_ids', [])
+            base_name = body.get('base_name', 'Artefato Modular')
+            is_tinkering = bool(body.get('is_tinkering', False))
+            result = controller.assemble_modular_item(part_ids, base_name=base_name, is_tinkering=is_tinkering)
+            self._send_action_result(result)
+        elif path == '/api/market/buy_part':
+            body = self._read_json_body()
+            part_id = body.get('part_id')
+            quantity = int(body.get('quantity', 1))
+            result = controller.buy_part(part_id, quantity=quantity)
             self._send_action_result(result)
         elif path == '/api/save':
             body = self._read_json_body()
