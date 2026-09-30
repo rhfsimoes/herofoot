@@ -15,6 +15,9 @@ import {
   CheckCircle2,
   AlertTriangle,
   Scale,
+  Factory,
+  Building2,
+  Users,
 } from 'lucide-react'
 import type { GameState } from '../mockData'
 import { GOLD_GRADIENT_TEXT, MATERIAL_RARITY_STYLES, getMaterialRarity } from '../utils/rarityStyles'
@@ -67,6 +70,15 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
   const salesRevenue = state.weekly_sales_revenue ?? fin?.sales_revenue ?? 0
   const seasonAward = fin?.season_award ?? (state.season_summary?.award_gold || 0)
 
+  // B2B & Linha de Montagem Modular
+  const assemblySalesRevenue = fin?.assembly_sales_revenue ?? 0
+  const b2bRoyaltiesCost =
+    fin?.b2b_royalties_cost ??
+    (state.active_b2b_contracts?.reduce((sum, c) => sum + (c.weekly_royalty ?? 0), 0) ?? 0)
+  const assemblyWorkersSalaries =
+    fin?.assembly_workers_salaries ??
+    (state.assembly_line_workers?.reduce((sum, w) => sum + (w.weekly_salary ?? 0), 0) ?? 0)
+
   const crownAuditThisWeek =
     state.crown_goals?.last_audit_report &&
     state.crown_goals.last_audit_report.audit_week === (state.week ?? state.day)
@@ -78,8 +90,8 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
   const crownPenalty =
     fin?.crown_penalty ?? (crownAuditThisWeek && crownAuditThisWeek.delta_gold < 0 ? Math.abs(crownAuditThisWeek.delta_gold) : 0)
 
-  const totalRevenue = expeditionRevenue + salesRevenue + seasonAward + crownSubsidy
-  const totalExpenses = salaryTotal + maintenance + crownPenalty
+  const totalRevenue = expeditionRevenue + salesRevenue + seasonAward + crownSubsidy + assemblySalesRevenue
+  const totalExpenses = salaryTotal + maintenance + crownPenalty + b2bRoyaltiesCost + assemblyWorkersSalaries
   const netResult = fin?.net ?? (totalRevenue - totalExpenses)
 
   // Divisão selecionada para visualização
@@ -259,6 +271,13 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
                 <span>Receita Comercial de Balcão (Vendas)</span>
                 <span className="font-mono text-emerald-400 font-bold">+⬡ {salesRevenue}</span>
               </div>
+              <div className="flex justify-between text-stone-300">
+                <span className="flex items-center gap-1.5">
+                  <Factory className="w-3.5 h-3.5 text-emerald-400" />
+                  (+) Vendas de Prateleira (Linha de Montagem)
+                </span>
+                <span className="font-mono text-emerald-400 font-bold">+⬡ {assemblySalesRevenue}</span>
+              </div>
               {seasonAward > 0 && (
                 <div className="flex justify-between text-amber-300 font-bold bg-amber-950/40 p-1.5 rounded border border-amber-800/60">
                   <span className="flex items-center gap-1.5">
@@ -303,6 +322,20 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
                   </div>
                 </div>
                 <span className="font-mono text-rose-400 font-bold">-⬡ {maintenance}</span>
+              </div>
+              <div className="flex justify-between text-stone-300">
+                <span className="flex items-center gap-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-rose-400" />
+                  (-) Licenciamento & Royalties B2B
+                </span>
+                <span className="font-mono text-rose-400 font-bold">-⬡ {b2bRoyaltiesCost}</span>
+              </div>
+              <div className="flex justify-between text-stone-300">
+                <span className="flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-rose-400" />
+                  (-) Salários dos Operários de Fábrica ({state.assembly_line_workers?.length ?? 0} operários)
+                </span>
+                <span className="font-mono text-rose-400 font-bold">-⬡ {assemblyWorkersSalaries}</span>
               </div>
               {crownPenalty > 0 && (
                 <div className="flex justify-between text-rose-300 font-bold bg-rose-950/60 p-1.5 rounded border border-rose-800/60">

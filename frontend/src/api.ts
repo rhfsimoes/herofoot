@@ -12,7 +12,9 @@ import type {
   MaterialSheet,
   MedicalFacilityInfo,
   Hero,
-  CorporateEvent
+  CorporateEvent,
+  B2BContract,
+  AssemblyWorkerInstance,
 } from './mockData'
 
 const API_BASE = 'http://localhost:8000/api'
@@ -36,6 +38,14 @@ export interface ApiResponse<T = any> {
   consequence?: string
   effects_applied?: Record<string, any>
   active_event?: CorporateEvent | null
+  overclock?: boolean
+  warehouse_parts?: Record<string, number>
+  active_b2b_contracts?: B2BContract[]
+  corporate_exclusivity_tags?: string[]
+  assembly_line_workers?: AssemblyWorkerInstance[]
+  items_produced?: number
+  assembly_sales_revenue?: number
+  item?: InventoryItem
 }
 
 export async function checkBackendLive(): Promise<boolean> {
@@ -596,5 +606,127 @@ export async function fulfillVipOrderBackend(itemInstanceId: string): Promise<Ap
       message: 'Falha de comunicação com a junta comercial da Câmara dos Mercadores.',
     }
   }
+}
+
+// ─── Complexo Industrial B2B & Montagem Modular (v0.7.0) ───────────────────
+
+export async function signB2BContractBackend(
+  contractId: string
+): Promise<ApiResponse<{ contract: B2BContract; active_b2b_contracts: B2BContract[] }> | null> {
+  try {
+    const res = await fetch(`${API_BASE}/b2b/sign_contract`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contract_id: contractId }),
+      signal: AbortSignal.timeout(3000),
+    })
+    return (await res.json()) as ApiResponse
+  } catch (err) {
+    console.warn('[HeroFoot API] Falha ao assinar convênio B2B:', err)
+  }
+  return null
+}
+
+export async function cancelB2BContractBackend(contractId: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/b2b/cancel_contract`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contract_id: contractId }),
+      signal: AbortSignal.timeout(3000),
+    })
+    return (await res.json()) as ApiResponse
+  } catch (err) {
+    console.warn('[HeroFoot API] Falha ao rescindir contrato B2B:', err)
+  }
+  return null
+}
+
+export async function hireAssemblyWorkerBackend(
+  workerId: string,
+  assignedBranch: string = 'Ferragem'
+): Promise<ApiResponse<{ worker: AssemblyWorkerInstance; assembly_line_workers: AssemblyWorkerInstance[] }> | null> {
+  try {
+    const res = await fetch(`${API_BASE}/b2b/hire_worker`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ worker_id: workerId, assigned_branch: assignedBranch }),
+      signal: AbortSignal.timeout(3000),
+    })
+    return (await res.json()) as ApiResponse
+  } catch (err) {
+    console.warn('[HeroFoot API] Falha ao admitir operário fabril:', err)
+  }
+  return null
+}
+
+export async function setWorkerOrderBackend(
+  workerInstanceId: string,
+  targetRecipe: string
+): Promise<ApiResponse<{ worker: AssemblyWorkerInstance }> | null> {
+  try {
+    const res = await fetch(`${API_BASE}/b2b/set_worker_order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ worker_instance_id: workerInstanceId, target_recipe: targetRecipe }),
+      signal: AbortSignal.timeout(3000),
+    })
+    return (await res.json()) as ApiResponse
+  } catch (err) {
+    console.warn('[HeroFoot API] Falha ao atribuir ordem de montagem:', err)
+  }
+  return null
+}
+
+export async function dismissAssemblyWorkerBackend(workerInstanceId: string): Promise<ApiResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE}/b2b/dismiss_worker`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ worker_instance_id: workerInstanceId }),
+      signal: AbortSignal.timeout(3000),
+    })
+    return (await res.json()) as ApiResponse
+  } catch (err) {
+    console.warn('[HeroFoot API] Falha ao desligar operário fabril:', err)
+  }
+  return null
+}
+
+export async function assembleModularItemBackend(
+  partIds: string[],
+  baseName: string = 'Artefato Modular',
+  isTinkering: boolean = false
+): Promise<ApiResponse<{ item: InventoryItem; tinkering?: boolean; tinkering_success?: boolean; overclock?: boolean }> | null> {
+  try {
+    const res = await fetch(`${API_BASE}/assemble_modular_item`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ part_ids: partIds, base_name: baseName, is_tinkering: isTinkering }),
+      signal: AbortSignal.timeout(3000),
+    })
+    return (await res.json()) as ApiResponse
+  } catch (err) {
+    console.warn('[HeroFoot API] Falha ao processar montagem modular:', err)
+  }
+  return null
+}
+
+export async function buyModularPartBackend(
+  partId: string,
+  quantity: number = 1
+): Promise<ApiResponse<{ part_id: string; quantity: number; unit_price: number; total_cost: number; warehouse_parts: Record<string, number> }> | null> {
+  try {
+    const res = await fetch(`${API_BASE}/market/buy_part`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ part_id: partId, quantity: quantity }),
+      signal: AbortSignal.timeout(3000),
+    })
+    return (await res.json()) as ApiResponse
+  } catch (err) {
+    console.warn('[HeroFoot API] Falha ao adquirir peça no mercado spot:', err)
+  }
+  return null
 }
 

@@ -22,12 +22,26 @@ import {
   Star,
   Zap,
   Flame,
+  Building2,
+  Factory,
+  Cpu,
+  ShieldCheck,
+  ShieldAlert,
+  Wrench,
+  Trash2,
+  Plus,
+  CheckCircle2,
+  Package,
 } from 'lucide-react'
 import {
   MOCK_RECIPES,
   MATERIAL_LABELS,
   WORKSHOP_XP_TABLE,
   WORKSHOP_LEVEL_BENEFITS,
+  MOCK_CORPORATIONS,
+  MOCK_B2B_CONTRACTS,
+  MOCK_ASSEMBLY_WORKERS,
+  MOCK_MODULAR_PARTS,
   type GameState,
   type InventoryItem,
   type ItemQuality,
@@ -40,6 +54,9 @@ import {
   type MaterialSheet,
   type AffixManual,
   type VipOrder,
+  type ModularPart,
+  type B2BContract,
+  type AssemblyWorkerInstance,
 } from '../mockData'
 import { useSound } from '../hooks/useSound'
 import {
@@ -57,6 +74,13 @@ import {
   scoutMarketHeroBackend,
   hireMarketHeroBackend,
   fulfillVipOrderBackend,
+  signB2BContractBackend,
+  cancelB2BContractBackend,
+  hireAssemblyWorkerBackend,
+  setWorkerOrderBackend,
+  dismissAssemblyWorkerBackend,
+  assembleModularItemBackend,
+  buyModularPartBackend,
 } from '../api'
 import OnboardingBanner from '../components/OnboardingBanner'
 import EmptyState from '../components/EmptyState'
@@ -73,9 +97,17 @@ interface Phase2WorkshopProps {
   onResolveOffer?: (offerId: string, accept: boolean) => Promise<any>
   onLearnAffix?: (affixId: string) => Promise<any>
   onStateUpdate?: (newState: Partial<GameState>) => void
+  onSignB2BContract?: (contractId: string) => Promise<any>
+  onCancelB2BContract?: (contractId: string) => Promise<any>
+  onHireAssemblyWorker?: (workerId: string, assignedBranch: string) => Promise<any>
+  onSetWorkerOrder?: (workerInstanceId: string, targetRecipe: string) => Promise<any>
+  onDismissAssemblyWorker?: (workerInstanceId: string) => Promise<any>
+  onAssembleModularItem?: (partIds: string[], baseName: string, isTinkering: boolean) => Promise<any>
+  onBuyModularPart?: (partId: string, quantity: number) => Promise<any>
 }
 
-type MainTab = 'oficina' | 'balcao' | 'transferencias'
+type MainTab = 'oficina' | 'complexo_b2b' | 'balcao' | 'transferencias'
+type B2BSubTab = 'fornecedores' | 'operarios' | 'montagem' | 'spot'
 type MarketSubTab = 'vender' | 'comprar_prontos' | 'comprar_insumos' | 'manuais'
 
 const BRANCHES: { name: WorkshopBranch; icon: any; key: string }[] = [
@@ -104,10 +136,47 @@ export default function Phase2Workshop({
   onResolveOffer,
   onLearnAffix,
   onStateUpdate,
+  onSignB2BContract,
+  onCancelB2BContract,
+  onHireAssemblyWorker,
+  onSetWorkerOrder,
+  onDismissAssemblyWorker,
+  onAssembleModularItem,
+  onBuyModularPart,
 }: Phase2WorkshopProps) {
   const [mainTab, setMainTab] = useState<MainTab>('oficina')
   const [selectedBranch, setSelectedBranch] = useState<WorkshopBranch>('Ferragem')
   const [marketSubTab, setMarketSubTab] = useState<MarketSubTab>('vender')
+  const [b2bSubTab, setB2bSubTab] = useState<B2BSubTab>('fornecedores')
+
+  // Estados B2B e Linha de Montagem
+  const [warehouseParts, setWarehouseParts] = useState<Record<string, number>>(state.warehouse_parts ?? {})
+  const [activeB2bContracts, setActiveB2bContracts] = useState<B2BContract[]>(state.active_b2b_contracts ?? [])
+  const [assemblyLineWorkers, setAssemblyLineWorkers] = useState<AssemblyWorkerInstance[]>(state.assembly_line_workers ?? [])
+  const [corporateExclusivityTags, setCorporateExclusivityTags] = useState<string[]>(state.corporate_exclusivity_tags ?? [])
+
+  // Bancada de Montagem Modular
+  const [selectedModularParts, setSelectedModularParts] = useState<string[]>([])
+  const [modularBaseName, setModularBaseName] = useState<string>('Artefato Modular')
+  const [isAssembling, setIsAssembling] = useState<boolean>(false)
+  const [lastModularResult, setLastModularResult] = useState<{
+    item: InventoryItem
+    isTinkering: boolean
+    tinkeringSuccess: boolean
+    overclock: boolean
+    message: string
+  } | null>(null)
+
+  // Estados de Ação B2B
+  const [isSigningB2B, setIsSigningB2B] = useState<boolean>(false)
+  const [isHiringWorker, setIsHiringWorker] = useState<boolean>(false)
+  const [selectedHireBranch, setSelectedHireBranch] = useState<string>('Ferragem')
+  const [spotSearchQuery, setSpotSearchQuery] = useState<string>('')
+  const [spotCorpFilter, setSpotCorpFilter] = useState<string>('todos')
+  const [spotQuantities, setSpotQuantities] = useState<Record<string, number>>({})
+  const [isBuyingSpot, setIsBuyingSpot] = useState<boolean>(false)
+  const [b2bCorpFilter, setB2bCorpFilter] = useState<string>('todos')
+  const [modularPartFilter, setModularPartFilter] = useState<string>('todos')
 
   // Mercado de Transferências (Onda 4)
   const marketListings = state.transfer_market?.listings ?? []
@@ -165,6 +234,314 @@ export default function Phase2Workshop({
     branch: WorkshopBranch
   }
   const [lastCraftResult, setLastCraftResult] = useState<CraftResultInfo | null>(null)
+
+  // ─────────────────────────────────────────────
+  // AÇÕES DO COMPLEXO B2B & LINHA DE MONTAGEM
+  // ─────────────────────────────────────────────
+  async function handleSignContract(contractId: string) {
+    setIsSigningB2B(true)
+    try {
+      if (onSignB2BContract) {
+        const res = await onSignB2BContract(contractId)
+        if (res && res.success) {
+          playSfx('craft_success')
+          if (res.active_b2b_contracts) setActiveB2bContracts(res.active_b2b_contracts)
+          if (res.corporate_exclusivity_tags) setCorporateExclusivityTags(res.corporate_exclusivity_tags)
+          if (res.warehouse_parts) setWarehouseParts(res.warehouse_parts)
+          if (res.state) onStateUpdate?.(res.state)
+        } else {
+          alert(res?.message || 'Falha ao assinar convênio B2B.')
+        }
+      } else {
+        const res = await signB2BContractBackend(contractId)
+        if (res && res.success) {
+          playSfx('craft_success')
+          if (res.active_b2b_contracts) setActiveB2bContracts(res.active_b2b_contracts)
+          if (res.corporate_exclusivity_tags) setCorporateExclusivityTags(res.corporate_exclusivity_tags)
+          if (res.warehouse_parts) setWarehouseParts(res.warehouse_parts)
+          if (res.state) onStateUpdate?.(res.state)
+        } else {
+          alert(res?.message || 'Falha ao assinar convênio B2B.')
+        }
+      }
+    } catch {
+      alert('Erro de comunicação com o registro notarial corporativo.')
+    } finally {
+      setIsSigningB2B(false)
+    }
+  }
+
+  async function handleCancelContract(contractId: string) {
+    if (!confirm('Deseja realmente rescindir esta cota corporativa? A remessa semanal será interrompida.')) return
+    setIsSigningB2B(true)
+    try {
+      if (onCancelB2BContract) {
+        const res = await onCancelB2BContract(contractId)
+        if (res && res.success) {
+          if (res.active_b2b_contracts) setActiveB2bContracts(res.active_b2b_contracts)
+          if (res.corporate_exclusivity_tags) setCorporateExclusivityTags(res.corporate_exclusivity_tags)
+          if (res.state) onStateUpdate?.(res.state)
+        } else {
+          alert(res?.message || 'Falha ao rescindir contrato.')
+        }
+      } else {
+        const res = await cancelB2BContractBackend(contractId)
+        if (res && res.success) {
+          if (res.active_b2b_contracts) setActiveB2bContracts(res.active_b2b_contracts)
+          if (res.corporate_exclusivity_tags) setCorporateExclusivityTags(res.corporate_exclusivity_tags)
+          if (res.state) onStateUpdate?.(res.state)
+        } else {
+          alert(res?.message || 'Falha ao rescindir contrato.')
+        }
+      }
+    } catch {
+      alert('Erro ao processar rescisão notarial.')
+    } finally {
+      setIsSigningB2B(false)
+    }
+  }
+
+  async function handleHireWorker(workerId: string, branch: string) {
+    setIsHiringWorker(true)
+    try {
+      if (onHireAssemblyWorker) {
+        const res = await onHireAssemblyWorker(workerId, branch)
+        if (res && res.success) {
+          playSfx('hire')
+          if (res.assembly_line_workers) setAssemblyLineWorkers(res.assembly_line_workers)
+          if (res.state) onStateUpdate?.(res.state)
+        } else {
+          alert(res?.message || 'Falha ao admitir operário.')
+        }
+      } else {
+        const res = await hireAssemblyWorkerBackend(workerId, branch)
+        if (res && res.success) {
+          playSfx('hire')
+          if (res.assembly_line_workers) setAssemblyLineWorkers(res.assembly_line_workers)
+          if (res.state) onStateUpdate?.(res.state)
+        } else {
+          alert(res?.message || 'Falha ao admitir operário.')
+        }
+      }
+    } catch {
+      alert('Erro ao registrar admissão no conselho de artífices.')
+    } finally {
+      setIsHiringWorker(false)
+    }
+  }
+
+  async function handleSetWorkerOrder(workerInstanceId: string, targetRecipe: string) {
+    try {
+      if (onSetWorkerOrder) {
+        const res = await onSetWorkerOrder(workerInstanceId, targetRecipe)
+        if (res && res.success) {
+          if (res.assembly_line_workers) setAssemblyLineWorkers(res.assembly_line_workers)
+          if (res.state) onStateUpdate?.(res.state)
+        } else {
+          alert(res?.message || 'Falha ao atualizar diretriz de produção.')
+        }
+      } else {
+        const res = await setWorkerOrderBackend(workerInstanceId, targetRecipe)
+        if (res && res.success) {
+          if (res.assembly_line_workers) setAssemblyLineWorkers(res.assembly_line_workers)
+          if (res.state) onStateUpdate?.(res.state)
+        } else {
+          alert(res?.message || 'Falha ao atualizar diretriz de produção.')
+        }
+      }
+    } catch {
+      alert('Erro de comunicação ao gravar ordem fabril.')
+    }
+  }
+
+  async function handleDismissWorker(workerInstanceId: string) {
+    if (!confirm('Deseja homologar a demissão deste operário fabril?')) return
+    try {
+      if (onDismissAssemblyWorker) {
+        const res = await onDismissAssemblyWorker(workerInstanceId)
+        if (res && res.success) {
+          if (res.assembly_line_workers) setAssemblyLineWorkers(res.assembly_line_workers)
+          if (res.state) onStateUpdate?.(res.state)
+        } else {
+          alert(res?.message || 'Falha ao dispensar operário.')
+        }
+      } else {
+        const res = await dismissAssemblyWorkerBackend(workerInstanceId)
+        if (res && res.success) {
+          if (res.assembly_line_workers) setAssemblyLineWorkers(res.assembly_line_workers)
+          if (res.state) onStateUpdate?.(res.state)
+        } else {
+          alert(res?.message || 'Falha ao dispensar operário.')
+        }
+      }
+    } catch {
+      alert('Erro ao processar rescisão de mão de obra.')
+    }
+  }
+
+  async function handleAssembleModular(isTinkering: boolean) {
+    if (selectedModularParts.length < 2) {
+      alert('Selecione ao menos 2 peças modulares para iniciar o processo de montagem.')
+      return
+    }
+    setIsAssembling(true)
+    try {
+      if (onAssembleModularItem) {
+        const res = await onAssembleModularItem(selectedModularParts, modularBaseName, isTinkering)
+        if (res && res.success) {
+          if (res.overclock) playSfx('legendary')
+          else playSfx('craft_success')
+          if (res.item) {
+            setLastModularResult({
+              item: res.item,
+              isTinkering,
+              tinkeringSuccess: res.tinkering_success ?? !res.item.name.includes('Gororoba'),
+              overclock: !!res.overclock,
+              message: res.message || 'Montagem modular concluída com sucesso.',
+            })
+          }
+          if (res.warehouse_parts) setWarehouseParts(res.warehouse_parts)
+          if (res.state) onStateUpdate?.(res.state)
+          setSelectedModularParts([])
+        } else {
+          alert(res?.message || 'Falha ao processar montagem modular.')
+        }
+      } else {
+        const res = await assembleModularItemBackend(selectedModularParts, modularBaseName, isTinkering)
+        if (res && res.success) {
+          if (res.overclock) playSfx('legendary')
+          else playSfx('craft_success')
+          if (res.item) {
+            setLastModularResult({
+              item: res.item,
+              isTinkering,
+              tinkeringSuccess: res.tinkering_success ?? !res.item.name.includes('Gororoba'),
+              overclock: !!res.overclock,
+              message: res.message || 'Montagem modular concluída com sucesso.',
+            })
+          }
+          if (res.warehouse_parts) setWarehouseParts(res.warehouse_parts)
+          if (res.state) onStateUpdate?.(res.state)
+          setSelectedModularParts([])
+        } else {
+          alert(res?.message || 'Falha ao processar montagem modular.')
+        }
+      }
+    } catch {
+      alert('Erro mecânico durante o processo de montagem.')
+    } finally {
+      setIsAssembling(false)
+    }
+  }
+
+  async function handleBuySpot(partId: string) {
+    const qty = spotQuantities[partId] ?? 1
+    if (qty <= 0) return
+    setIsBuyingSpot(true)
+    try {
+      if (onBuyModularPart) {
+        const res = await onBuyModularPart(partId, qty)
+        if (res && res.success) {
+          playSfx('coin')
+          if (res.warehouse_parts) setWarehouseParts(res.warehouse_parts)
+          if (res.state) onStateUpdate?.(res.state)
+        } else {
+          alert(res?.message || 'Falha ao adquirir peças no mercado spot.')
+        }
+      } else {
+        const res = await buyModularPartBackend(partId, qty)
+        if (res && res.success) {
+          playSfx('coin')
+          if (res.warehouse_parts) setWarehouseParts(res.warehouse_parts)
+          if (res.state) onStateUpdate?.(res.state)
+        } else {
+          alert(res?.message || 'Falha ao adquirir peças no mercado spot.')
+        }
+      }
+    } catch {
+      alert('Erro de transação no balcão de peças spot.')
+    } finally {
+      setIsBuyingSpot(false)
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // HELPERS & DADOS DERIVADOS B2B
+  // ─────────────────────────────────────────────
+  const selectedModularPartObjects = useMemo(() => {
+    return selectedModularParts
+      .map(id => MOCK_MODULAR_PARTS.find(p => p.part_id === id || p.id === id))
+      .filter(Boolean) as ModularPart[]
+  }, [selectedModularParts])
+
+  const modularBrandCounts = useMemo(() => {
+    const map: Record<string, number> = {}
+    for (const p of selectedModularPartObjects) {
+      const b = p.corp_id || p.brand_id || 'corp_generic'
+      map[b] = (map[b] || 0) + 1
+    }
+    return map
+  }, [selectedModularPartObjects])
+
+  const distinctBrands = Object.keys(modularBrandCounts)
+  const isInterBrandAssembly = distinctBrands.length > 1
+  const baseModularPower = useMemo(() => {
+    return selectedModularPartObjects.reduce((acc, p) => acc + (p.power_bonus || 0), 0)
+  }, [selectedModularPartObjects])
+
+  const estimatedModularPower = isInterBrandAssembly
+    ? Math.round(baseModularPower * 1.15)
+    : Math.round(baseModularPower * 1.05)
+
+  const filteredB2BCorporations = useMemo(() => {
+    if (b2bCorpFilter === 'todos') return MOCK_CORPORATIONS
+    return MOCK_CORPORATIONS.filter(c => c.id === b2bCorpFilter || c.branch === b2bCorpFilter)
+  }, [b2bCorpFilter])
+
+  const filteredSpotParts = useMemo(() => {
+    return MOCK_MODULAR_PARTS.filter(p => {
+      const matchSearch =
+        !spotSearchQuery ||
+        p.name.toLowerCase().includes(spotSearchQuery.toLowerCase()) ||
+        Boolean(p.catalog_description && p.catalog_description.toLowerCase().includes(spotSearchQuery.toLowerCase()))
+      const matchCorp = spotCorpFilter === 'todos' || p.corp_id === spotCorpFilter || p.brand_id === spotCorpFilter
+      return matchSearch && matchCorp
+    })
+  }, [spotSearchQuery, spotCorpFilter])
+
+  const warehousePartsList = useMemo(() => {
+    return Object.entries(warehouseParts)
+      .filter(([, qty]) => qty > 0)
+      .map(([partId, qty]) => {
+        const part = MOCK_MODULAR_PARTS.find(p => p.part_id === partId || p.id === partId)
+        return {
+          partId,
+          qty,
+          part: part || {
+            id: partId,
+            part_id: partId,
+            corp_id: 'corp_generic',
+            name: partId,
+            branch: 'Ferragem' as WorkshopBranch,
+            part_type: 'modular_part',
+            compatible_slots: ['Arma'],
+            tier: 1,
+            base_cost: 50,
+            market_price_base: 50,
+            power_bonus: 10,
+            catalog_description: 'Peça técnica modular registrada no almoxarifado.',
+          },
+        }
+      })
+      .filter(item => {
+        if (modularPartFilter === 'todos') return true
+        return (
+          item.part.part_type === modularPartFilter ||
+          item.part.compatible_slots.includes(modularPartFilter) ||
+          item.part.corp_id === modularPartFilter
+        )
+      })
+  }, [warehouseParts, modularPartFilter])
 
   // Crafting v2 Seleções
   const recipesList: Recipe[] = useMemo(
@@ -481,6 +858,10 @@ export default function Phase2Workshop({
     if (state.market?.materials_for_sale) setMarketMaterials(state.market.materials_for_sale)
     if (state.market?.ready_items_for_sale) setMarketReadyItems(state.market.ready_items_for_sale)
     if (state.market?.affix_manuals) setAffixManuals(state.market.affix_manuals)
+    if (state.warehouse_parts) setWarehouseParts(state.warehouse_parts)
+    if (state.active_b2b_contracts) setActiveB2bContracts(state.active_b2b_contracts)
+    if (state.assembly_line_workers) setAssemblyLineWorkers(state.assembly_line_workers)
+    if (state.corporate_exclusivity_tags) setCorporateExclusivityTags(state.corporate_exclusivity_tags)
   }
 
   function dismissBulletin() {
@@ -953,7 +1334,7 @@ export default function Phase2Workshop({
       </div>
 
       {/* Tabs Principais */}
-      <div className="flex border-b border-stone-800 bg-stone-950/60 p-1 rounded-xl max-w-lg gap-1">
+      <div className="flex border-b border-stone-800 bg-stone-950/60 p-1 rounded-xl max-w-2xl gap-1">
         <button
           onClick={() => setMainTab('oficina')}
           className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
@@ -964,6 +1345,17 @@ export default function Phase2Workshop({
         >
           <Hammer className="w-4 h-4 text-amber-500" />
           <span>Oficina</span>
+        </button>
+        <button
+          onClick={() => setMainTab('complexo_b2b')}
+          className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            mainTab === 'complexo_b2b'
+              ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
+              : 'text-stone-400 hover:text-stone-200'
+          }`}
+        >
+          <Building2 className="w-4 h-4 text-amber-500" />
+          <span>Complexo B2B & Fábrica</span>
         </button>
         <button
           onClick={() => setMainTab('balcao')}
@@ -1755,6 +2147,1092 @@ export default function Phase2Workshop({
               )}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────
+          CONTEÚDO: COMPLEXO B2B & LINHA DE MONTAGEM
+         ───────────────────────────────────────────── */}
+      {mainTab === 'complexo_b2b' && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {/* Sub-tabs do Complexo B2B */}
+          <div className="flex flex-wrap gap-2 border-b border-stone-800 pb-3">
+            <button
+              onClick={() => setB2bSubTab('fornecedores')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                b2bSubTab === 'fornecedores'
+                  ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-stone-950 font-black shadow-lg shadow-amber-950/40'
+                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 hover:border-stone-700'
+              }`}
+            >
+              <Building2 className="w-4 h-4" />
+              <span>Convênios B2B ({activeB2bContracts.length} Ativos)</span>
+            </button>
+            <button
+              onClick={() => setB2bSubTab('operarios')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                b2bSubTab === 'operarios'
+                  ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-stone-950 font-black shadow-lg shadow-amber-950/40'
+                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 hover:border-stone-700'
+              }`}
+            >
+              <Factory className="w-4 h-4" />
+              <span>Linha de Montagem ({assemblyLineWorkers.length}/4)</span>
+            </button>
+            <button
+              onClick={() => setB2bSubTab('montagem')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                b2bSubTab === 'montagem'
+                  ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-stone-950 font-black shadow-lg shadow-amber-950/40'
+                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 hover:border-stone-700'
+              }`}
+            >
+              <Wrench className="w-4 h-4" />
+              <span>Bancada Modular (Tinkering)</span>
+            </button>
+            <button
+              onClick={() => setB2bSubTab('spot')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
+                b2bSubTab === 'spot'
+                  ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-stone-950 font-black shadow-lg shadow-amber-950/40'
+                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 hover:border-stone-700'
+              }`}
+            >
+              <Package className="w-4 h-4" />
+              <span>Mercado Spot de Peças</span>
+            </button>
+          </div>
+
+          {/* ════════════════════════════════════════════
+              SUB-TAB 1: FORNECEDORES & CONVÊNIOS B2B
+             ════════════════════════════════════════════ */}
+          {b2bSubTab === 'fornecedores' && (
+            <div className="space-y-6">
+              {/* Banner Corporativo Notarial */}
+              <div className="bg-gradient-to-r from-[#1c1917] via-[#26201a] to-[#1c1917] border border-amber-900/60 rounded-xl p-5 shadow-xl">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-stone-900 border border-amber-700/60 flex items-center justify-center shadow-inner shrink-0">
+                      <Building2 className="w-6 h-6 text-amber-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-black text-amber-100 uppercase tracking-wide">
+                        Portal Notarial de Convênios B2B
+                      </h2>
+                      <p className="text-xs text-stone-400 mt-0.5">
+                        Homologação de cotas semanais de suprimentos de conglomerados e indústrias artesanais da Liga.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Resumo de Custos e Cláusulas */}
+                  <div className="flex flex-wrap gap-3">
+                    <div className="bg-stone-950/80 border border-stone-800 rounded-lg px-3 py-2 text-right">
+                      <span className="text-[10px] text-stone-400 uppercase font-bold block">Royalties Semanais</span>
+                      <span className="text-sm font-mono font-bold text-rose-400">
+                        -⬡ {activeB2bContracts.reduce((sum, c) => sum + (c.weekly_royalty ?? 0), 0)} /sem
+                      </span>
+                    </div>
+                    <div className="bg-stone-950/80 border border-stone-800 rounded-lg px-3 py-2 text-right">
+                      <span className="text-[10px] text-stone-400 uppercase font-bold block">Convênios Vigentes</span>
+                      <span className="text-sm font-mono font-bold text-emerald-400">
+                        {activeB2bContracts.length} Homologados
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tags de Exclusividade Ativas */}
+                {corporateExclusivityTags.length > 0 && (
+                  <div className="mt-4 pt-3 border-t border-stone-800/80 flex items-center gap-2 flex-wrap">
+                    <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5" /> Cláusulas de Exclusividade Registradas:
+                    </span>
+                    {corporateExclusivityTags.map(tag => (
+                      <span
+                        key={tag}
+                        className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-950/70 border border-amber-700/60 text-amber-300"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Filtro de Corporações */}
+              <div className="flex items-center gap-3 bg-stone-950/40 p-2 rounded-lg border border-stone-800/60">
+                <span className="text-xs text-stone-400 font-bold">Filtrar Conglomerado:</span>
+                <select
+                  value={b2bCorpFilter}
+                  onChange={e => setB2bCorpFilter(e.target.value)}
+                  className="bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-amber-500 focus:outline-none"
+                >
+                  <option value="todos">Todos os Conglomerados Industriais</option>
+                  {MOCK_CORPORATIONS.map(corp => (
+                    <option key={corp.id} value={corp.id}>
+                      {corp.name} ({corp.branch})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Grid de Corporações e Contratos */}
+              <div className="space-y-6">
+                {filteredB2BCorporations.map(corp => {
+                  const corpContracts = MOCK_B2B_CONTRACTS.filter(c => c.corp_id === corp.id)
+                  const rivalCorp = MOCK_CORPORATIONS.find(c => c.id === corp.rival_corp_id)
+                  const hasRivalExclusive = Boolean(
+                    corp.rival_corp_id &&
+                    activeB2bContracts.some(c => c.corp_id === corp.rival_corp_id && c.is_exclusive)
+                  )
+
+                  return (
+                    <div
+                      key={corp.id}
+                      className="bg-[#1c1917] border border-stone-800 rounded-xl p-5 shadow-lg space-y-4"
+                    >
+                      {/* Cabeçalho da Corporação */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-800/80 pb-3">
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="text-base font-extrabold text-amber-200">{corp.name}</h3>
+                            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-900 border border-stone-700 text-stone-300">
+                              Filial: {corp.branch}
+                            </span>
+                            {corp.rival_corp_id && rivalCorp && (
+                              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-rose-950/60 border border-rose-800 text-rose-300 flex items-center gap-1">
+                                <ShieldAlert className="w-3 h-3" /> Rivalidade Direta: {rivalCorp.name}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-stone-400 mt-1">{corp.description}</p>
+                          <p className="text-[11px] text-amber-400/80 mt-0.5 italic">
+                            Especialidade: {corp.specialty}
+                          </p>
+                        </div>
+
+                        {hasRivalExclusive && (
+                          <div className="bg-rose-950/80 border border-rose-700 rounded-lg p-2 text-rose-200 text-xs flex items-center gap-2 max-w-sm">
+                            <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                            <span>
+                              Embargo Corporativo: Cláusula de exclusividade ativa com {rivalCorp?.name}.
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Lista de Contratos da Corporação */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {corpContracts.map(contract => {
+                          const isActive = activeB2bContracts.some(c => c.contract_id === contract.contract_id)
+                          const isBlocked = !isActive && hasRivalExclusive
+
+                          return (
+                            <div
+                              key={contract.contract_id}
+                              className={`rounded-xl p-4 border flex flex-col justify-between transition ${
+                                isActive
+                                  ? 'bg-emerald-950/30 border-emerald-600/70 shadow-emerald-950/30'
+                                  : isBlocked
+                                  ? 'bg-stone-900/40 border-stone-800 opacity-60'
+                                  : 'bg-stone-900/80 border-stone-800 hover:border-amber-700/60 shadow'
+                              }`}
+                            >
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <span
+                                    className={`text-[10px] font-mono font-black uppercase px-2 py-0.5 rounded border ${
+                                      contract.tier === 'Ouro'
+                                        ? 'bg-amber-950/90 border-amber-500 text-amber-300'
+                                        : contract.tier === 'Prata'
+                                        ? 'bg-slate-900 border-slate-400 text-slate-200'
+                                        : 'bg-stone-900 border-amber-800 text-amber-600'
+                                    }`}
+                                  >
+                                    Cota {contract.tier}
+                                  </span>
+
+                                  {isActive && (
+                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-900/80 border border-emerald-500 text-emerald-200 flex items-center gap-1">
+                                      <Check className="w-3 h-3" /> Convênio Ativo
+                                    </span>
+                                  )}
+                                </div>
+
+                                <h4 className="text-xs font-bold text-stone-100">{contract.title}</h4>
+                                <p className="text-[11px] text-stone-400 leading-relaxed">
+                                  {contract.description}
+                                </p>
+
+                                {/* Métricas da Cota */}
+                                <div className="space-y-1 pt-2 border-t border-stone-800/80 text-xs font-mono">
+                                  <div className="flex justify-between text-stone-300">
+                                    <span>Royalty Semanal:</span>
+                                    <span className="text-rose-400 font-bold">⬡ {contract.weekly_royalty} /sem</span>
+                                  </div>
+                                  <div className="flex justify-between text-stone-300">
+                                    <span>Desconto Spot:</span>
+                                    <span className="text-emerald-400 font-bold">
+                                      -{Math.round(contract.discount_pct * 100)}%
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Remessa Semanal de Peças */}
+                                {contract.weekly_shipment && contract.weekly_shipment.length > 0 && (
+                                  <div className="pt-2 border-t border-stone-800/60">
+                                    <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">
+                                      Remessa Semanal (Almoxarifado):
+                                    </span>
+                                    <div className="flex flex-wrap gap-1">
+                                      {contract.weekly_shipment.map((s, idx) => {
+                                        const pObj = MOCK_MODULAR_PARTS.find(
+                                          p => p.part_id === s.part_id || p.id === s.part_id
+                                        )
+                                        return (
+                                          <span
+                                            key={idx}
+                                            className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-950 border border-stone-800 text-amber-300"
+                                          >
+                                            +{s.quantity}x {pObj?.name ?? s.part_id}
+                                          </span>
+                                        )
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {contract.is_exclusive && (
+                                  <div className="pt-1">
+                                    <span className="text-[10px] font-semibold text-amber-400/90 flex items-center gap-1">
+                                      <ShieldAlert className="w-3 h-3 text-amber-400" />
+                                      Cláusula de Exclusividade Imperial
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Ação de Contrato */}
+                              <div className="mt-4 pt-3 border-t border-stone-800">
+                                {isActive ? (
+                                  <button
+                                    onClick={() => handleCancelContract(contract.contract_id)}
+                                    disabled={isSigningB2B}
+                                    className="w-full py-2 rounded-lg text-xs font-bold text-rose-300 bg-rose-950/40 border border-rose-800 hover:bg-rose-900/60 transition cursor-pointer flex items-center justify-center gap-1.5"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Rescindir Convênio</span>
+                                  </button>
+                                ) : isBlocked ? (
+                                  <button
+                                    disabled
+                                    className="w-full py-2 rounded-lg text-xs font-bold text-stone-600 bg-stone-950 border border-stone-800 cursor-not-allowed flex items-center justify-center gap-1.5"
+                                  >
+                                    <Lock className="w-3.5 h-3.5" />
+                                    <span>Embargado por Rival</span>
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => handleSignContract(contract.contract_id)}
+                                    disabled={isSigningB2B}
+                                    className="w-full py-2 rounded-lg text-xs font-bold text-stone-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-110 shadow-md transition cursor-pointer flex items-center justify-center gap-1.5"
+                                  >
+                                    <ShieldCheck className="w-3.5 h-3.5" />
+                                    <span>Homologar Convênio</span>
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════
+              SUB-TAB 2: OPERÁRIOS & LINHA DE MONTAGEM
+             ════════════════════════════════════════════ */}
+          {b2bSubTab === 'operarios' && (
+            <div className="space-y-6">
+              {/* Painel Informativo da Linha Fabril */}
+              <div className="bg-gradient-to-r from-[#1c1917] via-[#26201a] to-[#1c1917] border border-amber-900/60 rounded-xl p-5 shadow-xl">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-stone-900 border border-amber-700/60 flex items-center justify-center shadow-inner shrink-0">
+                      <Factory className="w-6 h-6 text-amber-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-black text-amber-100 uppercase tracking-wide">
+                        Linha de Montagem Contínua & Operários Fabris
+                      </h2>
+                      <p className="text-xs text-stone-400 mt-0.5">
+                        Mão de obra contratada para manufatura autônoma seriada com escoamento automático na DRE ao preço regulatório white-label.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Resumo de Capacidade */}
+                  <div className="flex flex-wrap gap-3">
+                    <div className="bg-stone-950/80 border border-stone-800 rounded-lg px-3 py-2 text-right">
+                      <span className="text-[10px] text-stone-400 uppercase font-bold block">Ocupação Fabril</span>
+                      <span className="text-sm font-mono font-bold text-amber-400">
+                        {assemblyLineWorkers.length} / 4 Operários
+                      </span>
+                    </div>
+                    <div className="bg-stone-950/80 border border-stone-800 rounded-lg px-3 py-2 text-right">
+                      <span className="text-[10px] text-stone-400 uppercase font-bold block">Folha Salarial</span>
+                      <span className="text-sm font-mono font-bold text-rose-400">
+                        -⬡ {assemblyLineWorkers.reduce((acc, w) => acc + (w.weekly_salary ?? 0), 0)} /sem
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-stone-800/80 text-xs text-stone-300 flex items-center gap-2">
+                  <Info className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>
+                    A produção autônoma semanal é liquidada diretamente no balcão a 50% do valor base de mercado, creditando receita white-label diretamente na apuração semanal (DRE).
+                  </span>
+                </div>
+              </div>
+
+              {/* Seção 1: Operários Ativos em Linha */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-stone-200 uppercase tracking-wider flex items-center gap-2">
+                    <Users className="w-4 h-4 text-amber-500" />
+                    Operários em Atividade na Fábrica ({assemblyLineWorkers.length}/4)
+                  </h3>
+                </div>
+
+                {assemblyLineWorkers.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center gap-2 py-8 px-4 text-center rounded-xl border border-stone-800/60 bg-stone-900/30">
+                    <div className="w-10 h-10 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-amber-500">
+                      <Factory className="w-5 h-5" />
+                    </div>
+                    <h4 className="text-xs font-bold text-stone-200">Nenhum Operário Contratado na Fábrica</h4>
+                    <p className="text-[11px] text-stone-400 max-w-sm">
+                      Sua linha de montagem contínua está inoperante. Contrate artífices fabris abaixo para automatizar sua esteira de produção e gerar vendas de prateleira semanais.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {assemblyLineWorkers.map(worker => {
+                      const candidateDef = MOCK_ASSEMBLY_WORKERS.find(c => c.worker_id === worker.worker_id)
+                      const branchRecipesForWorker = recipesList.filter(
+                        r => !worker.assigned_branch || r.branch === worker.assigned_branch
+                      )
+
+                      return (
+                        <div
+                          key={worker.worker_instance_id}
+                          className="bg-[#1c1917] border border-amber-900/40 rounded-xl p-4 shadow-lg space-y-3"
+                        >
+                          <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+                            <div>
+                              <h4 className="text-sm font-bold text-stone-100">{worker.name}</h4>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-900 border border-stone-700 text-amber-400">
+                                  Nível {worker.tier}
+                                </span>
+                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-900 border border-stone-700 text-stone-300">
+                                  Filial: {worker.assigned_branch || 'Geral'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => handleDismissWorker(worker.worker_instance_id)}
+                              className="p-1.5 rounded-lg text-stone-400 hover:text-rose-400 hover:bg-stone-900 transition cursor-pointer"
+                              title="Desligar Operário"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                            <div className="bg-stone-950/70 p-2 rounded border border-stone-800">
+                              <span className="text-[10px] text-stone-400 block">Salário Semanal</span>
+                              <span className="text-rose-400 font-bold">⬡ {worker.weekly_salary} Ouro</span>
+                            </div>
+                            <div className="bg-stone-950/70 p-2 rounded border border-stone-800">
+                              <span className="text-[10px] text-stone-400 block">Capacidade</span>
+                              <span className="text-emerald-400 font-bold">
+                                {worker.production_capacity} un. / semana
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Seletor de Diretriz de Produção */}
+                          <div className="pt-2 border-t border-stone-800 space-y-1.5">
+                            <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">
+                              Diretriz de Produção Seriada (Receita Alvo):
+                            </label>
+                            <select
+                              value={worker.target_recipe || ''}
+                              onChange={e => handleSetWorkerOrder(worker.worker_instance_id, e.target.value)}
+                              className="w-full bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-amber-500 focus:outline-none"
+                            >
+                              <option value="">Selecione uma receita padronizada</option>
+                              {branchRecipesForWorker.map(rec => (
+                                <option key={rec.recipe_id || rec.id} value={rec.recipe_id || rec.id}>
+                                  {rec.name} ({rec.branch} - Nv. {rec.min_workshop_level ?? 1})
+                                </option>
+                              ))}
+                            </select>
+                            <p className="text-[10px] text-stone-400 italic">
+                              {candidateDef?.description || 'Operário focado em cadência constante de fabricação.'}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Seção 2: Contratação de Novos Operários */}
+              <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-5 shadow-lg space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-amber-200 uppercase tracking-wider flex items-center gap-2">
+                      <Users className="w-4 h-4 text-amber-400" />
+                      Alvarás de Admissão — Candidatos Disponíveis
+                    </h3>
+                    <p className="text-xs text-stone-400 mt-0.5">
+                      Admitir artífices subordinados requer taxa de alvará inicial e compromisso de salário semanal na DRE.
+                    </p>
+                  </div>
+
+                  {/* Seletor de Filial para Contratação */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-stone-400 font-bold">Alocar na Filial:</span>
+                    <select
+                      value={selectedHireBranch}
+                      onChange={e => setSelectedHireBranch(e.target.value)}
+                      className="bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-amber-500 focus:outline-none"
+                    >
+                      <option value="Ferragem">Ferragem</option>
+                      <option value="Alquimia">Alquimia</option>
+                      <option value="Joalheria">Joalheria</option>
+                      <option value="Culinária">Culinária</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {MOCK_ASSEMBLY_WORKERS.map(cand => {
+                    const isMaxCapacity = assemblyLineWorkers.length >= 4
+                    const canAfford = gold >= cand.hiring_cost
+                    const isSupportedBranch = cand.supported_branches.includes(selectedHireBranch as any)
+
+                    return (
+                      <div
+                        key={cand.worker_id}
+                        className="bg-stone-900/60 border border-stone-800 rounded-xl p-4 flex flex-col justify-between space-y-3"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-sm font-bold text-stone-100">{cand.name}</h4>
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-950 border border-stone-700 text-amber-400 font-bold">
+                              Nível {cand.tier}
+                            </span>
+                          </div>
+
+                          <p className="text-xs text-stone-400 leading-relaxed">{cand.description}</p>
+
+                          <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-1">
+                            <div className="bg-stone-950 p-1.5 rounded border border-stone-800">
+                              <span className="text-[10px] text-stone-400 block">Custo de Admissão</span>
+                              <span className="text-amber-400 font-bold">⬡ {cand.hiring_cost} Ouro</span>
+                            </div>
+                            <div className="bg-stone-950 p-1.5 rounded border border-stone-800">
+                              <span className="text-[10px] text-stone-400 block">Salário Semanal</span>
+                              <span className="text-rose-400 font-bold">⬡ {cand.weekly_salary} /sem</span>
+                            </div>
+                          </div>
+
+                          <div className="text-[11px] text-stone-400 flex items-center justify-between font-mono">
+                            <span>Capacidade Operacional:</span>
+                            <strong className="text-emerald-400 font-bold">
+                              {cand.production_capacity} item/semana
+                            </strong>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => handleHireWorker(cand.worker_id, selectedHireBranch)}
+                          disabled={isMaxCapacity || !canAfford || !isSupportedBranch || isHiringWorker}
+                          className={`w-full py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                            !isMaxCapacity && canAfford && isSupportedBranch && !isHiringWorker
+                              ? 'bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 hover:brightness-110 shadow-md'
+                              : 'bg-stone-950 border border-stone-800 text-stone-600 cursor-not-allowed'
+                          }`}
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>
+                            {isMaxCapacity
+                              ? 'Capacidade Máxima Atingida (4/4)'
+                              : !canAfford
+                              ? 'Ouro Insuficiente'
+                              : !isSupportedBranch
+                              ? `Não atua em ${selectedHireBranch}`
+                              : `Admitir para ${selectedHireBranch} (⬡ ${cand.hiring_cost})`}
+                          </span>
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════
+              SUB-TAB 3: BANCADA DE MONTAGEM MODULAR
+             ════════════════════════════════════════════ */}
+          {b2bSubTab === 'montagem' && (
+            <div className="space-y-6">
+              {/* Banner da Bancada Modular */}
+              <div className="bg-gradient-to-r from-[#1c1917] via-[#26201a] to-[#1c1917] border border-amber-900/60 rounded-xl p-5 shadow-xl">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-stone-900 border border-amber-700/60 flex items-center justify-center shadow-inner shrink-0">
+                      <Wrench className="w-6 h-6 text-amber-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-black text-amber-100 uppercase tracking-wide">
+                        Bancada de Alta Precisão — Montagem Modular
+                      </h2>
+                      <p className="text-xs text-stone-400 mt-0.5">
+                        Acople peças sobressalentes do almoxarifado corporativo. Peças monomarca garantem +5% de sintonia; misturas inter-marcas geram instabilidade mecânica e risco de Tinkering.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Layout em Duas Colunas: Almoxarifado vs Bancada Ativa */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Coluna 1: Almoxarifado de Peças (5 colunas) */}
+                <div className="lg:col-span-5 bg-[#1c1917] border border-stone-800 rounded-xl p-4 shadow-lg space-y-4">
+                  <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+                    <h3 className="text-xs font-bold text-stone-200 uppercase tracking-wider flex items-center gap-1.5">
+                      <Package className="w-4 h-4 text-amber-500" />
+                      Almoxarifado de Peças Modulares
+                    </h3>
+                    <span className="text-[10px] font-mono text-stone-400">
+                      {warehousePartsList.reduce((acc, x) => acc + x.qty, 0)} em estoque
+                    </span>
+                  </div>
+
+                  {/* Filtro por tipo de peça */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-stone-400">Filtrar:</span>
+                    <select
+                      value={modularPartFilter}
+                      onChange={e => setModularPartFilter(e.target.value)}
+                      className="bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2 py-1 focus:border-amber-500 focus:outline-none flex-1"
+                    >
+                      <option value="todos">Todos os Componentes</option>
+                      <option value="blade">Lâminas & Gumes</option>
+                      <option value="hilt">Empunhaduras & Guardas</option>
+                      <option value="core">Núcleos Arcanos</option>
+                      <option value="plating">Placas & Blindagens</option>
+                      <option value="filter">Filtros & Tubos</option>
+                    </select>
+                  </div>
+
+                  {/* Lista de Peças no Almoxarifado */}
+                  {warehousePartsList.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center gap-2 py-8 px-4 text-center rounded-xl border border-stone-800/60 bg-stone-900/30">
+                      <div className="w-10 h-10 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-amber-500">
+                        <Package className="w-5 h-5" />
+                      </div>
+                      <h4 className="text-xs font-bold text-stone-200">Nenhuma Peça Modular no Almoxarifado</h4>
+                      <p className="text-[11px] text-stone-400 max-w-xs">
+                        Adquira componentes no Mercado Spot ou assine convênios B2B para receber lotes semanais regulares.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                      {warehousePartsList.map(item => {
+                        const currentlySelected = selectedModularParts.filter(
+                          id => id === item.partId
+                        ).length
+                        const remaining = item.qty - currentlySelected
+                        const isMaxSlots = selectedModularParts.length >= 3
+
+                        return (
+                          <div
+                            key={item.partId}
+                            className={`p-3 rounded-lg border flex items-center justify-between gap-3 transition ${
+                              remaining > 0
+                                ? 'bg-stone-900/80 border-stone-800 hover:border-amber-700/60'
+                                : 'bg-stone-950/40 border-stone-900 opacity-50'
+                            }`}
+                          >
+                            <div className="space-y-0.5 flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-xs font-bold text-stone-100 truncate">
+                                  {item.part.name}
+                                </h4>
+                                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-stone-950 border border-stone-800 text-amber-400 font-bold shrink-0">
+                                  +{item.part.power_bonus} PE
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-stone-400 truncate">
+                                {item.part.catalog_description}
+                              </p>
+                              <div className="flex items-center gap-2 text-[10px] font-mono text-stone-400">
+                                <span>Marca: {item.part.corp_id || 'Coroa'}</span>
+                                <span>•</span>
+                                <span>Disponível: <strong className="text-stone-200">{remaining} un.</strong></span>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                if (remaining > 0 && !isMaxSlots) {
+                                  setSelectedModularParts(prev => [...prev, item.partId])
+                                }
+                              }}
+                              disabled={remaining <= 0 || isMaxSlots}
+                              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold shrink-0 transition flex items-center gap-1 cursor-pointer ${
+                                remaining > 0 && !isMaxSlots
+                                  ? 'bg-amber-600/30 border border-amber-600/70 text-amber-200 hover:bg-amber-600 hover:text-stone-950'
+                                  : 'bg-stone-950 border border-stone-800 text-stone-600 cursor-not-allowed'
+                              }`}
+                            >
+                              <Plus className="w-3 h-3" />
+                              <span>Acoplar</span>
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Coluna 2: Bancada de Montagem & Laudo Pericial (7 colunas) */}
+                <div className="lg:col-span-7 bg-[#1c1917] border border-stone-800 rounded-xl p-5 shadow-lg space-y-5">
+                  <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+                    <h3 className="text-sm font-bold text-amber-200 uppercase tracking-wider flex items-center gap-2">
+                      <Cpu className="w-4 h-4 text-amber-400" />
+                      Bancada de Montagem Ativa ({selectedModularParts.length}/3 Peças)
+                    </h3>
+                    {selectedModularParts.length > 0 && (
+                      <button
+                        onClick={() => setSelectedModularParts([])}
+                        className="text-[10px] text-rose-400 hover:text-rose-300 font-mono underline cursor-pointer"
+                      >
+                        Limpar Bancada
+                      </button>
+                    )}
+                  </div>
+
+                  {/* 3 Slots da Bancada */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[0, 1, 2].map(slotIdx => {
+                      const partId = selectedModularParts[slotIdx]
+                      const partObj = partId
+                        ? MOCK_MODULAR_PARTS.find(p => p.part_id === partId || p.id === partId)
+                        : null
+
+                      return (
+                        <div
+                          key={slotIdx}
+                          className={`rounded-xl p-3 border min-h-[110px] flex flex-col justify-between ${
+                            partObj
+                              ? 'bg-stone-900 border-amber-600/60 shadow'
+                              : 'bg-stone-950/60 border-dashed border-stone-800 flex items-center justify-center text-center'
+                          }`}
+                        >
+                          {partObj ? (
+                            <>
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[9px] font-mono uppercase text-amber-400 font-bold">
+                                    Slot {slotIdx + 1}
+                                  </span>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedModularParts(prev =>
+                                        prev.filter((_, idx) => idx !== slotIdx)
+                                      )
+                                    }}
+                                    className="text-stone-400 hover:text-rose-400 p-0.5 cursor-pointer"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                                <h4 className="text-xs font-bold text-stone-100 line-clamp-1">
+                                  {partObj.name}
+                                </h4>
+                                <span className="text-[10px] font-mono text-emerald-400 block font-bold">
+                                  +{partObj.power_bonus} PE
+                                </span>
+                              </div>
+                              <span className="text-[9px] font-mono text-stone-400 truncate">
+                                {partObj.corp_id || 'Coroa'}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-[11px] text-stone-400">
+                              Slot {slotIdx + 1} Vazio
+                            </span>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* Nome do Artefato Customizado */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-stone-300 block">
+                      Denominação Notarial do Artefato:
+                    </label>
+                    <input
+                      type="text"
+                      value={modularBaseName}
+                      onChange={e => setModularBaseName(e.target.value)}
+                      placeholder="Ex: Gládio Modular Híbrido"
+                      className="w-full bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-xs text-stone-100 focus:border-amber-500 focus:outline-none font-sans"
+                    />
+                  </div>
+
+                  {/* Diagnóstico Pericial de Compatibilidade */}
+                  {selectedModularParts.length >= 2 ? (
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-center justify-between text-xs font-mono">
+                        <span className="text-stone-300">Tolerância Estrutural:</span>
+                        <span
+                          className={`font-bold ${
+                            isInterBrandAssembly ? 'text-amber-400' : 'text-emerald-400'
+                          }`}
+                        >
+                          {isInterBrandAssembly
+                            ? '60% Tolerância Crítica (Instabilidade Inter-Marcas)'
+                            : '100% Homogeneidade Monomarca (+5% Sintonia)'}
+                        </span>
+                      </div>
+
+                      {/* Barra de Compatibilidade */}
+                      <div className="w-full bg-stone-950 rounded-full h-2 overflow-hidden border border-stone-800">
+                        <div
+                          className={`h-2 rounded-full transition-all ${
+                            isInterBrandAssembly
+                              ? 'w-[60%] bg-gradient-to-r from-amber-600 to-orange-500'
+                              : 'w-full bg-gradient-to-r from-emerald-600 to-emerald-400'
+                          }`}
+                        />
+                      </div>
+
+                      {/* Card de Alerta se for Inter-Marcas (Tinkering) */}
+                      {isInterBrandAssembly ? (
+                        <div className="bg-amber-950/40 border border-amber-600/70 rounded-xl p-4 space-y-2">
+                          <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
+                            <Flame className="w-4 h-4 text-amber-400 animate-pulse" />
+                            <span>Protocolo de Risco Técnico: Forja Experimental (Tinkering)</span>
+                          </div>
+                          <p className="text-[11px] text-stone-300 leading-relaxed">
+                            A integração de peças de fabricantes rivais provoca sobrecarga nos conectores mecânicos.
+                          </p>
+                          <div className="flex flex-wrap gap-2 text-[10px] font-mono">
+                            <span className="px-2 py-0.5 rounded bg-emerald-950 border border-emerald-700 text-emerald-300">
+                              60% Sucesso: Overclock Não-Autorizado (+15% Poder)
+                            </span>
+                            <span className="px-2 py-0.5 rounded bg-rose-950 border border-rose-700 text-rose-300">
+                              40% Falha: Gororoba Experimental (20 ⬡)
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-stone-400 italic">
+                            Poder Estimado com Overclock: ~{estimatedModularPower} PE.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="bg-emerald-950/30 border border-emerald-700/60 rounded-xl p-3 text-xs text-emerald-200 flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <span>
+                            Peças de engenharia unificada. Tolerância dimensional perfeita garante montagem segura com +5% de sintonia mecânica (~{estimatedModularPower} PE).
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Botão de Montagem */}
+                      <button
+                        onClick={() => handleAssembleModular(isInterBrandAssembly)}
+                        disabled={isAssembling}
+                        className={`w-full py-3.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl transition cursor-pointer border ${
+                          isInterBrandAssembly
+                            ? 'bg-gradient-to-r from-amber-600 via-orange-500 to-amber-500 text-stone-950 border-amber-400 hover:brightness-110 shadow-amber-950/60'
+                            : 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-stone-950 border-emerald-400 hover:brightness-110 shadow-emerald-950/60'
+                        }`}
+                      >
+                        {isInterBrandAssembly ? (
+                          <>
+                            <Flame className="w-4 h-4 text-stone-950" />
+                            <span>
+                              {isAssembling
+                                ? 'Executando Montagem de Alto Risco...'
+                                : 'Assumir Risco e Montar Experimentalmente (Tinkering)'}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 text-stone-950" />
+                            <span>
+                              {isAssembling
+                                ? 'Homologando Montagem...'
+                                : 'Montar Artefato Padronizado'}
+                            </span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="bg-stone-950/60 border border-stone-800 rounded-lg p-3 text-xs text-stone-400 text-center">
+                      Acople ao menos 2 peças modulares para que o auditor mecânico valide as tolerâncias de fábrica.
+                    </div>
+                  )}
+
+                  {/* Card de Resultado da Última Montagem */}
+                  {lastModularResult && (
+                    <div
+                      className={`rounded-xl p-4 border space-y-2 animate-in fade-in duration-300 ${
+                        lastModularResult.overclock
+                          ? 'bg-amber-950/40 border-amber-500/80 shadow-lg shadow-amber-950/50'
+                          : lastModularResult.tinkeringSuccess
+                          ? 'bg-emerald-950/40 border-emerald-500/80'
+                          : 'bg-rose-950/40 border-rose-800'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono uppercase font-bold text-stone-400">
+                          Laudo Notarial de Manufatura
+                        </span>
+                        {lastModularResult.overclock && (
+                          <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded bg-amber-500 text-stone-950 flex items-center gap-1 shadow">
+                            <Zap className="w-3 h-3" /> Overclock (+15% Poder)
+                          </span>
+                        )}
+                        {!lastModularResult.tinkeringSuccess && (
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-900 text-rose-200">
+                            Refugo de Bancada
+                          </span>
+                        )}
+                      </div>
+
+                      <h4 className="text-sm font-extrabold text-stone-100">
+                        {lastModularResult.item.name}
+                      </h4>
+                      <p className="text-xs text-stone-300 italic">{lastModularResult.message}</p>
+
+                      <div className="flex gap-4 text-xs font-mono text-stone-300 pt-2 border-t border-stone-800/80">
+                        <span>Poder: +{lastModularResult.item.power_bonus} PE</span>
+                        <span>Slot: {lastModularResult.item.slot_type}</span>
+                        <span>Valor Contábil: ⬡ {lastModularResult.item.market_value_base} Ouro</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════════
+              SUB-TAB 4: MERCADO SPOT DE PEÇAS
+             ════════════════════════════════════════════ */}
+          {b2bSubTab === 'spot' && (
+            <div className="space-y-6">
+              {/* Banner do Mercado Spot */}
+              <div className="bg-gradient-to-r from-[#1c1917] via-[#26201a] to-[#1c1917] border border-amber-900/60 rounded-xl p-5 shadow-xl">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-12 h-12 rounded-xl bg-stone-900 border border-amber-700/60 flex items-center justify-center shadow-inner shrink-0">
+                      <Package className="w-6 h-6 text-amber-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-black text-amber-100 uppercase tracking-wide">
+                        Mercado Spot Corporativo de Peças Avulsas
+                      </h2>
+                      <p className="text-xs text-stone-400 mt-0.5">
+                        Aquisição imediata de componentes modulares avulsos. Compras sem convênio B2B ativo sofrem a sobretaxa alfandegária regulatória de +50% de ágio.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-stone-950/80 border border-stone-800 rounded-lg px-3 py-2 text-right">
+                    <span className="text-[10px] text-stone-400 uppercase font-bold block">Tesouraria Disponível</span>
+                    <span className="text-sm font-mono font-bold text-amber-400">⬡ {gold} Ouro</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filtros e Busca Spot */}
+              <div className="flex flex-col sm:flex-row gap-3 bg-stone-950/50 p-3 rounded-xl border border-stone-800">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    value={spotSearchQuery}
+                    onChange={e => setSpotSearchQuery(e.target.value)}
+                    placeholder="Buscar peça por denominação técnica ou descrição..."
+                    className="w-full bg-stone-900 border border-stone-700 rounded-lg pl-9 pr-3 py-2 text-xs text-stone-100 focus:border-amber-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-stone-400 font-bold shrink-0">Fabricante:</span>
+                  <select
+                    value={spotCorpFilter}
+                    onChange={e => setSpotCorpFilter(e.target.value)}
+                    className="bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-2 focus:border-amber-500 focus:outline-none"
+                  >
+                    <option value="todos">Todos os Fabricantes</option>
+                    {MOCK_CORPORATIONS.map(corp => (
+                      <option key={corp.id} value={corp.id}>
+                        {corp.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Catálogo de Peças Modulares Spot */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredSpotParts.map(part => {
+                  const pId = part.part_id || part.id
+                  const activeContract = activeB2bContracts.find(c => c.corp_id === part.corp_id)
+                  const hasDiscount = Boolean(activeContract)
+                  const discountPct = activeContract?.discount_pct ?? 0
+                  const unitPrice = hasDiscount
+                    ? Math.round(part.base_cost * (1 - discountPct))
+                    : Math.round(part.base_cost * 1.50)
+
+                  const qty = spotQuantities[pId] ?? 1
+                  const totalCost = unitPrice * qty
+                  const canAfford = gold >= totalCost
+                  const inWarehouse = warehouseParts[pId] ?? 0
+
+                  return (
+                    <div
+                      key={pId}
+                      className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 shadow-lg flex flex-col justify-between space-y-3 hover:border-amber-800/60 transition"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-900 border border-stone-700 text-stone-300 font-semibold">
+                            {part.corp_id || 'Coroa'}
+                          </span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/70 border border-amber-700/60 text-amber-300 font-bold">
+                            Nível {part.tier}
+                          </span>
+                        </div>
+
+                        <h4 className="text-sm font-bold text-stone-100">{part.name}</h4>
+                        <p className="text-xs text-stone-400 leading-relaxed">
+                          {part.catalog_description}
+                        </p>
+
+                        <div className="flex items-center justify-between text-xs font-mono pt-1 text-stone-300">
+                          <span>Bônus de Poder:</span>
+                          <span className="text-emerald-400 font-bold">+{part.power_bonus} PE</span>
+                        </div>
+
+                        <div className="flex items-center justify-between text-xs font-mono text-stone-300">
+                          <span>No Almoxarifado:</span>
+                          <span className="text-amber-400 font-bold">{inWarehouse} un.</span>
+                        </div>
+
+                        {/* Tratamento de Preço Spot / Convênio */}
+                        <div className="pt-2 border-t border-stone-800/80 space-y-1">
+                          {hasDiscount ? (
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-600 text-emerald-300 font-bold">
+                                Convênio B2B (-{Math.round(discountPct * 100)}%)
+                              </span>
+                              <div className="text-right">
+                                <span className="text-[10px] text-stone-400 line-through mr-1 font-mono">
+                                  ⬡ {part.base_cost}
+                                </span>
+                                <span className="text-xs font-mono font-bold text-emerald-400">
+                                  ⬡ {unitPrice} /un
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-950/80 border border-amber-700 text-amber-300 font-bold">
+                                Tarifa Spot (+50% Ágio)
+                              </span>
+                              <span className="text-xs font-mono font-bold text-amber-400">
+                                ⬡ {unitPrice} /un
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Seletor de Quantidade & Compra */}
+                      <div className="pt-3 border-t border-stone-800 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-stone-400 font-bold">Quantidade:</span>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => {
+                                setSpotQuantities(prev => ({
+                                  ...prev,
+                                  [pId]: Math.max(1, (prev[pId] ?? 1) - 1),
+                                }))
+                              }}
+                              className="w-7 h-7 rounded bg-stone-900 border border-stone-700 text-stone-200 font-mono font-bold hover:bg-stone-800 cursor-pointer flex items-center justify-center text-xs"
+                            >
+                              -
+                            </button>
+                            <span className="w-8 text-center font-mono font-bold text-xs text-stone-100">
+                              {qty}
+                            </span>
+                            <button
+                              onClick={() => {
+                                setSpotQuantities(prev => ({
+                                  ...prev,
+                                  [pId]: (prev[pId] ?? 1) + 1,
+                                }))
+                              }}
+                              className="w-7 h-7 rounded bg-stone-900 border border-stone-700 text-stone-200 font-mono font-bold hover:bg-stone-800 cursor-pointer flex items-center justify-center text-xs"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => handleBuySpot(pId)}
+                          disabled={!canAfford || isBuyingSpot}
+                          className={`w-full py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                            canAfford && !isBuyingSpot
+                              ? 'bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 hover:brightness-110 shadow-md'
+                              : 'bg-stone-950 border border-stone-800 text-stone-600 cursor-not-allowed'
+                          }`}
+                        >
+                          <Coins className="w-3.5 h-3.5" />
+                          <span>
+                            {canAfford ? `Adquirir Lote Spot (⬡ ${totalCost})` : 'Tesouraria Insuficiente'}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
