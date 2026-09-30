@@ -1719,5 +1719,722 @@
         "value": 8
       }
     ]
+  },
+  {
+    "id": "part_aethelgard_blade_t2",
+    "part_id": "part_aethelgard_blade_t2",
+    "corp_id": "corp_aethelgard",
+    "brand_id": "corp_aethelgard",
+    "name": "Lâmina Prensada Aethelgard",
+    "branch": "Ferragem",
+    "part_type": "blade",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 2,
+    "base_cost": 110,
+    "market_price_base": 110,
+    "power_bonus": 50,
+    "power_contrib": 50,
+    "catalog_description": "Lâmina de aço temperado com ranhuras de balanceamento industrial.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 12
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Lâmina Prensada Aethelgard"
+  },
+  {
+    "id": "part_aethelgard_hilt_t2",
+    "part_id": "part_aethelgard_hilt_t2",
+    "corp_id": "corp_aethelgard",
+    "brand_id": "corp_aethelgard",
+    "name": "Empunhadura Reforçada Aethelgard",
+    "branch": "Ferragem",
+    "part_type": "hilt",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 2,
+    "base_cost": 95,
+    "market_price_base": 95,
+    "power_bonus": 40,
+    "power_contrib": 40,
+    "catalog_description": "Guarda em liga de níquel que absorve o recuo de golpes severos.",
+    "effects": [
+      {
+        "effect": "mitigation_flat",
+        "value": 8
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Empunhadura Reforçada Aethelgard"
+  },
+  {
+    "id": "part_aethelgard_core_t2",
+    "part_id": "part_aethelgard_core_t2",
+    "corp_id": "corp_aethelgard",
+    "brand_id": "corp_aethelgard",
+    "name": "Rebite Temperado Aethelgard",
+    "branch": "Ferragem",
+    "part_type": "core",
+    "compatible_slots": [
+      "Arma",
+      "Armadura"
+    ],
+    "tier": 2,
+    "base_cost": 100,
+    "market_price_base": 100,
+    "power_bonus": 45,
+    "power_contrib": 45,
+    "catalog_description": "Rebite de liga reforçada com cravamento de alta precisão fabril.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 10
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Rebite Temperado Aethelgard"
+  },
+  {
+    "id": "part_aethelgard_blade_t3",
+    "part_id": "part_aethelgard_blade_t3",
+    "corp_id": "corp_aethelgard",
+    "brand_id": "corp_aethelgard",
+    "name": "Lâmina de Mithril Aethelgard",
+    "branch": "Ferragem",
+    "part_type": "blade",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 3,
+    "base_cost": 220,
+    "market_price_base": 220,
+    "power_bonus": 90,
+    "power_contrib": 90,
+    "catalog_description": "Lâmina forjada em liga nobre de mithril pelos mestres metalúrgicos da Siderúrgica.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 25
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Lâmina de Mithril Aethelgard"
+  },
+  {
+    "id": "part_aethelgard_hilt_t3",
+    "part_id": "part_aethelgard_hilt_t3",
+    "corp_id": "corp_aethelgard",
+    "brand_id": "corp_aethelgard",
+    "name": "Empunhadura Nobre Aethelgard",
+    "branch": "Ferragem",
+    "part_type": "hilt",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 3,
+    "base_cost": 200,
+    "market_price_base": 200,
+    "power_bonus": 80,
+    "power_contrib": 80,
+    "catalog_description": "Empunhadura de luxo revestida em couro dracônico com encaixes de mithril.",
+    "effects": [
+      {
+        "effect": "mitigation_flat",
+        "value": 18
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Empunhadura Nobre Aethelgard"
+  },
+  {
+    "id": "part_aethelgard_core_t3",
+    "part_id": "part_aethelgard_core_t3",
+    "corp_id": "corp_aethelgard",
+    "brand_id": "corp_aethelgard",
+    "name": "Núcleo de Forja Aethelgard",
+    "branch": "Ferragem",
+    "part_type": "core",
+    "compatible_slots": [
+      "Arma",
+      "Armadura"
+    ],
+    "tier": 3,
+    "base_cost": 210,
+    "market_price_base": 210,
+    "power_bonus": 85,
+    "power_contrib": 85,
+    "catalog_description": "Núcleo térmico pulsante de alta retenção de energia mecânica.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 22
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Núcleo de Forja Aethelgard"
+  },
+  {
+    "id": "part_valkyria_blade_t1",
+    "part_id": "part_valkyria_blade_t1",
+    "corp_id": "corp_valkyria",
+    "brand_id": "corp_valkyria",
+    "name": "Lâmina Estriada Valkyria",
+    "branch": "Ferragem",
+    "part_type": "blade",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 1,
+    "base_cost": 55,
+    "market_price_base": 55,
+    "power_bonus": 28,
+    "power_contrib": 28,
+    "catalog_description": "Gume chanfrado de combate com microestrias de atrito bélico.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 6
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Lâmina Estriada Valkyria"
+  },
+  {
+    "id": "part_valkyria_core_t1",
+    "part_id": "part_valkyria_core_t1",
+    "corp_id": "corp_valkyria",
+    "brand_id": "corp_valkyria",
+    "name": "Rebite Balístico Valkyria",
+    "branch": "Ferragem",
+    "part_type": "core",
+    "compatible_slots": [
+      "Arma",
+      "Armadura"
+    ],
+    "tier": 1,
+    "base_cost": 50,
+    "market_price_base": 50,
+    "power_bonus": 24,
+    "power_contrib": 24,
+    "catalog_description": "Fixador reforçado para absorção de impacto balístico.",
+    "effects": [
+      {
+        "effect": "mitigation_flat",
+        "value": 5
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Rebite Balístico Valkyria"
+  },
+  {
+    "id": "part_valkyria_guard_t3",
+    "part_id": "part_valkyria_guard_t3",
+    "corp_id": "corp_valkyria",
+    "brand_id": "corp_valkyria",
+    "name": "Guarda de Aço-Titânio Valkyria",
+    "branch": "Ferragem",
+    "part_type": "guard",
+    "compatible_slots": [
+      "Arma",
+      "Armadura"
+    ],
+    "tier": 3,
+    "base_cost": 210,
+    "market_price_base": 210,
+    "power_bonus": 85,
+    "power_contrib": 85,
+    "catalog_description": "Guarda de combate forjada em liga titânica da vanguarda Valkyria.",
+    "effects": [
+      {
+        "effect": "mitigation_flat",
+        "value": 20
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Guarda de Aço-Titânio Valkyria"
+  },
+  {
+    "id": "part_valkyria_blade_t3",
+    "part_id": "part_valkyria_blade_t3",
+    "corp_id": "corp_valkyria",
+    "brand_id": "corp_valkyria",
+    "name": "Chassi Exterminador Valkyria",
+    "branch": "Ferragem",
+    "part_type": "blade",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 3,
+    "base_cost": 230,
+    "market_price_base": 230,
+    "power_bonus": 95,
+    "power_contrib": 95,
+    "catalog_description": "Chassi bélico de alto calibre certificado para demolição pesada.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 28
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Chassi Exterminador Valkyria"
+  },
+  {
+    "id": "part_valkyria_core_t3",
+    "part_id": "part_valkyria_core_t3",
+    "corp_id": "corp_valkyria",
+    "brand_id": "corp_valkyria",
+    "name": "Núcleo de Blindagem Valkyria",
+    "branch": "Ferragem",
+    "part_type": "core",
+    "compatible_slots": [
+      "Arma",
+      "Armadura"
+    ],
+    "tier": 3,
+    "base_cost": 225,
+    "market_price_base": 225,
+    "power_bonus": 88,
+    "power_contrib": 88,
+    "catalog_description": "Módulo gerador de campo cinético militar homologado pelo Consórcio.",
+    "effects": [
+      {
+        "effect": "mitigation_flat",
+        "value": 22
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Núcleo de Blindagem Valkyria"
+  },
+  {
+    "id": "part_flamel_vial_t2",
+    "part_id": "part_flamel_vial_t2",
+    "corp_id": "corp_flamel",
+    "brand_id": "corp_flamel",
+    "name": "Ampola Graduada Flamel",
+    "branch": "Alquimia",
+    "part_type": "filter",
+    "compatible_slots": [
+      "Armadura",
+      "Acessório"
+    ],
+    "tier": 2,
+    "base_cost": 105,
+    "market_price_base": 105,
+    "power_bonus": 45,
+    "power_contrib": 45,
+    "catalog_description": "Recipiente hermético com graduação química de precisão laboratorial.",
+    "effects": [
+      {
+        "effect": "recovery_flat",
+        "value": 10
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Ampola Graduada Flamel"
+  },
+  {
+    "id": "part_flamel_reagent_t2",
+    "part_id": "part_flamel_reagent_t2",
+    "corp_id": "corp_flamel",
+    "brand_id": "corp_flamel",
+    "name": "Reativo Alcalino Flamel",
+    "branch": "Alquimia",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Arma",
+      "Acessório"
+    ],
+    "tier": 2,
+    "base_cost": 115,
+    "market_price_base": 115,
+    "power_bonus": 50,
+    "power_contrib": 50,
+    "catalog_description": "Composto alcalino estabilizado para infusões de alto rendimento.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 12
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Reativo Alcalino Flamel"
+  },
+  {
+    "id": "part_flamel_core_t2",
+    "part_id": "part_flamel_core_t2",
+    "corp_id": "corp_flamel",
+    "brand_id": "corp_flamel",
+    "name": "Catalisador Purificado Flamel",
+    "branch": "Alquimia",
+    "part_type": "core",
+    "compatible_slots": [
+      "Armadura",
+      "Acessório"
+    ],
+    "tier": 2,
+    "base_cost": 110,
+    "market_price_base": 110,
+    "power_bonus": 48,
+    "power_contrib": 48,
+    "catalog_description": "Núcleo catalítico destilado com tripla filtragem alquímica.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 10
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Catalisador Purificado Flamel"
+  },
+  {
+    "id": "part_flamel_vial_t3",
+    "part_id": "part_flamel_vial_t3",
+    "corp_id": "corp_flamel",
+    "brand_id": "corp_flamel",
+    "name": "Ampola de Vidro Dragônico Flamel",
+    "branch": "Alquimia",
+    "part_type": "filter",
+    "compatible_slots": [
+      "Armadura",
+      "Acessório"
+    ],
+    "tier": 3,
+    "base_cost": 215,
+    "market_price_base": 215,
+    "power_bonus": 88,
+    "power_contrib": 88,
+    "catalog_description": "Vidro fundido no sopro de dragão imune a solventes universais.",
+    "effects": [
+      {
+        "effect": "recovery_flat",
+        "value": 25
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Ampola de Vidro Dragônico Flamel"
+  },
+  {
+    "id": "part_flamel_reagent_t3",
+    "part_id": "part_flamel_reagent_t3",
+    "corp_id": "corp_flamel",
+    "brand_id": "corp_flamel",
+    "name": "Reativo Filosofal Flamel",
+    "branch": "Alquimia",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Arma",
+      "Acessório"
+    ],
+    "tier": 3,
+    "base_cost": 235,
+    "market_price_base": 235,
+    "power_bonus": 96,
+    "power_contrib": 96,
+    "catalog_description": "Composto lendário com fragmentos de pó da grande transmutação.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 28
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Reativo Filosofal Flamel"
+  },
+  {
+    "id": "part_flamel_core_t3",
+    "part_id": "part_flamel_core_t3",
+    "corp_id": "corp_flamel",
+    "brand_id": "corp_flamel",
+    "name": "Catalisador Primordial Flamel",
+    "branch": "Alquimia",
+    "part_type": "core",
+    "compatible_slots": [
+      "Armadura",
+      "Acessório"
+    ],
+    "tier": 3,
+    "base_cost": 225,
+    "market_price_base": 225,
+    "power_bonus": 92,
+    "power_contrib": 92,
+    "catalog_description": "Aparelhagem máxima de catálise bioalquímica da guilda dos boticários.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 24
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Catalisador Primordial Flamel"
+  },
+  {
+    "id": "part_chancellor_gem_t1",
+    "part_id": "part_chancellor_gem_t1",
+    "corp_id": "corp_chancellor",
+    "brand_id": "corp_chancellor",
+    "name": "Ágata Notarial Lapidada",
+    "branch": "Joalheria",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Acessório"
+    ],
+    "tier": 1,
+    "base_cost": 55,
+    "market_price_base": 55,
+    "power_bonus": 26,
+    "power_contrib": 26,
+    "catalog_description": "Gema semipreciosa facetada com o carimbo oficial da Casa Chanceler.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 6
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Ágata Notarial Lapidada"
+  },
+  {
+    "id": "part_chancellor_pin_t2",
+    "part_id": "part_chancellor_pin_t2",
+    "corp_id": "corp_chancellor",
+    "brand_id": "corp_chancellor",
+    "name": "Broche de Platina Chanceler",
+    "branch": "Joalheria",
+    "part_type": "hilt",
+    "compatible_slots": [
+      "Acessório"
+    ],
+    "tier": 2,
+    "base_cost": 110,
+    "market_price_base": 110,
+    "power_bonus": 46,
+    "power_contrib": 46,
+    "catalog_description": "Fecho de platina polida que estabiliza o campo focal do amuleto.",
+    "effects": [
+      {
+        "effect": "mitigation_flat",
+        "value": 10
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Broche de Platina Chanceler"
+  },
+  {
+    "id": "part_chancellor_gem_t3",
+    "part_id": "part_chancellor_gem_t3",
+    "corp_id": "corp_chancellor",
+    "brand_id": "corp_chancellor",
+    "name": "Diamante Imperial Chanceler",
+    "branch": "Joalheria",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Acessório"
+    ],
+    "tier": 3,
+    "base_cost": 240,
+    "market_price_base": 240,
+    "power_bonus": 98,
+    "power_contrib": 98,
+    "catalog_description": "Diamante de corte ducal de claridade impecável homologado pelo Chanceler.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 30
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Diamante Imperial Chanceler"
+  },
+  {
+    "id": "part_chancellor_frame_t3",
+    "part_id": "part_chancellor_frame_t3",
+    "corp_id": "corp_chancellor",
+    "brand_id": "corp_chancellor",
+    "name": "Armação de Adamante Chanceler",
+    "branch": "Joalheria",
+    "part_type": "plating",
+    "compatible_slots": [
+      "Acessório",
+      "Armadura"
+    ],
+    "tier": 3,
+    "base_cost": 225,
+    "market_price_base": 225,
+    "power_bonus": 90,
+    "power_contrib": 90,
+    "catalog_description": "Engaste em liga pura de adamante lapidado para conter gemas de alta nobreza.",
+    "effects": [
+      {
+        "effect": "mitigation_flat",
+        "value": 22
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Armação de Adamante Chanceler"
+  },
+  {
+    "id": "part_chancellor_core_t3",
+    "part_id": "part_chancellor_core_t3",
+    "corp_id": "corp_chancellor",
+    "brand_id": "corp_chancellor",
+    "name": "Prisma Solar Chanceler",
+    "branch": "Joalheria",
+    "part_type": "core",
+    "compatible_slots": [
+      "Acessório"
+    ],
+    "tier": 3,
+    "base_cost": 230,
+    "market_price_base": 230,
+    "power_bonus": 94,
+    "power_contrib": 94,
+    "catalog_description": "Núcleo óptico que refrata luz espectral em múltiplos comprimentos arcanos.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 26
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Prisma Solar Chanceler"
+  },
+  {
+    "id": "part_swamp_filter_t3",
+    "part_id": "part_swamp_filter_t3",
+    "corp_id": "corp_swamp_alchemy",
+    "brand_id": "corp_swamp_alchemy",
+    "name": "Filtro de Bio-Éter do Charco",
+    "branch": "Alquimia",
+    "part_type": "filter",
+    "compatible_slots": [
+      "Armadura",
+      "Acessório"
+    ],
+    "tier": 3,
+    "base_cost": 210,
+    "market_price_base": 210,
+    "power_bonus": 86,
+    "power_contrib": 86,
+    "catalog_description": "Filtro purificador supremo que destila miasmas letais em tônico vital.",
+    "effects": [
+      {
+        "effect": "mitigation_flat",
+        "value": 20
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Filtro de Bio-Éter do Charco"
+  },
+  {
+    "id": "part_swamp_gem_t3",
+    "part_id": "part_swamp_gem_t3",
+    "corp_id": "corp_swamp_alchemy",
+    "brand_id": "corp_swamp_alchemy",
+    "name": "Esmeralda Pestilenta Polida",
+    "branch": "Alquimia",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Acessório",
+      "Arma"
+    ],
+    "tier": 3,
+    "base_cost": 225,
+    "market_price_base": 225,
+    "power_bonus": 92,
+    "power_contrib": 92,
+    "catalog_description": "Gema pantanosa lapidada com inclusões fósseis de virulência ancestral.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 26
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Esmeralda Pestilenta Polida"
+  },
+  {
+    "id": "part_swamp_core_t3",
+    "part_id": "part_swamp_core_t3",
+    "corp_id": "corp_swamp_alchemy",
+    "brand_id": "corp_swamp_alchemy",
+    "name": "Núcleo Virulento Concentrado",
+    "branch": "Alquimia",
+    "part_type": "core",
+    "compatible_slots": [
+      "Arma",
+      "Armadura"
+    ],
+    "tier": 3,
+    "base_cost": 220,
+    "market_price_base": 220,
+    "power_bonus": 88,
+    "power_contrib": 88,
+    "catalog_description": "Módulo biológico destilado que potencializa reações químicas agressivas.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 24
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Núcleo Virulento Concentrado"
+  },
+  {
+    "id": "part_crown_blade_t3",
+    "part_id": "part_crown_blade_t3",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Lâmina Imperial Notarial",
+    "branch": "Ferragem",
+    "part_type": "blade",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 3,
+    "base_cost": 200,
+    "market_price_base": 200,
+    "power_bonus": 84,
+    "power_contrib": 84,
+    "catalog_description": "Lâmina com chancela régia de alto prestígio fabricada sob decreto monárquico.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 22
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Lâmina Imperial Notarial"
+  },
+  {
+    "id": "part_crown_gem_t3",
+    "part_id": "part_crown_gem_t3",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Rubi Imperial Selado",
+    "branch": "Joalheria",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Acessório"
+    ],
+    "tier": 3,
+    "base_cost": 215,
+    "market_price_base": 215,
+    "power_bonus": 88,
+    "power_contrib": 88,
+    "catalog_description": "Rubi de lavra estatal gravado com as armas reais e lacrado em chumbo.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 25
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Rubi Imperial Selado"
   }
 ]

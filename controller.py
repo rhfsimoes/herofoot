@@ -417,16 +417,50 @@ class GameController:
         if self.state.has_active_contract(contract_id):
             return {"success": False, "message": "Contrato de fornecimento já vigente com esta fornecedora."}
 
+        corp_id = contract.get("corp_id")
+        corps = get_corporations_dict()
+        corp = corps.get(corp_id, {})
+        requirements = contract.get("requirements", {})
+        min_confidence = int(requirements.get("min_confidence", 0))
+        min_workshop_level = int(requirements.get("min_workshop_level", 1))
+        requires_previous_tier = requirements.get("requires_previous_tier")
+
+        # Validação de Confiança da Contratante
+        if self.state.contractor_confidence < min_confidence:
+            return {
+                "success": False,
+                "message": f"Homologação indeferida: a corporação exige Confiança da Contratante mínima de {min_confidence} pontos (Atual: {self.state.contractor_confidence}).",
+            }
+
+        # Validação de Nível da Filial da Oficina
+        branch = corp.get("branch", "Ferragem")
+        current_branch_lvl = self.state.workshop_levels.get(branch, 1)
+        if current_branch_lvl < min_workshop_level:
+            return {
+                "success": False,
+                "message": f"Homologação indeferida: a corporação exige Filial de {branch} modernizada ao menos ao Nível {min_workshop_level} (Atual: Nível {current_branch_lvl}).",
+            }
+
+        # Validação de Progressão Gradual (Bronze -> Prata -> Ouro)
+        corp_active_contracts = [c for c in self.state.active_b2b_contracts if c.get("corp_id") == corp_id]
+        if requires_previous_tier:
+            tier_order = {"Bronze": 1, "Prata": 2, "Ouro": 3}
+            req_order = tier_order.get(requires_previous_tier, 1)
+            has_prev = any(tier_order.get(c.get("tier"), 1) >= req_order for c in corp_active_contracts)
+            if not has_prev:
+                return {
+                    "success": False,
+                    "message": f"Progressão indeferida: para homologar um convênio {contract.get('tier')}, a guilda precisa possuir convênio {requires_previous_tier} ativo com a {corp.get('name', 'fornecedora')}.",
+                }
+
         # Limite regulatório da Coroa: no máximo 3 patrocínios/parcerias corporativas ativas
-        if len(getattr(self.state, "active_b2b_contracts", [])) >= 3:
+        # Se já possui contrato com esta mesma corporação, trata-se de um upgrade de escalão (não consome novo slot)
+        if not corp_active_contracts and len(getattr(self.state, "active_b2b_contracts", [])) >= 3:
             return {
                 "success": False,
                 "message": "Limite regulatório atingido: a guilda pode manter no máximo 3 convênios de patrocínio corporativo ativos simultaneamente.",
             }
 
-        corp_id = contract.get("corp_id")
-        corps = get_corporations_dict()
-        corp = corps.get(corp_id, {})
         is_exclusive = contract.get("is_exclusive", False)
         exclusivity_tag = corp.get("exclusivity_tag")
         rival_corp_id = corp.get("rival_corp_id")
@@ -452,17 +486,31 @@ class GameController:
                     "message": f"Contrato rejeitado: parceria exclusiva vigente com a concorrente '{rival_corp.get('name', rival_corp_id)}' impede novos convênios com esta marca.",
                 }
 
-        # Homologação do contrato
+        # Homologação do contrato (Upgrade ou Novo)
+        is_upgrade = len(corp_active_contracts) > 0
+        if is_upgrade:
+            # Substitui contrato anterior da mesma corporação
+            self.state.active_b2b_contracts = [
+                c for c in self.state.active_b2b_contracts if c.get("corp_id") != corp_id
+            ]
+
         self.state.active_b2b_contracts.append(dict(contract))
         if is_exclusive and exclusivity_tag:
             if not self.state.has_exclusivity_tag(exclusivity_tag):
                 self.state.corporate_exclusivity_tags.append(exclusivity_tag)
 
+        success_msg = (
+            f"Convênio promovido com sucesso! Sua parceria com {corp.get('name', 'a fornecedora')} subiu para o escalão {contract.get('tier')}."
+            if is_upgrade
+            else f"Contrato B2B '{contract.get('title')}' celebrado com sucesso junto à {corp.get('name', 'fornecedora')}."
+        )
+
         return {
             "success": True,
             "contract": contract,
+            "is_upgrade": is_upgrade,
             "active_b2b_contracts": self.state.active_b2b_contracts,
-            "message": f"Contrato B2B '{contract.get('title')}' celebrado com sucesso junto à {corp.get('name', 'fornecedora')}.",
+            "message": success_msg,
         }
 
     def cancel_b2b_contract(self, contract_id: str) -> dict:

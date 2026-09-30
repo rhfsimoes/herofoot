@@ -21,7 +21,43 @@
         "quantity": 1
       }
     ],
-    "description": "Fornecimento regular de lâminas e empunhaduras para sustentação da linha de montagem básica."
+    "description": "Fornecimento regular de lâminas e empunhaduras para sustentação da linha de montagem básica.",
+    "requirements": {
+      "min_confidence": 0,
+      "min_workshop_level": 1,
+      "requires_previous_tier": null,
+      "description": "Homologação livre para guildas com alvará da Coroa."
+    }
+  },
+  {
+    "contract_id": "b2b_aethelgard_silver",
+    "corp_id": "corp_aethelgard",
+    "tier": "Prata",
+    "title": "Homologação Metalúrgica Aethelgard - Nível Prata",
+    "weekly_royalty": 115,
+    "is_exclusive": false,
+    "discount_pct": 0.15,
+    "weekly_shipment": [
+      {
+        "part_id": "part_aethelgard_hilt_t2",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_aethelgard_blade_t2",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_aethelgard_core_t2",
+        "quantity": 1
+      }
+    ],
+    "description": "Fornecimento regular de chapas temperadas e empunhaduras reforçadas para forja intermediária.",
+    "requirements": {
+      "min_confidence": 60,
+      "min_workshop_level": 2,
+      "requires_previous_tier": "Bronze",
+      "description": "Requer Confiança da Contratante ≥ 60, Filial Nível 2+ e Convênio Bronze ativo."
+    }
   },
   {
     "contract_id": "b2b_aethelgard_gold",
@@ -33,67 +69,55 @@
     "discount_pct": 0.25,
     "weekly_shipment": [
       {
-        "part_id": "part_aethelgard_hilt",
+        "part_id": "part_aethelgard_hilt_t3",
         "quantity": 2
       },
       {
-        "part_id": "part_aethelgard_blade",
+        "part_id": "part_aethelgard_blade_t3",
         "quantity": 2
       },
       {
-        "part_id": "part_aethelgard_core",
+        "part_id": "part_aethelgard_core_t3",
         "quantity": 2
       }
     ],
-    "description": "Contrato exclusivo de exclusividade territorial. Proíbe parcerias B2B com o Consórcio Bélico Valkyria sob pena de rescisão sumária."
+    "description": "Contrato exclusivo de exclusividade territorial. Proíbe parcerias B2B com o Consórcio Bélico Valkyria sob pena de rescisão sumária.",
+    "requirements": {
+      "min_confidence": 75,
+      "min_workshop_level": 3,
+      "requires_previous_tier": "Prata",
+      "description": "Requer Confiança da Contratante ≥ 75, Filial Nível 3+ e Convênio Prata ativo."
+    }
   },
   {
-    "contract_id": "b2b_valkyria_gold",
-    "corp_id": "corp_valkyria",
-    "tier": "Ouro",
-    "title": "Consórcio Bélico Valkyria - Parceiro Ouro",
-    "weekly_royalty": 190,
-    "is_exclusive": true,
-    "discount_pct": 0.25,
-    "weekly_shipment": [
-      {
-        "part_id": "part_valkyria_guard",
-        "quantity": 2
-      },
-      {
-        "part_id": "part_valkyria_plate",
-        "quantity": 2
-      },
-      {
-        "part_id": "part_valkyria_core",
-        "quantity": 2
-      }
-    ],
-    "description": "Exclusividade contratual com a vanguarda fabril Valkyria. Incompatível com acordos da Siderúrgica Aethelgard."
-  },
-  {
-    "contract_id": "b2b_flamel_standard",
-    "corp_id": "corp_flamel",
-    "tier": "Prata",
-    "title": "Homologação de Destilados Flamel - Nível Prata",
-    "weekly_royalty": 80,
+    "contract_id": "b2b_chancellor_bronze",
+    "corp_id": "corp_chancellor",
+    "tier": "Bronze",
+    "title": "Lapidação Notarial Chanceler - Padrão Bronze",
+    "weekly_royalty": 65,
     "is_exclusive": false,
-    "discount_pct": 0.15,
+    "discount_pct": 0.1,
     "weekly_shipment": [
       {
-        "part_id": "part_flamel_nozzle",
+        "part_id": "part_chancellor_pin",
         "quantity": 1
       },
       {
-        "part_id": "part_flamel_vial",
+        "part_id": "part_chancellor_gem_t1",
         "quantity": 1
       },
       {
-        "part_id": "part_flamel_catalyst",
+        "part_id": "part_chancellor_frame",
         "quantity": 1
       }
     ],
-    "description": "Abastecimento semanal de frascos graduados e catalisadores certificados pela Guilda de Boticários."
+    "description": "Remessa padrão de ágatas lapidadas e broches de fixação da Casa Chanceler.",
+    "requirements": {
+      "min_confidence": 0,
+      "min_workshop_level": 1,
+      "requires_previous_tier": null,
+      "description": "Homologação livre para guildas com alvará da Coroa."
+    }
   },
   {
     "contract_id": "b2b_chancellor_silver",
@@ -117,295 +141,43 @@
         "quantity": 1
       }
     ],
-    "description": "Remessa de núcleos de safira polida para confecção seriada de amuletos corporativos."
+    "description": "Remessa de núcleos de safira polida para confecção seriada de amuletos corporativos.",
+    "requirements": {
+      "min_confidence": 60,
+      "min_workshop_level": 2,
+      "requires_previous_tier": "Bronze",
+      "description": "Requer Confiança da Contratante ≥ 60, Filial Nível 2+ e Convênio Bronze ativo."
+    }
   },
   {
-    "contract_id": "b2b_goblin_bronze",
-    "corp_id": "corp_goblin_eng",
-    "tier": "Bronze",
-    "title": "Fornecimento Rápido Goblin - Padrão Bronze",
-    "weekly_royalty": 60,
-    "is_exclusive": false,
-    "discount_pct": 0.1,
-    "weekly_shipment": [
-      {
-        "part_id": "part_gob_hilt_01",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_gob_blade_01",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_gob_core_00",
-        "quantity": 1
-      }
-    ],
-    "description": "Remessa semanal de lâminas dentadas e empunhaduras de fricção rápida."
-  },
-  {
-    "contract_id": "b2b_goblin_silver",
-    "corp_id": "corp_goblin_eng",
-    "tier": "Prata",
-    "title": "Homologação de Impacto Goblin - Nível Prata",
-    "weekly_royalty": 120,
-    "is_exclusive": false,
-    "discount_pct": 0.15,
-    "weekly_shipment": [
-      {
-        "part_id": "part_gob_hilt_01",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_gob_blade_02",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_gob_core_02",
-        "quantity": 1
-      }
-    ],
-    "description": "Cota regular de lâminas predatórias e disjuntores de sobrecarga calculada."
-  },
-  {
-    "contract_id": "b2b_goblin_gold",
-    "corp_id": "corp_goblin_eng",
+    "contract_id": "b2b_chancellor_gold",
+    "corp_id": "corp_chancellor",
     "tier": "Ouro",
-    "title": "Pacto Bélico de Alta Detonação - Parceiro Ouro",
-    "weekly_royalty": 200,
+    "title": "Chancela Imperial de Platina - Parceiro Ouro",
+    "weekly_royalty": 225,
     "is_exclusive": true,
     "discount_pct": 0.25,
     "weekly_shipment": [
       {
-        "part_id": "part_gob_hilt_01",
+        "part_id": "part_chancellor_frame_t3",
         "quantity": 2
       },
       {
-        "part_id": "part_gob_blade_03",
+        "part_id": "part_chancellor_gem_t3",
         "quantity": 2
       },
       {
-        "part_id": "part_gob_core_01",
-        "quantity": 2
-      }
-    ],
-    "description": "Exclusividade contratual com Engenharia Goblin S.A. Proíbe relações com o Consórcio Élfico."
-  },
-  {
-    "contract_id": "b2b_elf_bronze",
-    "corp_id": "corp_elf_precision",
-    "tier": "Bronze",
-    "title": "Convênio Lapidação Básica - Padrão Bronze",
-    "weekly_royalty": 70,
-    "is_exclusive": false,
-    "discount_pct": 0.1,
-    "weekly_shipment": [
-      {
-        "part_id": "part_elf_filter_01",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_elf_gem_01",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_elf_core_00",
-        "quantity": 1
-      }
-    ],
-    "description": "Remessa regular de gemas focalizadoras e refinadores gustativos élficos."
-  },
-  {
-    "contract_id": "b2b_elf_silver",
-    "corp_id": "corp_elf_precision",
-    "tier": "Prata",
-    "title": "Fornecimento de Alta Frequência - Nível Prata",
-    "weekly_royalty": 130,
-    "is_exclusive": false,
-    "discount_pct": 0.15,
-    "weekly_shipment": [
-      {
-        "part_id": "part_elf_filter_01",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_elf_blade_01",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_elf_gem_03",
-        "quantity": 1
-      }
-    ],
-    "description": "Lote de safiras penitenciais e lâminas temperadas a frio élfico."
-  },
-  {
-    "contract_id": "b2b_elf_gold",
-    "corp_id": "corp_elf_precision",
-    "tier": "Ouro",
-    "title": "Aliança Estratégica Élfica de Platina - Parceiro Ouro",
-    "weekly_royalty": 220,
-    "is_exclusive": true,
-    "discount_pct": 0.25,
-    "weekly_shipment": [
-      {
-        "part_id": "part_elf_filter_01",
-        "quantity": 2
-      },
-      {
-        "part_id": "part_elf_blade_01",
-        "quantity": 2
-      },
-      {
-        "part_id": "part_elf_core_01",
+        "part_id": "part_chancellor_core_t3",
         "quantity": 2
       }
     ],
-    "description": "Exclusividade de alto escalão com o Consórcio Élfico. Embarga convênios com Engenharia Goblin S.A."
-  },
-  {
-    "contract_id": "b2b_dwarf_bronze",
-    "corp_id": "corp_dwarf_steel",
-    "tier": "Bronze",
-    "title": "Fundição de Cidadela - Padrão Bronze",
-    "weekly_royalty": 65,
-    "is_exclusive": false,
-    "discount_pct": 0.1,
-    "weekly_shipment": [
-      {
-        "part_id": "part_dwarf_prefix_01",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_dwarf_plating_01",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_dwarf_core_01",
-        "quantity": 1
-      }
-    ],
-    "description": "Placas reforçadas e âncoras gravitacionais forjadas no abismo anão."
-  },
-  {
-    "contract_id": "b2b_dwarf_silver",
-    "corp_id": "corp_dwarf_steel",
-    "tier": "Prata",
-    "title": "Couraça de Rocha Negra - Nível Prata",
-    "weekly_royalty": 125,
-    "is_exclusive": false,
-    "discount_pct": 0.15,
-    "weekly_shipment": [
-      {
-        "part_id": "part_dwarf_plating_06",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_dwarf_plating_03",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_dwarf_core_02",
-        "quantity": 1
-      }
-    ],
-    "description": "Blindagens maciças de minério negro e reforços torácicos com apólice integrada."
-  },
-  {
-    "contract_id": "b2b_dwarf_gold",
-    "corp_id": "corp_dwarf_steel",
-    "tier": "Ouro",
-    "title": "Pacto Subterrâneo Ouro de Aço Negro - Parceiro Ouro",
-    "weekly_royalty": 210,
-    "is_exclusive": true,
-    "discount_pct": 0.25,
-    "weekly_shipment": [
-      {
-        "part_id": "part_dwarf_plating_05",
-        "quantity": 2
-      },
-      {
-        "part_id": "part_dwarf_plating_04",
-        "quantity": 2
-      },
-      {
-        "part_id": "part_dwarf_core_02",
-        "quantity": 2
-      }
-    ],
-    "description": "Exclusividade de metalurgia pesada da Cidadela. Veda contratos com o Sindicato de Pântano."
-  },
-  {
-    "contract_id": "b2b_swamp_bronze",
-    "corp_id": "corp_swamp_alchemy",
-    "tier": "Bronze",
-    "title": "Destilados do Charco - Padrão Bronze",
-    "weekly_royalty": 55,
-    "is_exclusive": false,
-    "discount_pct": 0.1,
-    "weekly_shipment": [
-      {
-        "part_id": "part_swamp_prefix_01",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_swamp_filter_01",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_swamp_core_01",
-        "quantity": 1
-      }
-    ],
-    "description": "Filtros decantadores e filtros neutralizadores de miasmas virulentos."
-  },
-  {
-    "contract_id": "b2b_swamp_silver",
-    "corp_id": "corp_swamp_alchemy",
-    "tier": "Prata",
-    "title": "Farmacologia de Miasma - Nível Prata",
-    "weekly_royalty": 115,
-    "is_exclusive": false,
-    "discount_pct": 0.15,
-    "weekly_shipment": [
-      {
-        "part_id": "part_swamp_filter_03",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_swamp_filter_01",
-        "quantity": 1
-      },
-      {
-        "part_id": "part_swamp_core_02",
-        "quantity": 1
-      }
-    ],
-    "description": "Dosadores graduados e injetores químicos certificados pelos boticários de pântano."
-  },
-  {
-    "contract_id": "b2b_swamp_gold",
-    "corp_id": "corp_swamp_alchemy",
-    "tier": "Ouro",
-    "title": "Concessão Hermética de Pântano - Parceiro Ouro",
-    "weekly_royalty": 195,
-    "is_exclusive": true,
-    "discount_pct": 0.25,
-    "weekly_shipment": [
-      {
-        "part_id": "part_swamp_filter_03",
-        "quantity": 2
-      },
-      {
-        "part_id": "part_swamp_filter_01",
-        "quantity": 2
-      },
-      {
-        "part_id": "part_swamp_core_02",
-        "quantity": 2
-      }
-    ],
-    "description": "Exclusividade sobre reativos de pântano. Incompatível com acordos dos Irmãos Anões de Aço Negro."
+    "description": "Exclusividade de alta nobreza. Lote duplo semanal de diamantes imperiais e prismas solares.",
+    "requirements": {
+      "min_confidence": 75,
+      "min_workshop_level": 3,
+      "requires_previous_tier": "Prata",
+      "description": "Requer Confiança da Contratante ≥ 75, Filial Nível 3+ e Convênio Prata ativo."
+    }
   },
   {
     "contract_id": "b2b_crown_bronze",
@@ -429,7 +201,13 @@
         "quantity": 1
       }
     ],
-    "description": "Linha branca de couro escamado e ágatas notariais universais da Fazenda Real."
+    "description": "Linha branca de couro escamado e ágatas notariais universais da Fazenda Real.",
+    "requirements": {
+      "min_confidence": 0,
+      "min_workshop_level": 1,
+      "requires_previous_tier": null,
+      "description": "Homologação livre para guildas com alvará da Coroa."
+    }
   },
   {
     "contract_id": "b2b_crown_silver",
@@ -453,7 +231,13 @@
         "quantity": 1
       }
     ],
-    "description": "Braçadeiras chanceladas por laudo e selos rúnicos de alvará de funcionamento."
+    "description": "Braçadeiras chanceladas por laudo e selos rúnicos de alvará de funcionamento.",
+    "requirements": {
+      "min_confidence": 60,
+      "min_workshop_level": 2,
+      "requires_previous_tier": "Bronze",
+      "description": "Requer Confiança da Contratante ≥ 60, Filial Nível 2+ e Convênio Bronze ativo."
+    }
   },
   {
     "contract_id": "b2b_crown_gold",
@@ -477,6 +261,552 @@
         "quantity": 2
       }
     ],
-    "description": "Convênio nobre da Coroa. Totalmente compatível com todas as corporações do continente."
+    "description": "Convênio nobre da Coroa. Totalmente compatível com todas as corporações do continente.",
+    "requirements": {
+      "min_confidence": 75,
+      "min_workshop_level": 3,
+      "requires_previous_tier": "Prata",
+      "description": "Requer Confiança da Contratante ≥ 75, Filial Nível 3+ e Convênio Prata ativo."
+    }
+  },
+  {
+    "contract_id": "b2b_dwarf_bronze",
+    "corp_id": "corp_dwarf_steel",
+    "tier": "Bronze",
+    "title": "Fundição de Cidadela - Padrão Bronze",
+    "weekly_royalty": 65,
+    "is_exclusive": false,
+    "discount_pct": 0.1,
+    "weekly_shipment": [
+      {
+        "part_id": "part_dwarf_prefix_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_dwarf_plating_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_dwarf_core_01",
+        "quantity": 1
+      }
+    ],
+    "description": "Placas reforçadas e âncoras gravitacionais forjadas no abismo anão.",
+    "requirements": {
+      "min_confidence": 0,
+      "min_workshop_level": 1,
+      "requires_previous_tier": null,
+      "description": "Homologação livre para guildas com alvará da Coroa."
+    }
+  },
+  {
+    "contract_id": "b2b_dwarf_silver",
+    "corp_id": "corp_dwarf_steel",
+    "tier": "Prata",
+    "title": "Couraça de Rocha Negra - Nível Prata",
+    "weekly_royalty": 125,
+    "is_exclusive": false,
+    "discount_pct": 0.15,
+    "weekly_shipment": [
+      {
+        "part_id": "part_dwarf_plating_06",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_dwarf_plating_03",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_dwarf_core_02",
+        "quantity": 1
+      }
+    ],
+    "description": "Blindagens maciças de minério negro e reforços torácicos com apólice integrada.",
+    "requirements": {
+      "min_confidence": 60,
+      "min_workshop_level": 2,
+      "requires_previous_tier": "Bronze",
+      "description": "Requer Confiança da Contratante ≥ 60, Filial Nível 2+ e Convênio Bronze ativo."
+    }
+  },
+  {
+    "contract_id": "b2b_dwarf_gold",
+    "corp_id": "corp_dwarf_steel",
+    "tier": "Ouro",
+    "title": "Pacto Subterrâneo Ouro de Aço Negro - Parceiro Ouro",
+    "weekly_royalty": 210,
+    "is_exclusive": true,
+    "discount_pct": 0.25,
+    "weekly_shipment": [
+      {
+        "part_id": "part_dwarf_plating_05",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_dwarf_plating_04",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_dwarf_core_02",
+        "quantity": 2
+      }
+    ],
+    "description": "Exclusividade de metalurgia pesada da Cidadela. Veda contratos com o Sindicato de Pântano.",
+    "requirements": {
+      "min_confidence": 75,
+      "min_workshop_level": 3,
+      "requires_previous_tier": "Prata",
+      "description": "Requer Confiança da Contratante ≥ 75, Filial Nível 3+ e Convênio Prata ativo."
+    }
+  },
+  {
+    "contract_id": "b2b_elf_bronze",
+    "corp_id": "corp_elf_precision",
+    "tier": "Bronze",
+    "title": "Convênio Lapidação Básica - Padrão Bronze",
+    "weekly_royalty": 70,
+    "is_exclusive": false,
+    "discount_pct": 0.1,
+    "weekly_shipment": [
+      {
+        "part_id": "part_elf_filter_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_elf_gem_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_elf_core_00",
+        "quantity": 1
+      }
+    ],
+    "description": "Remessa regular de gemas focalizadoras e refinadores gustativos élficos.",
+    "requirements": {
+      "min_confidence": 0,
+      "min_workshop_level": 1,
+      "requires_previous_tier": null,
+      "description": "Homologação livre para guildas com alvará da Coroa."
+    }
+  },
+  {
+    "contract_id": "b2b_elf_silver",
+    "corp_id": "corp_elf_precision",
+    "tier": "Prata",
+    "title": "Fornecimento de Alta Frequência - Nível Prata",
+    "weekly_royalty": 130,
+    "is_exclusive": false,
+    "discount_pct": 0.15,
+    "weekly_shipment": [
+      {
+        "part_id": "part_elf_filter_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_elf_blade_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_elf_gem_03",
+        "quantity": 1
+      }
+    ],
+    "description": "Lote de safiras penitenciais e lâminas temperadas a frio élfico.",
+    "requirements": {
+      "min_confidence": 60,
+      "min_workshop_level": 2,
+      "requires_previous_tier": "Bronze",
+      "description": "Requer Confiança da Contratante ≥ 60, Filial Nível 2+ e Convênio Bronze ativo."
+    }
+  },
+  {
+    "contract_id": "b2b_elf_gold",
+    "corp_id": "corp_elf_precision",
+    "tier": "Ouro",
+    "title": "Aliança Estratégica Élfica de Platina - Parceiro Ouro",
+    "weekly_royalty": 220,
+    "is_exclusive": true,
+    "discount_pct": 0.25,
+    "weekly_shipment": [
+      {
+        "part_id": "part_elf_filter_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_elf_blade_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_elf_core_01",
+        "quantity": 2
+      }
+    ],
+    "description": "Exclusividade de alto escalão com o Consórcio Élfico. Embarga convênios com Engenharia Goblin S.A.",
+    "requirements": {
+      "min_confidence": 75,
+      "min_workshop_level": 3,
+      "requires_previous_tier": "Prata",
+      "description": "Requer Confiança da Contratante ≥ 75, Filial Nível 3+ e Convênio Prata ativo."
+    }
+  },
+  {
+    "contract_id": "b2b_flamel_bronze",
+    "corp_id": "corp_flamel",
+    "tier": "Bronze",
+    "title": "Destilados Básicos Flamel - Padrão Bronze",
+    "weekly_royalty": 55,
+    "is_exclusive": false,
+    "discount_pct": 0.1,
+    "weekly_shipment": [
+      {
+        "part_id": "part_flamel_nozzle",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_flamel_vial",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_flamel_catalyst",
+        "quantity": 1
+      }
+    ],
+    "description": "Remessa inicial de ampolas e bocais dosadores para solventes simples.",
+    "requirements": {
+      "min_confidence": 0,
+      "min_workshop_level": 1,
+      "requires_previous_tier": null,
+      "description": "Homologação livre para guildas com alvará da Coroa."
+    }
+  },
+  {
+    "contract_id": "b2b_flamel_standard",
+    "corp_id": "corp_flamel",
+    "tier": "Prata",
+    "title": "Homologação de Destilados Flamel - Nível Prata",
+    "weekly_royalty": 80,
+    "is_exclusive": false,
+    "discount_pct": 0.15,
+    "weekly_shipment": [
+      {
+        "part_id": "part_flamel_nozzle",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_flamel_vial",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_flamel_catalyst",
+        "quantity": 1
+      }
+    ],
+    "description": "Abastecimento semanal de frascos graduados e catalisadores certificados pela Guilda de Boticários.",
+    "requirements": {
+      "min_confidence": 60,
+      "min_workshop_level": 2,
+      "requires_previous_tier": "Bronze",
+      "description": "Requer Confiança da Contratante ≥ 60, Filial Nível 2+ e Convênio Bronze ativo."
+    }
+  },
+  {
+    "contract_id": "b2b_flamel_gold",
+    "corp_id": "corp_flamel",
+    "tier": "Ouro",
+    "title": "Pacto de Alta Transmutação Flamel - Parceiro Ouro",
+    "weekly_royalty": 215,
+    "is_exclusive": true,
+    "discount_pct": 0.25,
+    "weekly_shipment": [
+      {
+        "part_id": "part_flamel_vial_t3",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_flamel_reagent_t3",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_flamel_core_t3",
+        "quantity": 2
+      }
+    ],
+    "description": "Exclusividade bioalquímica imperial. Fornece ampolas dragônicas e reativos filosofais.",
+    "requirements": {
+      "min_confidence": 75,
+      "min_workshop_level": 3,
+      "requires_previous_tier": "Prata",
+      "description": "Requer Confiança da Contratante ≥ 75, Filial Nível 3+ e Convênio Prata ativo."
+    }
+  },
+  {
+    "contract_id": "b2b_goblin_bronze",
+    "corp_id": "corp_goblin_eng",
+    "tier": "Bronze",
+    "title": "Fornecimento Rápido Goblin - Padrão Bronze",
+    "weekly_royalty": 60,
+    "is_exclusive": false,
+    "discount_pct": 0.1,
+    "weekly_shipment": [
+      {
+        "part_id": "part_gob_hilt_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_gob_blade_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_gob_core_00",
+        "quantity": 1
+      }
+    ],
+    "description": "Remessa semanal de lâminas dentadas e empunhaduras de fricção rápida.",
+    "requirements": {
+      "min_confidence": 0,
+      "min_workshop_level": 1,
+      "requires_previous_tier": null,
+      "description": "Homologação livre para guildas com alvará da Coroa."
+    }
+  },
+  {
+    "contract_id": "b2b_goblin_silver",
+    "corp_id": "corp_goblin_eng",
+    "tier": "Prata",
+    "title": "Homologação de Impacto Goblin - Nível Prata",
+    "weekly_royalty": 120,
+    "is_exclusive": false,
+    "discount_pct": 0.15,
+    "weekly_shipment": [
+      {
+        "part_id": "part_gob_hilt_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_gob_blade_02",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_gob_core_02",
+        "quantity": 1
+      }
+    ],
+    "description": "Cota regular de lâminas predatórias e disjuntores de sobrecarga calculada.",
+    "requirements": {
+      "min_confidence": 60,
+      "min_workshop_level": 2,
+      "requires_previous_tier": "Bronze",
+      "description": "Requer Confiança da Contratante ≥ 60, Filial Nível 2+ e Convênio Bronze ativo."
+    }
+  },
+  {
+    "contract_id": "b2b_goblin_gold",
+    "corp_id": "corp_goblin_eng",
+    "tier": "Ouro",
+    "title": "Pacto Bélico de Alta Detonação - Parceiro Ouro",
+    "weekly_royalty": 200,
+    "is_exclusive": true,
+    "discount_pct": 0.25,
+    "weekly_shipment": [
+      {
+        "part_id": "part_gob_hilt_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_gob_blade_03",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_gob_core_01",
+        "quantity": 2
+      }
+    ],
+    "description": "Exclusividade contratual com Engenharia Goblin S.A. Proíbe relações com o Consórcio Élfico.",
+    "requirements": {
+      "min_confidence": 75,
+      "min_workshop_level": 3,
+      "requires_previous_tier": "Prata",
+      "description": "Requer Confiança da Contratante ≥ 75, Filial Nível 3+ e Convênio Prata ativo."
+    }
+  },
+  {
+    "contract_id": "b2b_swamp_bronze",
+    "corp_id": "corp_swamp_alchemy",
+    "tier": "Bronze",
+    "title": "Destilados do Charco - Padrão Bronze",
+    "weekly_royalty": 55,
+    "is_exclusive": false,
+    "discount_pct": 0.1,
+    "weekly_shipment": [
+      {
+        "part_id": "part_swamp_prefix_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_swamp_filter_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_swamp_core_01",
+        "quantity": 1
+      }
+    ],
+    "description": "Filtros decantadores e filtros neutralizadores de miasmas virulentos.",
+    "requirements": {
+      "min_confidence": 0,
+      "min_workshop_level": 1,
+      "requires_previous_tier": null,
+      "description": "Homologação livre para guildas com alvará da Coroa."
+    }
+  },
+  {
+    "contract_id": "b2b_swamp_silver",
+    "corp_id": "corp_swamp_alchemy",
+    "tier": "Prata",
+    "title": "Farmacologia de Miasma - Nível Prata",
+    "weekly_royalty": 115,
+    "is_exclusive": false,
+    "discount_pct": 0.15,
+    "weekly_shipment": [
+      {
+        "part_id": "part_swamp_filter_03",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_swamp_filter_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_swamp_core_02",
+        "quantity": 1
+      }
+    ],
+    "description": "Dosadores graduados e injetores químicos certificados pelos boticários de pântano.",
+    "requirements": {
+      "min_confidence": 60,
+      "min_workshop_level": 2,
+      "requires_previous_tier": "Bronze",
+      "description": "Requer Confiança da Contratante ≥ 60, Filial Nível 2+ e Convênio Bronze ativo."
+    }
+  },
+  {
+    "contract_id": "b2b_swamp_gold",
+    "corp_id": "corp_swamp_alchemy",
+    "tier": "Ouro",
+    "title": "Concessão Hermética de Pântano - Parceiro Ouro",
+    "weekly_royalty": 195,
+    "is_exclusive": true,
+    "discount_pct": 0.25,
+    "weekly_shipment": [
+      {
+        "part_id": "part_swamp_filter_03",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_swamp_filter_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_swamp_core_02",
+        "quantity": 2
+      }
+    ],
+    "description": "Exclusividade sobre reativos de pântano. Incompatível com acordos dos Irmãos Anões de Aço Negro.",
+    "requirements": {
+      "min_confidence": 75,
+      "min_workshop_level": 3,
+      "requires_previous_tier": "Prata",
+      "description": "Requer Confiança da Contratante ≥ 75, Filial Nível 3+ e Convênio Prata ativo."
+    }
+  },
+  {
+    "contract_id": "b2b_valkyria_bronze",
+    "corp_id": "corp_valkyria",
+    "tier": "Bronze",
+    "title": "Fornecimento Balístico Valkyria - Padrão Bronze",
+    "weekly_royalty": 60,
+    "is_exclusive": false,
+    "discount_pct": 0.1,
+    "weekly_shipment": [
+      {
+        "part_id": "part_valkyria_guard",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_valkyria_blade_t1",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_valkyria_core_t1",
+        "quantity": 1
+      }
+    ],
+    "description": "Lote de entrada com lâminas estriadas e rebites balísticos do consórcio.",
+    "requirements": {
+      "min_confidence": 0,
+      "min_workshop_level": 1,
+      "requires_previous_tier": null,
+      "description": "Homologação livre para guildas com alvará da Coroa."
+    }
+  },
+  {
+    "contract_id": "b2b_valkyria_silver",
+    "corp_id": "corp_valkyria",
+    "tier": "Prata",
+    "title": "Blindagem Avançada Valkyria - Nível Prata",
+    "weekly_royalty": 125,
+    "is_exclusive": false,
+    "discount_pct": 0.15,
+    "weekly_shipment": [
+      {
+        "part_id": "part_valkyria_plate",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_valkyria_blade",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_valkyria_core",
+        "quantity": 1
+      }
+    ],
+    "description": "Cota semanal de placas estriadas e chassis de combate homologados.",
+    "requirements": {
+      "min_confidence": 60,
+      "min_workshop_level": 2,
+      "requires_previous_tier": "Bronze",
+      "description": "Requer Confiança da Contratante ≥ 60, Filial Nível 2+ e Convênio Bronze ativo."
+    }
+  },
+  {
+    "contract_id": "b2b_valkyria_gold",
+    "corp_id": "corp_valkyria",
+    "tier": "Ouro",
+    "title": "Consórcio Bélico Valkyria - Parceiro Ouro",
+    "weekly_royalty": 190,
+    "is_exclusive": true,
+    "discount_pct": 0.25,
+    "weekly_shipment": [
+      {
+        "part_id": "part_valkyria_guard",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_valkyria_plate",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_valkyria_core",
+        "quantity": 2
+      }
+    ],
+    "description": "Exclusividade contratual com a vanguarda fabril Valkyria. Incompatível com acordos da Siderúrgica Aethelgard.",
+    "requirements": {
+      "min_confidence": 75,
+      "min_workshop_level": 3,
+      "requires_previous_tier": "Prata",
+      "description": "Requer Confiança da Contratante ≥ 75, Filial Nível 3+ e Convênio Prata ativo."
+    }
   }
 ]

@@ -2406,6 +2406,25 @@ export default function Phase2Workshop({
                           const isActive = activeB2bContracts.some(c => c.contract_id === contract.contract_id)
                           const isBlocked = !isActive && hasRivalExclusive
 
+                          const req = contract.requirements
+                          const minConfidence = req?.min_confidence ?? 0
+                          const minWorkshopLevel = req?.min_workshop_level ?? 1
+                          const requiresPrevTier = req?.requires_previous_tier
+
+                          const currentConfidence = state.contractor_confidence ?? 50
+                          const isConfidenceMet = currentConfidence >= minConfidence
+
+                          const corpBranch = corp?.branch ?? 'Ferragem'
+                          const currentWorkshopLvl = state.workshop_levels?.[corpBranch] ?? 1
+                          const isWorkshopMet = currentWorkshopLvl >= minWorkshopLevel
+
+                          const sameCorpActive = activeB2bContracts.filter(c => c.corp_id === contract.corp_id)
+                          const tierOrder: Record<string, number> = { Bronze: 1, Prata: 2, Ouro: 3 }
+                          const isPrevTierMet = !requiresPrevTier || sameCorpActive.some(c => (tierOrder[c.tier] ?? 1) >= (tierOrder[requiresPrevTier] ?? 1))
+
+                          const allReqsMet = isConfidenceMet && isWorkshopMet && isPrevTierMet
+                          const isUpgrade = sameCorpActive.length > 0 && !isActive
+
                           return (
                             <div
                               key={contract.contract_id}
@@ -2442,6 +2461,57 @@ export default function Phase2Workshop({
                                 <p className="text-[11px] text-stone-400 leading-relaxed">
                                   {contract.description}
                                 </p>
+
+                                {/* Requisitos de Homologação */}
+                                <div className="p-2.5 rounded-lg bg-stone-950/80 border border-stone-800/80 space-y-1.5 text-[11px]">
+                                  <div className="flex items-center justify-between pb-1 border-b border-stone-800/60">
+                                    <span className="text-stone-400 font-bold uppercase text-[9px] tracking-wider">
+                                      Requisitos de Homologação:
+                                    </span>
+                                    {allReqsMet ? (
+                                      <span className="text-[10px] font-mono text-emerald-400 font-bold flex items-center gap-1">
+                                        <Check className="w-3 h-3" /> Atendidos
+                                      </span>
+                                    ) : (
+                                      <span className="text-[10px] font-mono text-rose-400 font-bold flex items-center gap-1">
+                                        <Lock className="w-3 h-3" /> Pendentes
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {minConfidence > 0 && (
+                                    <div className="flex items-center justify-between font-mono text-[10px]">
+                                      <span className="text-stone-400">Confiança Contratante:</span>
+                                      <span className={isConfidenceMet ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
+                                        {currentConfidence} / {minConfidence} {isConfidenceMet ? '✓' : '✗'}
+                                      </span>
+                                    </div>
+                                  )}
+
+                                  {minWorkshopLevel > 1 && (
+                                    <div className="flex items-center justify-between font-mono text-[10px]">
+                                      <span className="text-stone-400">Filial {corpBranch}:</span>
+                                      <span className={isWorkshopMet ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
+                                        Nv. {currentWorkshopLvl} / Nv. {minWorkshopLevel} {isWorkshopMet ? '✓' : '✗'}
+                                      </span>
+                                    </div>
+                                  )}
+
+                                  {requiresPrevTier && (
+                                    <div className="flex items-center justify-between font-mono text-[10px]">
+                                      <span className="text-stone-400">Parceria Prévia:</span>
+                                      <span className={isPrevTierMet ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
+                                        Cota {requiresPrevTier} Ativa {isPrevTierMet ? '✓' : '✗'}
+                                      </span>
+                                    </div>
+                                  )}
+
+                                  {minConfidence === 0 && minWorkshopLevel === 1 && !requiresPrevTier && (
+                                    <div className="text-[10px] text-stone-500 italic">
+                                      Homologação livre com alvará da Coroa.
+                                    </div>
+                                  )}
+                                </div>
 
                                 {/* Métricas da Cota */}
                                 <div className="space-y-1 pt-2 border-t border-stone-800/80 text-xs font-mono">
@@ -2510,7 +2580,16 @@ export default function Phase2Workshop({
                                     <Lock className="w-3.5 h-3.5" />
                                     <span>Embargado por Rival</span>
                                   </button>
-                                ) : activeB2bContracts.length >= 3 ? (
+                                ) : !allReqsMet ? (
+                                  <button
+                                    disabled
+                                    className="w-full py-2 rounded-lg text-xs font-bold text-stone-500 bg-stone-950 border border-rose-900/40 cursor-not-allowed flex items-center justify-center gap-1.5"
+                                    title="Sua guilda não atende a todos os requisitos de confiança, modernização de filial ou escalão prévio desta corporação."
+                                  >
+                                    <Lock className="w-3.5 h-3.5 text-rose-500" />
+                                    <span>Requisitos Pendentes</span>
+                                  </button>
+                                ) : activeB2bContracts.length >= 3 && !isUpgrade ? (
                                   <button
                                     disabled
                                     className="w-full py-2 rounded-lg text-xs font-bold text-stone-500 bg-stone-950 border border-stone-800 cursor-not-allowed flex items-center justify-center gap-1.5"
@@ -2526,7 +2605,11 @@ export default function Phase2Workshop({
                                     className="w-full py-2 rounded-lg text-xs font-bold text-stone-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-110 shadow-md transition cursor-pointer flex items-center justify-center gap-1.5"
                                   >
                                     <ShieldCheck className="w-3.5 h-3.5" />
-                                    <span>Homologar Convênio ({activeB2bContracts.length}/3)</span>
+                                    <span>
+                                      {isUpgrade
+                                        ? `Promover para Cota ${contract.tier}`
+                                        : `Homologar Convênio (${activeB2bContracts.length}/3)`}
+                                    </span>
                                   </button>
                                 )}
                               </div>

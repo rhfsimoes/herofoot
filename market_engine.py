@@ -319,15 +319,28 @@ class MarketEngine:
         if not part:
             return {"success": False, "message": f"Peça modular '{part_id}' não localizada no catálogo industrial."}
 
-        # Bloqueio de componentes avançados sem patrocínio ativo
+        # Bloqueio de componentes avançados conforme nível de patrocínio ativo (Bronze: T1, Prata: T1+T2, Ouro: T1+T2+T3)
         tier = part.get("tier", 1)
         corp_id = part.get("corp_id")
         active_contracts = getattr(state, "active_b2b_contracts", [])
-        has_partnership = any(c.get("corp_id") == corp_id for c in active_contracts)
-        if tier > 1 and not has_partnership and corp_id != "corp_crown_notarial":
+        corp_contracts = [c for c in active_contracts if c.get("corp_id") == corp_id]
+
+        max_unlocked_tier = 1
+        if corp_contracts:
+            contract_tier = corp_contracts[0].get("tier", "Bronze")
+            if contract_tier == "Ouro":
+                max_unlocked_tier = 3
+            elif contract_tier == "Prata":
+                max_unlocked_tier = 2
+            else:
+                max_unlocked_tier = 1
+
+        if corp_id != "corp_crown_notarial" and tier > max_unlocked_tier:
+            req_tier = "Prata" if tier == 2 else "Ouro"
+            current_status = "Nenhum" if not corp_contracts else f"Nível {corp_contracts[0].get('tier')}"
             return {
                 "success": False,
-                "message": f"Aquisição embargada: componentes avançados de Nível {tier} exigem convênio de patrocínio homologado com a fornecedora.",
+                "message": f"Aquisição embargada: componentes de Nível {tier} exigem convênio de patrocínio de Nível {req_tier} ou superior com esta fornecedora (Seu convênio atual: {current_status}).",
             }
 
         unit_price = self.calculate_part_spot_price(part_id, state)

@@ -72,46 +72,71 @@ class TestB2BAssembly(unittest.TestCase):
 
     def test_exclusive_contract_blocks_rival_brand(self):
         """Contrato exclusivo Ouro com Aethelgard impede convênios com o rival Consórcio Valkyria."""
+        # Configura requisitos de progressão para Ouro (Confiança >= 75, Ferragem >= 3)
+        self.state.contractor_confidence = 80
+        self.state.workshop_levels["Ferragem"] = 3
+        self.controller.sign_b2b_contract("b2b_aethelgard_bronze")
+        self.controller.sign_b2b_contract("b2b_aethelgard_silver")
         res_aethelgard = self.controller.sign_b2b_contract("b2b_aethelgard_gold")
-        self.assertTrue(res_aethelgard["success"])
+        self.assertTrue(res_aethelgard["success"], res_aethelgard.get("message"))
         self.assertTrue(self.state.has_exclusivity_tag("excl_aethelgard"))
 
         # Tentativa de celebrar contrato com o Consórcio Valkyria (rival direto)
-        res_valkyria = self.controller.sign_b2b_contract("b2b_valkyria_gold")
+        res_valkyria = self.controller.sign_b2b_contract("b2b_valkyria_bronze")
         self.assertFalse(res_valkyria["success"])
-        self.assertIn("exclusividade", res_valkyria["message"].lower())
-        self.assertFalse(self.state.has_active_contract("b2b_valkyria_gold"))
+        self.assertIn("exclusiv", res_valkyria["message"].lower())
+        self.assertFalse(self.state.has_active_contract("b2b_valkyria_bronze"))
 
     def test_max_three_sponsorship_contracts_limit(self):
         """A guilda pode manter no máximo 3 patrocínios corporativos simultaneamente."""
         res1 = self.controller.sign_b2b_contract("b2b_aethelgard_bronze")
         self.assertTrue(res1["success"])
-        res2 = self.controller.sign_b2b_contract("b2b_flamel_standard")
+        res2 = self.controller.sign_b2b_contract("b2b_flamel_bronze")
         self.assertTrue(res2["success"])
-        res3 = self.controller.sign_b2b_contract("b2b_chancellor_silver")
+        res3 = self.controller.sign_b2b_contract("b2b_chancellor_bronze")
         self.assertTrue(res3["success"])
         self.assertEqual(len(self.state.active_b2b_contracts), 3)
 
-        # Tentativa de celebrar o 4º patrocínio é embargada pela Coroa
+        # Tentativa de celebrar o 4º patrocínio distinto é embargada pela Coroa
         res4 = self.controller.sign_b2b_contract("b2b_goblin_bronze")
         self.assertFalse(res4["success"])
         self.assertIn("máximo 3", res4["message"].lower())
         self.assertEqual(len(self.state.active_b2b_contracts), 3)
 
+        # No entanto, fazer UPGRADE de um patrocínio já existente (Bronze -> Prata) NÃO consome novo slot!
+        self.state.contractor_confidence = 65
+        self.state.workshop_levels["Ferragem"] = 2
+        upgrade_res = self.controller.sign_b2b_contract("b2b_aethelgard_silver")
+        self.assertTrue(upgrade_res["success"])
+        self.assertTrue(upgrade_res.get("is_upgrade", False))
+        self.assertEqual(len(self.state.active_b2b_contracts), 3)
+
     def test_advanced_parts_spot_embargo_without_sponsorship(self):
-        """Peças avançadas (Tier > 1) não podem ser compradas avulsas sem patrocínio ativo da marca."""
+        """Peças avançadas (Tier > 1) exigem nível de convênio compatível (cumulativo)."""
         # part_gob_blade_02 é Tier 2 da Goblin Eng
         res = self.controller.buy_part("part_gob_blade_02", quantity=1)
         self.assertFalse(res["success"])
-        self.assertIn("patrocínio", res["message"].lower())
+        self.assertIn("embargada", res["message"].lower())
 
-        # Assina patrocínio com a Goblin
-        sign_res = self.controller.sign_b2b_contract("b2b_goblin_bronze")
-        self.assertTrue(sign_res["success"])
+        # Assina patrocínio Bronze com a Goblin: desbloqueia Tier 1, mas Tier 2 continua embargado
+        sign_bronze = self.controller.sign_b2b_contract("b2b_goblin_bronze")
+        self.assertTrue(sign_bronze["success"])
+        t1_res = self.controller.buy_part("part_gob_blade_01", quantity=1)
+        self.assertTrue(t1_res["success"])
 
-        # Agora a compra da peça avançada é autorizada com desconto
-        buy_res = self.controller.buy_part("part_gob_blade_02", quantity=1)
-        self.assertTrue(buy_res["success"])
+        t2_res_bronze = self.controller.buy_part("part_gob_blade_02", quantity=1)
+        self.assertFalse(t2_res_bronze["success"])
+        self.assertIn("prata", t2_res_bronze["message"].lower())
+
+        # Promove para convênio Prata (requer confiança >= 60 e Ferragem >= 2)
+        self.state.contractor_confidence = 60
+        self.state.workshop_levels["Ferragem"] = 2
+        sign_silver = self.controller.sign_b2b_contract("b2b_goblin_silver")
+        self.assertTrue(sign_silver["success"])
+
+        # Agora convênio Prata dá acesso cumulativo: Tier 1 E Tier 2 liberados!
+        buy_res_t2 = self.controller.buy_part("part_gob_blade_02", quantity=1)
+        self.assertTrue(buy_res_t2["success"])
         self.assertEqual(self.state.get_part_quantity("part_gob_blade_02"), 1)
 
     def test_spot_purchase_without_contract_charges_50_pct_markup(self):
@@ -336,6 +361,46 @@ class TestB2BAssembly(unittest.TestCase):
             text = f"{w.get('name')} {w.get('description')}".lower()
             for term in FORBIDDEN_TERMS:
                 self.assertNotIn(term, text, f"Termo proibido '{term}' encontrado no operário {wid}")
+
+    def test_contract_progression_prerequisites(self):
+        """Valida que subir de nível de convênio (Bronze -> Prata -> Ouro) exige confiança, nível de filial e tier prévio."""
+        # 1. Tentar assinar Prata diretamente com confiança baixa (40)
+        self.state.contractor_confidence = 40
+        res_direct_silver = self.controller.sign_b2b_contract("b2b_aethelgard_silver")
+        self.assertFalse(res_direct_silver["success"])
+        self.assertIn("confian", res_direct_silver["message"].lower())
+
+        # Aumenta confiança para 60, mas filial continua nível 1
+        self.state.contractor_confidence = 60
+        res_filial_lvl1 = self.controller.sign_b2b_contract("b2b_aethelgard_silver")
+        self.assertFalse(res_filial_lvl1["success"])
+        self.assertIn("filial", res_filial_lvl1["message"].lower())
+
+        # Aumenta filial para nível 2, mas não possui contrato Bronze prévio
+        self.state.workshop_levels["Ferragem"] = 2
+        res_no_bronze = self.controller.sign_b2b_contract("b2b_aethelgard_silver")
+        self.assertFalse(res_no_bronze["success"])
+        self.assertIn("bronze", res_no_bronze["message"].lower())
+
+        # Assina Bronze (livre)
+        res_bronze = self.controller.sign_b2b_contract("b2b_aethelgard_bronze")
+        self.assertTrue(res_bronze["success"])
+
+        # Agora cumpre todos os requisitos para Prata: confiança 60, filial 2 e Bronze ativo
+        res_silver = self.controller.sign_b2b_contract("b2b_aethelgard_silver")
+        self.assertTrue(res_silver["success"])
+        self.assertTrue(res_silver.get("is_upgrade", False))
+
+        # 2. Tentar subir para Ouro sem requisitos
+        res_ouro_fail = self.controller.sign_b2b_contract("b2b_aethelgard_gold")
+        self.assertFalse(res_ouro_fail["success"])
+
+        # Atende aos requisitos de Ouro: confiança >= 75 e filial nível 3
+        self.state.contractor_confidence = 75
+        self.state.workshop_levels["Ferragem"] = 3
+        res_ouro = self.controller.sign_b2b_contract("b2b_aethelgard_gold")
+        self.assertTrue(res_ouro["success"])
+        self.assertTrue(res_ouro.get("is_upgrade", False))
 
     def test_b2b_api_endpoints_via_http(self):
         """Valida que os novos endpoints REST de B2B e montagem respondem corretamente via HTTP."""
