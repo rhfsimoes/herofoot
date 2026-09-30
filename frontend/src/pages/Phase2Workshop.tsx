@@ -32,6 +32,8 @@ import {
   Plus,
   CheckCircle2,
   Package,
+  Filter,
+  Shield,
 } from 'lucide-react'
 import {
   MOCK_RECIPES,
@@ -182,7 +184,9 @@ export default function Phase2Workshop({
   const [spotQuantities, setSpotQuantities] = useState<Record<string, number>>({})
   const [isBuyingSpot, setIsBuyingSpot] = useState<boolean>(false)
   const [b2bCorpFilter, setB2bCorpFilter] = useState<string>('todos')
-  const [modularPartFilter, setModularPartFilter] = useState<string>('todos')
+  const [modularCorpFilter, setModularCorpFilter] = useState<string>('todos')
+  const [modularSlotFilter, setModularSlotFilter] = useState<string>('todos')
+  const [modularSearchQuery, setModularSearchQuery] = useState<string>('')
 
   // Mercado de Transferências (Onda 4)
   const marketListings = state.transfer_market?.listings ?? []
@@ -387,17 +391,13 @@ export default function Phase2Workshop({
 
   function handleAttachPart(part: ModularPart) {
     const pId = part.part_id || part.id
-    if (slottedPrefix === pId || slottedBase === pId || slottedSuffix === pId) {
-      alert('Esta peça modular já está acoplada na bancada de montagem.')
-      return
-    }
     const role = part.slot_role || (part.part_type === 'hilt' || part.part_type === 'guard' ? 'prefix' : part.part_type === 'blade' || part.part_type === 'plating' ? 'base' : 'suffix')
     if (role === 'prefix') {
-      setSlottedPrefix(pId)
+      setSlottedPrefix(prev => (prev === pId ? null : pId))
     } else if (role === 'base') {
-      setSlottedBase(pId)
+      setSlottedBase(prev => (prev === pId ? null : pId))
     } else {
-      setSlottedSuffix(pId)
+      setSlottedSuffix(prev => (prev === pId ? null : pId))
     }
   }
 
@@ -549,34 +549,61 @@ export default function Phase2Workshop({
       .filter(([, qty]) => qty > 0)
       .map(([partId, qty]) => {
         const part = MOCK_MODULAR_PARTS.find(p => p.part_id === partId || p.id === partId)
+        const pObj: ModularPart = part || {
+          id: partId,
+          part_id: partId,
+          corp_id: 'corp_generic',
+          name: partId,
+          branch: 'Ferragem' as WorkshopBranch,
+          part_type: 'modular_part',
+          compatible_slots: ['Arsenal Ofensivo'],
+          tier: 1,
+          base_cost: 50,
+          market_price_base: 50,
+          power_bonus: 10,
+          catalog_description: 'Peça técnica modular registrada no almoxarifado.',
+          slot_role: 'base',
+        }
+        const role: 'prefix' | 'base' | 'suffix' =
+          pObj.slot_role ||
+          (pObj.part_type === 'hilt' || pObj.part_type === 'guard' ? 'prefix' : pObj.part_type === 'blade' || pObj.part_type === 'plating' ? 'base' : 'suffix')
         return {
           partId,
           qty,
-          part: part || {
-            id: partId,
-            part_id: partId,
-            corp_id: 'corp_generic',
-            name: partId,
-            branch: 'Ferragem' as WorkshopBranch,
-            part_type: 'modular_part',
-            compatible_slots: ['Arsenal Ofensivo'],
-            tier: 1,
-            base_cost: 50,
-            market_price_base: 50,
-            power_bonus: 10,
-            catalog_description: 'Peça técnica modular registrada no almoxarifado.',
-          },
+          role,
+          part: pObj,
         }
       })
       .filter(item => {
-        if (modularPartFilter === 'todos') return true
-        return (
-          item.part.part_type === modularPartFilter ||
-          item.part.compatible_slots.includes(modularPartFilter) ||
-          item.part.corp_id === modularPartFilter
-        )
+        if (modularCorpFilter !== 'todos' && item.part.corp_id !== modularCorpFilter) {
+          return false
+        }
+        if (modularSlotFilter !== 'todos' && !item.part.compatible_slots?.includes(modularSlotFilter)) {
+          return false
+        }
+        if (modularSearchQuery.trim()) {
+          const q = modularSearchQuery.toLowerCase()
+          const matchName = item.part.name.toLowerCase().includes(q)
+          const matchDesc = Boolean(item.part.catalog_description?.toLowerCase().includes(q))
+          const matchMod = Boolean(item.part.name_modifier?.toLowerCase().includes(q))
+          if (!matchName && !matchDesc && !matchMod) return false
+        }
+        return true
       })
-  }, [warehouseParts, modularPartFilter])
+  }, [warehouseParts, modularCorpFilter, modularSlotFilter, modularSearchQuery])
+
+  const prefixWarehouseParts = useMemo(
+    () => warehousePartsList.filter(item => item.role === 'prefix'),
+    [warehousePartsList]
+  )
+  const baseWarehouseParts = useMemo(
+    () => warehousePartsList.filter(item => item.role === 'base'),
+    [warehousePartsList]
+  )
+  const suffixWarehouseParts = useMemo(
+    () => warehousePartsList.filter(item => item.role === 'suffix'),
+    [warehousePartsList]
+  )
 
   // Crafting v2 Seleções
   const recipesList: Recipe[] = useMemo(
@@ -2889,106 +2916,523 @@ export default function Phase2Workshop({
                 </div>
               </div>
 
-              {/* Layout em Duas Colunas: Almoxarifado vs Bancada Ativa */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Coluna 1: Almoxarifado de Peças (5 colunas) */}
-                <div className="lg:col-span-5 bg-[#1c1917] border border-stone-800 rounded-xl p-4 shadow-lg space-y-4">
-                  <div className="flex items-center justify-between border-b border-stone-800 pb-2">
-                    <h3 className="text-xs font-bold text-stone-200 uppercase tracking-wider flex items-center gap-1.5">
-                      <Package className="w-4 h-4 text-amber-500" />
-                      Almoxarifado de Peças Modulares
+              {/* Bancada Ativa Superior: 3 Slots Principais + Diagnóstico & Montagem */}
+              <div className="bg-[#1c1917] border border-amber-900/60 rounded-xl p-5 shadow-xl space-y-5">
+                <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-amber-200 uppercase tracking-wider flex items-center gap-2">
+                      <Cpu className="w-4 h-4 text-amber-400" />
+                      Bancada de Montagem Modular ({selectedModularParts.length}/3 Slots Acoplados)
                     </h3>
-                    <span className="text-[10px] font-mono text-stone-400">
-                      {warehousePartsList.reduce((acc, x) => acc + x.qty, 0)} em estoque
-                    </span>
+                    <p className="text-[11px] text-stone-400 mt-0.5">
+                      Acople 1 Prefixo (Afixo A), 1 Chassi (Base de Lote) e 1 Sufixo (Núcleo B) selecionando das caixas do almoxarifado abaixo.
+                    </p>
                   </div>
-
-                  {/* Filtro por tipo de peça */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-stone-400">Filtrar:</span>
-                    <select
-                      value={modularPartFilter}
-                      onChange={e => setModularPartFilter(e.target.value)}
-                      className="bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2 py-1 focus:border-amber-500 focus:outline-none flex-1"
+                  {selectedModularParts.length > 0 && (
+                    <button
+                      onClick={handleClearBench}
+                      className="text-[11px] text-rose-400 hover:text-rose-300 font-mono underline cursor-pointer"
                     >
-                      <option value="todos">Todos os Componentes</option>
-                      <option value="blade">Lâminas & Gumes</option>
-                      <option value="hilt">Empunhaduras & Guardas</option>
-                      <option value="core">Núcleos Arcanos</option>
-                      <option value="plating">Placas & Blindagens</option>
-                      <option value="filter">Filtros & Tubos</option>
+                      Limpar Bancada
+                    </button>
+                  )}
+                </div>
+
+                {/* Os 3 Slots Superiores Funcionais */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {/* Slot 1: Prefixo */}
+                  {(() => {
+                    const partObj = slottedPrefix
+                      ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedPrefix || p.id === slottedPrefix)
+                      : null
+                    return (
+                      <div
+                        className={`rounded-xl p-3 border min-h-[110px] flex flex-col justify-between transition ${
+                          partObj
+                            ? 'bg-stone-900 border-amber-600/70 shadow-md'
+                            : 'bg-stone-950/60 border-dashed border-stone-800 flex items-center justify-center text-center'
+                        }`}
+                      >
+                        {partObj ? (
+                          <>
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[9px] font-mono uppercase text-amber-400 font-bold">
+                                  1. Prefixo (Afixo A)
+                                </span>
+                                <button
+                                  onClick={() => handleEjectSlot('prefix')}
+                                  className="text-stone-400 hover:text-rose-400 p-0.5 cursor-pointer"
+                                  title="Ejetar peça"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                              <h4 className="text-xs font-bold text-stone-100 line-clamp-1">
+                                {partObj.name}
+                              </h4>
+                              <span className="text-[10px] font-mono text-emerald-400 block font-bold">
+                                +{partObj.power_bonus} PE
+                              </span>
+                            </div>
+                            <span className="text-[9px] font-mono text-stone-400 truncate">
+                              {CORPORATIONS_MAP[partObj.corp_id]?.name || partObj.corp_id || 'Coroa'}
+                            </span>
+                          </>
+                        ) : (
+                          <div className="space-y-1 py-2">
+                            <span className="text-[10px] font-bold text-amber-500 uppercase block">1. Prefixo</span>
+                            <span className="text-[11px] text-stone-400 block">Vazio (Selecione na Caixa 1 abaixo)</span>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()}
+
+                  {/* Slot 2: Chassi Base */}
+                  {(() => {
+                    const partObj = slottedBase
+                      ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedBase || p.id === slottedBase)
+                      : null
+                    return (
+                      <div
+                        className={`rounded-xl p-3 border min-h-[110px] flex flex-col justify-between transition ${
+                          partObj
+                            ? 'bg-stone-900 border-amber-600/70 shadow-md'
+                            : 'bg-stone-950/60 border-dashed border-stone-800 flex items-center justify-center text-center'
+                        }`}
+                      >
+                        {partObj ? (
+                          <>
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[9px] font-mono uppercase text-amber-400 font-bold">
+                                  2. Chassi Base (Item)
+                                </span>
+                                <button
+                                  onClick={() => handleEjectSlot('base')}
+                                  className="text-stone-400 hover:text-rose-400 p-0.5 cursor-pointer"
+                                  title="Ejetar peça"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                              <h4 className="text-xs font-bold text-stone-100 line-clamp-1">
+                                {partObj.name}
+                              </h4>
+                              <span className="text-[10px] font-mono text-emerald-400 block font-bold">
+                                +{partObj.power_bonus} PE
+                              </span>
+                            </div>
+                            <span className="text-[9px] font-mono text-stone-400 truncate">
+                              {CORPORATIONS_MAP[partObj.corp_id]?.name || partObj.corp_id || 'Coroa'}
+                            </span>
+                          </>
+                        ) : (
+                          <div className="space-y-1 py-2">
+                            <span className="text-[10px] font-bold text-amber-500 uppercase block">2. Chassi Base</span>
+                            <span className="text-[11px] text-stone-400 block">Vazio (Selecione na Caixa 2 abaixo)</span>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()}
+
+                  {/* Slot 3: Sufixo */}
+                  {(() => {
+                    const partObj = slottedSuffix
+                      ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedSuffix || p.id === slottedSuffix)
+                      : null
+                    return (
+                      <div
+                        className={`rounded-xl p-3 border min-h-[110px] flex flex-col justify-between transition ${
+                          partObj
+                            ? 'bg-stone-900 border-amber-600/70 shadow-md'
+                            : 'bg-stone-950/60 border-dashed border-stone-800 flex items-center justify-center text-center'
+                        }`}
+                      >
+                        {partObj ? (
+                          <>
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[9px] font-mono uppercase text-amber-400 font-bold">
+                                  3. Sufixo (Núcleo B)
+                                </span>
+                                <button
+                                  onClick={() => handleEjectSlot('suffix')}
+                                  className="text-stone-400 hover:text-rose-400 p-0.5 cursor-pointer"
+                                  title="Ejetar peça"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                              <h4 className="text-xs font-bold text-stone-100 line-clamp-1">
+                                {partObj.name}
+                              </h4>
+                              <span className="text-[10px] font-mono text-emerald-400 block font-bold">
+                                +{partObj.power_bonus} PE
+                              </span>
+                            </div>
+                            <span className="text-[9px] font-mono text-stone-400 truncate">
+                              {CORPORATIONS_MAP[partObj.corp_id]?.name || partObj.corp_id || 'Coroa'}
+                            </span>
+                          </>
+                        ) : (
+                          <div className="space-y-1 py-2">
+                            <span className="text-[10px] font-bold text-amber-500 uppercase block">3. Sufixo</span>
+                            <span className="text-[11px] text-stone-400 block">Vazio (Selecione na Caixa 3 abaixo)</span>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()}
+                </div>
+
+                {/* Nome do Artefato Customizado ou Nomenclatura Procedural */}
+                {(() => {
+                  const prefixPartObj = slottedPrefix ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedPrefix || p.id === slottedPrefix) : null
+                  const basePartObj = slottedBase ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedBase || p.id === slottedBase) : null
+                  const suffixPartObj = slottedSuffix ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedSuffix || p.id === slottedSuffix) : null
+
+                  const generatedName = [prefixPartObj?.name_modifier, basePartObj?.name, suffixPartObj?.name_modifier].filter(Boolean).join(' ') || 'Lote de Ativos Modulares'
+
+                  return (
+                    <div className="space-y-1.5 pt-1">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-stone-300 block">
+                          Denominação Notarial do Artefato:
+                        </label>
+                        <span className="text-[10px] font-mono text-amber-400 italic">
+                          Sugestão Procedural: {generatedName}
+                        </span>
+                      </div>
+                      <input
+                        type="text"
+                        value={modularBaseName}
+                        onChange={e => setModularBaseName(e.target.value)}
+                        placeholder={generatedName}
+                        className="w-full bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-xs text-stone-100 focus:border-amber-500 focus:outline-none font-sans"
+                      />
+                    </div>
+                  )
+                })()}
+
+                {/* Diagnóstico Pericial de Compatibilidade */}
+                {selectedModularParts.length >= 2 ? (
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-stone-300">Tolerância Estrutural:</span>
+                      <span
+                        className={`font-bold ${
+                          isInterBrandAssembly ? 'text-amber-400' : 'text-emerald-400'
+                        }`}
+                      >
+                        {isInterBrandAssembly
+                          ? '60% Tolerância Crítica (Instabilidade Inter-Marcas)'
+                          : '100% Homogeneidade Monomarca (+5% Sintonia)'}
+                      </span>
+                    </div>
+
+                    {/* Barra de Compatibilidade */}
+                    <div className="w-full bg-stone-950 rounded-full h-2 overflow-hidden border border-stone-800">
+                      <div
+                        className={`h-2 rounded-full transition-all ${
+                          isInterBrandAssembly
+                            ? 'w-[60%] bg-gradient-to-r from-amber-600 to-orange-500'
+                            : 'w-full bg-gradient-to-r from-emerald-600 to-emerald-400'
+                        }`}
+                      />
+                    </div>
+
+                    {/* Card de Alerta se for Inter-Marcas (Tinkering) */}
+                    {isInterBrandAssembly ? (
+                      <div className="bg-amber-950/40 border border-amber-600/70 rounded-xl p-4 space-y-2">
+                        <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
+                          <Flame className="w-4 h-4 text-amber-400 animate-pulse" />
+                          <span>Protocolo de Risco Técnico: Forja Experimental (Tinkering)</span>
+                        </div>
+                        <p className="text-[11px] text-stone-300 leading-relaxed">
+                          A integração de peças de fabricantes rivais provoca sobrecarga nos conectores mecânicos.
+                        </p>
+                        <div className="flex flex-wrap gap-2 text-[10px] font-mono">
+                          <span className="px-2 py-0.5 rounded bg-emerald-950 border border-emerald-700 text-emerald-300">
+                            60% Sucesso: Overclock Não-Autorizado (+15% Poder)
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-rose-950 border border-rose-700 text-rose-300">
+                            40% Falha: Lote Retido na Malha Fina (20 ⬡)
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-stone-400 italic">
+                          Poder Estimado com Overclock: ~{estimatedModularPower} PE.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bg-emerald-950/30 border border-emerald-700/60 rounded-xl p-3 text-xs text-emerald-200 flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>
+                          Peças de engenharia unificada. Tolerância dimensional perfeita garante montagem segura com +5% de sintonia mecânica (~{estimatedModularPower} PE).
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Botão de Montagem */}
+                    <button
+                      onClick={() => handleAssembleModular(isInterBrandAssembly)}
+                      disabled={isAssembling}
+                      className={`w-full py-3.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl transition cursor-pointer border ${
+                        isInterBrandAssembly
+                          ? 'bg-gradient-to-r from-amber-600 via-orange-500 to-amber-500 text-stone-950 border-amber-400 hover:brightness-110 shadow-amber-950/60'
+                          : 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-stone-950 border-emerald-400 hover:brightness-110 shadow-emerald-950/60'
+                      }`}
+                    >
+                      {isInterBrandAssembly ? (
+                        <>
+                          <Flame className="w-4 h-4 text-stone-950" />
+                          <span>
+                            {isAssembling
+                              ? 'Executando Montagem de Alto Risco...'
+                              : 'Assumir Risco e Montar Experimentalmente (Tinkering)'}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4 text-stone-950" />
+                          <span>
+                            {isAssembling
+                              ? 'Homologando Montagem...'
+                              : 'Montar Artefato Padronizado'}
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="bg-stone-950/60 border border-stone-800 rounded-lg p-3 text-xs text-stone-400 text-center">
+                    Acople ao menos 2 peças modulares para que o auditor mecânico valide as tolerâncias de fábrica.
+                  </div>
+                )}
+
+                {/* Card de Resultado da Última Montagem */}
+                {lastModularResult && (
+                  <div
+                    className={`rounded-xl p-4 border space-y-2 animate-in fade-in duration-300 ${
+                      lastModularResult.overclock
+                        ? 'bg-amber-950/40 border-amber-500/80 shadow-lg shadow-amber-950/50'
+                        : lastModularResult.tinkeringSuccess
+                        ? 'bg-emerald-950/40 border-emerald-500/80'
+                        : 'bg-rose-950/40 border-rose-800'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono uppercase font-bold text-stone-400">
+                        Laudo Notarial de Manufatura
+                      </span>
+                      {lastModularResult.overclock && (
+                        <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded bg-amber-500 text-stone-950 flex items-center gap-1 shadow">
+                          <Zap className="w-3 h-3" /> Overclock (+15% Poder)
+                        </span>
+                      )}
+                      {!lastModularResult.tinkeringSuccess && (
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-900 text-rose-200">
+                          Refugo de Bancada
+                        </span>
+                      )}
+                    </div>
+
+                    <h4 className="text-sm font-extrabold text-stone-100">
+                      {lastModularResult.item.name}
+                    </h4>
+                    <p className="text-xs text-stone-300 italic">{lastModularResult.message}</p>
+
+                    <div className="flex gap-4 text-xs font-mono text-stone-300 pt-2 border-t border-stone-800/80">
+                      <span>Poder: +{lastModularResult.item.power_bonus} PE</span>
+                      <span>Slot: {lastModularResult.item.slot_type}</span>
+                      <span>Valor Contábil: ⬡ {lastModularResult.item.market_value_base} Ouro</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Barra de Filtros Globais do Almoxarifado */}
+              <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 shadow-lg space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-4 h-4 text-amber-500" />
+                    <h4 className="text-xs font-bold text-stone-200 uppercase tracking-wider">
+                      Filtros do Almoxarifado de Peças
+                    </h4>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[11px] font-mono text-stone-400">
+                      {warehousePartsList.reduce((acc, x) => acc + x.qty, 0)} em estoque filtrado
+                    </span>
+                    {(modularCorpFilter !== 'todos' || modularSlotFilter !== 'todos' || modularSearchQuery) && (
+                      <button
+                        onClick={() => {
+                          setModularCorpFilter('todos')
+                          setModularSlotFilter('todos')
+                          setModularSearchQuery('')
+                        }}
+                        className="text-[10px] text-amber-400 hover:text-amber-300 font-mono underline cursor-pointer"
+                      >
+                        Limpar Filtros
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Filtro por Empresa */}
+                  <div>
+                    <label className="text-[10px] font-bold text-stone-400 uppercase block mb-1">
+                      Fabricante / Fornecedora:
+                    </label>
+                    <select
+                      value={modularCorpFilter}
+                      onChange={e => setModularCorpFilter(e.target.value)}
+                      className="w-full bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-amber-500 focus:outline-none"
+                    >
+                      <option value="todos">Todas as Fabricantes</option>
+                      {MOCK_CORPORATIONS.map(c => (
+                        <option key={c.id} value={c.id}>
+                          {c.name} ({c.branch})
+                        </option>
+                      ))}
                     </select>
                   </div>
 
-                  {/* Lista de Peças no Almoxarifado */}
-                  {warehousePartsList.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center gap-2 py-8 px-4 text-center rounded-xl border border-stone-800/60 bg-stone-900/30">
-                      <div className="w-10 h-10 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-amber-500">
-                        <Package className="w-5 h-5" />
-                      </div>
-                      <h4 className="text-xs font-bold text-stone-200">Nenhuma Peça Modular no Almoxarifado</h4>
-                      <p className="text-[11px] text-stone-400 max-w-xs">
-                        Adquira componentes no Mercado Spot ou assine convênios B2B para receber lotes semanais regulares.
-                      </p>
+                  {/* Filtro por Slot */}
+                  <div>
+                    <label className="text-[10px] font-bold text-stone-400 uppercase block mb-1">
+                      Slot do Ativo:
+                    </label>
+                    <select
+                      value={modularSlotFilter}
+                      onChange={e => setModularSlotFilter(e.target.value)}
+                      className="w-full bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-amber-500 focus:outline-none"
+                    >
+                      <option value="todos">Todos os Slots</option>
+                      <option value="Arsenal Ofensivo">Arsenal Ofensivo</option>
+                      <option value="Blindagem Operacional">Blindagem Operacional</option>
+                      <option value="Ativo de Performance">Ativo de Performance</option>
+                      <option value="Alvará de Risco">Alvará de Risco</option>
+                      <option value="Provisão Logística">Provisão Logística</option>
+                    </select>
+                  </div>
+
+                  {/* Busca por Efeito / Nome */}
+                  <div>
+                    <label className="text-[10px] font-bold text-stone-400 uppercase block mb-1">
+                      Buscar Peça ou Efeito:
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={modularSearchQuery}
+                        onChange={e => setModularSearchQuery(e.target.value)}
+                        placeholder="Ex: canhão, fardamento, térmico..."
+                        className="w-full bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg pl-2.5 pr-8 py-1.5 focus:border-amber-500 focus:outline-none"
+                      />
+                      {modularSearchQuery && (
+                        <button
+                          onClick={() => setModularSearchQuery('')}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-200 text-xs"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* As 3 Caixas de Seleção Inferiores (Prefixos, Bases, Sufixos) */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* CAIXA 1: PREFIXOS */}
+                <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 shadow-lg flex flex-col space-y-3">
+                  <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+                    <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Shield className="w-3.5 h-3.5 text-amber-400" />
+                      1. Modificadores Prefixos
+                    </h4>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-900 text-stone-300 border border-stone-700">
+                      {prefixWarehouseParts.length} disponíveis
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-stone-400 leading-tight">
+                    Empunhaduras, Mancais, Válvulas e Pré-laudos técnicos para acoplar no Slot 1.
+                  </p>
+
+                  {prefixWarehouseParts.length === 0 ? (
+                    <div className="py-8 text-center text-stone-500 text-xs italic bg-stone-900/30 rounded-lg border border-stone-800/40">
+                      Nenhum prefixo correspondente no estoque.
                     </div>
                   ) : (
-                    <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
-                      {warehousePartsList.map(item => {
-                        const isSlotted = slottedPrefix === item.partId || slottedBase === item.partId || slottedSuffix === item.partId
+                    <div className="space-y-2 max-h-[440px] overflow-y-auto pr-1">
+                      {prefixWarehouseParts.map(item => {
+                        const isSlotted = slottedPrefix === item.partId
                         const remaining = item.qty - (isSlotted ? 1 : 0)
-                        const role = item.part.slot_role || (item.part.part_type === 'hilt' || item.part.part_type === 'guard' ? 'prefix' : item.part.part_type === 'blade' || item.part.part_type === 'plating' ? 'base' : 'suffix')
-                        const roleLabel = role === 'prefix' ? 'Prefixo' : role === 'suffix' ? 'Sufixo' : 'Chassi Base'
-                        const corpName = CORPORATIONS_MAP[item.part.corp_id]?.name || item.part.corp_id || 'Chancelaria da Coroa'
+                        const corpName = CORPORATIONS_MAP[item.part.corp_id]?.name || item.part.corp_id || 'Coroa Imperial'
+                        const slotName = item.part.compatible_slots?.[0] || 'Geral'
 
                         return (
                           <div
                             key={item.partId}
-                            className={`p-3 rounded-lg border flex items-center justify-between gap-3 transition ${
-                              remaining > 0 && !isSlotted
+                            className={`p-2.5 rounded-lg border flex flex-col justify-between gap-2 transition ${
+                              isSlotted
+                                ? 'bg-amber-950/40 border-amber-600/70 shadow-inner'
+                                : remaining > 0
                                 ? 'bg-stone-900/80 border-stone-800 hover:border-amber-700/60'
-                                : 'bg-stone-950/40 border-stone-900 opacity-60'
+                                : 'bg-stone-950/40 border-stone-900 opacity-50'
                             }`}
                           >
-                            <div className="space-y-0.5 flex-1 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <h4 className="text-xs font-bold text-stone-100 truncate">
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between gap-1 flex-wrap">
+                                <h5 className="text-xs font-bold text-stone-100 truncate">
                                   {item.part.name}
-                                </h4>
-                                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-950/70 border border-amber-700/60 text-amber-300 font-bold shrink-0">
-                                  {roleLabel}
-                                </span>
+                                </h5>
                                 <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-stone-950 border border-stone-800 text-emerald-400 font-bold shrink-0">
                                   +{item.part.power_bonus} PE
                                 </span>
                               </div>
-                              <p className="text-[10px] text-stone-400 truncate">
-                                {item.part.catalog_description}
-                              </p>
-                              <div className="flex items-center gap-2 text-[10px] font-mono text-stone-400">
-                                <span className="text-stone-300 font-medium">{corpName}</span>
-                                <span>•</span>
-                                <span>Disponível: <strong className="text-stone-200">{remaining} un.</strong></span>
+                              <div className="flex items-center gap-1.5 flex-wrap text-[9px] font-mono">
+                                <span className="px-1.5 py-0.5 rounded bg-stone-950 border border-stone-800 text-amber-300 font-semibold truncate max-w-[140px]">
+                                  {corpName}
+                                </span>
+                                <span className="px-1.5 py-0.5 rounded bg-stone-950/80 border border-stone-800 text-stone-300">
+                                  {slotName}
+                                </span>
+                                <span className="text-stone-400 ml-auto">
+                                  {remaining} un.
+                                </span>
                               </div>
+                              {item.part.catalog_description && (
+                                <p className="text-[10px] text-stone-400 line-clamp-2 leading-tight">
+                                  {item.part.catalog_description}
+                                </p>
+                              )}
                             </div>
 
                             <button
                               onClick={() => handleAttachPart(item.part)}
-                              disabled={remaining <= 0 || isSlotted}
-                              className={`px-2.5 py-1.5 rounded-lg text-xs font-bold shrink-0 transition flex items-center gap-1 cursor-pointer ${
-                                remaining > 0 && !isSlotted
-                                  ? 'bg-amber-600/30 border border-amber-600/70 text-amber-200 hover:bg-amber-600 hover:text-stone-950'
+                              disabled={remaining <= 0 && !isSlotted}
+                              className={`w-full py-1.5 rounded text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                                isSlotted
+                                  ? 'bg-amber-600 text-stone-950 font-black hover:bg-amber-500'
+                                  : remaining > 0
+                                  ? 'bg-stone-800 hover:bg-amber-900/60 border border-stone-700 hover:border-amber-700 text-stone-200'
                                   : 'bg-stone-950 border border-stone-800 text-stone-600 cursor-not-allowed'
                               }`}
                             >
                               {isSlotted ? (
                                 <>
-                                  <Check className="w-3 h-3 text-emerald-400" />
-                                  <span>Acoplado</span>
+                                  <Check className="w-3 h-3" />
+                                  <span>Acoplado no Slot 1 (Remover)</span>
                                 </>
                               ) : (
                                 <>
-                                  <Plus className="w-3 h-3" />
-                                  <span>Acoplar ({role === 'prefix' ? 'Prefixo' : role === 'suffix' ? 'Sufixo' : 'Base'})</span>
+                                  <Plus className="w-3 h-3 text-amber-400" />
+                                  <span>Acoplar no Prefixo</span>
                                 </>
                               )}
                             </button>
@@ -2999,339 +3443,192 @@ export default function Phase2Workshop({
                   )}
                 </div>
 
-                {/* Coluna 2: Bancada de Montagem & Laudo Pericial (7 colunas) */}
-                <div className="lg:col-span-7 bg-[#1c1917] border border-stone-800 rounded-xl p-5 shadow-lg space-y-5">
-                  <div className="flex items-center justify-between border-b border-stone-800 pb-3">
-                    <div>
-                      <h3 className="text-sm font-bold text-amber-200 uppercase tracking-wider flex items-center gap-2">
-                        <Cpu className="w-4 h-4 text-amber-400" />
-                        Bancada de Montagem Modular ({selectedModularParts.length}/3 Slots Funcionais)
-                      </h3>
-                      <p className="text-[11px] text-stone-400 mt-0.5">
-                        Acople exatamente 1 Prefixo (Modificador A), 1 Chassi (Base) e 1 Sufixo (Núcleo B).
-                      </p>
-                    </div>
-                    {selectedModularParts.length > 0 && (
-                      <button
-                        onClick={handleClearBench}
-                        className="text-[10px] text-rose-400 hover:text-rose-300 font-mono underline cursor-pointer"
-                      >
-                        Limpar Bancada
-                      </button>
-                    )}
+                {/* CAIXA 2: CHASSIS BASE */}
+                <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 shadow-lg flex flex-col space-y-3">
+                  <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+                    <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Layers className="w-3.5 h-3.5 text-amber-400" />
+                      2. Chassis Base
+                    </h4>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-900 text-stone-300 border border-stone-700">
+                      {baseWarehouseParts.length} disponíveis
+                    </span>
                   </div>
+                  <p className="text-[10px] text-stone-400 leading-tight">
+                    Lotes de Armamento, Kits de Blindagem, Fardamentos, Alvarás e Provisões para o Slot 2.
+                  </p>
 
-                  {/* 3 Slots Funcionais da Bancada */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {/* Slot 1: Prefixo */}
-                    {(() => {
-                      const partObj = slottedPrefix
-                        ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedPrefix || p.id === slottedPrefix)
-                        : null
-                      return (
-                        <div
-                          className={`rounded-xl p-3 border min-h-[120px] flex flex-col justify-between ${
-                            partObj
-                              ? 'bg-stone-900 border-amber-600/70 shadow-md'
-                              : 'bg-stone-950/60 border-dashed border-stone-800 flex items-center justify-center text-center'
-                          }`}
-                        >
-                          {partObj ? (
-                            <>
-                              <div className="space-y-1">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[9px] font-mono uppercase text-amber-400 font-bold">
-                                    1. Prefixo (Afixo A)
-                                  </span>
-                                  <button
-                                    onClick={() => handleEjectSlot('prefix')}
-                                    className="text-stone-400 hover:text-rose-400 p-0.5 cursor-pointer"
-                                    title="Ejetar peça"
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                                <h4 className="text-xs font-bold text-stone-100 line-clamp-1">
-                                  {partObj.name}
-                                </h4>
-                                <span className="text-[10px] font-mono text-emerald-400 block font-bold">
-                                  +{partObj.power_bonus} PE
-                                </span>
-                              </div>
-                              <span className="text-[9px] font-mono text-stone-400 truncate">
-                                {CORPORATIONS_MAP[partObj.corp_id]?.name || partObj.corp_id || 'Coroa'}
-                              </span>
-                            </>
-                          ) : (
-                            <div className="space-y-1 py-2">
-                              <span className="text-[10px] font-bold text-amber-500 uppercase block">1. Prefixo</span>
-                              <span className="text-[11px] text-stone-400 block">Vazio (Empunhadura / Guarda / Filtro)</span>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })()}
-
-                    {/* Slot 2: Chassi Base */}
-                    {(() => {
-                      const partObj = slottedBase
-                        ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedBase || p.id === slottedBase)
-                        : null
-                      return (
-                        <div
-                          className={`rounded-xl p-3 border min-h-[120px] flex flex-col justify-between ${
-                            partObj
-                              ? 'bg-stone-900 border-amber-600/70 shadow-md'
-                              : 'bg-stone-950/60 border-dashed border-stone-800 flex items-center justify-center text-center'
-                          }`}
-                        >
-                          {partObj ? (
-                            <>
-                              <div className="space-y-1">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[9px] font-mono uppercase text-amber-400 font-bold">
-                                    2. Chassi Base (Item)
-                                  </span>
-                                  <button
-                                    onClick={() => handleEjectSlot('base')}
-                                    className="text-stone-400 hover:text-rose-400 p-0.5 cursor-pointer"
-                                    title="Ejetar peça"
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                                <h4 className="text-xs font-bold text-stone-100 line-clamp-1">
-                                  {partObj.name}
-                                </h4>
-                                <span className="text-[10px] font-mono text-emerald-400 block font-bold">
-                                  +{partObj.power_bonus} PE
-                                </span>
-                              </div>
-                              <span className="text-[9px] font-mono text-stone-400 truncate">
-                                {CORPORATIONS_MAP[partObj.corp_id]?.name || partObj.corp_id || 'Coroa'}
-                              </span>
-                            </>
-                          ) : (
-                            <div className="space-y-1 py-2">
-                              <span className="text-[10px] font-bold text-amber-500 uppercase block">2. Chassi Base</span>
-                              <span className="text-[11px] text-stone-400 block">Vazio (Lâmina / Placa / Frasco / Gema)</span>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })()}
-
-                    {/* Slot 3: Sufixo */}
-                    {(() => {
-                      const partObj = slottedSuffix
-                        ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedSuffix || p.id === slottedSuffix)
-                        : null
-                      return (
-                        <div
-                          className={`rounded-xl p-3 border min-h-[120px] flex flex-col justify-between ${
-                            partObj
-                              ? 'bg-stone-900 border-amber-600/70 shadow-md'
-                              : 'bg-stone-950/60 border-dashed border-stone-800 flex items-center justify-center text-center'
-                          }`}
-                        >
-                          {partObj ? (
-                            <>
-                              <div className="space-y-1">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[9px] font-mono uppercase text-amber-400 font-bold">
-                                    3. Sufixo (Núcleo B)
-                                  </span>
-                                  <button
-                                    onClick={() => handleEjectSlot('suffix')}
-                                    className="text-stone-400 hover:text-rose-400 p-0.5 cursor-pointer"
-                                    title="Ejetar peça"
-                                  >
-                                    <X className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                                <h4 className="text-xs font-bold text-stone-100 line-clamp-1">
-                                  {partObj.name}
-                                </h4>
-                                <span className="text-[10px] font-mono text-emerald-400 block font-bold">
-                                  +{partObj.power_bonus} PE
-                                </span>
-                              </div>
-                              <span className="text-[9px] font-mono text-stone-400 truncate">
-                                {CORPORATIONS_MAP[partObj.corp_id]?.name || partObj.corp_id || 'Coroa'}
-                              </span>
-                            </>
-                          ) : (
-                            <div className="space-y-1 py-2">
-                              <span className="text-[10px] font-bold text-amber-500 uppercase block">3. Sufixo</span>
-                              <span className="text-[11px] text-stone-400 block">Vazio (Núcleo Arcano / Matriz / Selo)</span>
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })()}
-                  </div>
-
-                  {/* Nome do Artefato Customizado ou Nomenclatura Procedural */}
-                  {(() => {
-                    const prefixPartObj = slottedPrefix ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedPrefix || p.id === slottedPrefix) : null
-                    const basePartObj = slottedBase ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedBase || p.id === slottedBase) : null
-                    const suffixPartObj = slottedSuffix ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedSuffix || p.id === slottedSuffix) : null
-
-                    const generatedName = [prefixPartObj?.name_modifier, basePartObj?.name, suffixPartObj?.name_modifier].filter(Boolean).join(' ') || 'Artefato Modular Homologado'
-
-                    return (
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <label className="text-xs font-bold text-stone-300 block">
-                            Denominação Notarial do Artefato:
-                          </label>
-                          <span className="text-[10px] font-mono text-amber-400 italic">
-                            Sugestão Procedural: {generatedName}
-                          </span>
-                        </div>
-                        <input
-                          type="text"
-                          value={modularBaseName}
-                          onChange={e => setModularBaseName(e.target.value)}
-                          placeholder={generatedName}
-                          className="w-full bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-xs text-stone-100 focus:border-amber-500 focus:outline-none font-sans"
-                        />
-                      </div>
-                    )
-                  })()}
-
-                  {/* Diagnóstico Pericial de Compatibilidade */}
-                  {selectedModularParts.length >= 2 ? (
-                    <div className="space-y-3 pt-2">
-                      <div className="flex items-center justify-between text-xs font-mono">
-                        <span className="text-stone-300">Tolerância Estrutural:</span>
-                        <span
-                          className={`font-bold ${
-                            isInterBrandAssembly ? 'text-amber-400' : 'text-emerald-400'
-                          }`}
-                        >
-                          {isInterBrandAssembly
-                            ? '60% Tolerância Crítica (Instabilidade Inter-Marcas)'
-                            : '100% Homogeneidade Monomarca (+5% Sintonia)'}
-                        </span>
-                      </div>
-
-                      {/* Barra de Compatibilidade */}
-                      <div className="w-full bg-stone-950 rounded-full h-2 overflow-hidden border border-stone-800">
-                        <div
-                          className={`h-2 rounded-full transition-all ${
-                            isInterBrandAssembly
-                              ? 'w-[60%] bg-gradient-to-r from-amber-600 to-orange-500'
-                              : 'w-full bg-gradient-to-r from-emerald-600 to-emerald-400'
-                          }`}
-                        />
-                      </div>
-
-                      {/* Card de Alerta se for Inter-Marcas (Tinkering) */}
-                      {isInterBrandAssembly ? (
-                        <div className="bg-amber-950/40 border border-amber-600/70 rounded-xl p-4 space-y-2">
-                          <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
-                            <Flame className="w-4 h-4 text-amber-400 animate-pulse" />
-                            <span>Protocolo de Risco Técnico: Forja Experimental (Tinkering)</span>
-                          </div>
-                          <p className="text-[11px] text-stone-300 leading-relaxed">
-                            A integração de peças de fabricantes rivais provoca sobrecarga nos conectores mecânicos.
-                          </p>
-                          <div className="flex flex-wrap gap-2 text-[10px] font-mono">
-                            <span className="px-2 py-0.5 rounded bg-emerald-950 border border-emerald-700 text-emerald-300">
-                              60% Sucesso: Overclock Não-Autorizado (+15% Poder)
-                            </span>
-                            <span className="px-2 py-0.5 rounded bg-rose-950 border border-rose-700 text-rose-300">
-                              40% Falha: Gororoba Experimental (20 ⬡)
-                            </span>
-                          </div>
-                          <p className="text-[10px] text-stone-400 italic">
-                            Poder Estimado com Overclock: ~{estimatedModularPower} PE.
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="bg-emerald-950/30 border border-emerald-700/60 rounded-xl p-3 text-xs text-emerald-200 flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                          <span>
-                            Peças de engenharia unificada. Tolerância dimensional perfeita garante montagem segura com +5% de sintonia mecânica (~{estimatedModularPower} PE).
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Botão de Montagem */}
-                      <button
-                        onClick={() => handleAssembleModular(isInterBrandAssembly)}
-                        disabled={isAssembling}
-                        className={`w-full py-3.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl transition cursor-pointer border ${
-                          isInterBrandAssembly
-                            ? 'bg-gradient-to-r from-amber-600 via-orange-500 to-amber-500 text-stone-950 border-amber-400 hover:brightness-110 shadow-amber-950/60'
-                            : 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-stone-950 border-emerald-400 hover:brightness-110 shadow-emerald-950/60'
-                        }`}
-                      >
-                        {isInterBrandAssembly ? (
-                          <>
-                            <Flame className="w-4 h-4 text-stone-950" />
-                            <span>
-                              {isAssembling
-                                ? 'Executando Montagem de Alto Risco...'
-                                : 'Assumir Risco e Montar Experimentalmente (Tinkering)'}
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles className="w-4 h-4 text-stone-950" />
-                            <span>
-                              {isAssembling
-                                ? 'Homologando Montagem...'
-                                : 'Montar Artefato Padronizado'}
-                            </span>
-                          </>
-                        )}
-                      </button>
+                  {baseWarehouseParts.length === 0 ? (
+                    <div className="py-8 text-center text-stone-500 text-xs italic bg-stone-900/30 rounded-lg border border-stone-800/40">
+                      Nenhum chassi base correspondente no estoque.
                     </div>
                   ) : (
-                    <div className="bg-stone-950/60 border border-stone-800 rounded-lg p-3 text-xs text-stone-400 text-center">
-                      Acople ao menos 2 peças modulares para que o auditor mecânico valide as tolerâncias de fábrica.
+                    <div className="space-y-2 max-h-[440px] overflow-y-auto pr-1">
+                      {baseWarehouseParts.map(item => {
+                        const isSlotted = slottedBase === item.partId
+                        const remaining = item.qty - (isSlotted ? 1 : 0)
+                        const corpName = CORPORATIONS_MAP[item.part.corp_id]?.name || item.part.corp_id || 'Coroa Imperial'
+                        const slotName = item.part.compatible_slots?.[0] || 'Geral'
+
+                        return (
+                          <div
+                            key={item.partId}
+                            className={`p-2.5 rounded-lg border flex flex-col justify-between gap-2 transition ${
+                              isSlotted
+                                ? 'bg-amber-950/40 border-amber-600/70 shadow-inner'
+                                : remaining > 0
+                                ? 'bg-stone-900/80 border-stone-800 hover:border-amber-700/60'
+                                : 'bg-stone-950/40 border-stone-900 opacity-50'
+                            }`}
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between gap-1 flex-wrap">
+                                <h5 className="text-xs font-bold text-stone-100 truncate">
+                                  {item.part.name}
+                                </h5>
+                                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-stone-950 border border-stone-800 text-emerald-400 font-bold shrink-0">
+                                  +{item.part.power_bonus} PE
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 flex-wrap text-[9px] font-mono">
+                                <span className="px-1.5 py-0.5 rounded bg-stone-950 border border-stone-800 text-amber-300 font-semibold truncate max-w-[140px]">
+                                  {corpName}
+                                </span>
+                                <span className="px-1.5 py-0.5 rounded bg-stone-950/80 border border-stone-800 text-stone-300">
+                                  {slotName}
+                                </span>
+                                <span className="text-stone-400 ml-auto">
+                                  {remaining} un.
+                                </span>
+                              </div>
+                              {item.part.catalog_description && (
+                                <p className="text-[10px] text-stone-400 line-clamp-2 leading-tight">
+                                  {item.part.catalog_description}
+                                </p>
+                              )}
+                            </div>
+
+                            <button
+                              onClick={() => handleAttachPart(item.part)}
+                              disabled={remaining <= 0 && !isSlotted}
+                              className={`w-full py-1.5 rounded text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                                isSlotted
+                                  ? 'bg-amber-600 text-stone-950 font-black hover:bg-amber-500'
+                                  : remaining > 0
+                                  ? 'bg-stone-800 hover:bg-amber-900/60 border border-stone-700 hover:border-amber-700 text-stone-200'
+                                  : 'bg-stone-950 border border-stone-800 text-stone-600 cursor-not-allowed'
+                              }`}
+                            >
+                              {isSlotted ? (
+                                <>
+                                  <Check className="w-3 h-3" />
+                                  <span>Acoplado no Slot 2 (Remover)</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Plus className="w-3 h-3 text-amber-400" />
+                                  <span>Acoplar no Chassi Base</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )
+                      })}
                     </div>
                   )}
+                </div>
 
-                  {/* Card de Resultado da Última Montagem */}
-                  {lastModularResult && (
-                    <div
-                      className={`rounded-xl p-4 border space-y-2 animate-in fade-in duration-300 ${
-                        lastModularResult.overclock
-                          ? 'bg-amber-950/40 border-amber-500/80 shadow-lg shadow-amber-950/50'
-                          : lastModularResult.tinkeringSuccess
-                          ? 'bg-emerald-950/40 border-emerald-500/80'
-                          : 'bg-rose-950/40 border-rose-800'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono uppercase font-bold text-stone-400">
-                          Laudo Notarial de Manufatura
-                        </span>
-                        {lastModularResult.overclock && (
-                          <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded bg-amber-500 text-stone-950 flex items-center gap-1 shadow">
-                            <Zap className="w-3 h-3" /> Overclock (+15% Poder)
-                          </span>
-                        )}
-                        {!lastModularResult.tinkeringSuccess && (
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-900 text-rose-200">
-                            Refugo de Bancada
-                          </span>
-                        )}
-                      </div>
+                {/* CAIXA 3: NÚCLEOS & SUFIXOS */}
+                <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-4 shadow-lg flex flex-col space-y-3">
+                  <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+                    <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      3. Núcleos & Sufixos
+                    </h4>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-900 text-stone-300 border border-stone-700">
+                      {suffixWarehouseParts.length} disponíveis
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-stone-400 leading-tight">
+                    Núcleos Arcanos, Catalisadores, Matrizes Rúnicas e Certidões Técnicas para o Slot 3.
+                  </p>
 
-                      <h4 className="text-sm font-extrabold text-stone-100">
-                        {lastModularResult.item.name}
-                      </h4>
-                      <p className="text-xs text-stone-300 italic">{lastModularResult.message}</p>
+                  {suffixWarehouseParts.length === 0 ? (
+                    <div className="py-8 text-center text-stone-500 text-xs italic bg-stone-900/30 rounded-lg border border-stone-800/40">
+                      Nenhum sufixo correspondente no estoque.
+                    </div>
+                  ) : (
+                    <div className="space-y-2 max-h-[440px] overflow-y-auto pr-1">
+                      {suffixWarehouseParts.map(item => {
+                        const isSlotted = slottedSuffix === item.partId
+                        const remaining = item.qty - (isSlotted ? 1 : 0)
+                        const corpName = CORPORATIONS_MAP[item.part.corp_id]?.name || item.part.corp_id || 'Coroa Imperial'
+                        const slotName = item.part.compatible_slots?.[0] || 'Geral'
 
-                      <div className="flex gap-4 text-xs font-mono text-stone-300 pt-2 border-t border-stone-800/80">
-                        <span>Poder: +{lastModularResult.item.power_bonus} PE</span>
-                        <span>Slot: {lastModularResult.item.slot_type}</span>
-                        <span>Valor Contábil: ⬡ {lastModularResult.item.market_value_base} Ouro</span>
-                      </div>
+                        return (
+                          <div
+                            key={item.partId}
+                            className={`p-2.5 rounded-lg border flex flex-col justify-between gap-2 transition ${
+                              isSlotted
+                                ? 'bg-amber-950/40 border-amber-600/70 shadow-inner'
+                                : remaining > 0
+                                ? 'bg-stone-900/80 border-stone-800 hover:border-amber-700/60'
+                                : 'bg-stone-950/40 border-stone-900 opacity-50'
+                            }`}
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between gap-1 flex-wrap">
+                                <h5 className="text-xs font-bold text-stone-100 truncate">
+                                  {item.part.name}
+                                </h5>
+                                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-stone-950 border border-stone-800 text-emerald-400 font-bold shrink-0">
+                                  +{item.part.power_bonus} PE
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 flex-wrap text-[9px] font-mono">
+                                <span className="px-1.5 py-0.5 rounded bg-stone-950 border border-stone-800 text-amber-300 font-semibold truncate max-w-[140px]">
+                                  {corpName}
+                                </span>
+                                <span className="px-1.5 py-0.5 rounded bg-stone-950/80 border border-stone-800 text-stone-300">
+                                  {slotName}
+                                </span>
+                                <span className="text-stone-400 ml-auto">
+                                  {remaining} un.
+                                </span>
+                              </div>
+                              {item.part.catalog_description && (
+                                <p className="text-[10px] text-stone-400 line-clamp-2 leading-tight">
+                                  {item.part.catalog_description}
+                                </p>
+                              )}
+                            </div>
+
+                            <button
+                              onClick={() => handleAttachPart(item.part)}
+                              disabled={remaining <= 0 && !isSlotted}
+                              className={`w-full py-1.5 rounded text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer ${
+                                isSlotted
+                                  ? 'bg-amber-600 text-stone-950 font-black hover:bg-amber-500'
+                                  : remaining > 0
+                                  ? 'bg-stone-800 hover:bg-amber-900/60 border border-stone-700 hover:border-amber-700 text-stone-200'
+                                  : 'bg-stone-950 border border-stone-800 text-stone-600 cursor-not-allowed'
+                              }`}
+                            >
+                              {isSlotted ? (
+                                <>
+                                  <Check className="w-3 h-3" />
+                                  <span>Acoplado no Slot 3 (Remover)</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Plus className="w-3 h-3 text-amber-400" />
+                                  <span>Acoplar no Sufixo</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        )
+                      })}
                     </div>
                   )}
                 </div>

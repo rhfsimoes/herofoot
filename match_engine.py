@@ -193,6 +193,7 @@ class Team:
         balance: Optional[Dict[str, Any]] = None,
         heroes: Optional[List[Dict[str, Any]]] = None,
         traits: Optional[List[Any]] = None,
+        loadout: Optional[Dict[str, Any]] = None,
     ):
         if balance is None:
             balance = get_balance()
@@ -206,6 +207,7 @@ class Team:
         self.has_climate_mitigation = has_climate_mitigation
         self.heroes = heroes or []
         self.traits = traits or []
+        self.loadout = loadout or {}
 
         # Extração das habilidades ativas da equipe com base nos heróis titulares
         self.skills = self._extract_active_skills()
@@ -216,6 +218,15 @@ class Team:
         self.score = 0
         self.rooms_explored = 0
         self.exit_reason = "Suprimentos esgotados"
+
+    def get_loadout_item_name(self, slot_key: str) -> Optional[str]:
+        """Retorna a denominação do artefato corporativo equipado no slot especificado."""
+        if not hasattr(self, "loadout") or not self.loadout:
+            return None
+        item = self.loadout.get(slot_key)
+        if isinstance(item, dict):
+            return item.get("name")
+        return None
 
     def _extract_active_skills(self) -> Dict[str, Dict[str, Any]]:
         """Mapeia quais habilidades estão ativas na equipe com base nos titulares."""
@@ -552,9 +563,22 @@ class MatchEngine:
             return True
         else:
             if not has_encounter:
-                event_msg = "Sala sem ocorrências operacionais."
+                offensive_name = self.team1.get_loadout_item_name("Arsenal Ofensivo")
+                defensive_name = self.team1.get_loadout_item_name("Blindagem Operacional")
+                license_name = self.team1.get_loadout_item_name("Alvará de Risco")
+                provision_name = self.team1.get_loadout_item_name("Provisão Logística")
+
+                if room % 3 == 1 and provision_name:
+                    event_msg = f"Avanço tático estável. A força-tarefa de {self.team1.name} consumiu rações de '{provision_name}', mantendo a cadência e sustentando as provisões."
+                elif room % 3 == 2 and license_name and self.team1.has_terrain_mitigation:
+                    event_msg = f"Trânsito regulamentar. O '{license_name}' repeliu os riscos do bioma {self.terrain_name}, permitindo deslocamento sem penalidades."
+                elif room % 3 == 0 and defensive_name:
+                    event_msg = f"Câmara sem hostis. A blindagem coletiva '{defensive_name}' absorveu o atrito ambiental do trajeto."
+                else:
+                    event_msg = "Câmara desimpedida e sem ocorrências hostis no trajeto."
+
                 if t1_entered and self.team1.has_skill("skill_scout"):
-                    event_msg += f" (Batedor de {self.team1.name} reduziu custos de provisão)."
+                    event_msg += f" (Batedor de {self.team1.name} otimizou a rota e reduziu custos de provisão)."
                 self.log(f"Câmara {room}: {event_msg}")
             else:
                 event_msg = self._resolve_miniboss(ep1, ep2, room, t1_entered, t2_entered)
@@ -616,6 +640,9 @@ class MatchEngine:
                 bonus_pct = float(skill_data.get("elemental_miniboss_power_bonus_pct", 0.20))
                 effective_ep2 *= (1.0 + bonus_pct)
 
+        offensive_name_1 = self.team1.get_loadout_item_name("Arsenal Ofensivo")
+        defensive_name_1 = self.team1.get_loadout_item_name("Blindagem Operacional")
+
         if t1_present and t2_present:
             total_p = effective_ep1 + effective_ep2
             prob_t1 = effective_ep1 / total_p if total_p > 0 else 0.5
@@ -628,7 +655,13 @@ class MatchEngine:
 
             if roll < prob_t1 - draw_margin_1:
                 self.team1.score += self.miniboss_points
-                msg = f"{self.team1.name} neutralizou a ameaça na Câmara {room} (+{self.miniboss_points} PE)."
+                if offensive_name_1:
+                    msg = (
+                        f"{self.team1.name} acionou uma barragem de '{offensive_name_1}', antecipou-se a {self.team2.name} "
+                        f"e neutralizou a ameaça na Câmara {room} (+{self.miniboss_points} PE)."
+                    )
+                else:
+                    msg = f"{self.team1.name} neutralizou a ameaça na Câmara {room} (+{self.miniboss_points} PE)."
             elif roll > prob_t1 + self.miniboss_draw_margin:
                 self.team2.score += self.miniboss_points
                 msg = f"{self.team2.name} neutralizou a ameaça na Câmara {room} (+{self.miniboss_points} PE)."
@@ -652,15 +685,21 @@ class MatchEngine:
                         f"{self.team2.name} (+{self.miniboss_points} PE)."
                     )
                 else:
-                    msg = f"Disputa equilibrada na Câmara {room}. Nenhum abate prioritário deferido (0 PE)."
+                    msg = f"Disputa equilibrada na Câmara {room}. Confronto simultâneo entre {self.team1.name} e {self.team2.name} sem abate prioritário (0 PE)."
         elif t1_present:
             solo_bonus = sum(float(e.get("solo_clear_bonus", 0)) for e in self.team1.get_trait_effects_list())
             p_clear = max(0.05, min(0.95, (self.solo_clear_base + solo_bonus) * effective_ep1 / self.recommended_power))
             if self.rng.random() < p_clear:
                 self.team1.score += self.miniboss_points
-                msg = f"{self.team1.name} conteve a ameaça na Câmara {room} de forma autônoma (+{self.miniboss_points} PE)."
+                if offensive_name_1:
+                    msg = f"{self.team1.name} conteve a ameaça na Câmara {room} de forma autônoma (+{self.miniboss_points} PE) com apoio de '{offensive_name_1}'."
+                else:
+                    msg = f"{self.team1.name} conteve a ameaça na Câmara {room} de forma autônoma (+{self.miniboss_points} PE)."
             else:
-                msg = f"{self.team1.name} não obteve êxito na contenção da ameaça na Câmara {room} (0 PE)."
+                if defensive_name_1:
+                    msg = f"{self.team1.name} não obteve êxito na contenção da ameaça na Câmara {room} (0 PE); a blindagem '{defensive_name_1}' mitigou danos maiores."
+                else:
+                    msg = f"{self.team1.name} não obteve êxito na contenção da ameaça na Câmara {room} (0 PE)."
         elif t2_present:
             solo_bonus = sum(float(e.get("solo_clear_bonus", 0)) for e in self.team2.get_trait_effects_list())
             p_clear = max(0.05, min(0.95, (self.solo_clear_base + solo_bonus) * effective_ep2 / self.recommended_power))
@@ -679,6 +718,8 @@ class MatchEngine:
         """Resolve o confronto final do Boss da masmorra."""
         self.log("Forças-tarefas alcançaram a Câmara do Boss Final!")
 
+        offensive_name_1 = self.team1.get_loadout_item_name("Arsenal Ofensivo")
+
         eval_ep1 = ep1
         eval_ep2 = ep2
         for eff in self.team1.get_trait_effects_list():
@@ -694,7 +735,13 @@ class MatchEngine:
             if percent_diff > self.boss_threshold_pct:
                 if eval_ep1 > eval_ep2:
                     self.team1.score += self.boss_win_points
-                    msg = f"{self.team1.name} superou o rival em mais de 15% de poder e garantiu o Abate do Boss Final (+{self.boss_win_points} PE)!"
+                    if offensive_name_1:
+                        msg = (
+                            f"{self.team1.name} superou o rival em mais de 15% de poder com saraivada de '{offensive_name_1}' "
+                            f"e garantiu o Abate do Boss Final (+{self.boss_win_points} PE)!"
+                        )
+                    else:
+                        msg = f"{self.team1.name} superou o rival em mais de 15% de poder e garantiu o Abate do Boss Final (+{self.boss_win_points} PE)!"
                 else:
                     self.team2.score += self.boss_win_points
                     msg = f"{self.team2.name} superou o rival em mais de 15% de poder e garantiu o Abate do Boss Final (+{self.boss_win_points} PE)!"
@@ -713,7 +760,10 @@ class MatchEngine:
 
             if solo_eval >= self.recommended_power:
                 self.team1.score += self.boss_win_points
-                msg = f"{self.team1.name} enfrentou o Boss Final de forma autônoma e executou o abate (+{self.boss_win_points} PE)!"
+                if offensive_name_1:
+                    msg = f"{self.team1.name} enfrentou o Boss Final de forma autônoma com seu '{offensive_name_1}' e executou o abate (+{self.boss_win_points} PE)!"
+                else:
+                    msg = f"{self.team1.name} enfrentou o Boss Final de forma autônoma e executou o abate (+{self.boss_win_points} PE)!"
             else:
                 msg = f"{self.team1.name} enfrentou o Boss Final, mas o contingente operacional não atingiu o poder recomendado de {self.recommended_power} (0 PE)."
         elif t2_present:

@@ -301,6 +301,7 @@ class PhaseService:
                 has_climate_mitigation=has_climate_mitigation,
                 heroes=starter_heroes,
                 balance=balance,
+                loadout=self.state.loadout,
             )
             t2 = self.match_engine.Team(
                 rival_name,
@@ -656,14 +657,14 @@ class PhaseService:
             return []
 
         terrain_corp_map = {
-            "toxic_swamp": ["corp_swamp_alchemy", "corp_goblin_eng"],
-            "glacier_frost": ["corp_elf_precision", "corp_goblin_eng"],
-            "unstable_mine": ["corp_dwarf_steel", "corp_goblin_eng"],
-            "submerged_ruins": ["corp_elf_precision", "corp_crown_notarial", "corp_goblin_eng"],
-            "arcane_fog": ["corp_elf_precision", "corp_crown_notarial", "corp_chancellor"],
-            "lightning_peaks": ["corp_dwarf_steel", "corp_valkyria", "corp_goblin_eng"],
-            "volcanic_heat": ["corp_dwarf_steel", "corp_valkyria", "corp_goblin_eng"],
-            "neutral": ["corp_aethelgard", "corp_valkyria", "corp_crown_notarial", "corp_goblin_eng", "corp_chancellor"],
+            "unstable_mine": ["corp_dwarf_steel", "corp_aethelgard", "corp_goblin_eng"],
+            "toxic_swamp": ["corp_swamp_alchemy", "corp_flamel", "corp_goblin_eng"],
+            "glacier_frost": ["corp_elf_precision", "corp_mercurius", "corp_dwarf_steel"],
+            "submerged_ruins": ["corp_crown_notarial", "corp_elf_precision", "corp_mercurius"],
+            "arcane_fog": ["corp_chancellor", "corp_crown_notarial", "corp_elf_precision"],
+            "lightning_peaks": ["corp_valkyria", "corp_dwarf_steel", "corp_goblin_eng"],
+            "volcanic_heat": ["corp_aethelgard", "corp_dwarf_steel", "corp_valkyria"],
+            "neutral": ["corp_crown_notarial", "corp_aethelgard", "corp_valkyria", "corp_crown_rations"],
         }
         target_corps = terrain_corp_map.get(terrain, terrain_corp_map["neutral"])
 
@@ -682,6 +683,14 @@ class PhaseService:
             part_count = 1
 
         chosen_parts = rng.sample(eligible, min(part_count, len(eligible)))
+
+        # Em incursões profundas (5+ salas), chance de recuperar mantimentos de campanha adicionais
+        if rooms_explored >= 5 and rng.random() < 0.40:
+            provision_parts = [p for p in all_parts if p.get("corp_id") == "corp_crown_rations" or "Provisão Logística" in p.get("compatible_slots", [])]
+            if provision_parts:
+                extra_prov = rng.choice(provision_parts)
+                if extra_prov not in chosen_parts:
+                    chosen_parts.append(extra_prov)
         loot = []
         for p in chosen_parts:
             pid = p.get("id", p.get("part_id"))
