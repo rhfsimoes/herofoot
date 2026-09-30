@@ -733,13 +733,43 @@ class CraftingService:
                 "message": "Montagem modular inter-marcas detectada. A integração de patentes concorrentes exige autorização expressa de Tinkering experimental.",
             }
 
+        # Validação contra peças duplicadas
+        if len(part_ids) != len(set(part_ids)):
+            return {
+                "success": False,
+                "message": "A ordem de montagem requer peças modulares distintas e complementares. O uso de peças duplicadas viola o gabarito estrutural de fabricação."
+            }
+
+        # Validação de gabarito funcional (3 slots: Prefixo, Base, Sufixo)
+        roles = [parts_catalog[pid].get("slot_role", "base") for pid in part_ids]
+        if len(part_ids) == 3:
+            if "prefix" not in roles or "base" not in roles or "suffix" not in roles:
+                return {
+                    "success": False,
+                    "message": "A montagem modular de 3 componentes requer exatamente 1 Modificador de Entrada (Prefixo), 1 Chassi Principal (Base) e 1 Núcleo de Ajuste (Sufixo)."
+                }
+
         # Consome as peças do almoxarifado
         for pid, req_qty in required_counts.items():
             self.state.consume_warehouse_part(pid, req_qty)
 
-        primary_part = parts_catalog[part_ids[0]]
-        primary_branch = primary_part.get("branch", "Ferragem")
-        slot = primary_part.get("compatible_slots", ["Arma"])[0]
+        prefix_part = next((parts_catalog[pid] for pid in part_ids if parts_catalog[pid].get("slot_role") == "prefix"), None)
+        base_part = next((parts_catalog[pid] for pid in part_ids if parts_catalog[pid].get("slot_role") == "base"), parts_catalog[part_ids[0]])
+        suffix_part = next((parts_catalog[pid] for pid in part_ids if parts_catalog[pid].get("slot_role") == "suffix"), None)
+
+        primary_branch = base_part.get("branch", "Ferragem")
+        slot = base_part.get("compatible_slots", ["Arma"])[0]
+
+        # Nomenclatura procedural baseada nos afixos tangíveis das peças
+        if base_item_name and base_item_name != "Artefato Modular":
+            effective_base_name = base_item_name
+        else:
+            p_prefix = prefix_part.get("name_modifier", "") if prefix_part else ""
+            p_base = base_part.get("name", "Artefato")
+            p_suffix = suffix_part.get("name_modifier", "") if suffix_part else ""
+            effective_base_name = " ".join(filter(None, [p_prefix, p_base, p_suffix])).strip()
+            if not effective_base_name:
+                effective_base_name = "Artefato Modular Homologado"
 
         if rng is None:
             rng = random.Random()
@@ -792,14 +822,14 @@ class CraftingService:
         if is_overclocked:
             overclock_pct = float(b2b_cfg.get("overclock_power_bonus_pct", 0.15))
             power_bonus = round(base_power * (1.0 + overclock_pct))
-            item_name = f"{base_item_name} (Overclock Não-Autorizado)"
+            item_name = f"{effective_base_name} (Overclock Não-Autorizado)"
             quality = "Ótimo"
             recipe_key = f"modular_{'_'.join(sorted(part_ids))}"
             if hasattr(self.state, "known_recipes") and recipe_key not in self.state.known_recipes:
                 self.state.known_recipes.append(recipe_key)
         else:
             power_bonus = base_power
-            item_name = base_item_name
+            item_name = effective_base_name
             quality = "Normal"
 
         mults = get_quality_multipliers()

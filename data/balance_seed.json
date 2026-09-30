@@ -15,7 +15,9 @@
     "miniboss_points": 1,
     "boss_threshold_pct": 0.15,
     "boss_win_points": 2,
-    "boss_joint_points": 2
+    "boss_joint_points": 2,
+    "confidence_gain_win": 3,
+    "confidence_loss_defeat": 3
   },
   "loadout": {
     "slot_bonus_factor": 0.15,

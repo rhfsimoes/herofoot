@@ -7,14 +7,23 @@
     "name": "Lâmina Forjada Aethelgard",
     "branch": "Ferragem",
     "part_type": "blade",
-    "compatible_slots": ["Arma"],
+    "compatible_slots": [
+      "Arma"
+    ],
     "tier": 1,
     "base_cost": 50,
     "market_price_base": 50,
     "power_bonus": 25,
     "power_contrib": 25,
     "catalog_description": "Lâmina de corte preciso temperada nas fundições de Aethelgard.",
-    "effects": [{"effect": "power_flat", "value": 5}]
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 5
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Lâmina Forjada Aethelgard"
   },
   {
     "id": "part_aethelgard_hilt",
@@ -24,14 +33,23 @@
     "name": "Empunhadura Padrão Aethelgard",
     "branch": "Ferragem",
     "part_type": "hilt",
-    "compatible_slots": ["Arma"],
+    "compatible_slots": [
+      "Arma"
+    ],
     "tier": 1,
     "base_cost": 40,
     "market_price_base": 40,
     "power_bonus": 10,
     "power_contrib": 10,
     "catalog_description": "Guarda de couro trançado com contrapeso balanceado.",
-    "effects": [{"effect": "power_flat", "value": 2}]
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 2
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Equilibrada"
   },
   {
     "id": "part_valkyria_guard",
@@ -41,14 +59,24 @@
     "name": "Guarda Articulada Valkyria",
     "branch": "Ferragem",
     "part_type": "guard",
-    "compatible_slots": ["Arma", "Armadura"],
+    "compatible_slots": [
+      "Arma",
+      "Armadura"
+    ],
     "tier": 1,
     "base_cost": 60,
     "market_price_base": 60,
     "power_bonus": 15,
     "power_contrib": 15,
     "catalog_description": "Mecanismo defensivo de absorção de impacto do Consórcio Bélico.",
-    "effects": [{"effect": "power_flat", "value": 3}]
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 3
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Articulada"
   },
   {
     "id": "part_valkyria_plate",
@@ -58,14 +86,23 @@
     "name": "Placa Estriada Valkyria",
     "branch": "Ferragem",
     "part_type": "plating",
-    "compatible_slots": ["Armadura"],
+    "compatible_slots": [
+      "Armadura"
+    ],
     "tier": 2,
     "base_cost": 90,
     "market_price_base": 90,
     "power_bonus": 20,
     "power_contrib": 20,
     "catalog_description": "Blindagem de vanguarda com estrias de deflexão.",
-    "effects": [{"effect": "power_flat", "value": 6}]
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 6
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Placa Estriada Valkyria"
   },
   {
     "id": "part_flamel_catalyst",
@@ -75,14 +112,24 @@
     "name": "Catalisador Bioquímico Flamel",
     "branch": "Alquimia",
     "part_type": "core",
-    "compatible_slots": ["Inscrição", "Consumível"],
+    "compatible_slots": [
+      "Inscrição",
+      "Consumível"
+    ],
     "tier": 1,
     "base_cost": 55,
     "market_price_base": 55,
     "power_bonus": 12,
     "power_contrib": 12,
     "catalog_description": "Agente reagente de rápida dispersão para soluções químicas.",
-    "effects": [{"effect": "energy_bonus_flat", "value": 10}]
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 10
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Alquimia Pura"
   },
   {
     "id": "part_flamel_vial",
@@ -92,14 +139,23 @@
     "name": "Ampola Reforçada Flamel",
     "branch": "Alquimia",
     "part_type": "filter",
-    "compatible_slots": ["Consumível"],
+    "compatible_slots": [
+      "Consumível"
+    ],
     "tier": 1,
     "base_cost": 30,
     "market_price_base": 30,
     "power_bonus": 5,
     "power_contrib": 5,
     "catalog_description": "Recipiente estéril para acondicionamento de elixires de combate.",
-    "effects": [{"effect": "charges_flat", "value": 1}]
+    "effects": [
+      {
+        "effect": "charges_flat",
+        "value": 1
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Ampola Reforçada Flamel"
   },
   {
     "id": "part_chancellor_core",
@@ -109,14 +165,23 @@
     "name": "Núcleo de Safira Imperial",
     "branch": "Joalheria",
     "part_type": "gem",
-    "compatible_slots": ["Joia"],
+    "compatible_slots": [
+      "Joia"
+    ],
     "tier": 2,
     "base_cost": 110,
     "market_price_base": 110,
     "power_bonus": 18,
     "power_contrib": 18,
     "catalog_description": "Gema lapidada com corte prismático para condução energética sem perda.",
-    "effects": [{"effect": "power_flat", "value": 4}]
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 4
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Safira Imperial"
   },
   {
     "id": "part_gob_blade_01",
@@ -142,7 +207,9 @@
         "effect": "value_pct",
         "value": 0.1
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Lâmina Dentada de Fricção Rápida"
   },
   {
     "id": "part_gob_blade_02",
@@ -168,7 +235,9 @@
         "effect": "value_pct",
         "value": 0.4
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Lâmina Predatória de Aço Farpado"
   },
   {
     "id": "part_gob_core_01",
@@ -198,7 +267,9 @@
         "effect": "value_pct",
         "value": 0.35
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "do Patrono"
   },
   {
     "id": "part_gob_filter_01",
@@ -224,7 +295,9 @@
         "effect": "value_pct",
         "value": 0.3
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Compressor de Porções Industriais"
   },
   {
     "id": "part_gob_hilt_01",
@@ -255,7 +328,9 @@
         "value": 0.1,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Imprudente"
   },
   {
     "id": "part_gob_core_02",
@@ -286,7 +361,9 @@
         "value": 0.12,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Sobrecarga"
   },
   {
     "id": "part_gob_blade_03",
@@ -321,7 +398,9 @@
         "value": 0.15,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Gume Guilhotina de Demissão Sumária"
   },
   {
     "id": "part_gob_core_03",
@@ -356,7 +435,9 @@
         "value": 15,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Turno Noturno"
   },
   {
     "id": "part_elf_blade_01",
@@ -382,7 +463,9 @@
         "effect": "value_pct",
         "value": 0.15
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Lâmina Temperada a Frio Élfico"
   },
   {
     "id": "part_elf_gem_01",
@@ -408,7 +491,9 @@
         "effect": "value_pct",
         "value": 0.4
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Gema Focalizadora de Cristal Élfico"
   },
   {
     "id": "part_elf_gem_02",
@@ -434,7 +519,9 @@
         "effect": "value_pct",
         "value": 0.4
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Safira Penitencial de Condutividade Alta"
   },
   {
     "id": "part_elf_core_01",
@@ -464,7 +551,9 @@
         "effect": "value_pct",
         "value": 0.3
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Gelo Eterno"
   },
   {
     "id": "part_elf_filter_01",
@@ -490,7 +579,9 @@
         "effect": "value_pct",
         "value": 0.35
       }
-    ]
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Refinada"
   },
   {
     "id": "part_elf_gem_03",
@@ -521,7 +612,9 @@
         "value": 0.08,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Turno Noturno"
   },
   {
     "id": "part_elf_core_02",
@@ -552,7 +645,9 @@
         "value": 0.1,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Conformidade"
   },
   {
     "id": "part_elf_gem_04",
@@ -583,7 +678,9 @@
         "value": 0.3,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "do Patrono"
   },
   {
     "id": "part_dwarf_plating_01",
@@ -609,7 +706,9 @@
         "effect": "value_pct",
         "value": 0.15
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Placa Reforçada de Aço Anão"
   },
   {
     "id": "part_dwarf_plating_02",
@@ -635,7 +734,9 @@
         "effect": "value_pct",
         "value": 0.2
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Lamelas Robustas de Granito Vulcânico"
   },
   {
     "id": "part_dwarf_plating_03",
@@ -661,7 +762,9 @@
         "effect": "value_pct",
         "value": 0.2
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Couraça Maciça de Minério Negro"
   },
   {
     "id": "part_dwarf_plating_04",
@@ -691,7 +794,9 @@
         "effect": "value_pct",
         "value": 0.4
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Blindagem Impenetrável da Cidadela Subterrânea"
   },
   {
     "id": "part_dwarf_plating_05",
@@ -722,7 +827,9 @@
         "effect": "value_pct",
         "value": 0.5
       }
-    ]
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Galvanizada"
   },
   {
     "id": "part_dwarf_core_01",
@@ -748,7 +855,9 @@
         "effect": "value_pct",
         "value": 0.2
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "da Gravidade Pesada"
   },
   {
     "id": "part_dwarf_plating_06",
@@ -779,7 +888,9 @@
         "value": 0.12,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Apurada"
   },
   {
     "id": "part_dwarf_core_02",
@@ -810,7 +921,9 @@
         "value": 0.1,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Responsabilidade Limitada"
   },
   {
     "id": "part_swamp_filter_01",
@@ -836,7 +949,9 @@
         "effect": "value_pct",
         "value": 0.25
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Filtro Decantador de Caldo Concentrado"
   },
   {
     "id": "part_swamp_filter_02",
@@ -862,7 +977,9 @@
         "effect": "value_pct",
         "value": 0.15
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Prensa de Suplemento de Algas Pútridas"
   },
   {
     "id": "part_swamp_core_01",
@@ -888,7 +1005,9 @@
         "effect": "value_pct",
         "value": 0.15
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "do Antídoto"
   },
   {
     "id": "part_swamp_filter_03",
@@ -919,7 +1038,9 @@
         "value": 10,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Graduada"
   },
   {
     "id": "part_swamp_filter_04",
@@ -950,7 +1071,9 @@
         "value": 1,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Apurada"
   },
   {
     "id": "part_swamp_core_02",
@@ -981,7 +1104,9 @@
         "value": 1,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "do Patrono"
   },
   {
     "id": "part_swamp_core_03",
@@ -1012,7 +1137,9 @@
         "value": 0.1,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Balsâmica"
   },
   {
     "id": "part_swamp_gem_01",
@@ -1043,7 +1170,9 @@
         "value": 0.08,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "da Insalubridade"
   },
   {
     "id": "part_crown_plating_01",
@@ -1069,7 +1198,9 @@
         "effect": "value_pct",
         "value": 0.2
       }
-    ]
+    ],
+    "slot_role": "base",
+    "name_modifier": "Couro Escamado Padrão da Fazenda Real"
   },
   {
     "id": "part_crown_gem_01",
@@ -1095,7 +1226,9 @@
         "effect": "value_pct",
         "value": 0.25
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "do Patrono"
   },
   {
     "id": "part_crown_gem_02",
@@ -1121,7 +1254,9 @@
         "effect": "power_flat",
         "value": 2
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "da Austeridade"
   },
   {
     "id": "part_crown_core_01",
@@ -1147,7 +1282,9 @@
         "effect": "value_pct",
         "value": 0.2
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "do Patrono"
   },
   {
     "id": "part_crown_hilt_01",
@@ -1178,7 +1315,9 @@
         "value": 0.08,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Chancelada"
   },
   {
     "id": "part_crown_hilt_02",
@@ -1209,7 +1348,9 @@
         "value": 0.12,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Forjada"
   },
   {
     "id": "part_crown_plating_02",
@@ -1240,7 +1381,9 @@
         "value": 0.1,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Homologada"
   },
   {
     "id": "part_crown_core_02",
@@ -1271,7 +1414,9 @@
         "value": 0.1,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "do Alvará Régio"
   },
   {
     "id": "part_crown_core_03",
@@ -1302,6 +1447,8 @@
         "value": 0.1,
         "requires_quality": "Lendário"
       }
-    ]
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "da Ordem Boreal"
   }
 ]

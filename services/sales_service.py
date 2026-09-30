@@ -118,6 +118,7 @@ class SalesService:
             return {
                 "success": True,
                 "status": "vendido",
+                "action": "sold",
                 "gold_received": asked_price,
                 "final_price": asked_price,
                 "reference_price": ref_price,
@@ -128,16 +129,17 @@ class SalesService:
             }
 
         elif status == "não vendido":
-            # Taxa de vitrine é retida e ativo fica encalhado até o término da semana
+            # Item permanece no inventário intacto com aviso corporativo
             item["encalhado_ate_semana"] = self.state.day
             item["encalhado"] = True
             if listing_fee > 0:
-                msg = f"Ativo rejeitado pelo mercado por preço excessivo. Custas de vitrine de {listing_fee} Moedas de Ouro foram retidas pela junta comercial."
+                msg = f"Ativo rejeitado pelo mercado por preço excessivo. Custas de vitrine de {listing_fee} Moedas de Ouro foram retidas pela junta comercial. O item retornou à custódia da guilda."
             else:
-                msg = "Preço excessivo. Nenhum comprador manifestou interesse no ativo."
+                msg = "Preço excessivo. Nenhum comprador manifestou interesse no ativo. O item retornou à custódia da guilda."
             return {
                 "success": False,
                 "status": "não vendido",
+                "action": "rejected",
                 "reference_price": ref_price,
                 "asked_price": asked_price,
                 "demand_multiplier": demand_mult,
@@ -156,6 +158,7 @@ class SalesService:
             return {
                 "success": True,
                 "status": "contraproposta",
+                "action": "counter_offer",
                 "offer_id": offer_id,
                 "counter_offer": counter_offer_val,
                 "reference_price": ref_price,

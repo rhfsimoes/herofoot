@@ -20,7 +20,7 @@ import {
   Users,
 } from 'lucide-react'
 import type { GameState } from '../mockData'
-import { GOLD_GRADIENT_TEXT, MATERIAL_RARITY_STYLES, getMaterialRarity } from '../utils/rarityStyles'
+import { GOLD_GRADIENT_TEXT, MATERIAL_RARITY_STYLES, getMaterialRarity, type MaterialRarity } from '../utils/rarityStyles'
 import { CrownSeal, NobleDivisionEmblem, AccessDivisionEmblem } from '../components/art'
 import OnboardingBanner from '../components/OnboardingBanner'
 import Tooltip from '../components/Tooltip'
@@ -67,7 +67,7 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
 
   // Receitas reais
   const expeditionRevenue = fin?.expedition_revenue ?? fin?.revenue ?? 250
-  const salesRevenue = state.weekly_sales_revenue ?? fin?.sales_revenue ?? 0
+  const salesRevenue = (fin?.sales_revenue !== undefined ? fin.sales_revenue : state.weekly_sales_revenue) ?? 0
   const seasonAward = fin?.season_award ?? (state.season_summary?.award_gold || 0)
 
   // B2B & Linha de Montagem Modular
@@ -178,19 +178,30 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
           {/* Cards Dinâmicos de Loot Real ou Resumo Operacional */}
           {state.last_expedition_loot && state.last_expedition_loot.length > 0 ? (
             state.last_expedition_loot.map((loot, idx) => {
-              const rarity = getMaterialRarity(loot.material_id, loot.name, loot.rarity)
-              const rStyle = MATERIAL_RARITY_STYLES[rarity]
+              const rarity = (loot.rarity as MaterialRarity) || getMaterialRarity(loot.material_id, loot.name, loot.rarity)
+              const rStyle = MATERIAL_RARITY_STYLES[rarity] || MATERIAL_RARITY_STYLES['Comum']
+              const slotRoleLabel = loot.slot_role === 'prefix' ? 'Prefixo' : loot.slot_role === 'suffix' ? 'Sufixo' : 'Chassi Base'
               return (
                 <div
-                  key={loot.material_id || idx}
+                  key={loot.part_id || loot.material_id || idx}
                   className={`${rStyle.bg} border ${rStyle.border} ${rStyle.glow} rounded-xl p-3.5 flex items-center gap-3 shadow transition-all`}
                 >
                   <div className="w-9 h-9 rounded-lg bg-stone-950/80 border border-stone-800 flex items-center justify-center shrink-0">
-                    <Package className="w-4 h-4 text-stone-300" />
+                    <Package className="w-4 h-4 text-amber-400" />
                   </div>
-                  <div className="min-w-0">
-                    <span className={rStyle.badge}>{rarity}</span>
-                    <span className="text-stone-200 text-xs font-bold font-mono truncate block mt-0.5">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className={rStyle.badge}>{rarity}</span>
+                      <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-stone-900 border border-stone-800 text-stone-300">
+                        {slotRoleLabel}
+                      </span>
+                      {loot.power_bonus && (
+                        <span className="text-[9px] font-mono text-emerald-400 font-bold">
+                          +{loot.power_bonus} PE
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-stone-100 text-xs font-bold truncate block mt-1">
                       {loot.quantity}x {loot.name}
                     </span>
                   </div>

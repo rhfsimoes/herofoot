@@ -195,7 +195,43 @@ class TestB2BAssembly(unittest.TestCase):
         # Base power: 25 + 15 = 40. Com overclock +15%: int(40 * 1.15) = 46.
         self.assertEqual(item["power_bonus"], 46)
 
-    def test_assembly_line_workers_autonomous_production_and_dre(self):
+    def test_reject_duplicate_parts_in_assembly(self):
+        """Montagem rejeita expressamente o uso de peças duplicadas ou cópias da mesma peça."""
+        self.state.add_warehouse_part("part_aethelgard_blade", 3)
+        res = self.controller.assemble_modular_item(
+            ["part_aethelgard_blade", "part_aethelgard_blade", "part_aethelgard_blade"],
+            base_name="Espada Ilegal",
+            is_tinkering=False,
+        )
+        self.assertFalse(res["success"])
+        self.assertIn("duplicadas", res["message"].lower())
+        # Peças permanecem no almoxarifado
+        self.assertEqual(self.state.get_part_quantity("part_aethelgard_blade"), 3)
+
+    def test_three_slots_functional_roles_assembly(self):
+        """Montagem de 3 componentes requer exatamente 1 prefixo, 1 base e 1 sufixo."""
+        # 3 peças sem prefixo (2 bases e 1 sufixo)
+        self.state.add_warehouse_part("part_aethelgard_blade", 1)  # base
+        self.state.add_warehouse_part("part_valkyria_plate", 1)    # base
+        self.state.add_warehouse_part("part_chancellor_core", 1)   # suffix
+        invalid_res = self.controller.assemble_modular_item(
+            ["part_aethelgard_blade", "part_valkyria_plate", "part_chancellor_core"],
+            is_tinkering=True,
+        )
+        self.assertFalse(invalid_res["success"])
+        self.assertIn("requer exatamente 1 modificador", invalid_res["message"].lower())
+
+        # Agora com o trio perfeito: hilt (prefixo) + blade (base) + core (sufixo)
+        self.state.add_warehouse_part("part_aethelgard_hilt", 1)  # prefix (Equilibrada)
+        valid_res = self.controller.assemble_modular_item(
+            ["part_aethelgard_hilt", "part_aethelgard_blade", "part_chancellor_core"],
+            is_tinkering=True,
+            rng=MockRNG(0.10),
+        )
+        self.assertTrue(valid_res["success"], valid_res.get("message"))
+        item = valid_res["item"]
+        self.assertIn("Equilibrada", item["name"])
+        self.assertIn("Lâmina Forjada", item["name"])
         """Operários montam produtos White-label autonomamente e consolidam no DRE contábil."""
         # 1. Contrata operário júnior para a Ferragem
         hire_res = self.controller.hire_assembly_worker("worker_fitter_junior", "Ferragem")

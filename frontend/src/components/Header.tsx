@@ -48,9 +48,10 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   // Posição do jogador na liga
-  const playerRank = state.league_table.find(
-    r => r.is_player || r.guild_name === 'Guilda do Jogador'
-  )?.rank ?? 4
+  const playerRank = (
+    state.league_table?.find((r: any) => r.is_player || r.guild_name === 'Guilda do Jogador' || r.id === 'g_player') ||
+    state.divisions?.find((d: any) => d.is_player_division)?.standings?.find((r: any) => r.is_player || r.guild_name === 'Guilda do Jogador' || r.id === 'g_player')
+  )?.rank ?? 1
 
   const reputation = 85
 

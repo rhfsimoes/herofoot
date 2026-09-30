@@ -42,6 +42,7 @@ import {
   MOCK_B2B_CONTRACTS,
   MOCK_ASSEMBLY_WORKERS,
   MOCK_MODULAR_PARTS,
+  CORPORATIONS_MAP,
   type GameState,
   type InventoryItem,
   type ItemQuality,
@@ -155,9 +156,16 @@ export default function Phase2Workshop({
   const [assemblyLineWorkers, setAssemblyLineWorkers] = useState<AssemblyWorkerInstance[]>(state.assembly_line_workers ?? [])
   const [corporateExclusivityTags, setCorporateExclusivityTags] = useState<string[]>(state.corporate_exclusivity_tags ?? [])
 
-  // Bancada de Montagem Modular
-  const [selectedModularParts, setSelectedModularParts] = useState<string[]>([])
-  const [modularBaseName, setModularBaseName] = useState<string>('Artefato Modular')
+  // Bancada de Montagem Modular (3 Slots Funcionais: Prefixo, Base, Sufixo)
+  const [slottedPrefix, setSlottedPrefix] = useState<string | null>(null)
+  const [slottedBase, setSlottedBase] = useState<string | null>(null)
+  const [slottedSuffix, setSlottedSuffix] = useState<string | null>(null)
+
+  const selectedModularParts = useMemo(() => {
+    return [slottedPrefix, slottedBase, slottedSuffix].filter(Boolean) as string[]
+  }, [slottedPrefix, slottedBase, slottedSuffix])
+
+  const [modularBaseName, setModularBaseName] = useState<string>('')
   const [isAssembling, setIsAssembling] = useState<boolean>(false)
   const [lastModularResult, setLastModularResult] = useState<{
     item: InventoryItem
@@ -379,15 +387,44 @@ export default function Phase2Workshop({
     }
   }
 
-  async function handleAssembleModular(isTinkering: boolean) {
-    if (selectedModularParts.length < 2) {
-      alert('Selecione ao menos 2 peças modulares para iniciar o processo de montagem.')
+  function handleAttachPart(part: ModularPart) {
+    const pId = part.part_id || part.id
+    if (slottedPrefix === pId || slottedBase === pId || slottedSuffix === pId) {
+      alert('Esta peça modular já está acoplada na bancada de montagem.')
       return
     }
+    const role = part.slot_role || (part.part_type === 'hilt' || part.part_type === 'guard' ? 'prefix' : part.part_type === 'blade' || part.part_type === 'plating' ? 'base' : 'suffix')
+    if (role === 'prefix') {
+      setSlottedPrefix(pId)
+    } else if (role === 'base') {
+      setSlottedBase(pId)
+    } else {
+      setSlottedSuffix(pId)
+    }
+  }
+
+  function handleEjectSlot(role: 'prefix' | 'base' | 'suffix') {
+    if (role === 'prefix') setSlottedPrefix(null)
+    if (role === 'base') setSlottedBase(null)
+    if (role === 'suffix') setSlottedSuffix(null)
+  }
+
+  function handleClearBench() {
+    setSlottedPrefix(null)
+    setSlottedBase(null)
+    setSlottedSuffix(null)
+  }
+
+  async function handleAssembleModular(isTinkering: boolean) {
+    if (!slottedPrefix || !slottedBase || !slottedSuffix) {
+      alert('A bancada modular requer o preenchimento dos 3 slots funcionais: [Prefixo], [Base / Chassi] e [Sufixo].')
+      return
+    }
+    const partsToAssemble = [slottedPrefix, slottedBase, slottedSuffix]
     setIsAssembling(true)
     try {
       if (onAssembleModularItem) {
-        const res = await onAssembleModularItem(selectedModularParts, modularBaseName, isTinkering)
+        const res = await onAssembleModularItem(partsToAssemble, modularBaseName, isTinkering)
         if (res && res.success) {
           if (res.overclock) playSfx('legendary')
           else playSfx('craft_success')
@@ -402,12 +439,12 @@ export default function Phase2Workshop({
           }
           if (res.warehouse_parts) setWarehouseParts(res.warehouse_parts)
           if (res.state) onStateUpdate?.(res.state)
-          setSelectedModularParts([])
+          handleClearBench()
         } else {
           alert(res?.message || 'Falha ao processar montagem modular.')
         }
       } else {
-        const res = await assembleModularItemBackend(selectedModularParts, modularBaseName, isTinkering)
+        const res = await assembleModularItemBackend(partsToAssemble, modularBaseName, isTinkering)
         if (res && res.success) {
           if (res.overclock) playSfx('legendary')
           else playSfx('craft_success')
@@ -422,7 +459,7 @@ export default function Phase2Workshop({
           }
           if (res.warehouse_parts) setWarehouseParts(res.warehouse_parts)
           if (res.state) onStateUpdate?.(res.state)
-          setSelectedModularParts([])
+          handleClearBench()
         } else {
           alert(res?.message || 'Falha ao processar montagem modular.')
         }
@@ -1209,17 +1246,20 @@ export default function Phase2Workshop({
       try {
         const res = await onSellItem(item.item_instance_id, marginType)
         if (res && res.result) {
-          if (res.result.action === 'sold') {
+          const isSold = res.result.action === 'sold' || res.result.status === 'vendido'
+          const isCounter = res.result.action === 'counter_offer' || res.result.status === 'contraproposta'
+
+          if (isSold) {
             setInventory(prev => prev.filter(i => i.item_instance_id !== item.item_instance_id))
             setTransactionLog(l => [
-              `[Balcão] ${item.name} faturado por ⬡ ${res.result.final_price} Ouro (${marginType}).`,
+              `[Balcão] ${item.name} faturado por ⬡ ${res.result.final_price || res.result.gold_received} Ouro (${marginType}).`,
               ...l,
             ])
             if (res.state) {
               setGold(res.state.gold)
               setInventory(res.state.inventory)
             }
-          } else if (res.result.action === 'counter_offer') {
+          } else if (isCounter) {
             setInventory(prev => prev.filter(i => i.item_instance_id !== item.item_instance_id))
             setCounterModal({
               item,
@@ -1230,8 +1270,12 @@ export default function Phase2Workshop({
               demandMultiplier: res.result.demand_multiplier,
             })
           } else {
+            if (res.state) {
+              setInventory(res.state.inventory)
+              setGold(res.state.gold)
+            }
             setTransactionLog(l => [
-              `[Balcão] Oferta de ${item.name} recusada pelo conselho comercial (${marginType}).`,
+              `[Balcão] ${res.result.message || `Oferta de ${item.name} recusada pelo conselho comercial (${marginType}). Ativo retido sob custódia da guilda.`}`,
               ...l,
             ])
           }
@@ -2762,27 +2806,30 @@ export default function Phase2Workshop({
                   ) : (
                     <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
                       {warehousePartsList.map(item => {
-                        const currentlySelected = selectedModularParts.filter(
-                          id => id === item.partId
-                        ).length
-                        const remaining = item.qty - currentlySelected
-                        const isMaxSlots = selectedModularParts.length >= 3
+                        const isSlotted = slottedPrefix === item.partId || slottedBase === item.partId || slottedSuffix === item.partId
+                        const remaining = item.qty - (isSlotted ? 1 : 0)
+                        const role = item.part.slot_role || (item.part.part_type === 'hilt' || item.part.part_type === 'guard' ? 'prefix' : item.part.part_type === 'blade' || item.part.part_type === 'plating' ? 'base' : 'suffix')
+                        const roleLabel = role === 'prefix' ? 'Prefixo' : role === 'suffix' ? 'Sufixo' : 'Chassi Base'
+                        const corpName = CORPORATIONS_MAP[item.part.corp_id]?.name || item.part.corp_id || 'Chancelaria da Coroa'
 
                         return (
                           <div
                             key={item.partId}
                             className={`p-3 rounded-lg border flex items-center justify-between gap-3 transition ${
-                              remaining > 0
+                              remaining > 0 && !isSlotted
                                 ? 'bg-stone-900/80 border-stone-800 hover:border-amber-700/60'
-                                : 'bg-stone-950/40 border-stone-900 opacity-50'
+                                : 'bg-stone-950/40 border-stone-900 opacity-60'
                             }`}
                           >
                             <div className="space-y-0.5 flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
                                 <h4 className="text-xs font-bold text-stone-100 truncate">
                                   {item.part.name}
                                 </h4>
-                                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-stone-950 border border-stone-800 text-amber-400 font-bold shrink-0">
+                                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-950/70 border border-amber-700/60 text-amber-300 font-bold shrink-0">
+                                  {roleLabel}
+                                </span>
+                                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-stone-950 border border-stone-800 text-emerald-400 font-bold shrink-0">
                                   +{item.part.power_bonus} PE
                                 </span>
                               </div>
@@ -2790,27 +2837,32 @@ export default function Phase2Workshop({
                                 {item.part.catalog_description}
                               </p>
                               <div className="flex items-center gap-2 text-[10px] font-mono text-stone-400">
-                                <span>Marca: {item.part.corp_id || 'Coroa'}</span>
+                                <span className="text-stone-300 font-medium">{corpName}</span>
                                 <span>•</span>
                                 <span>Disponível: <strong className="text-stone-200">{remaining} un.</strong></span>
                               </div>
                             </div>
 
                             <button
-                              onClick={() => {
-                                if (remaining > 0 && !isMaxSlots) {
-                                  setSelectedModularParts(prev => [...prev, item.partId])
-                                }
-                              }}
-                              disabled={remaining <= 0 || isMaxSlots}
+                              onClick={() => handleAttachPart(item.part)}
+                              disabled={remaining <= 0 || isSlotted}
                               className={`px-2.5 py-1.5 rounded-lg text-xs font-bold shrink-0 transition flex items-center gap-1 cursor-pointer ${
-                                remaining > 0 && !isMaxSlots
+                                remaining > 0 && !isSlotted
                                   ? 'bg-amber-600/30 border border-amber-600/70 text-amber-200 hover:bg-amber-600 hover:text-stone-950'
                                   : 'bg-stone-950 border border-stone-800 text-stone-600 cursor-not-allowed'
                               }`}
                             >
-                              <Plus className="w-3 h-3" />
-                              <span>Acoplar</span>
+                              {isSlotted ? (
+                                <>
+                                  <Check className="w-3 h-3 text-emerald-400" />
+                                  <span>Acoplado</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Plus className="w-3 h-3" />
+                                  <span>Acoplar ({role === 'prefix' ? 'Prefixo' : role === 'suffix' ? 'Sufixo' : 'Base'})</span>
+                                </>
+                              )}
                             </button>
                           </div>
                         )
@@ -2822,13 +2874,18 @@ export default function Phase2Workshop({
                 {/* Coluna 2: Bancada de Montagem & Laudo Pericial (7 colunas) */}
                 <div className="lg:col-span-7 bg-[#1c1917] border border-stone-800 rounded-xl p-5 shadow-lg space-y-5">
                   <div className="flex items-center justify-between border-b border-stone-800 pb-3">
-                    <h3 className="text-sm font-bold text-amber-200 uppercase tracking-wider flex items-center gap-2">
-                      <Cpu className="w-4 h-4 text-amber-400" />
-                      Bancada de Montagem Ativa ({selectedModularParts.length}/3 Peças)
-                    </h3>
+                    <div>
+                      <h3 className="text-sm font-bold text-amber-200 uppercase tracking-wider flex items-center gap-2">
+                        <Cpu className="w-4 h-4 text-amber-400" />
+                        Bancada de Montagem Modular ({selectedModularParts.length}/3 Slots Funcionais)
+                      </h3>
+                      <p className="text-[11px] text-stone-400 mt-0.5">
+                        Acople exatamente 1 Prefixo (Modificador A), 1 Chassi (Base) e 1 Sufixo (Núcleo B).
+                      </p>
+                    </div>
                     {selectedModularParts.length > 0 && (
                       <button
-                        onClick={() => setSelectedModularParts([])}
+                        onClick={handleClearBench}
                         className="text-[10px] text-rose-400 hover:text-rose-300 font-mono underline cursor-pointer"
                       >
                         Limpar Bancada
@@ -2836,20 +2893,18 @@ export default function Phase2Workshop({
                     )}
                   </div>
 
-                  {/* 3 Slots da Bancada */}
+                  {/* 3 Slots Funcionais da Bancada */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {[0, 1, 2].map(slotIdx => {
-                      const partId = selectedModularParts[slotIdx]
-                      const partObj = partId
-                        ? MOCK_MODULAR_PARTS.find(p => p.part_id === partId || p.id === partId)
+                    {/* Slot 1: Prefixo */}
+                    {(() => {
+                      const partObj = slottedPrefix
+                        ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedPrefix || p.id === slottedPrefix)
                         : null
-
                       return (
                         <div
-                          key={slotIdx}
-                          className={`rounded-xl p-3 border min-h-[110px] flex flex-col justify-between ${
+                          className={`rounded-xl p-3 border min-h-[120px] flex flex-col justify-between ${
                             partObj
-                              ? 'bg-stone-900 border-amber-600/60 shadow'
+                              ? 'bg-stone-900 border-amber-600/70 shadow-md'
                               : 'bg-stone-950/60 border-dashed border-stone-800 flex items-center justify-center text-center'
                           }`}
                         >
@@ -2858,17 +2913,14 @@ export default function Phase2Workshop({
                               <div className="space-y-1">
                                 <div className="flex items-center justify-between">
                                   <span className="text-[9px] font-mono uppercase text-amber-400 font-bold">
-                                    Slot {slotIdx + 1}
+                                    1. Prefixo (Afixo A)
                                   </span>
                                   <button
-                                    onClick={() => {
-                                      setSelectedModularParts(prev =>
-                                        prev.filter((_, idx) => idx !== slotIdx)
-                                      )
-                                    }}
+                                    onClick={() => handleEjectSlot('prefix')}
                                     className="text-stone-400 hover:text-rose-400 p-0.5 cursor-pointer"
+                                    title="Ejetar peça"
                                   >
-                                    <X className="w-3 h-3" />
+                                    <X className="w-3.5 h-3.5" />
                                   </button>
                                 </div>
                                 <h4 className="text-xs font-bold text-stone-100 line-clamp-1">
@@ -2879,32 +2931,146 @@ export default function Phase2Workshop({
                                 </span>
                               </div>
                               <span className="text-[9px] font-mono text-stone-400 truncate">
-                                {partObj.corp_id || 'Coroa'}
+                                {CORPORATIONS_MAP[partObj.corp_id]?.name || partObj.corp_id || 'Coroa'}
                               </span>
                             </>
                           ) : (
-                            <span className="text-[11px] text-stone-400">
-                              Slot {slotIdx + 1} Vazio
-                            </span>
+                            <div className="space-y-1 py-2">
+                              <span className="text-[10px] font-bold text-amber-500 uppercase block">1. Prefixo</span>
+                              <span className="text-[11px] text-stone-400 block">Vazio (Empunhadura / Guarda / Filtro)</span>
+                            </div>
                           )}
                         </div>
                       )
-                    })}
+                    })()}
+
+                    {/* Slot 2: Chassi Base */}
+                    {(() => {
+                      const partObj = slottedBase
+                        ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedBase || p.id === slottedBase)
+                        : null
+                      return (
+                        <div
+                          className={`rounded-xl p-3 border min-h-[120px] flex flex-col justify-between ${
+                            partObj
+                              ? 'bg-stone-900 border-amber-600/70 shadow-md'
+                              : 'bg-stone-950/60 border-dashed border-stone-800 flex items-center justify-center text-center'
+                          }`}
+                        >
+                          {partObj ? (
+                            <>
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[9px] font-mono uppercase text-amber-400 font-bold">
+                                    2. Chassi Base (Item)
+                                  </span>
+                                  <button
+                                    onClick={() => handleEjectSlot('base')}
+                                    className="text-stone-400 hover:text-rose-400 p-0.5 cursor-pointer"
+                                    title="Ejetar peça"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                                <h4 className="text-xs font-bold text-stone-100 line-clamp-1">
+                                  {partObj.name}
+                                </h4>
+                                <span className="text-[10px] font-mono text-emerald-400 block font-bold">
+                                  +{partObj.power_bonus} PE
+                                </span>
+                              </div>
+                              <span className="text-[9px] font-mono text-stone-400 truncate">
+                                {CORPORATIONS_MAP[partObj.corp_id]?.name || partObj.corp_id || 'Coroa'}
+                              </span>
+                            </>
+                          ) : (
+                            <div className="space-y-1 py-2">
+                              <span className="text-[10px] font-bold text-amber-500 uppercase block">2. Chassi Base</span>
+                              <span className="text-[11px] text-stone-400 block">Vazio (Lâmina / Placa / Frasco / Gema)</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+
+                    {/* Slot 3: Sufixo */}
+                    {(() => {
+                      const partObj = slottedSuffix
+                        ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedSuffix || p.id === slottedSuffix)
+                        : null
+                      return (
+                        <div
+                          className={`rounded-xl p-3 border min-h-[120px] flex flex-col justify-between ${
+                            partObj
+                              ? 'bg-stone-900 border-amber-600/70 shadow-md'
+                              : 'bg-stone-950/60 border-dashed border-stone-800 flex items-center justify-center text-center'
+                          }`}
+                        >
+                          {partObj ? (
+                            <>
+                              <div className="space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[9px] font-mono uppercase text-amber-400 font-bold">
+                                    3. Sufixo (Núcleo B)
+                                  </span>
+                                  <button
+                                    onClick={() => handleEjectSlot('suffix')}
+                                    className="text-stone-400 hover:text-rose-400 p-0.5 cursor-pointer"
+                                    title="Ejetar peça"
+                                  >
+                                    <X className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                                <h4 className="text-xs font-bold text-stone-100 line-clamp-1">
+                                  {partObj.name}
+                                </h4>
+                                <span className="text-[10px] font-mono text-emerald-400 block font-bold">
+                                  +{partObj.power_bonus} PE
+                                </span>
+                              </div>
+                              <span className="text-[9px] font-mono text-stone-400 truncate">
+                                {CORPORATIONS_MAP[partObj.corp_id]?.name || partObj.corp_id || 'Coroa'}
+                              </span>
+                            </>
+                          ) : (
+                            <div className="space-y-1 py-2">
+                              <span className="text-[10px] font-bold text-amber-500 uppercase block">3. Sufixo</span>
+                              <span className="text-[11px] text-stone-400 block">Vazio (Núcleo Arcano / Matriz / Selo)</span>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
                   </div>
 
-                  {/* Nome do Artefato Customizado */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-stone-300 block">
-                      Denominação Notarial do Artefato:
-                    </label>
-                    <input
-                      type="text"
-                      value={modularBaseName}
-                      onChange={e => setModularBaseName(e.target.value)}
-                      placeholder="Ex: Gládio Modular Híbrido"
-                      className="w-full bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-xs text-stone-100 focus:border-amber-500 focus:outline-none font-sans"
-                    />
-                  </div>
+                  {/* Nome do Artefato Customizado ou Nomenclatura Procedural */}
+                  {(() => {
+                    const prefixPartObj = slottedPrefix ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedPrefix || p.id === slottedPrefix) : null
+                    const basePartObj = slottedBase ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedBase || p.id === slottedBase) : null
+                    const suffixPartObj = slottedSuffix ? MOCK_MODULAR_PARTS.find(p => p.part_id === slottedSuffix || p.id === slottedSuffix) : null
+
+                    const generatedName = [prefixPartObj?.name_modifier, basePartObj?.name, suffixPartObj?.name_modifier].filter(Boolean).join(' ') || 'Artefato Modular Homologado'
+
+                    return (
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-stone-300 block">
+                            Denominação Notarial do Artefato:
+                          </label>
+                          <span className="text-[10px] font-mono text-amber-400 italic">
+                            Sugestão Procedural: {generatedName}
+                          </span>
+                        </div>
+                        <input
+                          type="text"
+                          value={modularBaseName}
+                          onChange={e => setModularBaseName(e.target.value)}
+                          placeholder={generatedName}
+                          className="w-full bg-stone-900 border border-stone-700 rounded-lg px-3 py-2 text-xs text-stone-100 focus:border-amber-500 focus:outline-none font-sans"
+                        />
+                      </div>
+                    )
+                  })()}
 
                   {/* Diagnóstico Pericial de Compatibilidade */}
                   {selectedModularParts.length >= 2 ? (
@@ -3127,12 +3293,19 @@ export default function Phase2Workshop({
                     >
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-900 border border-stone-700 text-stone-300 font-semibold">
-                            {part.corp_id || 'Coroa'}
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-900 border border-stone-700 text-stone-300 font-semibold truncate max-w-[150px]">
+                            {CORPORATIONS_MAP[part.corp_id]?.name || part.corp_id || 'Coroa Imperial'}
                           </span>
-                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/70 border border-amber-700/60 text-amber-300 font-bold">
-                            Nível {part.tier}
-                          </span>
+                          <div className="flex items-center gap-1">
+                            {part.slot_role && (
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-stone-950 border border-stone-800 text-amber-300 font-bold">
+                                {part.slot_role === 'prefix' ? 'Prefixo' : part.slot_role === 'suffix' ? 'Sufixo' : 'Chassi Base'}
+                              </span>
+                            )}
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950/70 border border-amber-700/60 text-amber-300 font-bold">
+                              Nível {part.tier}
+                            </span>
+                          </div>
                         </div>
 
                         <h4 className="text-sm font-bold text-stone-100">{part.name}</h4>

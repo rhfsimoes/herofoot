@@ -377,16 +377,32 @@ class PhaseService:
         # Registro dos titulares da última expedição
         self.state.last_expedition_starters = [h["id"] for h in starter_heroes] if starter_heroes else list(self.state.starters)
 
-        # Geração e Registro Real de Espólios de Masmorras (Loot Real)
+        # Geração e Registro Real de Espólios de Masmorras (Peças Modulares Reais)
         rooms_player = sim_result.get("rooms_explored_player", 0)
         dungeon_terrain = dungeon.get("terrain", "neutral")
         loot_dropped = self._generate_dungeon_loot(dungeon_terrain, rooms_player, round_rng)
         self.state.last_expedition_loot = loot_dropped
         for item in loot_dropped:
-            mat_id = item["material_id"]
-            qty = item["quantity"]
-            self.state.materials[mat_id] = self.state.materials.get(mat_id, 0) + qty
-            match_log.append(f"[Logística de Espólios] Recuperado: {qty}x '{item.get('name', mat_id)}' ({item.get('rarity', 'Comum')}).")
+            pid = item.get("part_id", item.get("material_id"))
+            qty = item.get("quantity", 1)
+            if hasattr(self.state, "add_warehouse_part"):
+                self.state.add_warehouse_part(pid, qty)
+            else:
+                self.state.warehouse_parts[pid] = self.state.warehouse_parts.get(pid, 0) + qty
+            self.state.materials[pid] = self.state.materials.get(pid, 0) + qty
+            match_log.append(f"[Logística de Espólios] Recuperado: {qty}x '{item.get('name', pid)}' ({item.get('slot_role', 'Peça').capitalize()}).")
+
+        # Atualização da Confiança da Contratante com base no resultado da expedição
+        confidence_gain = balance.get("expedition", {}).get("confidence_gain_win", 3)
+        confidence_loss = balance.get("expedition", {}).get("confidence_loss_defeat", 3)
+        if player_pe > rival_pe:
+            self.state.contractor_confidence = min(100, getattr(self.state, "contractor_confidence", 75) + confidence_gain)
+            match_log.append(f"[Contratante] Vitória na expedição! Confiança da Coroa elevada (+{confidence_gain} pts).")
+        elif player_pe < rival_pe:
+            self.state.contractor_confidence = max(0, getattr(self.state, "contractor_confidence", 75) - confidence_loss)
+            match_log.append(f"[Contratante] Desempenho insuficiente perante os rivais. Advertência notarial emitida (-{confidence_loss} pts).")
+        else:
+            match_log.append("[Contratante] Empate técnico homologado perante o consórcio rival (Confiança inalterada).")
 
         # 6. Simulação de TODOS os confrontos da Liga
         round_results = self.league_engine.process_round_simulations(
@@ -573,59 +589,59 @@ class PhaseService:
         return self.phase_5_results()
 
     def _generate_dungeon_loot(self, terrain: str, rooms_explored: int, rng: random.Random) -> list:
-        """Sorteia insumos corporativos com base no terreno da masmorra e nas salas alcançadas."""
+        """Sorteia peças modulares físicas com base no terreno da masmorra e nas salas alcançadas."""
         if rooms_explored <= 0:
             return []
 
-        sources_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'material_sources_seed.json')
-        if not os.path.exists(sources_path):
+        parts_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'parts_seed.json')
+        if not os.path.exists(parts_path):
             return []
 
         try:
-            with open(sources_path, 'r', encoding='utf-8') as f:
-                all_sources = json.load(f)
+            with open(parts_path, 'r', encoding='utf-8') as f:
+                all_parts = json.load(f)
         except Exception:
             return []
 
-        materials_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'materials_seed.json')
-        materials_meta = {}
-        if os.path.exists(materials_path):
-            try:
-                with open(materials_path, 'r', encoding='utf-8') as f:
-                    for mat in json.load(f):
-                        materials_meta[mat.get("id")] = mat
-            except Exception:
-                pass
+        terrain_corp_map = {
+            "toxic_swamp": ["corp_swamp_alchemy", "corp_goblin_eng"],
+            "glacier_frost": ["corp_elf_precision", "corp_goblin_eng"],
+            "unstable_mine": ["corp_dwarf_steel", "corp_goblin_eng"],
+            "neutral": ["corp_aethelgard", "corp_valkyria", "corp_crown_notarial", "corp_goblin_eng"],
+        }
+        target_corps = terrain_corp_map.get(terrain, terrain_corp_map["neutral"])
 
-        matching_sources = [s for s in all_sources if s.get("terrain") == terrain]
-        if not matching_sources:
-            matching_sources = [s for s in all_sources if s.get("terrain") == "neutral"]
+        eligible = [p for p in all_parts if p.get("corp_id") in target_corps]
+        if not eligible:
+            eligible = all_parts
 
+        if rooms_explored < 3:
+            part_count = 1 if rng.random() < 0.75 else 0
+        elif rooms_explored < 7:
+            part_count = rng.randint(1, 2)
+        else:
+            part_count = rng.randint(2, 3)
+
+        if part_count == 0:
+            part_count = 1
+
+        chosen_parts = rng.sample(eligible, min(part_count, len(eligible)))
         loot = []
-        for src in matching_sources:
-            min_rooms = src.get("min_rooms_reached", 1)
-            if rooms_explored < min_rooms:
-                continue
-
-            boss_only = src.get("boss_only", False)
-            if boss_only and rooms_explored < 10:
-                continue
-
-            chance = src.get("chance", 0.0)
-            if rng.random() < chance:
-                qty_min = src.get("qty_min", 1)
-                qty_max = src.get("qty_max", 1)
-                qty = rng.randint(qty_min, qty_max)
-                mat_id = src.get("material_id")
-                mat_info = materials_meta.get(mat_id, {})
-                mat_name = mat_info.get("name", mat_id)
-                mat_rarity = mat_info.get("rarity", "Comum")
-
-                loot.append({
-                    "material_id": mat_id,
-                    "name": mat_name,
-                    "quantity": qty,
-                    "rarity": mat_rarity,
-                })
+        for p in chosen_parts:
+            pid = p.get("id", p.get("part_id"))
+            tier = p.get("tier", 1)
+            rarity = "Comum" if tier == 1 else ("Raro" if tier == 2 else "Lendário")
+            loot.append({
+                "part_id": pid,
+                "material_id": pid,
+                "name": p.get("name", pid),
+                "quantity": 1,
+                "rarity": rarity,
+                "corp_id": p.get("corp_id", "corp_generic"),
+                "slot_role": p.get("slot_role", "base"),
+                "power_bonus": p.get("power_bonus", 10),
+                "tier": tier,
+                "branch": p.get("branch", "Ferragem"),
+            })
 
         return loot

@@ -389,7 +389,8 @@
           "gold": 130,
           "fatigue_all": 0,
           "supplies_bonus": 0,
-          "morale": 10
+          "morale": -10,
+          "contractor_confidence": -10
         }
       },
       {
