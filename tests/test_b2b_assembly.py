@@ -296,8 +296,10 @@ class TestB2BAssembly(unittest.TestCase):
         )
         self.assertTrue(valid_res["success"], valid_res.get("message"))
         item = valid_res["item"]
-        self.assertIn("Equilibrada", item["name"])
-        self.assertIn("Lâmina Forjada", item["name"])
+        self.assertIn("Equilibrad", item["name"])
+        self.assertIn("Canhões", item["name"])
+
+    def test_assembly_line_autonomous_production_and_dre_flow(self):
         """Operários montam produtos White-label autonomamente e consolidam no DRE contábil."""
         # 1. Contrata operário júnior para a Ferragem
         hire_res = self.controller.hire_assembly_worker("worker_fitter_junior", "Ferragem")
@@ -313,7 +315,7 @@ class TestB2BAssembly(unittest.TestCase):
         self.controller.sign_b2b_contract("b2b_aethelgard_bronze")
 
         # 4. Fornece exatamente as 2 peças necessárias por ciclo no almoxarifado
-        self.state.warehouse_parts["part_aethelgard_blade"] = 2
+        self.state.warehouse_parts = {"part_aethelgard_blade": 2}
 
         # 5. Executa fechamento contábil e apuração financeira da Fase 5
         init_gold = self.state.gold

@@ -772,7 +772,7 @@ class CraftingService:
             effective_base_name = base_item_name
         else:
             p_prefix = prefix_part.get("name_modifier", "") if prefix_part else ""
-            p_base = base_part.get("name", "Artefato")
+            p_base = base_part.get("name_modifier") or base_part.get("name", "Artefato")
             p_suffix = suffix_part.get("name_modifier", "") if suffix_part else ""
             effective_base_name = " ".join(filter(None, [p_prefix, p_base, p_suffix])).strip()
             if not effective_base_name:

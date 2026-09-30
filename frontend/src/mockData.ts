@@ -2460,7 +2460,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "part_id": "part_aethelgard_blade",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Lâmina Forjada Aethelgard",
+    "name": "Bateria de Canhões Aethelgard",
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
@@ -2471,7 +2471,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 50,
     "power_bonus": 25,
     "power_contrib": 25,
-    "catalog_description": "Lâmina de corte preciso temperada nas fundições de Aethelgard.",
+    "catalog_description": "Bateria de canhões móveis temperada nas fundições de Aethelgard para apoio à força-tarefa.",
     "effects": [
       {
         "effect": "power_flat",
@@ -2479,14 +2479,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Lâmina Forjada Aethelgard"
+    "name_modifier": "Bateria de Canhões Aethelgard"
   },
   {
     "id": "part_aethelgard_hilt",
     "part_id": "part_aethelgard_hilt",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Empunhadura Padrão Aethelgard",
+    "name": "Mancal Estabilizador Aethelgard",
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
@@ -2497,7 +2497,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 40,
     "power_bonus": 10,
     "power_contrib": 10,
-    "catalog_description": "Guarda de couro trançado com contrapeso balanceado.",
+    "catalog_description": "Mancal estabilizador com contrapesos para cadência contínua de disparo.",
     "effects": [
       {
         "effect": "power_flat",
@@ -2505,14 +2505,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Equilibrada"
+    "name_modifier": "Equilibrado"
   },
   {
     "id": "part_valkyria_guard",
     "part_id": "part_valkyria_guard",
     "corp_id": "corp_valkyria",
     "brand_id": "corp_valkyria",
-    "name": "Guarda Articulada Valkyria",
+    "name": "Guarda de Impacto Valkyria",
     "branch": "Ferragem",
     "part_type": "guard",
     "compatible_slots": [
@@ -2524,7 +2524,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 60,
     "power_bonus": 15,
     "power_contrib": 15,
-    "catalog_description": "Mecanismo defensivo de absorção de impacto do Consórcio Bélico.",
+    "catalog_description": "Mecanismo defensivo de absorção de impacto do Consórcio Bélico para a linha de frente.",
     "effects": [
       {
         "effect": "power_flat",
@@ -2532,14 +2532,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Articulada"
+    "name_modifier": "Articulado"
   },
   {
     "id": "part_valkyria_plate",
     "part_id": "part_valkyria_plate",
     "corp_id": "corp_valkyria",
     "brand_id": "corp_valkyria",
-    "name": "Placa Estriada Valkyria",
+    "name": "Kit de Blindagem Valkyria",
     "branch": "Ferragem",
     "part_type": "plating",
     "compatible_slots": [
@@ -2550,7 +2550,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 90,
     "power_bonus": 20,
     "power_contrib": 20,
-    "catalog_description": "Blindagem de vanguarda com estrias de deflexão.",
+    "catalog_description": "Blindagem de absorção de choque balístico para proteção coletiva da equipe.",
     "effects": [
       {
         "effect": "power_flat",
@@ -2558,7 +2558,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Placa Estriada Valkyria"
+    "name_modifier": "Kit de Blindagem Valkyria"
   },
   {
     "id": "part_flamel_catalyst",
@@ -3140,7 +3140,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
   },
   {
     "id": "part_dwarf_plating_01",
-    "name": "Placa Reforçada de Aço Anão",
+    "name": "Barricada de Aço Anão",
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
@@ -3148,7 +3148,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 1,
     "market_price_base": 85,
-    "catalog_description": "Chapa maciça de ferro laminado prensado sob toneladas de rocha viva. Resistência mecânica simples e impiedosa.",
+    "catalog_description": "Paredão de proteção portátil forjado pelos sindicatos mineiros subterrâneos.",
     "part_id": "part_dwarf_plating_01",
     "corp_id": "corp_dwarf_steel",
     "base_cost": 85,
@@ -3164,11 +3164,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Placa Reforçada de Aço Anão"
+    "name_modifier": "Barricada de Aço Anão"
   },
   {
     "id": "part_dwarf_plating_02",
-    "name": "Lamelas Robustas de Granito Vulcânico",
+    "name": "Kit de Blindagem Vulcânica",
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
@@ -3176,7 +3176,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 1,
     "market_price_base": 95,
-    "catalog_description": "Escamas de pedra densa fixadas por rebites de aço negro. Suportam marteladas frontais sem sofrer deformação estrutural.",
+    "catalog_description": "Blindagem térmica de alta resistência contra colapsos e calor extremo.",
     "part_id": "part_dwarf_plating_02",
     "corp_id": "corp_dwarf_steel",
     "base_cost": 95,
@@ -3192,11 +3192,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Lamelas Robustas de Granito Vulcânico"
+    "name_modifier": "Kit de Blindagem Vulcânica"
   },
   {
     "id": "part_dwarf_plating_03",
-    "name": "Couraça Maciça de Minério Negro",
+    "name": "Barricada Portátil de Minério Negro",
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
@@ -3204,7 +3204,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 2,
     "market_price_base": 210,
-    "catalog_description": "Blindagem de altíssima densidade forjada em fornos subterrâneos profundos. Bloqueia flechas e presas com solidez monástica.",
+    "catalog_description": "Estrutura modular pesada para contenção de ataques massivos de área.",
     "part_id": "part_dwarf_plating_03",
     "corp_id": "corp_dwarf_steel",
     "base_cost": 210,
@@ -3220,11 +3220,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Couraça Maciça de Minério Negro"
+    "name_modifier": "Barricada de Minério Negro"
   },
   {
     "id": "part_dwarf_plating_04",
-    "name": "Blindagem Impenetrável da Cidadela Subterrânea",
+    "name": "Blindagem Coletiva da Cidadela",
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
@@ -3232,7 +3232,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 3,
     "market_price_base": 390,
-    "catalog_description": "O ápice da metalurgia anã: ligas de aço titânico impenetráveis a ataques convencionais. Aventureiros dentro dela se sentem como cofres fortes.",
+    "catalog_description": "EPC completo de blindagem pesada para guarnecer toda a força-tarefa.",
     "part_id": "part_dwarf_plating_04",
     "corp_id": "corp_dwarf_steel",
     "base_cost": 390,
@@ -3252,11 +3252,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Blindagem Impenetrável da Cidadela Subterrânea"
+    "name_modifier": "Blindagem da Cidadela"
   },
   {
     "id": "part_dwarf_plating_05",
-    "name": "Revestimento Galvanizado Anti-Ácido",
+    "name": "Revestimento Galvanizado",
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
@@ -3265,7 +3265,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 3,
     "market_price_base": 350,
-    "catalog_description": "Banho de zinco eletrolítico e resina protetora que impede a corrosão de peças mesmo sob chuvas de ácido sulfúrico.",
+    "catalog_description": "Tratamento anticorrosivo para chapas de proteção e blindagens coletivas.",
     "part_id": "part_dwarf_plating_05",
     "corp_id": "corp_dwarf_steel",
     "base_cost": 350,
@@ -3285,11 +3285,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Galvanizada"
+    "name_modifier": "Galvanizado"
   },
   {
     "id": "part_dwarf_core_01",
-    "name": "Âncora Gravitacional de Minas Instáveis",
+    "name": "Âncora Gravitacional",
     "brand_id": "corp_dwarf_steel",
     "part_type": "core",
     "compatible_slots": [
@@ -3297,7 +3297,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 1,
     "market_price_base": 125,
-    "catalog_description": "Contrapeso rúnico que mitiga vibrações e desabamentos de tetos em galerias instáveis e minas abandonadas.",
+    "catalog_description": "Mancal estabilizador que ancora o esquadrão perante desmoronamentos.",
     "part_id": "part_dwarf_core_01",
     "corp_id": "corp_dwarf_steel",
     "base_cost": 125,
@@ -3313,7 +3313,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "da Gravidade Pesada"
+    "name_modifier": "Pesado"
   },
   {
     "id": "part_dwarf_plating_06",
@@ -3383,7 +3383,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
   },
   {
     "id": "part_swamp_filter_01",
-    "name": "Filtro Decantador de Caldo Concentrado",
+    "name": "Lote de Provisões do Charco",
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
@@ -3391,7 +3391,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 1,
     "market_price_base": 75,
-    "catalog_description": "Serpentina de cobre corroído que extrai a última gota de nutrientes e energia calórica de extratos orgânicos fermentados.",
+    "catalog_description": "Suprimentos nutritivos desidratados e adaptados para ambientes úmidos.",
     "part_id": "part_swamp_filter_01",
     "corp_id": "corp_swamp_alchemy",
     "base_cost": 75,
@@ -3407,11 +3407,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Filtro Decantador de Caldo Concentrado"
+    "name_modifier": "Provisões do Charco"
   },
   {
     "id": "part_swamp_filter_02",
-    "name": "Prensa de Suplemento de Algas Pútridas",
+    "name": "Catering Concentrado de Algas",
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
@@ -3419,7 +3419,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 1,
     "market_price_base": 65,
-    "catalog_description": "Concentrador de biomassa pantanosa. O gosto lembra lodo estagnado, mas sustenta pernas cansadas por mais duas salas.",
+    "catalog_description": "Rações de alta caloria prensadas a partir de flora aquática pantanosa.",
     "part_id": "part_swamp_filter_02",
     "corp_id": "corp_swamp_alchemy",
     "base_cost": 65,
@@ -3435,11 +3435,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Prensa de Suplemento de Algas Pútridas"
+    "name_modifier": "Catering de Algas"
   },
   {
     "id": "part_swamp_core_01",
-    "name": "Filtro Neutralizador de Miasma Tóxico",
+    "name": "Filtro Neutralizador de Miasma",
     "brand_id": "corp_swamp_alchemy",
     "part_type": "core",
     "compatible_slots": [
@@ -3447,7 +3447,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 1,
     "market_price_base": 120,
-    "catalog_description": "Cartucho de carvão ativado com infusão de turfa que mitiga automaticamente os vapores asfixiantes de pântanos pestilentos.",
+    "catalog_description": "Filtro especial de carvão ativado contra gases fétidos e esporos venenosos.",
     "part_id": "part_swamp_core_01",
     "corp_id": "corp_swamp_alchemy",
     "base_cost": 120,
@@ -3467,7 +3467,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
   },
   {
     "id": "part_swamp_filter_03",
-    "name": "Dosador Graduado de Prontuário Médico",
+    "name": "Dosador Graduado de Prontuário",
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
@@ -3475,7 +3475,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 2,
     "market_price_base": 175,
-    "catalog_description": "Ampola com graduação clínica precisa para administração fracionada de remédios sem desperdiçar doses homologadas.",
+    "catalog_description": "Dispositivo para dosagem controlada de antibióticos e elixires.",
     "part_id": "part_swamp_filter_03",
     "corp_id": "corp_swamp_alchemy",
     "base_cost": 175,
@@ -3496,11 +3496,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Graduada"
+    "name_modifier": "Graduado"
   },
   {
     "id": "part_swamp_filter_04",
-    "name": "Válvula de Infusão de Produtividade Contínua",
+    "name": "Válvula de Infusão de Produtividade",
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
@@ -3508,7 +3508,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 2,
     "market_price_base": 165,
-    "catalog_description": "Gotejador automático de tônico revigorante que mantém o explorador alerta sem pausas sindicais para descanso.",
+    "catalog_description": "Regulador de fluxo para fornecimento constante de nutrientes.",
     "part_id": "part_swamp_filter_04",
     "corp_id": "corp_swamp_alchemy",
     "base_cost": 165,
@@ -3529,11 +3529,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Apurada"
+    "name_modifier": "Apurado"
   },
   {
     "id": "part_swamp_core_02",
-    "name": "Injetor Químico de Fuga e Evacuação",
+    "name": "Injetor Químico de Evacuação",
     "brand_id": "corp_swamp_alchemy",
     "part_type": "core",
     "compatible_slots": [
@@ -3541,7 +3541,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 2,
     "market_price_base": 185,
-    "catalog_description": "Carga de emergência que injeta eletrólitos imediatos na corrente sanguínea em caso de colapso de suprimentos nas profundezas.",
+    "catalog_description": "Sistema de liberação rápida de compostos estimulantes para retirada emergencial.",
     "part_id": "part_swamp_core_02",
     "corp_id": "corp_swamp_alchemy",
     "base_cost": 185,
@@ -3562,11 +3562,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "do Patrono"
+    "name_modifier": "de Fuga"
   },
   {
     "id": "part_swamp_core_03",
-    "name": "Difusor Balsâmico de Eucalipto Medicinal",
+    "name": "Difusor Balsâmico Medicinal",
     "brand_id": "corp_swamp_alchemy",
     "part_type": "core",
     "compatible_slots": [
@@ -3574,7 +3574,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 2,
     "market_price_base": 195,
-    "catalog_description": "Cápsula aromática que dispersa vapores broncodilatadores, aumentando a tolerância pulmonar dos aventureiros em fendas venenosas.",
+    "catalog_description": "Dispersor aromático que alivia a fadiga pulmonar nas masmorras.",
     "part_id": "part_swamp_core_03",
     "corp_id": "corp_swamp_alchemy",
     "base_cost": 195,
@@ -3595,11 +3595,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Balsâmica"
+    "name_modifier": "Balsâmico"
   },
   {
     "id": "part_swamp_gem_01",
-    "name": "Âmbar Fétido de Adicional de Insalubridade",
+    "name": "Âmbar de Insalubridade",
     "brand_id": "corp_swamp_alchemy",
     "part_type": "gem",
     "compatible_slots": [
@@ -3607,7 +3607,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 2,
     "market_price_base": 215,
-    "catalog_description": "Joia incrustada com fungos luminescentes do pântano. O cheiro é hediondo, mas o valor contábil perante avaliadores de risco é indiscutível.",
+    "catalog_description": "Compensação financeira e energética para missões em terreno tóxico.",
     "part_id": "part_swamp_gem_01",
     "corp_id": "corp_swamp_alchemy",
     "base_cost": 215,
@@ -3632,7 +3632,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
   },
   {
     "id": "part_crown_plating_01",
-    "name": "Couro Escamado Padrão da Fazenda Real",
+    "name": "Fardamento Reforçado da Fazenda Real",
     "brand_id": "corp_crown_notarial",
     "part_type": "plating",
     "compatible_slots": [
@@ -3640,7 +3640,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 1,
     "market_price_base": 90,
-    "catalog_description": "Lamelas curtidas sob fiscalização da inspeção régia. Peça genérica, padronizada e perfeitamente substituível em qualquer reparo.",
+    "catalog_description": "Uniformes com mantas protetoras padronizadas pela Coroa para o esquadrão.",
     "part_id": "part_crown_plating_01",
     "corp_id": "corp_crown_notarial",
     "base_cost": 90,
@@ -3656,7 +3656,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Couro Escamado Padrão da Fazenda Real"
+    "name_modifier": "Fardamento da Fazenda Real"
   },
   {
     "id": "part_crown_gem_01",
@@ -3744,7 +3744,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
   },
   {
     "id": "part_crown_hilt_01",
-    "name": "Pomo Gravado com Termo de Responsabilidade",
+    "name": "Pomo Notarial de Responsabilidade",
     "brand_id": "corp_crown_notarial",
     "part_type": "hilt",
     "compatible_slots": [
@@ -3752,7 +3752,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 1,
     "market_price_base": 115,
-    "catalog_description": "Pomo com juramento legal esculpido em baixo-relevo, isentando a Coroa de qualquer sinistro decorrente do manuseio de armas.",
+    "catalog_description": "Terminal de empunhadura com gravação oficial do conselho imperial.",
     "part_id": "part_crown_hilt_01",
     "corp_id": "corp_crown_notarial",
     "base_cost": 115,
@@ -3773,11 +3773,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Chancelada"
+    "name_modifier": "Chancelado"
   },
   {
     "id": "part_crown_hilt_02",
-    "name": "Guarda-Mão de Cláusula Rescisória",
+    "name": "Guarda de Cláusula Rescisória",
     "brand_id": "corp_crown_notarial",
     "part_type": "hilt",
     "compatible_slots": [
@@ -3785,7 +3785,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 2,
     "market_price_base": 185,
-    "catalog_description": "Guarda cruzada com carimbo régio que estipula o pagamento de aviso prévio proporcional caso a lâmina se parta em serviço.",
+    "catalog_description": "Guarda-mão de aço forjado com garantia de indenização.",
     "part_id": "part_crown_hilt_02",
     "corp_id": "corp_crown_notarial",
     "base_cost": 185,
@@ -3806,11 +3806,11 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Forjada"
+    "name_modifier": "Forjado"
   },
   {
     "id": "part_crown_plating_02",
-    "name": "Braçadeira Chancelada por Laudo Pericial",
+    "name": "Braçadeira Chancelada",
     "brand_id": "corp_crown_notarial",
     "part_type": "plating",
     "compatible_slots": [
@@ -3818,7 +3818,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "tier": 2,
     "market_price_base": 200,
-    "catalog_description": "Proteção de antebraço vistoriada e carimbada pelos peritos da Fazenda Real, garantindo conformidade balística contra contestações.",
+    "catalog_description": "Braçadeiras com selo de aprovação pericial da Coroa Imperial.",
     "part_id": "part_crown_plating_02",
     "corp_id": "corp_crown_notarial",
     "base_cost": 200,
@@ -3839,7 +3839,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Homologada"
+    "name_modifier": "Homologado"
   },
   {
     "id": "part_crown_core_02",
@@ -3924,7 +3924,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 60,
     "power_bonus": 8,
     "power_contrib": 8,
-    "catalog_description": "Rebite de aço fundido sob alta pressão que sela as tolerâncias da lâmina com certificação da Coroa.",
+    "catalog_description": "Rebites de alta pressão para sustentação de baterias móveis de esquadrão.",
     "slot_role": "suffix",
     "name_modifier": "de Aethelgard",
     "effects": [
@@ -3951,7 +3951,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 160,
     "power_bonus": 14,
     "power_contrib": 14,
-    "catalog_description": "Módulo balístico de absorção de impacto com a chancela estriada do consórcio armamentista Valkyria.",
+    "catalog_description": "Revestimento blindado contra ataques pesados e projéteis inimigos.",
     "slot_role": "suffix",
     "name_modifier": "da Valkyria",
     "effects": [
@@ -3966,7 +3966,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "part_id": "part_valkyria_blade",
     "corp_id": "corp_valkyria",
     "brand_id": "corp_valkyria",
-    "name": "Chassi de Combate Valkyria",
+    "name": "Chassi Bélico Valkyria",
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
@@ -3978,9 +3978,9 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 170,
     "power_bonus": 15,
     "power_contrib": 15,
-    "catalog_description": "Estrutura mecânica reforçada em liga estriada para montagem pesada.",
+    "catalog_description": "Estrutura tática móvel reforçada para armamento pesado e apoio ofensivo.",
     "slot_role": "base",
-    "name_modifier": "Chassi Valkyria",
+    "name_modifier": "Chassi Bélico Valkyria",
     "effects": [
       {
         "effect": "power_flat",
@@ -4005,7 +4005,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 70,
     "power_bonus": 8,
     "power_contrib": 8,
-    "catalog_description": "Bocal de precisão em vidro temperado para infusão homogênea e fluxo laminar.",
+    "catalog_description": "Válvula de distribuição precisa de estimulantes e filtros para a equipe.",
     "slot_role": "prefix",
     "name_modifier": "Destilado",
     "effects": [
@@ -4020,7 +4020,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "part_id": "part_chancellor_frame",
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
-    "name": "Armação de Ouro Chanceler",
+    "name": "Ativo de Retenção Chanceler",
     "branch": "Joalheria",
     "part_type": "plating",
     "compatible_slots": [
@@ -4032,9 +4032,9 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 180,
     "power_bonus": 14,
     "power_contrib": 14,
-    "catalog_description": "Estrutura aristocrática em ouro batido para montagem de amuletos da alta nobreza.",
+    "catalog_description": "Insignia de premiação corporativa que eleva a moral e dedicação da guilda.",
     "slot_role": "base",
-    "name_modifier": "Chanceler",
+    "name_modifier": "Ativo Chanceler",
     "effects": [
       {
         "effect": "power_flat",
@@ -4058,7 +4058,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 80,
     "power_bonus": 8,
     "power_contrib": 8,
-    "catalog_description": "Fecho notarial em platina polida certificado pela corte de auditoria.",
+    "catalog_description": "Fecho nobre decorativo para condecorações da Chancelaria.",
     "slot_role": "prefix",
     "name_modifier": "Aureolado",
     "effects": [
@@ -4073,7 +4073,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "part_id": "part_gob_core_00",
     "corp_id": "corp_goblin_eng",
     "brand_id": "corp_goblin_eng",
-    "name": "Detonador de Atrito Goblin",
+    "name": "Lote de Dinamites Táticas Goblin",
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
@@ -4085,7 +4085,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 65,
     "power_bonus": 7,
     "power_contrib": 7,
-    "catalog_description": "Cápsula de pólvora e limalha de cobre que estala ao menor atrito mecânico.",
+    "catalog_description": "Cartuchos explosivos concentrados para abrir caminhos e aniquilar aglomerações.",
     "slot_role": "suffix",
     "name_modifier": "Explosivo",
     "effects": [
@@ -4139,7 +4139,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 70,
     "power_bonus": 8,
     "power_contrib": 8,
-    "catalog_description": "Grampo de ferro fundido nas forjas abissais com pegada inabalável.",
+    "catalog_description": "Travas de aço maciço para articulações pesadas de defesa e ataque.",
     "slot_role": "prefix",
     "name_modifier": "Maciço",
     "effects": [
@@ -4181,7 +4181,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "part_id": "part_aethelgard_blade_t2",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Lâmina Prensada Aethelgard",
+    "name": "Canhões Prensados Aethelgard",
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
@@ -4192,7 +4192,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 110,
     "power_bonus": 50,
     "power_contrib": 50,
-    "catalog_description": "Lâmina de aço temperado com ranhuras de balanceamento industrial.",
+    "catalog_description": "Artilharia pesada de longo alcance prensada com ligas nobres da guilda Aethelgard.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4200,14 +4200,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Lâmina Prensada Aethelgard"
+    "name_modifier": "Canhões Prensados Aethelgard"
   },
   {
     "id": "part_aethelgard_hilt_t2",
     "part_id": "part_aethelgard_hilt_t2",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Empunhadura Reforçada Aethelgard",
+    "name": "Mancal Reforçado Aethelgard",
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
@@ -4218,7 +4218,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 95,
     "power_bonus": 40,
     "power_contrib": 40,
-    "catalog_description": "Guarda em liga de níquel que absorve o recuo de golpes severos.",
+    "catalog_description": "Estrutura estabilizadora reforçada para absorver recuo de artilharia pesada.",
     "effects": [
       {
         "effect": "mitigation_flat",
@@ -4226,7 +4226,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Empunhadura Reforçada Aethelgard"
+    "name_modifier": "Reforçado"
   },
   {
     "id": "part_aethelgard_core_t2",
@@ -4245,7 +4245,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 100,
     "power_bonus": 45,
     "power_contrib": 45,
-    "catalog_description": "Rebite de liga reforçada com cravamento de alta precisão fabril.",
+    "catalog_description": "Elementos de fixação forjados a quente para máxima durabilidade estrutural.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4253,14 +4253,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Rebite Temperado Aethelgard"
+    "name_modifier": "de Aço"
   },
   {
     "id": "part_aethelgard_blade_t3",
     "part_id": "part_aethelgard_blade_t3",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Lâmina de Mithril Aethelgard",
+    "name": "Arsenal de Mithril Aethelgard",
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
@@ -4271,7 +4271,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 220,
     "power_bonus": 90,
     "power_contrib": 90,
-    "catalog_description": "Lâmina forjada em liga nobre de mithril pelos mestres metalúrgicos da Siderúrgica.",
+    "catalog_description": "Bateria móvel de elite revestida em mithril para bombardeio tático de alta cadência.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4279,14 +4279,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Lâmina de Mithril Aethelgard"
+    "name_modifier": "Arsenal de Mithril Aethelgard"
   },
   {
     "id": "part_aethelgard_hilt_t3",
     "part_id": "part_aethelgard_hilt_t3",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Empunhadura Nobre Aethelgard",
+    "name": "Mancal Nobre Aethelgard",
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
@@ -4297,7 +4297,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 200,
     "power_bonus": 80,
     "power_contrib": 80,
-    "catalog_description": "Empunhadura de luxo revestida em couro dracônico com encaixes de mithril.",
+    "catalog_description": "Engrenagens de precisão arcanas para direcionamento do arsenal de vanguarda.",
     "effects": [
       {
         "effect": "mitigation_flat",
@@ -4305,7 +4305,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Empunhadura Nobre Aethelgard"
+    "name_modifier": "Nobre"
   },
   {
     "id": "part_aethelgard_core_t3",
@@ -4324,7 +4324,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 210,
     "power_bonus": 85,
     "power_contrib": 85,
-    "catalog_description": "Núcleo térmico pulsante de alta retenção de energia mecânica.",
+    "catalog_description": "Matriz de combustão contínua para disparos ininterruptos do esquadrão.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4332,14 +4332,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Núcleo de Forja Aethelgard"
+    "name_modifier": "de Forja"
   },
   {
     "id": "part_valkyria_blade_t1",
     "part_id": "part_valkyria_blade_t1",
     "corp_id": "corp_valkyria",
     "brand_id": "corp_valkyria",
-    "name": "Lâmina Estriada Valkyria",
+    "name": "Artilharia Pesada Valkyria",
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
@@ -4350,7 +4350,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 55,
     "power_bonus": 28,
     "power_contrib": 28,
-    "catalog_description": "Gume chanfrado de combate com microestrias de atrito bélico.",
+    "catalog_description": "Artilharia de choque balístico para desestabilização de monstros de elite.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4358,7 +4358,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Lâmina Estriada Valkyria"
+    "name_modifier": "Artilharia Valkyria"
   },
   {
     "id": "part_valkyria_core_t1",
@@ -4377,7 +4377,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 50,
     "power_bonus": 24,
     "power_contrib": 24,
-    "catalog_description": "Fixador reforçado para absorção de impacto balístico.",
+    "catalog_description": "Conectores de alta tração resistentes a explosões e atrito severo.",
     "effects": [
       {
         "effect": "mitigation_flat",
@@ -4385,14 +4385,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Rebite Balístico Valkyria"
+    "name_modifier": "Balístico"
   },
   {
     "id": "part_valkyria_guard_t3",
     "part_id": "part_valkyria_guard_t3",
     "corp_id": "corp_valkyria",
     "brand_id": "corp_valkyria",
-    "name": "Guarda de Aço-Titânio Valkyria",
+    "name": "Guarda de Titânio Valkyria",
     "branch": "Ferragem",
     "part_type": "guard",
     "compatible_slots": [
@@ -4404,7 +4404,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 210,
     "power_bonus": 85,
     "power_contrib": 85,
-    "catalog_description": "Guarda de combate forjada em liga titânica da vanguarda Valkyria.",
+    "catalog_description": "Protetores frontais pesados de titânio para blindagem de toda a guarnição.",
     "effects": [
       {
         "effect": "mitigation_flat",
@@ -4412,14 +4412,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Guarda de Aço-Titânio Valkyria"
+    "name_modifier": "Pesado"
   },
   {
     "id": "part_valkyria_blade_t3",
     "part_id": "part_valkyria_blade_t3",
     "corp_id": "corp_valkyria",
     "brand_id": "corp_valkyria",
-    "name": "Chassi Exterminador Valkyria",
+    "name": "Arsenal Exterminador Valkyria",
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
@@ -4430,7 +4430,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 230,
     "power_bonus": 95,
     "power_contrib": 95,
-    "catalog_description": "Chassi bélico de alto calibre certificado para demolição pesada.",
+    "catalog_description": "Bateria de choque industrial de destruição massiva para a força-tarefa.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4438,14 +4438,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Chassi Exterminador Valkyria"
+    "name_modifier": "Arsenal Exterminador Valkyria"
   },
   {
     "id": "part_valkyria_core_t3",
     "part_id": "part_valkyria_core_t3",
     "corp_id": "corp_valkyria",
     "brand_id": "corp_valkyria",
-    "name": "Núcleo de Blindagem Valkyria",
+    "name": "Núcleo de Deflexão Valkyria",
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
@@ -4457,7 +4457,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 225,
     "power_bonus": 88,
     "power_contrib": 88,
-    "catalog_description": "Módulo gerador de campo cinético militar homologado pelo Consórcio.",
+    "catalog_description": "Sistema de absorção cinética que dispersa impactos de grande escala.",
     "effects": [
       {
         "effect": "mitigation_flat",
@@ -4465,7 +4465,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Núcleo de Blindagem Valkyria"
+    "name_modifier": "de Deflexão"
   },
   {
     "id": "part_flamel_vial_t2",
@@ -4484,7 +4484,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 105,
     "power_bonus": 45,
     "power_contrib": 45,
-    "catalog_description": "Recipiente hermético com graduação química de precisão laboratorial.",
+    "catalog_description": "Frascos de vidro temperado para preservação estéril de insumos do esquadrão.",
     "effects": [
       {
         "effect": "recovery_flat",
@@ -4492,14 +4492,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Ampola Graduada Flamel"
+    "name_modifier": "Hermético"
   },
   {
     "id": "part_flamel_reagent_t2",
     "part_id": "part_flamel_reagent_t2",
     "corp_id": "corp_flamel",
     "brand_id": "corp_flamel",
-    "name": "Reativo Alcalino Flamel",
+    "name": "Remessa Química Flamel",
     "branch": "Alquimia",
     "part_type": "gem",
     "compatible_slots": [
@@ -4511,7 +4511,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 115,
     "power_bonus": 50,
     "power_contrib": 50,
-    "catalog_description": "Composto alcalino estabilizado para infusões de alto rendimento.",
+    "catalog_description": "Lote de soluções alcalinas estabilizadas para regeneração e vigor.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4519,7 +4519,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Reativo Alcalino Flamel"
+    "name_modifier": "Remessa Flamel"
   },
   {
     "id": "part_flamel_core_t2",
@@ -4538,7 +4538,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 110,
     "power_bonus": 48,
     "power_contrib": 48,
-    "catalog_description": "Núcleo catalítico destilado com tripla filtragem alquímica.",
+    "catalog_description": "Matriz reagente que acelera a absorção de provisões logísticas.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4546,14 +4546,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Catalisador Purificado Flamel"
+    "name_modifier": "Purificado"
   },
   {
     "id": "part_flamel_vial_t3",
     "part_id": "part_flamel_vial_t3",
     "corp_id": "corp_flamel",
     "brand_id": "corp_flamel",
-    "name": "Ampola de Vidro Dragônico Flamel",
+    "name": "Ampola Dragônica Flamel",
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
@@ -4565,7 +4565,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 215,
     "power_bonus": 88,
     "power_contrib": 88,
-    "catalog_description": "Vidro fundido no sopro de dragão imune a solventes universais.",
+    "catalog_description": "Recipiente alquímico imbuído de essência ígnea para potencializar compostos.",
     "effects": [
       {
         "effect": "recovery_flat",
@@ -4573,14 +4573,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Ampola de Vidro Dragônico Flamel"
+    "name_modifier": "Dragônico"
   },
   {
     "id": "part_flamel_reagent_t3",
     "part_id": "part_flamel_reagent_t3",
     "corp_id": "corp_flamel",
     "brand_id": "corp_flamel",
-    "name": "Reativo Filosofal Flamel",
+    "name": "Provisão Alquímica Dragônica",
     "branch": "Alquimia",
     "part_type": "gem",
     "compatible_slots": [
@@ -4592,7 +4592,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 235,
     "power_bonus": 96,
     "power_contrib": 96,
-    "catalog_description": "Composto lendário com fragmentos de pó da grande transmutação.",
+    "catalog_description": "Fórmula nobre de sustentação biológica em expedições prolongadas.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4600,7 +4600,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Reativo Filosofal Flamel"
+    "name_modifier": "Provisão Dragônica"
   },
   {
     "id": "part_flamel_core_t3",
@@ -4619,7 +4619,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 225,
     "power_bonus": 92,
     "power_contrib": 92,
-    "catalog_description": "Aparelhagem máxima de catálise bioalquímica da guilda dos boticários.",
+    "catalog_description": "Elemento de pureza máxima para restauração metabólica instantânea.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4627,14 +4627,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Catalisador Primordial Flamel"
+    "name_modifier": "Primordial"
   },
   {
     "id": "part_chancellor_gem_t1",
     "part_id": "part_chancellor_gem_t1",
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
-    "name": "Ágata Notarial Lapidada",
+    "name": "Incentivo Notarial Lapidado",
     "branch": "Joalheria",
     "part_type": "gem",
     "compatible_slots": [
@@ -4645,7 +4645,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 55,
     "power_bonus": 26,
     "power_contrib": 26,
-    "catalog_description": "Gema semipreciosa facetada com o carimbo oficial da Casa Chanceler.",
+    "catalog_description": "Joia contábil lapidada vinculada a metas trimestrais da Coroa.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4653,7 +4653,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Ágata Notarial Lapidada"
+    "name_modifier": "Incentivo Notarial"
   },
   {
     "id": "part_chancellor_pin_t2",
@@ -4671,7 +4671,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 110,
     "power_bonus": 46,
     "power_contrib": 46,
-    "catalog_description": "Fecho de platina polida que estabiliza o campo focal do amuleto.",
+    "catalog_description": "Ornamento honorífico que concede prestígio profissional aos heróis.",
     "effects": [
       {
         "effect": "mitigation_flat",
@@ -4679,14 +4679,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Broche de Platina Chanceler"
+    "name_modifier": "Platinado"
   },
   {
     "id": "part_chancellor_gem_t3",
     "part_id": "part_chancellor_gem_t3",
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
-    "name": "Diamante Imperial Chanceler",
+    "name": "Ativo Imperial Chanceler",
     "branch": "Joalheria",
     "part_type": "gem",
     "compatible_slots": [
@@ -4697,7 +4697,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 240,
     "power_bonus": 98,
     "power_contrib": 98,
-    "catalog_description": "Diamante de corte ducal de claridade impecável homologado pelo Chanceler.",
+    "catalog_description": "Diamante régio concedido a guildas de conduta irrepreensível.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4705,7 +4705,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Diamante Imperial Chanceler"
+    "name_modifier": "Ativo Imperial"
   },
   {
     "id": "part_chancellor_frame_t3",
@@ -4750,7 +4750,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 230,
     "power_bonus": 94,
     "power_contrib": 94,
-    "catalog_description": "Núcleo óptico que refrata luz espectral em múltiplos comprimentos arcanos.",
+    "catalog_description": "Gema solar que irradia confiança e estabilidade psicológica ao esquadrão.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4758,7 +4758,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Prisma Solar Chanceler"
+    "name_modifier": "Solar"
   },
   {
     "id": "part_swamp_filter_t3",
@@ -4777,7 +4777,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 210,
     "power_bonus": 86,
     "power_contrib": 86,
-    "catalog_description": "Filtro purificador supremo que destila miasmas letais em tônico vital.",
+    "catalog_description": "Aparelhagem avançada para purificação de ar e água em qualquer câmara subterrânea.",
     "effects": [
       {
         "effect": "mitigation_flat",
@@ -4785,14 +4785,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Filtro de Bio-Éter do Charco"
+    "name_modifier": "Purificado"
   },
   {
     "id": "part_swamp_gem_t3",
     "part_id": "part_swamp_gem_t3",
     "corp_id": "corp_swamp_alchemy",
     "brand_id": "corp_swamp_alchemy",
-    "name": "Esmeralda Pestilenta Polida",
+    "name": "Incentivo Tóxico Concentrado",
     "branch": "Alquimia",
     "part_type": "gem",
     "compatible_slots": [
@@ -4804,7 +4804,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 225,
     "power_bonus": 92,
     "power_contrib": 92,
-    "catalog_description": "Gema pantanosa lapidada com inclusões fósseis de virulência ancestral.",
+    "catalog_description": "Bônus salarial de risco pago para atuar em masmorras biologicamente instáveis.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4812,7 +4812,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Esmeralda Pestilenta Polida"
+    "name_modifier": "Incentivo Tóxico"
   },
   {
     "id": "part_swamp_core_t3",
@@ -4831,7 +4831,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 220,
     "power_bonus": 88,
     "power_contrib": 88,
-    "catalog_description": "Módulo biológico destilado que potencializa reações químicas agressivas.",
+    "catalog_description": "Carga química potente para sobrecarregar as defesas de monstros tóxicos.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4839,14 +4839,14 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Núcleo Virulento Concentrado"
+    "name_modifier": "Virulento"
   },
   {
     "id": "part_crown_blade_t3",
     "part_id": "part_crown_blade_t3",
     "corp_id": "corp_crown_notarial",
     "brand_id": "corp_crown_notarial",
-    "name": "Lâmina Imperial Notarial",
+    "name": "Arsenal Imperial Notarial",
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
@@ -4857,7 +4857,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 200,
     "power_bonus": 84,
     "power_contrib": 84,
-    "catalog_description": "Lâmina com chancela régia de alto prestígio fabricada sob decreto monárquico.",
+    "catalog_description": "Remessa bélica de artilharia pesada sancionada e chancelada pela Fazenda Real.",
     "effects": [
       {
         "effect": "power_flat",
@@ -4865,7 +4865,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Lâmina Imperial Notarial"
+    "name_modifier": "Arsenal Imperial Notarial"
   },
   {
     "id": "part_crown_gem_t3",
@@ -4909,7 +4909,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 60,
     "power_bonus": 10,
     "power_contrib": 10,
-    "catalog_description": "Chassi notarial básico em cera imperial homologada para expedições de baixo risco.",
+    "catalog_description": "Certidão notarial básica garantindo licença para incursões comerciais.",
     "effects": [],
     "slot_role": "base",
     "name_modifier": "Atestado Notarial"
@@ -4930,7 +4930,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 120,
     "power_bonus": 20,
     "power_contrib": 20,
-    "catalog_description": "Pergaminho reforçado com selos fiscais contra perigos geológicos e atmosféricos.",
+    "catalog_description": "Documento oficial de homologação sanitária e mitigação de risco.",
     "effects": [],
     "slot_role": "base",
     "name_modifier": "Certidão de Risco"
@@ -4951,7 +4951,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 220,
     "power_bonus": 35,
     "power_contrib": 35,
-    "catalog_description": "Documento solene da Coroa chancelado com ouro para cobertura total de sinistros.",
+    "catalog_description": "Alvará extraordinário da Chancelaria para masmorras de alto perigo.",
     "effects": [],
     "slot_role": "base",
     "name_modifier": "Laudo Pericial"
@@ -4972,7 +4972,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 130,
     "power_bonus": 15,
     "power_contrib": 15,
-    "catalog_description": "Cláusula notarial que homologa técnicas de lastro e respiração subaquática.",
+    "catalog_description": "Certidão notarial que habilita operações em ruínas alagadas e biomas aquáticos.",
     "effects": [
       {
         "effect": "terrain_mitigation",
@@ -4980,7 +4980,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Operação Subaquática"
+    "name_modifier": "Subaquático"
   },
   {
     "id": "part_crown_lic_arcane_fog",
@@ -4998,7 +4998,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 130,
     "power_bonus": 15,
     "power_contrib": 15,
-    "catalog_description": "Chancela pericial que dissipa ilusões arcanas e orienta a equipe no nevoeiro denso.",
+    "catalog_description": "Atestado de navegação que dissipa as penalidades de névoas arcanas.",
     "effects": [
       {
         "effect": "terrain_mitigation",
@@ -5010,7 +5010,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Visibilidade Espectral"
+    "name_modifier": "Espectral"
   },
   {
     "id": "part_crown_lic_lightning",
@@ -5028,7 +5028,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 140,
     "power_bonus": 16,
     "power_contrib": 16,
-    "catalog_description": "Isolamento eletrostático certificado contra arcos voltaicos em picos e tempestades elétricas.",
+    "catalog_description": "Garantia técnica de isolamento contra tempestades elétricas e picos voltaicos.",
     "effects": [
       {
         "effect": "terrain_mitigation",
@@ -5040,7 +5040,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Aterramento Voltaico"
+    "name_modifier": "Voltaico"
   },
   {
     "id": "part_crown_lic_volcanic",
@@ -5058,7 +5058,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 135,
     "power_bonus": 15,
     "power_contrib": 15,
-    "catalog_description": "Diretriz operacional de dissipação de calor magmático e resistência a climas tórridos.",
+    "catalog_description": "Normativa oficial de refrigeração e isolamento contra calor vulcânico extremo.",
     "effects": [
       {
         "effect": "terrain_mitigation",
@@ -5088,7 +5088,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "market_price_base": 125,
     "power_bonus": 14,
     "power_contrib": 14,
-    "catalog_description": "Garantia securitária com verniz hidrofóbico contra deterioração por chuva ácida.",
+    "catalog_description": "Seguro patrimonial que neutraliza corrosão ácida e desgastes químicos.",
     "effects": [
       {
         "effect": "terrain_mitigation",
