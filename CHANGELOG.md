@@ -5,6 +5,21 @@ O formato baseia-se em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ---
 
+## [0.7.0] — 2026-09-30
+
+### 🏭 Cadeia de Suprimentos B2B, Montagem Modular & Linha de Montagem
+- **Transição para Peças Físicas Tangíveis (`data/parts_seed.json`):** Conversão integral de todos os afixos em componentes modulares tangíveis com IDs próprios, marcas corporativas, descrições de catálogo comercial e atributos numéricos estritamente preservados.
+- **As 5 Grandes Corporações (`data/corporations_seed.json`):** *Engenharia Goblin S.A.*, *Consórcio Élfico de Alta Precisão*, *Irmãos Anões de Aço Negro & Cia.*, *Sindicato dos Alquimistas de Pântano* e *Manufatura Notarial da Coroa*.
+- **Contratos de Remessa Contínua (`data/b2b_contracts_seed.json`):** 10 convênios industriais (Bronze, Prata e Ouro Exclusivo que trava marcas rivais), entregando módulos semanalmente no almoxarifado fabril.
+- **Automação via Linha de Montagem (`data/assembly_workers_seed.json`):** 6 modelos de Operários de Montagem assalariados que processam módulos e escoam peças de prateleira *White-label* a Preço Justo de atacado (`white_label_price_factor: 0.50`), eliminando a microgestão repetitiva da Fase 2.
+- **Tinkering Inter-Marcas (Engenharia Reversa):** Montagem manual com peças de marcas rivais aciona o risco de curto-circuito/gororoba (40%) vs. a chance de *Overclock Não-Autorizado* (+15% PE, 60% de probabilidade base).
+- **Tarifa Alfandegária Spot de +50%:** Aquisição avulsa de componentes sem convênio ativo sofre ágio regulatório de 50% (`spot_markup: 1.50`).
+- **Demonstração do Resultado do Exercício Expandida (DRE na Fase 5):** Linhas discriminadas para `(+) Vendas de Prateleira (Linha de Montagem)`, `(-) Licenciamento & Royalties B2B` e `(-) Salários dos Operários de Fábrica`.
+- **Complexo Industrial no Frontend (`Phase2Workshop.tsx`):** Quatro sub-painéis temáticos (Portal B2B, Linha de Montagem, Bancada Modular com tolerância dimensional e Mercado Spot).
+- **Auditoria Monte Carlo B2B (`docs/BALANCE_REPORT_V070_B2B.md`):** 100 temporadas simuladas atestando margem líquida de automação entre 17.0% e 28.0% (meta de 15% a 28%), e 1.000 ensaios de Tinkering confirmando convergência estocástica.
+
+---
+
 ## [0.6.0] — 2026-09-29
 
 ### 🛡️ Perfis Permanentes de Rivais & Identidade de Guilda

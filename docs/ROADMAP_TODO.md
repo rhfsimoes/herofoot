@@ -1,7 +1,7 @@
 # 📋 HeroFoot — Documento Oficial de Roadmap & To-Do até o 1.0
 
 > **Classificação:** Planejamento Estratégico, Backlog Arquitetural & Regras de Design  
-> **Versão Vigente:** v0.6.0 (Concluída) — Iniciando v0.7.0  
+> **Versão Vigente:** v0.7.0 (Pivot B2B Concluído) — Rumo ao Memorial & Rei Demônio  
 > **Tom:** Fantasia Corporativa 7/10 (Mundo medieval sério, frieza burocrática e sátira mercantil)  
 > **Conformidade:** [CONTRACT.md](file:///c:/Users/Rafael/Documents/herofoot/docs/CONTRACT.md) & [LORE_BIBLE.md](file:///c:/Users/Rafael/Documents/herofoot/docs/LORE_BIBLE.md)  
 
@@ -125,5 +125,6 @@ flowchart TD
 | :--- | :--- | :--- |
 | **v0.5.0** ✅ *(Concluído)* | **Vida no Escritório & Forja v3** | • Interface de Eventos Corporativos interativos na Fase 1 (`CorporateEventModal`).<br>• Barra de XP para cada bancada com bônus de Staff intercalados (1 a 6).<br>• Sistema de Tinkering (falha técnica com homologação permanente da receita e refugo Gororoba). |
 | **v0.6.0** ✅ *(Concluído)* | **Rivais Vivos & Contratos VIP** | • Sorteio de características permanentes dos times NPC (`rival_traits_seed.json`).<br>• Dissolução e refundação de novas guildas ao rebaixar na Divisão de Acesso.<br>• Encomendas VIP no Boletim de Mercado (`vip_orders_seed.json`) e laudo de balanceamento (`BALANCE_REPORT_V060.md`). |
-| **v0.7.0** *(Próximo)* | **Memorial & O Rei Demônio** | • Mural da Glória e Memorial de baixas.<br>• Aposentados como instrutores de base.<br>• Incursão da Cidadela do Rei Demônio para o campeão da Divisão Nobre. |
+| **v0.7.0** ✅ *(Concluído)* | **Cadeia de Suprimentos B2B & Linha de Montagem** | • 5 Grandes Corporações e conversão de afixos em 41 Peças Modulares físicas (`parts_seed.json`).<br>• Contratos de remessa contínua B2B com exclusividade Ouro.<br>• Linha de Montagem automatizada com operários de fábrica e DRE expandida.<br>• Tinkering Inter-Marcas (overclock +15% vs. gororoba) e ágio spot de 50%.<br>• Auditoria Monte Carlo (`BALANCE_REPORT_V070_B2B.md`). |
+| **v0.8.0** *(Próximo)* | **Memorial & O Rei Demônio** | • Mural da Glória e Memorial de baixas.<br>• Aposentados como instrutores de base.<br>• Incursão da Cidadela do Rei Demônio para o campeão da Divisão Nobre. |
 | **v1.0.0** | **Polimento Audiovisual & Lançamento** | • Efeitos sonoros (carimbo, moedas, forja, cornetas).<br>• Hall da Fama definitivo.<br>• Empacotamento Desktop executável. |
