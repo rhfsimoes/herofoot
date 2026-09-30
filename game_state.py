@@ -46,6 +46,8 @@ SERIALIZED_FIELDS = [
     "assembly_line_workers",
     "corporate_exclusivity_tags",
     "warehouse_parts",
+    "brand_xp",
+    "b2b_slots_locked",
 ]
 
 TRANSIENT_FIELDS = [
@@ -122,6 +124,8 @@ class GameState:
         self.assembly_line_workers: List[Dict[str, Any]] = []
         self.corporate_exclusivity_tags: List[str] = []
         self.warehouse_parts: Dict[str, int] = {}
+        self.brand_xp: Dict[str, int] = {}
+        self.b2b_slots_locked: int = 0
 
         # Campos transientes de execução
         self.last_match_result = None
@@ -172,7 +176,31 @@ class GameState:
             self.corporate_exclusivity_tags = []
         if not hasattr(self, "warehouse_parts") or not isinstance(self.warehouse_parts, dict):
             self.warehouse_parts = {}
+        if not hasattr(self, "brand_xp") or not isinstance(self.brand_xp, dict):
+            self.brand_xp = {}
+        if not hasattr(self, "b2b_slots_locked"):
+            self.b2b_slots_locked = 0
         return self
+
+    def get_brand_xp(self, corp_id: str) -> int:
+        """Retorna os pontos de EXP comercial acumulados com a corporação."""
+        if not hasattr(self, "brand_xp") or not isinstance(self.brand_xp, dict):
+            self.brand_xp = {}
+        return self.brand_xp.get(corp_id, 0)
+
+    def get_brand_level(self, corp_id: str) -> int:
+        """Nível de Relacionamento Comercial (1 a 10). Nível 1: 0-49, Nível 3: 100+ (Prata), Nível 7: 300+ (Ouro)."""
+        xp = self.get_brand_xp(corp_id)
+        return min(10, max(1, 1 + xp // 50))
+
+    def add_brand_xp(self, corp_id: str, amount: int, rival_corp_id: Optional[str] = None):
+        """Acumula Brand XP e aplica dreno proporcional de 30% na concorrente direta."""
+        if not hasattr(self, "brand_xp") or not isinstance(self.brand_xp, dict):
+            self.brand_xp = {}
+        self.brand_xp[corp_id] = self.brand_xp.get(corp_id, 0) + amount
+        if rival_corp_id and rival_corp_id in self.brand_xp:
+            drain = max(1, int(amount * 0.30))
+            self.brand_xp[rival_corp_id] = max(0, self.brand_xp[rival_corp_id] - drain)
 
     def load_initial_data(self):
         """Carrega dados iniciais a partir dos arquivos JSON na pasta data/."""
@@ -220,6 +248,75 @@ class GameState:
                         self.inventory = data["crafted_items_inventory"]
                 except Exception:
                     pass
+
+        # Kit Inicial White-label da Coroa (Garante nenhum slot de expedição vazio)
+        starter_whitelabel_items = [
+            {
+                "item_instance_id": "starter_white_label_offensive",
+                "name": "Arsenal Padrão White-label",
+                "slot_type": "Arsenal Ofensivo",
+                "quality": "Normal",
+                "power_bonus": 10,
+                "market_value_base": 80,
+                "corp_id": "corp_generic",
+                "description": "Lote de armamento básico fornecido pela Coroa sem homologação de marca. Eficiência modesta, mas evita autuações por esquadrão desarmado.",
+            },
+            {
+                "item_instance_id": "starter_white_label_defensive",
+                "name": "Blindagem Coletiva White-label",
+                "slot_type": "Blindagem Operacional",
+                "quality": "Normal",
+                "power_bonus": 8,
+                "market_value_base": 70,
+                "corp_id": "corp_generic",
+                "description": "Equipamentos de Proteção Coletiva de chapa simples. Sem certificação de conforto operacional, porém em conformidade mínima.",
+            },
+            {
+                "item_instance_id": "starter_white_label_performance",
+                "name": "Ativo de Vigor White-label",
+                "slot_type": "Ativo de Performance",
+                "quality": "Normal",
+                "power_bonus": 6,
+                "market_value_base": 60,
+                "corp_id": "corp_generic",
+                "description": "Amuleto de liga de cobre de distribuição em massa. Concede incentivo anímico básico ao esquadrão sem custos de royalties.",
+            },
+            {
+                "item_instance_id": "starter_white_label_license",
+                "name": "Alvará Provisório White-label",
+                "slot_type": "Alvará de Risco",
+                "quality": "Normal",
+                "power_bonus": 5,
+                "market_value_base": 50,
+                "corp_id": "corp_crown_notarial",
+                "description": "Certidão de operação provisória emitida pelo cartório central. Atesta perante a Liga que a guilda possui licença de exploração ativa.",
+            },
+            {
+                "item_instance_id": "starter_white_label_provision",
+                "name": "Ração de Campanha White-label",
+                "slot_type": "Provisão Logística",
+                "quality": "Normal",
+                "power_bonus": 5,
+                "market_value_base": 40,
+                "corp_id": "corp_generic",
+                "description": "Fardamento de mantimentos secos padronizados. Sabor questionável, mas supre as necessidades calóricas básicas da força-tarefa.",
+            },
+        ]
+        existing_ids = {it.get("item_instance_id") for it in self.inventory}
+        for item in starter_whitelabel_items:
+            if item["item_instance_id"] not in existing_ids:
+                self.inventory.append(item)
+
+        slot_item_map = {
+            "Arsenal Ofensivo": "starter_white_label_offensive",
+            "Blindagem Operacional": "starter_white_label_defensive",
+            "Ativo de Performance": "starter_white_label_performance",
+            "Alvará de Risco": "starter_white_label_license",
+            "Provisão Logística": "starter_white_label_provision",
+        }
+        for slot, iid in slot_item_map.items():
+            if not self.loadout.get(slot):
+                self.loadout[slot] = iid
 
         # Catálogo Crafting v2: Afixos e Receitas iniciais com unlock.method == 'start'
         try:

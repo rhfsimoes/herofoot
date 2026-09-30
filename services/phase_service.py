@@ -404,6 +404,49 @@ class PhaseService:
         else:
             match_log.append("[Contratante] Empate técnico homologado perante o consórcio rival (Confiança inalterada).")
 
+        # 5.5. Acúmulo de Brand XP com base nos ativos equipados na expedição
+        try:
+            from b2b import get_parts_dict, get_corporations_dict
+            parts_dict = get_parts_dict()
+            corps_dict = get_corporations_dict()
+
+            brand_counts = {}
+            for slot_name, item_id in getattr(self.state, "loadout", {}).items():
+                if not item_id:
+                    continue
+                item = next((it for it in getattr(self.state, "inventory", []) if it.get("item_instance_id") == item_id), None)
+                if not item:
+                    continue
+                used_parts = item.get("modular_parts", [])
+                if used_parts:
+                    item_corps = []
+                    for pid in used_parts:
+                        p_info = parts_dict.get(pid, {})
+                        cid = p_info.get("corp_id")
+                        if cid and cid != "corp_crown_notarial":
+                            brand_counts[cid] = brand_counts.get(cid, 0) + 10
+                            item_corps.append(cid)
+                    # Bônus Monomarca (+15 XP)
+                    if len(item_corps) >= 3 and len(set(item_corps)) == 1:
+                        monomarca_cid = item_corps[0]
+                        brand_counts[monomarca_cid] = brand_counts.get(monomarca_cid, 0) + 15
+                elif item.get("corp_id") and item.get("corp_id") != "corp_crown_notarial":
+                    cid = item.get("corp_id")
+                    brand_counts[cid] = brand_counts.get(cid, 0) + 10
+
+            for cid, xp_gain in brand_counts.items():
+                rival_id = corps_dict.get(cid, {}).get("rival_corp_id")
+                if hasattr(self.state, "add_brand_xp"):
+                    self.state.add_brand_xp(cid, xp_gain, rival_corp_id=rival_id)
+                c_name = corps_dict.get(cid, {}).get("name", cid)
+                curr_lvl = self.state.get_brand_level(cid) if hasattr(self.state, "get_brand_level") else 1
+                match_log.append(f"[Relações B2B] +{xp_gain} Brand XP com {c_name} (Nível Comercial {curr_lvl}).")
+        except Exception:
+            pass
+
+        # Liberação de carência de slots B2B após a conclusão da expedição
+        self.state.b2b_slots_locked = 0
+
         # 6. Simulação de TODOS os confrontos da Liga
         round_results = self.league_engine.process_round_simulations(
             round_num=self.state.day,

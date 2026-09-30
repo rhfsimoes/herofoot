@@ -87,6 +87,7 @@ class TestCraftingV2(unittest.TestCase):
         # suf_acidente_trabalho requer 1x mat_iron_ore
         # Total necessário: 5x mat_iron_ore
         self.state.materials["mat_iron_ore"] = 10
+        inv_before = len(self.state.inventory)
         iron_before = self.state.materials["mat_iron_ore"]
 
         res = self.crafting_service.craft_item(
@@ -96,7 +97,7 @@ class TestCraftingV2(unittest.TestCase):
         )
         self.assertTrue(res["success"])
         self.assertEqual(self.state.materials["mat_iron_ore"], iron_before - 5)
-        self.assertEqual(len(self.state.inventory), 1)
+        self.assertEqual(len(self.state.inventory), inv_before + 1)
 
     def test_craft_rejects_insufficient_materials(self):
         """Rejeita ordem de serviço se faltar material para a base ou para algum afixo."""

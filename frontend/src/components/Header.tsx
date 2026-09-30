@@ -53,7 +53,7 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
     state.divisions?.find((d: any) => d.is_player_division)?.standings?.find((r: any) => r.is_player || r.guild_name === 'Guilda do Jogador' || r.id === 'g_player')
   )?.rank ?? 1
 
-  const reputation = 85
+  const reputation = state.contractor_confidence ?? (state as any).confidence ?? 75
 
   const loadSaves = useCallback(async () => {
     if (!isBackendOnline) {

@@ -57,13 +57,17 @@ class TestB2BAssembly(unittest.TestCase):
         dup_res = self.controller.sign_b2b_contract("b2b_aethelgard_bronze")
         self.assertFalse(dup_res["success"])
 
-        # Executa entrega semanal de remessas
+        # Assinatura entrega remessa imediata no almoxarifado
+        self.assertEqual(self.state.get_part_quantity("part_aethelgard_blade"), 1)
+        self.assertEqual(self.state.get_part_quantity("part_aethelgard_hilt"), 1)
+
+        # Executa entrega semanal de remessas na virada de ciclo (+1 lote)
         delivered = self.controller.phase_service.deliver_b2b_shipments()
         self.assertGreater(len(delivered), 0)
 
-        # Contrato Bronze entrega 1x lâmina e 1x empunhadura
-        self.assertEqual(self.state.get_part_quantity("part_aethelgard_blade"), 1)
-        self.assertEqual(self.state.get_part_quantity("part_aethelgard_hilt"), 1)
+        # Agora possui 2x lâmina e 2x empunhadura
+        self.assertEqual(self.state.get_part_quantity("part_aethelgard_blade"), 2)
+        self.assertEqual(self.state.get_part_quantity("part_aethelgard_hilt"), 2)
 
         # Rescisão administrativa do contrato
         cancel_res = self.controller.cancel_b2b_contract("b2b_aethelgard_bronze")
@@ -72,9 +76,10 @@ class TestB2BAssembly(unittest.TestCase):
 
     def test_exclusive_contract_blocks_rival_brand(self):
         """Contrato exclusivo Ouro com Aethelgard impede convênios com o rival Consórcio Valkyria."""
-        # Configura requisitos de progressão para Ouro (Confiança >= 75, Ferragem >= 3)
+        # Configura requisitos de progressão para Ouro (Confiança >= 75, Ferragem >= 3, Brand XP >= 300)
         self.state.contractor_confidence = 80
         self.state.workshop_levels["Ferragem"] = 3
+        self.state.add_brand_xp("corp_aethelgard", 350)
         self.controller.sign_b2b_contract("b2b_aethelgard_bronze")
         self.controller.sign_b2b_contract("b2b_aethelgard_silver")
         res_aethelgard = self.controller.sign_b2b_contract("b2b_aethelgard_gold")
@@ -106,6 +111,7 @@ class TestB2BAssembly(unittest.TestCase):
         # No entanto, fazer UPGRADE de um patrocínio já existente (Bronze -> Prata) NÃO consome novo slot!
         self.state.contractor_confidence = 65
         self.state.workshop_levels["Ferragem"] = 2
+        self.state.add_brand_xp("corp_aethelgard", 120)
         upgrade_res = self.controller.sign_b2b_contract("b2b_aethelgard_silver")
         self.assertTrue(upgrade_res["success"])
         self.assertTrue(upgrade_res.get("is_upgrade", False))
@@ -128,16 +134,18 @@ class TestB2BAssembly(unittest.TestCase):
         self.assertFalse(t2_res_bronze["success"])
         self.assertIn("prata", t2_res_bronze["message"].lower())
 
-        # Promove para convênio Prata (requer confiança >= 60 e Ferragem >= 2)
+        # Promove para convênio Prata (requer confiança >= 60, Ferragem >= 2 e Brand XP >= 100)
         self.state.contractor_confidence = 60
         self.state.workshop_levels["Ferragem"] = 2
+        self.state.add_brand_xp("corp_goblin_eng", 120)
         sign_silver = self.controller.sign_b2b_contract("b2b_goblin_silver")
-        self.assertTrue(sign_silver["success"])
+        self.assertTrue(sign_silver["success"], sign_silver.get("message"))
 
         # Agora convênio Prata dá acesso cumulativo: Tier 1 E Tier 2 liberados!
         buy_res_t2 = self.controller.buy_part("part_gob_blade_02", quantity=1)
         self.assertTrue(buy_res_t2["success"])
-        self.assertEqual(self.state.get_part_quantity("part_gob_blade_02"), 1)
+        # 1x da remessa de assinatura do convênio Prata + 1x da compra spot
+        self.assertEqual(self.state.get_part_quantity("part_gob_blade_02"), 2)
 
     def test_spot_purchase_without_contract_charges_50_pct_markup(self):
         """Compra spot sem contrato ativo cobra ágio alfandegário de +50% (spot_markup: 1.50)."""
@@ -153,7 +161,7 @@ class TestB2BAssembly(unittest.TestCase):
         self.assertEqual(self.state.gold, init_gold - 150)
         self.assertEqual(self.state.get_part_quantity("part_aethelgard_blade"), 2)
 
-        # Celebra convênio Bronze Aethelgard (desconto de 10%)
+        # Celebra convênio Bronze Aethelgard (desconto de 10% e entrega 1 lâmina imediatamente)
         self.controller.sign_b2b_contract("b2b_aethelgard_bronze")
         spot_price_with_contract = self.controller.calculate_part_spot_price("part_aethelgard_blade")
         self.assertEqual(spot_price_with_contract, int(50 * 0.90))  # 45
@@ -162,7 +170,8 @@ class TestB2BAssembly(unittest.TestCase):
         self.assertTrue(buy_contract_res["success"])
         self.assertEqual(buy_contract_res["unit_price"], 45)
         self.assertEqual(buy_contract_res["total_cost"], 45)
-        self.assertEqual(self.state.get_part_quantity("part_aethelgard_blade"), 3)
+        # 2 da compra spot inicial + 1 da remessa de assinatura + 1 da compra sob convênio = 4
+        self.assertEqual(self.state.get_part_quantity("part_aethelgard_blade"), 4)
 
     def test_modular_parts_assembly_same_brand_success(self):
         """Montagem modular com peças da mesma marca opera sem necessidade de Tinkering."""
@@ -300,11 +309,11 @@ class TestB2BAssembly(unittest.TestCase):
         order_res = self.controller.set_worker_order(worker["worker_instance_id"], "rec_01")
         self.assertTrue(order_res["success"], order_res.get("message"))
 
-        # 3. Fornece peças no almoxarifado (2 peças necessárias por ciclo)
-        self.state.add_warehouse_part("part_aethelgard_blade", 2)
-
-        # 4. Ativa contrato B2B com royalties (Bronze: 50/sem)
+        # 3. Ativa contrato B2B com royalties (Bronze: 50/sem)
         self.controller.sign_b2b_contract("b2b_aethelgard_bronze")
+
+        # 4. Fornece exatamente as 2 peças necessárias por ciclo no almoxarifado
+        self.state.warehouse_parts["part_aethelgard_blade"] = 2
 
         # 5. Executa fechamento contábil e apuração financeira da Fase 5
         init_gold = self.state.gold
@@ -386,7 +395,10 @@ class TestB2BAssembly(unittest.TestCase):
         res_bronze = self.controller.sign_b2b_contract("b2b_aethelgard_bronze")
         self.assertTrue(res_bronze["success"])
 
-        # Agora cumpre todos os requisitos para Prata: confiança 60, filial 2 e Bronze ativo
+        # Concede Brand XP necessário para Prata (Nível 3 / 100 XP)
+        self.state.add_brand_xp("corp_aethelgard", 120)
+
+        # Agora cumpre todos os requisitos para Prata: confiança 60, filial 2, Bronze ativo e Brand XP
         res_silver = self.controller.sign_b2b_contract("b2b_aethelgard_silver")
         self.assertTrue(res_silver["success"])
         self.assertTrue(res_silver.get("is_upgrade", False))
@@ -395,9 +407,10 @@ class TestB2BAssembly(unittest.TestCase):
         res_ouro_fail = self.controller.sign_b2b_contract("b2b_aethelgard_gold")
         self.assertFalse(res_ouro_fail["success"])
 
-        # Atende aos requisitos de Ouro: confiança >= 75 e filial nível 3
+        # Atende aos requisitos de Ouro: confiança >= 75, filial nível 3 e Brand XP >= 300 (Nv 7)
         self.state.contractor_confidence = 75
         self.state.workshop_levels["Ferragem"] = 3
+        self.state.add_brand_xp("corp_aethelgard", 200) # total 320 XP -> Nível 7
         res_ouro = self.controller.sign_b2b_contract("b2b_aethelgard_gold")
         self.assertTrue(res_ouro["success"])
         self.assertTrue(res_ouro.get("is_upgrade", False))

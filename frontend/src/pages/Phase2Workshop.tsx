@@ -43,6 +43,8 @@ import {
   MOCK_ASSEMBLY_WORKERS,
   MOCK_MODULAR_PARTS,
   CORPORATIONS_MAP,
+  getDungeonForDay,
+  getClimateForDay,
   type GameState,
   type InventoryItem,
   type ItemQuality,
@@ -1242,6 +1244,39 @@ export default function Phase2Workshop({
         </button>
       </div>
 
+      {/* Briefing Pré-Operacional da Próxima Incursão */}
+      {(() => {
+        const dungeon = state.current_dungeon || getDungeonForDay(state.day)
+        const climate = dungeon?.climate || getClimateForDay(state.day)
+        return (
+          <div className="bg-gradient-to-r from-amber-950/40 via-stone-900/60 to-stone-950/80 border border-amber-800/50 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs shadow-md">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-900/50 border border-amber-600/60 flex items-center justify-center shrink-0 text-amber-400">
+                <Compass className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 font-bold">
+                    Reconhecimento da Semana #{state.day}
+                  </span>
+                  <span className="text-stone-600">·</span>
+                  <span className="text-stone-200 font-bold">{dungeon.name}</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold uppercase">
+                    {dungeon.terrain_label || dungeon.terrain}
+                  </span>
+                </div>
+                <p className="text-[11px] text-stone-400 mt-0.5">
+                  Clima Previsto: <strong className="text-sky-300">{climate.name}</strong> · Penalidade se desprotegido: <span className="text-rose-300 font-semibold">-{Math.round((dungeon.power_penalty_pct ?? 0.12) * 100)}% Poder</span> / <span className="text-amber-300 font-semibold">+{climate.energy_cost_extra} Dreno</span>.
+                </p>
+              </div>
+            </div>
+            <div className="text-[11px] font-mono text-amber-300/90 bg-stone-950/90 border border-amber-900/60 px-3 py-1.5 rounded-lg shrink-0">
+              💡 Requisito Tático: Forje um <strong>Alvará de Risco</strong> com mitigação para {dungeon.terrain_label || 'o bioma'}.
+            </div>
+          </div>
+        )
+      })()}
+
       {/* Tabs Principais da Fase 2 */}
       <div className="flex border-b border-stone-800 bg-stone-950/60 p-1.5 rounded-xl max-w-4xl gap-1.5 flex-wrap">
         <button
@@ -2179,9 +2214,17 @@ export default function Phase2Workshop({
                     <div className="bg-stone-950/80 border border-stone-800 rounded-lg px-3 py-2 text-right">
                       <span className="text-[10px] text-stone-400 uppercase font-bold block">Convênios Vigentes</span>
                       <span className="text-sm font-mono font-bold text-emerald-400">
-                        {activeB2bContracts.length} Homologados
+                        {activeB2bContracts.length} / 3 Homologados
                       </span>
                     </div>
+                    {(state.b2b_slots_locked ?? 0) > 0 && (
+                      <div className="bg-stone-950/80 border border-amber-800/80 rounded-lg px-3 py-2 text-right">
+                        <span className="text-[10px] text-amber-400 uppercase font-bold block">Quarentena Rescisória</span>
+                        <span className="text-sm font-mono font-bold text-amber-300">
+                          {state.b2b_slots_locked} Vaga(s) Travada(s)
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -2230,6 +2273,12 @@ export default function Phase2Workshop({
                     activeB2bContracts.some(c => c.corp_id === corp.rival_corp_id && c.is_exclusive)
                   )
 
+                  const corpXp = state.brand_xp?.[corp.id] ?? 0
+                  const corpLevel = Math.min(10, Math.max(1, 1 + Math.floor(corpXp / 50)))
+                  const xpInCurrentLevel = corpXp % 50
+                  const nextLevelXp = corpLevel >= 10 ? null : corpLevel * 50
+                  const progressPct = corpLevel >= 10 ? 100 : Math.min(100, Math.max(5, (xpInCurrentLevel / 50) * 100))
+
                   return (
                     <div
                       key={corp.id}
@@ -2265,6 +2314,51 @@ export default function Phase2Workshop({
                         )}
                       </div>
 
+                      {/* Barra de Relacionamento Comercial (Brand XP) */}
+                      <div className="bg-stone-950/70 border border-amber-900/40 rounded-lg p-3 space-y-2">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-amber-200 flex items-center gap-1.5">
+                              <Building2 className="w-3.5 h-3.5 text-amber-400" />
+                              Relacionamento Comercial: <span className="font-mono text-white">Nível {corpLevel}</span>
+                            </span>
+                            {corpLevel >= 7 ? (
+                              <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/50 font-mono">
+                                PARCEIRO OURO
+                              </span>
+                            ) : corpLevel >= 3 ? (
+                              <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-slate-500/20 text-slate-300 border border-slate-400/50 font-mono">
+                                PARCEIRO PRATA
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-stone-900 text-stone-400 border border-stone-700 font-mono">
+                                PARCEIRO BRONZE
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] font-mono text-stone-400">
+                            {corpLevel >= 10
+                              ? 'Nível Máximo Homologado'
+                              : `${corpXp} / ${nextLevelXp} XP (${50 - xpInCurrentLevel} XP p/ Nv. ${corpLevel + 1})`}
+                          </span>
+                        </div>
+                        <div className="w-full bg-stone-900 rounded-full h-2 overflow-hidden border border-stone-800">
+                          <div
+                            className="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-300 h-full rounded-full transition-all duration-300"
+                            style={{ width: `${progressPct}%` }}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] text-stone-500">
+                          <span>Nv. 1: Bronze (0 XP)</span>
+                          <span className={corpLevel >= 3 ? 'text-amber-400 font-bold' : ''}>
+                            Nv. 3: Prata (100 XP) {corpLevel >= 3 ? '✓' : ''}
+                          </span>
+                          <span className={corpLevel >= 7 ? 'text-amber-400 font-bold' : ''}>
+                            Nv. 7: Ouro (300 XP) {corpLevel >= 7 ? '✓' : ''}
+                          </span>
+                        </div>
+                      </div>
+
                       {/* Lista de Contratos da Corporação */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {corpContracts.map(contract => {
@@ -2283,12 +2377,20 @@ export default function Phase2Workshop({
                           const currentWorkshopLvl = state.workshop_levels?.[corpBranch] ?? 1
                           const isWorkshopMet = currentWorkshopLvl >= minWorkshopLevel
 
+                          const requiredBrandLevel = contract.tier === 'Ouro' ? 7 : contract.tier === 'Prata' ? 3 : 1
+                          const isBrandLevelMet = corpLevel >= requiredBrandLevel
+
                           const sameCorpActive = activeB2bContracts.filter(c => c.corp_id === contract.corp_id)
                           const tierOrder: Record<string, number> = { Bronze: 1, Prata: 2, Ouro: 3 }
                           const isPrevTierMet = !requiresPrevTier || sameCorpActive.some(c => (tierOrder[c.tier] ?? 1) >= (tierOrder[requiresPrevTier] ?? 1))
 
-                          const allReqsMet = isConfidenceMet && isWorkshopMet && isPrevTierMet
+                          const allReqsMet = isConfidenceMet && isWorkshopMet && isPrevTierMet && isBrandLevelMet
                           const isUpgrade = sameCorpActive.length > 0 && !isActive
+
+                          const slotsLocked = state.b2b_slots_locked ?? 0
+                          const totalOccupiedSlots = activeB2bContracts.length + slotsLocked
+                          const isSlotsFull = totalOccupiedSlots >= 3
+                          const canAffordRoyalty = (state.gold ?? 0) >= contract.weekly_royalty
 
                           return (
                             <div
@@ -2362,6 +2464,15 @@ export default function Phase2Workshop({
                                     </div>
                                   )}
 
+                                  {requiredBrandLevel > 1 && (
+                                    <div className="flex items-center justify-between font-mono text-[10px]">
+                                      <span className="text-stone-400">Relacionamento Corporativo:</span>
+                                      <span className={isBrandLevelMet ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
+                                        Nv. {corpLevel} / Nv. {requiredBrandLevel} ({corpXp} XP) {isBrandLevelMet ? '✓' : '✗'}
+                                      </span>
+                                    </div>
+                                  )}
+
                                   {requiresPrevTier && (
                                     <div className="flex items-center justify-between font-mono text-[10px]">
                                       <span className="text-stone-400">Parceria Prévia:</span>
@@ -2371,7 +2482,7 @@ export default function Phase2Workshop({
                                     </div>
                                   )}
 
-                                  {minConfidence === 0 && minWorkshopLevel === 1 && !requiresPrevTier && (
+                                  {minConfidence === 0 && minWorkshopLevel === 1 && !requiresPrevTier && requiredBrandLevel === 1 && (
                                     <div className="text-[10px] text-stone-500 italic">
                                       Homologação livre com alvará da Coroa.
                                     </div>
@@ -2449,19 +2560,29 @@ export default function Phase2Workshop({
                                   <button
                                     disabled
                                     className="w-full py-2 rounded-lg text-xs font-bold text-stone-500 bg-stone-950 border border-rose-900/40 cursor-not-allowed flex items-center justify-center gap-1.5"
-                                    title="Sua guilda não atende a todos os requisitos de confiança, modernização de filial ou escalão prévio desta corporação."
+                                    title="Sua guilda não atende a todos os requisitos de confiança, modernização de filial, nível de relacionamento ou escalão prévio desta corporação."
                                   >
                                     <Lock className="w-3.5 h-3.5 text-rose-500" />
                                     <span>Requisitos Pendentes</span>
                                   </button>
-                                ) : activeB2bContracts.length >= 3 && !isUpgrade ? (
+                                ) : isSlotsFull && !isUpgrade ? (
                                   <button
                                     disabled
                                     className="w-full py-2 rounded-lg text-xs font-bold text-stone-500 bg-stone-950 border border-stone-800 cursor-not-allowed flex items-center justify-center gap-1.5"
-                                    title="Sua guilda já possui o limite regulatório máximo de 3 convênios de patrocínio ativos."
+                                    title={slotsLocked > 0 ? `${slotsLocked} vaga(s) em quarentena regulatória após rescisão contratual até a próxima expedição.` : 'Limite regulatório máximo de 3 convênios de patrocínio atingido.'}
                                   >
                                     <Lock className="w-3.5 h-3.5 text-amber-600" />
-                                    <span>Limite de Patrocínios (3/3)</span>
+                                    <span>
+                                      {slotsLocked > 0 ? `Vagas Bloqueadas (${slotsLocked} em Quarentena)` : 'Limite de Convênios (3/3)'}
+                                    </span>
+                                  </button>
+                                ) : !canAffordRoyalty && !isUpgrade ? (
+                                  <button
+                                    disabled
+                                    className="w-full py-2 rounded-lg text-xs font-bold text-rose-400/80 bg-stone-950 border border-rose-900/40 cursor-not-allowed flex items-center justify-center gap-1.5"
+                                  >
+                                    <Lock className="w-3.5 h-3.5 text-rose-500" />
+                                    <span>Ouro Insuficiente (⬡ {contract.weekly_royalty})</span>
                                   </button>
                                 ) : (
                                   <button
@@ -3269,8 +3390,12 @@ export default function Phase2Workshop({
                   const hasDiscount = Boolean(activeContract)
                   const discountPct = activeContract?.discount_pct ?? 0
                   const baseCost = part.base_cost ?? part.market_price_base ?? 50
-                  const isAdvancedPart = part.tier > 1 && part.corp_id !== 'corp_crown_notarial'
-                  const isLockedBySponsorship = isAdvancedPart && !hasDiscount
+                  const contractTierOrder: Record<string, number> = { 'Bronze': 1, 'Prata': 2, 'Ouro': 3 }
+                  const currentTierLevel = activeContract ? (contractTierOrder[activeContract.tier] || 1) : 0
+                  const isCrown = part.corp_id === 'corp_crown_notarial'
+                  const requiredTier = part.tier || 1
+                  const isLockedBySponsorship = !isCrown && requiredTier > 1 && currentTierLevel < requiredTier
+                  const requiredTierName = requiredTier === 2 ? 'Prata' : 'Ouro'
                   const unitPrice = hasDiscount
                     ? Math.round(baseCost * (1 - discountPct))
                     : Math.round(baseCost * 1.50)
@@ -3391,7 +3516,7 @@ export default function Phase2Workshop({
                           {isLockedBySponsorship ? (
                             <>
                               <Lock className="w-3.5 h-3.5 text-amber-500" />
-                              <span>Exige Patrocínio Ativo (Nível {part.tier})</span>
+                              <span>Requer Convênio {requiredTierName} (Nível {part.tier})</span>
                             </>
                           ) : (
                             <>

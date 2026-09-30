@@ -205,6 +205,8 @@ class GameController:
             "assembly_line_workers": getattr(self.state, "assembly_line_workers", []),
             "corporate_exclusivity_tags": getattr(self.state, "corporate_exclusivity_tags", []),
             "warehouse_parts": getattr(self.state, "warehouse_parts", {}),
+            "brand_xp": getattr(self.state, "brand_xp", {}),
+            "b2b_slots_locked": getattr(self.state, "b2b_slots_locked", 0),
             "last_expedition_loot": getattr(self.state, "last_expedition_loot", []),
             "b2b_catalog": {
                 "corporations": get_corporations(),
@@ -438,7 +440,7 @@ class GameController:
         if current_branch_lvl < min_workshop_level:
             return {
                 "success": False,
-                "message": f"Homologação indeferida: a corporação exige Filial de {branch} modernizada ao menos ao Nível {min_workshop_level} (Atual: Nível {current_branch_lvl}).",
+                "message": f"Homologação indeferida: a corporação exige filial de {branch} de nível {min_workshop_level} ou superior (Nível atual: {current_branch_lvl}).",
             }
 
         # Validação de Progressão Gradual (Bronze -> Prata -> Ouro)
@@ -453,12 +455,36 @@ class GameController:
                     "message": f"Progressão indeferida: para homologar um convênio {contract.get('tier')}, a guilda precisa possuir convênio {requires_previous_tier} ativo com a {corp.get('name', 'fornecedora')}.",
                 }
 
-        # Limite regulatório da Coroa: no máximo 3 patrocínios/parcerias corporativas ativas
-        # Se já possui contrato com esta mesma corporação, trata-se de um upgrade de escalão (não consome novo slot)
-        if not corp_active_contracts and len(getattr(self.state, "active_b2b_contracts", [])) >= 3:
+        # Validação de Brand XP (Relacionamento Corporativo)
+        current_brand_lvl = self.state.get_brand_level(corp_id) if hasattr(self.state, "get_brand_level") else 1
+        tier = contract.get("tier", "Bronze")
+        required_brand_lvl = 1 if tier == "Bronze" else (3 if tier == "Prata" else 7)
+        if current_brand_lvl < required_brand_lvl:
+            req_xp = (required_brand_lvl - 1) * 50
+            return {
+                "success": False,
+                "message": f"Homologação indeferida: convênios {tier} exigem Nível de Relacionamento Comercial {required_brand_lvl}+ com a {corp.get('name', 'marca')} (Requer {req_xp} Brand XP; Nível atual: {current_brand_lvl}).",
+            }
+
+        # Limite regulatório da Coroa: no máximo 3 convênios ativos (respeitando carência de cancelamento)
+        total_occupied_slots = len(getattr(self.state, "active_b2b_contracts", [])) + getattr(self.state, "b2b_slots_locked", 0)
+        if not corp_active_contracts and total_occupied_slots >= 3:
+            if getattr(self.state, "b2b_slots_locked", 0) > 0:
+                return {
+                    "success": False,
+                    "message": "Limite regulatório atingido: você possui contratos rescindidos em carência de desvinculação. O slot será liberado após a expedição desta semana.",
+                }
             return {
                 "success": False,
                 "message": "Limite regulatório atingido: a guilda pode manter no máximo 3 convênios de patrocínio corporativo ativos simultaneamente.",
+            }
+
+        # Taxa de homologação inicial (debitada no ato)
+        royalty = int(contract.get("weekly_royalty", 50))
+        if self.state.gold < royalty:
+            return {
+                "success": False,
+                "message": f"Saldo em tesouraria insuficiente: a taxa de homologação do convênio requer {royalty} Ouro (Saldo atual: {self.state.gold} Ouro).",
             }
 
         is_exclusive = contract.get("is_exclusive", False)
@@ -486,6 +512,9 @@ class GameController:
                     "message": f"Contrato rejeitado: parceria exclusiva vigente com a concorrente '{rival_corp.get('name', rival_corp_id)}' impede novos convênios com esta marca.",
                 }
 
+        # Deduz taxa de homologação inicial
+        self.state.gold -= royalty
+
         # Homologação do contrato (Upgrade ou Novo)
         is_upgrade = len(corp_active_contracts) > 0
         if is_upgrade:
@@ -499,10 +528,18 @@ class GameController:
             if not self.state.has_exclusivity_tag(exclusivity_tag):
                 self.state.corporate_exclusivity_tags.append(exclusivity_tag)
 
+        # Entrega imediata do pacote semanal de peças no ato da assinatura
+        weekly_shipment = contract.get("weekly_shipment", [])
+        for item in weekly_shipment:
+            pid = item.get("part_id")
+            qty = item.get("quantity", 1)
+            if pid:
+                self.state.add_warehouse_part(pid, qty)
+
         success_msg = (
-            f"Convênio promovido com sucesso! Sua parceria com {corp.get('name', 'a fornecedora')} subiu para o escalão {contract.get('tier')}."
+            f"Convênio promovido com sucesso! Sua parceria com {corp.get('name', 'a fornecedora')} subiu para o escalão {contract.get('tier')} e as remessas foram entregues no almoxarifado."
             if is_upgrade
-            else f"Contrato B2B '{contract.get('title')}' celebrado com sucesso junto à {corp.get('name', 'fornecedora')}."
+            else f"Contrato B2B '{contract.get('title')}' celebrado com sucesso! Taxa de {royalty} Ouro debitada e primeiro lote de peças entregue no almoxarifado."
         )
 
         return {
@@ -518,6 +555,9 @@ class GameController:
         if not contract:
             return {"success": False, "message": "Contrato B2B não encontrado entre os vigentes."}
         self.state.active_b2b_contracts.remove(contract)
+        # O slot entra em carência regulatória e só é liberado no ciclo seguinte (após a expedição)
+        self.state.b2b_slots_locked = getattr(self.state, "b2b_slots_locked", 0) + 1
+
         corp_id = contract.get("corp_id")
         from b2b import get_corporations_dict
         corps = get_corporations_dict()
@@ -527,7 +567,10 @@ class GameController:
             has_other_excl = any(c.get("corp_id") == corp_id and c.get("is_exclusive") for c in self.state.active_b2b_contracts)
             if not has_other_excl:
                 self.state.corporate_exclusivity_tags.remove(excl_tag)
-        return {"success": True, "message": f"Contrato B2B '{contract.get('title')}' rescindido administrativamente."}
+        return {
+            "success": True,
+            "message": f"Contrato B2B '{contract.get('title')}' rescindido administrativamente. O slot regulatório permanecerá em carência até a conclusão da próxima expedição."
+        }
 
     def hire_assembly_worker(self, worker_id: str, assigned_branch: str = "Ferragem") -> dict:
         from b2b import get_assembly_workers_dict

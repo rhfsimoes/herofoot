@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import { Swords, ArrowRight, Trophy } from 'lucide-react'
-import type { GameState } from '../mockData'
+import { Swords, ArrowRight, Trophy, Compass } from 'lucide-react'
+import { getDungeonForDay, getClimateForDay, type GameState } from '../mockData'
 import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
 import { CrownSeal } from '../components/art'
 
@@ -63,6 +63,47 @@ export default function Dashboard({ state, onAdvancePhase }: DashboardProps) {
             </span>
           </div>
         )}
+
+        {/* Boletim de Reconhecimento Prévio (Terreno & Clima da Rodada) */}
+        {(() => {
+          const dungeon = state.current_dungeon || getDungeonForDay(state.day)
+          const climate = dungeon?.climate || getClimateForDay(state.day)
+          return (
+            <div className="mt-4 p-4 bg-stone-950/80 border border-stone-800 rounded-xl space-y-2.5 shadow-md">
+              <div className="flex items-center justify-between border-b border-stone-800/80 pb-2">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-amber-400 font-bold flex items-center gap-1.5">
+                  <Compass className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Boletim de Reconhecimento Operacional — Semana #{state.day}</span>
+                </span>
+                <span className="text-[10px] text-stone-500 font-mono">Dados da Incursão</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="bg-stone-900/70 p-2.5 rounded-lg border border-stone-800 flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-stone-400 font-mono uppercase font-bold">Bioma Base:</span>
+                    <span className="text-[10px] font-mono text-amber-300 font-bold px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-800/60">{dungeon.terrain_label || dungeon.name}</span>
+                  </div>
+                  <h4 className="text-xs font-bold text-stone-200 mt-1">{dungeon.name}</h4>
+                  <p className="text-[11px] text-stone-400 mt-0.5">{dungeon.description}</p>
+                  <div className="text-[10px] font-mono text-rose-300 mt-1.5 pt-1 border-t border-stone-800/60">
+                    Penalidade se desprotegido: -{Math.round((dungeon.power_penalty_pct ?? 0.12) * 100)}% Poder
+                  </div>
+                </div>
+                <div className="bg-stone-900/70 p-2.5 rounded-lg border border-stone-800 flex flex-col justify-between">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-stone-400 font-mono uppercase font-bold">Clima Previsto:</span>
+                    <span className="text-[10px] font-mono text-sky-300 font-bold px-1.5 py-0.5 rounded bg-sky-950/60 border border-sky-800/60">{climate.name}</span>
+                  </div>
+                  <h4 className="text-xs font-bold text-stone-200 mt-1">{climate.name}</h4>
+                  <p className="text-[11px] text-stone-400 mt-0.5">{climate.description}</p>
+                  <div className="text-[10px] font-mono text-amber-300 mt-1.5 pt-1 border-t border-stone-800/60">
+                    Sobrecarga climática: +{climate.energy_cost_extra} Dreno de Suprimentos
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Notificação de Incidente Corporativo Ativo */}
         {state.active_event && (
