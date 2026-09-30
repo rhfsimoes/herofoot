@@ -52,5 +52,50 @@
     "exclusivity_tag": "excl_crown_rations",
     "rival_corp_id": null,
     "description": "Divisão estatal de logística nutricional voltada para grandes incursões e suporte expedicionário."
+  },
+  {
+    "id": "corp_goblin_eng",
+    "name": "Engenharia Goblin S.A.",
+    "branch": "Ferragem",
+    "specialty": "Peças de corte agressivo, módulos de detonação e propulsores a vapor.",
+    "exclusivity_tag": "excl_goblin_eng",
+    "rival_corp_id": "corp_elf_precision",
+    "description": "Se não explodir na montagem, corta qualquer armadura. Foco em impacto maciço e risco mecânico."
+  },
+  {
+    "id": "corp_elf_precision",
+    "name": "Consórcio Élfico de Alta Precisão",
+    "branch": "Joalheria",
+    "specialty": "Joias arcanas de fluxo estrito e componentes de lapidação micrométrica.",
+    "exclusivity_tag": "excl_elf_precision",
+    "rival_corp_id": "corp_goblin_eng",
+    "description": "Perfeição micrométrica homologada em pergaminho velino. Foco em agilidade e valor comercial."
+  },
+  {
+    "id": "corp_dwarf_steel",
+    "name": "Irmãos Anões de Aço Negro & Cia.",
+    "branch": "Ferragem",
+    "specialty": "Blindagens pesadas, chapas maciças de ferro fundido e escudos balísticos.",
+    "exclusivity_tag": "excl_dwarf_steel",
+    "rival_corp_id": "corp_swamp_alchemy",
+    "description": "Fundido no fundo do abismo, forjado para a eternidade fiscal. Foco em blindagem e robustez defensiva."
+  },
+  {
+    "id": "corp_swamp_alchemy",
+    "name": "Sindicato dos Alquimistas de Pântano",
+    "branch": "Alquimia",
+    "specialty": "Filtros respiratórios contra miasmas, concentrados e dosadores farmacológicos.",
+    "exclusivity_tag": "excl_swamp_alchemy",
+    "rival_corp_id": "corp_dwarf_steel",
+    "description": "O miasma de hoje é o lucro líquido de amanhã. Foco em mitigação de veneno e cargas operacionais."
+  },
+  {
+    "id": "corp_crown_notarial",
+    "name": "Manufatura Notarial da Coroa",
+    "branch": "Ferragem",
+    "specialty": "Peças genéricas de linha branca (white-label), alvarás gravados e armações universais.",
+    "exclusivity_tag": "excl_crown_notarial",
+    "rival_corp_id": null,
+    "description": "Padronização régia, carimbos invioláveis e estabilidade tributária. Compatível com todas as arquiteturas."
   }
 ]
