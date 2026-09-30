@@ -364,5 +364,100 @@
       "method": "start"
     },
     "name": "da Responsabilidade Limitada"
+  },
+  {
+    "affix_id": "pref_subaquatico",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 350
+    },
+    "name_m": "Subaquático",
+    "name_f": "Subaquática"
+  },
+  {
+    "affix_id": "suf_subaquatico",
+    "kind": "suffix",
+    "unlock": {
+      "method": "market",
+      "cost": 350
+    },
+    "name": "da Operação Subaquática"
+  },
+  {
+    "affix_id": "pref_espectral",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 350
+    },
+    "name_m": "Espectral",
+    "name_f": "Espectral"
+  },
+  {
+    "affix_id": "suf_visibilidade_espectral",
+    "kind": "suffix",
+    "unlock": {
+      "method": "market",
+      "cost": 350
+    },
+    "name": "da Visibilidade Espectral"
+  },
+  {
+    "affix_id": "pref_voltaico",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 400
+    },
+    "name_m": "Voltaico",
+    "name_f": "Voltaica"
+  },
+  {
+    "affix_id": "suf_aterramento_voltaico",
+    "kind": "suffix",
+    "unlock": {
+      "method": "market",
+      "cost": 400
+    },
+    "name": "do Aterramento Voltaico"
+  },
+  {
+    "affix_id": "pref_termorregulador",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 400
+    },
+    "name_m": "Termorregulador",
+    "name_f": "Termorreguladora"
+  },
+  {
+    "affix_id": "suf_termorregulador",
+    "kind": "suffix",
+    "unlock": {
+      "method": "market",
+      "cost": 400
+    },
+    "name": "do Protocolo Termorregulador"
+  },
+  {
+    "affix_id": "pref_anticorrosivo",
+    "kind": "prefix",
+    "unlock": {
+      "method": "market",
+      "cost": 300
+    },
+    "name_m": "Anticorrosivo",
+    "name_f": "Anticorrosiva"
+  },
+  {
+    "affix_id": "suf_anticorrosivo",
+    "kind": "suffix",
+    "unlock": {
+      "method": "market",
+      "cost": 300
+    },
+    "name": "contra Danos Corrosivos"
   }
 ]

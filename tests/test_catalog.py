@@ -3,10 +3,10 @@ A pasta de dados vem de HEROFOOT_DATA_DIR (padrão: data)."""
 import json, os, re, unittest
 
 DATA = os.environ.get("HEROFOOT_DATA_DIR", "data")
-SLOTS = {"Arma", "Armadura", "Joia", "Inscrição", "Consumível"}
+SLOTS = {"Arsenal Ofensivo", "Blindagem Operacional", "Ativo de Performance", "Alvará de Risco", "Provisão Logística"}
 BRANCHES = {"Ferragem", "Alquimia", "Joalheria", "Culinária"}
-TERRAINS = {"neutral", "toxic_swamp", "glacier_frost", "unstable_mine"}
-EFFECTS = {"power_flat", "power_pct", "terrain_mitigation",
+TERRAINS = {"neutral", "toxic_swamp", "glacier_frost", "unstable_mine", "submerged_ruins", "arcane_fog", "lightning_peaks", "volcanic_heat"}
+EFFECTS = {"power_flat", "power_pct", "terrain_mitigation", "climate_mitigation",
            "energy_bonus_flat", "charges_flat", "value_pct"}
 UNLOCKS = {"start", "market", "loot"}
 FORBIDDEN = re.compile(r"\b(gramado|estádio|gol|bilheteria|escanteio|brasfoot)\b", re.I)
@@ -89,11 +89,14 @@ class TestCatalog(unittest.TestCase):
         for e in self.effects:
             slots = slots_do_afixo[e["affix_id"]]
             if e["effect"] in ("energy_bonus_flat", "charges_flat"):
-                self.assertEqual(slots, {"Consumível"}, e["affix_id"])
+                self.assertEqual(slots, {"Provisão Logística"}, e["affix_id"])
             if e["effect"] == "terrain_mitigation":
-                self.assertEqual(slots, {"Inscrição"}, e["affix_id"])
+                self.assertEqual(slots, {"Alvará de Risco"}, e["affix_id"])
                 self.assertEqual(self.affixes[e["affix_id"]]["kind"], "prefix")
                 self.assertIn(e["value"], TERRAINS)
+            if e["effect"] == "climate_mitigation":
+                self.assertEqual(slots, {"Alvará de Risco"}, e["affix_id"])
+                self.assertEqual(self.affixes[e["affix_id"]]["kind"], "prefix")
         for aid in self.affixes:
             n = [e for e in self.effects if e["affix_id"] == aid and e["effect"] == "terrain_mitigation"]
             self.assertLessEqual(len(n), 1, aid)

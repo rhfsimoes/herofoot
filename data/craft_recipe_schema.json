@@ -4,7 +4,7 @@
   "properties": {
     "recipe_id": { "type": "string" },
     "name": { "type": "string" },
-    "slot": { "type": "string", "enum": ["Arma", "Armadura", "Joia", "Inscrição", "Consumível"] },
+    "slot": { "type": "string", "enum": ["Arsenal Ofensivo", "Blindagem Operacional", "Ativo de Performance", "Alvará de Risco", "Provisão Logística"] },
     "branch": { "type": "string", "enum": ["Ferragem", "Alquimia", "Joalheria", "Culinária"] },
     "gender": { "type": "string", "enum": ["m", "f"] },
     "min_workshop_level": { "type": "integer", "minimum": 1 },

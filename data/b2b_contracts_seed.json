@@ -39,6 +39,18 @@
     "discount_pct": 0.15,
     "weekly_shipment": [
       {
+        "part_id": "part_aethelgard_hilt",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_aethelgard_blade",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_aethelgard_core",
+        "quantity": 2
+      },
+      {
         "part_id": "part_aethelgard_hilt_t2",
         "quantity": 1
       },
@@ -68,6 +80,30 @@
     "is_exclusive": true,
     "discount_pct": 0.25,
     "weekly_shipment": [
+      {
+        "part_id": "part_aethelgard_hilt",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_aethelgard_blade",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_aethelgard_core",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_aethelgard_hilt_t2",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_aethelgard_blade_t2",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_aethelgard_core_t2",
+        "quantity": 2
+      },
       {
         "part_id": "part_aethelgard_hilt_t3",
         "quantity": 2
@@ -107,7 +143,7 @@
         "quantity": 1
       },
       {
-        "part_id": "part_chancellor_frame",
+        "part_id": "part_chancellor_core",
         "quantity": 1
       }
     ],
@@ -130,14 +166,18 @@
     "weekly_shipment": [
       {
         "part_id": "part_chancellor_pin",
-        "quantity": 1
+        "quantity": 3
       },
       {
-        "part_id": "part_chancellor_frame",
-        "quantity": 1
+        "part_id": "part_chancellor_gem_t1",
+        "quantity": 2
       },
       {
         "part_id": "part_chancellor_core",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_chancellor_frame",
         "quantity": 1
       }
     ],
@@ -158,6 +198,22 @@
     "is_exclusive": true,
     "discount_pct": 0.25,
     "weekly_shipment": [
+      {
+        "part_id": "part_chancellor_pin",
+        "quantity": 5
+      },
+      {
+        "part_id": "part_chancellor_gem_t1",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_chancellor_core",
+        "quantity": 5
+      },
+      {
+        "part_id": "part_chancellor_frame",
+        "quantity": 2
+      },
       {
         "part_id": "part_chancellor_frame_t3",
         "quantity": 2
@@ -193,7 +249,7 @@
         "quantity": 1
       },
       {
-        "part_id": "part_crown_plating_01",
+        "part_id": "part_crown_seal_t1",
         "quantity": 1
       },
       {
@@ -219,11 +275,23 @@
     "discount_pct": 0.15,
     "weekly_shipment": [
       {
+        "part_id": "part_crown_hilt_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_seal_t1",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_gem_01",
+        "quantity": 1
+      },
+      {
         "part_id": "part_crown_hilt_02",
         "quantity": 1
       },
       {
-        "part_id": "part_crown_plating_01",
+        "part_id": "part_crown_parchment_t2",
         "quantity": 1
       },
       {
@@ -249,15 +317,39 @@
     "discount_pct": 0.2,
     "weekly_shipment": [
       {
-        "part_id": "part_crown_hilt_02",
-        "quantity": 2
+        "part_id": "part_crown_hilt_01",
+        "quantity": 1
       },
       {
-        "part_id": "part_crown_plating_01",
-        "quantity": 2
+        "part_id": "part_crown_seal_t1",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_gem_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_hilt_02",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_parchment_t2",
+        "quantity": 1
       },
       {
         "part_id": "part_crown_gem_02",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_blade_t3",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_crown_seal_t3",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_crown_gem_t3",
         "quantity": 2
       }
     ],
@@ -309,6 +401,18 @@
     "discount_pct": 0.15,
     "weekly_shipment": [
       {
+        "part_id": "part_dwarf_prefix_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_dwarf_plating_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_dwarf_core_01",
+        "quantity": 2
+      },
+      {
         "part_id": "part_dwarf_plating_06",
         "quantity": 1
       },
@@ -339,15 +443,35 @@
     "discount_pct": 0.25,
     "weekly_shipment": [
       {
+        "part_id": "part_dwarf_prefix_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_dwarf_plating_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_dwarf_core_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_dwarf_plating_06",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_dwarf_plating_03",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_dwarf_core_02",
+        "quantity": 4
+      },
+      {
         "part_id": "part_dwarf_plating_05",
         "quantity": 2
       },
       {
         "part_id": "part_dwarf_plating_04",
-        "quantity": 2
-      },
-      {
-        "part_id": "part_dwarf_core_02",
         "quantity": 2
       }
     ],
@@ -400,7 +524,15 @@
     "weekly_shipment": [
       {
         "part_id": "part_elf_filter_01",
-        "quantity": 1
+        "quantity": 3
+      },
+      {
+        "part_id": "part_elf_gem_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_elf_core_00",
+        "quantity": 2
       },
       {
         "part_id": "part_elf_blade_01",
@@ -430,10 +562,22 @@
     "weekly_shipment": [
       {
         "part_id": "part_elf_filter_01",
-        "quantity": 2
+        "quantity": 7
+      },
+      {
+        "part_id": "part_elf_gem_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_elf_core_00",
+        "quantity": 3
       },
       {
         "part_id": "part_elf_blade_01",
+        "quantity": 4
+      },
+      {
+        "part_id": "part_elf_gem_03",
         "quantity": 2
       },
       {
@@ -490,15 +634,15 @@
     "weekly_shipment": [
       {
         "part_id": "part_flamel_nozzle",
-        "quantity": 1
+        "quantity": 3
       },
       {
         "part_id": "part_flamel_vial",
-        "quantity": 1
+        "quantity": 3
       },
       {
         "part_id": "part_flamel_catalyst",
-        "quantity": 1
+        "quantity": 3
       }
     ],
     "description": "Abastecimento semanal de frascos graduados e catalisadores certificados pela Guilda de Boticários.",
@@ -518,6 +662,18 @@
     "is_exclusive": true,
     "discount_pct": 0.25,
     "weekly_shipment": [
+      {
+        "part_id": "part_flamel_nozzle",
+        "quantity": 5
+      },
+      {
+        "part_id": "part_flamel_vial",
+        "quantity": 5
+      },
+      {
+        "part_id": "part_flamel_catalyst",
+        "quantity": 5
+      },
       {
         "part_id": "part_flamel_vial_t3",
         "quantity": 2
@@ -580,7 +736,15 @@
     "weekly_shipment": [
       {
         "part_id": "part_gob_hilt_01",
-        "quantity": 1
+        "quantity": 3
+      },
+      {
+        "part_id": "part_gob_blade_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_gob_core_00",
+        "quantity": 2
       },
       {
         "part_id": "part_gob_blade_02",
@@ -610,6 +774,22 @@
     "weekly_shipment": [
       {
         "part_id": "part_gob_hilt_01",
+        "quantity": 7
+      },
+      {
+        "part_id": "part_gob_blade_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_gob_core_00",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_gob_blade_02",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_gob_core_02",
         "quantity": 2
       },
       {
@@ -669,11 +849,19 @@
     "discount_pct": 0.15,
     "weekly_shipment": [
       {
-        "part_id": "part_swamp_filter_03",
-        "quantity": 1
+        "part_id": "part_swamp_prefix_01",
+        "quantity": 2
       },
       {
         "part_id": "part_swamp_filter_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_swamp_core_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_swamp_filter_03",
         "quantity": 1
       },
       {
@@ -699,16 +887,24 @@
     "discount_pct": 0.25,
     "weekly_shipment": [
       {
-        "part_id": "part_swamp_filter_03",
-        "quantity": 2
+        "part_id": "part_swamp_prefix_01",
+        "quantity": 3
       },
       {
         "part_id": "part_swamp_filter_01",
-        "quantity": 2
+        "quantity": 7
+      },
+      {
+        "part_id": "part_swamp_core_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_swamp_filter_03",
+        "quantity": 4
       },
       {
         "part_id": "part_swamp_core_02",
-        "quantity": 2
+        "quantity": 4
       }
     ],
     "description": "Exclusividade sobre reativos de pântano. Incompatível com acordos dos Irmãos Anões de Aço Negro.",
@@ -759,11 +955,19 @@
     "discount_pct": 0.15,
     "weekly_shipment": [
       {
-        "part_id": "part_valkyria_plate",
+        "part_id": "part_valkyria_guard",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_valkyria_blade_t1",
         "quantity": 1
       },
       {
-        "part_id": "part_valkyria_blade",
+        "part_id": "part_valkyria_core_t1",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_valkyria_plate",
         "quantity": 1
       },
       {
@@ -790,15 +994,23 @@
     "weekly_shipment": [
       {
         "part_id": "part_valkyria_guard",
+        "quantity": 6
+      },
+      {
+        "part_id": "part_valkyria_blade_t1",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_valkyria_core_t1",
         "quantity": 2
       },
       {
         "part_id": "part_valkyria_plate",
-        "quantity": 2
+        "quantity": 4
       },
       {
         "part_id": "part_valkyria_core",
-        "quantity": 2
+        "quantity": 4
       }
     ],
     "description": "Exclusividade contratual com a vanguarda fabril Valkyria. Incompatível com acordos da Siderúrgica Aethelgard.",

@@ -1,361 +1,421 @@
 [
   {
     "material_id": "mat_iron_ore",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "pref_afiada",
     "quantity": 1
   },
   {
     "material_id": "mat_ember_coal",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "pref_temperada",
     "quantity": 1
   },
   {
     "material_id": "mat_iron_ore",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "pref_reforcada",
     "quantity": 1
   },
   {
     "material_id": "mat_granite_dust",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "pref_reforcada",
     "quantity": 1
   },
   {
     "material_id": "mat_scaly_leather",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "pref_escamada",
     "quantity": 1
   },
   {
     "material_id": "mat_granite_dust",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "pref_robusta",
     "quantity": 1
   },
   {
     "material_id": "mat_mana_crystal",
-    "slot": "Joia",
+    "slot": "Ativo de Performance",
     "affix_id": "pref_encantada",
     "quantity": 1
   },
   {
     "material_id": "mat_wild_honey",
-    "slot": "Joia",
+    "slot": "Ativo de Performance",
     "affix_id": "pref_vigorosa",
     "quantity": 1
   },
   {
     "material_id": "mat_eucalyptus_herb",
-    "slot": "Consumível",
+    "slot": "Provisão Logística",
     "affix_id": "pref_concentrada",
     "quantity": 1,
     "recipe_id": "rec_04"
   },
   {
     "material_id": "mat_flour",
-    "slot": "Consumível",
+    "slot": "Provisão Logística",
     "affix_id": "pref_nutritiva",
     "quantity": 1,
     "recipe_id": "rec_05"
   },
   {
     "material_id": "mat_wild_honey",
-    "slot": "Consumível",
+    "slot": "Provisão Logística",
     "affix_id": "pref_saborosa",
     "quantity": 1,
     "recipe_id": "rec_05"
   },
   {
     "material_id": "mat_flour",
-    "slot": "Consumível",
+    "slot": "Provisão Logística",
     "affix_id": "pref_farta",
     "quantity": 2
   },
   {
     "material_id": "mat_eucalyptus_herb",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "affix_id": "pref_purificada",
     "quantity": 1
   },
   {
     "material_id": "mat_ember_coal",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "affix_id": "pref_ignea",
     "quantity": 1
   },
   {
     "material_id": "mat_granite_dust",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "affix_id": "pref_firme",
     "quantity": 1
   },
   {
     "material_id": "mat_iron_ore",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "suf_acidente_trabalho",
     "quantity": 1
   },
   {
     "material_id": "mat_iron_ore",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "suf_termo_responsabilidade",
     "quantity": 2
   },
   {
     "material_id": "mat_ember_coal",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "suf_rescisao",
     "quantity": 1
   },
   {
     "material_id": "mat_scaly_leather",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "suf_laudo_pericial",
     "quantity": 1
   },
   {
     "material_id": "mat_mana_crystal",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "suf_seguro_vida",
     "quantity": 1
   },
   {
     "material_id": "mat_mana_crystal",
-    "slot": "Joia",
+    "slot": "Ativo de Performance",
     "affix_id": "suf_insalubridade",
     "quantity": 1
   },
   {
     "material_id": "mat_wild_honey",
-    "slot": "Joia",
+    "slot": "Ativo de Performance",
     "affix_id": "suf_adicional_noturno",
     "quantity": 1
   },
   {
     "material_id": "mat_eucalyptus_herb",
-    "slot": "Consumível",
+    "slot": "Provisão Logística",
     "affix_id": "suf_prontuario",
     "quantity": 1,
     "recipe_id": "rec_04"
   },
   {
     "material_id": "mat_flour",
-    "slot": "Consumível",
+    "slot": "Provisão Logística",
     "affix_id": "suf_produtividade",
     "quantity": 1,
     "recipe_id": "rec_05"
   },
   {
     "material_id": "mat_wild_honey",
-    "slot": "Consumível",
+    "slot": "Provisão Logística",
     "affix_id": "suf_evacuacao",
     "quantity": 1
   },
   {
     "material_id": "mat_mana_crystal",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "affix_id": "suf_alvara",
     "quantity": 1
   },
   {
     "material_id": "mat_eucalyptus_herb",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "affix_id": "suf_antidoto_eucalipto",
     "quantity": 1
   },
   {
     "material_id": "mat_ember_coal",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "affix_id": "suf_prevencao_hipotermia",
     "quantity": 1
   },
   {
     "material_id": "mat_black_steel",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "pref_predatorio",
     "quantity": 1
   },
   {
     "material_id": "mat_griffin_claw",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "pref_predatorio",
     "quantity": 1
   },
   {
     "material_id": "mat_mithril_ingot",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "pref_galvanizado",
     "quantity": 1
   },
   {
     "material_id": "mat_mithril_ingot",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "pref_galvanizado",
     "quantity": 1
   },
   {
     "material_id": "mat_moonlight_herb",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "affix_id": "pref_glacial",
     "quantity": 1
   },
   {
     "material_id": "mat_ancient_wood",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "affix_id": "pref_glacial",
     "quantity": 1
   },
   {
     "material_id": "mat_fire_golem_core",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "affix_id": "pref_vulcanico",
     "quantity": 1
   },
   {
     "material_id": "mat_ember_coal",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "affix_id": "pref_vulcanico",
     "quantity": 2
   },
   {
     "material_id": "mat_soapstone",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "pref_macico",
     "quantity": 2
   },
   {
     "material_id": "mat_granite_dust",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "pref_macico",
     "quantity": 2
   },
   {
     "material_id": "mat_adamantite_ore",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "pref_impenetravel",
     "quantity": 1
   },
   {
     "material_id": "mat_black_steel",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "pref_impenetravel",
     "quantity": 1
   },
   {
     "material_id": "mat_ancient_dragon_scale",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "pref_impenetravel",
     "quantity": 1
   },
   {
     "material_id": "mat_soul_stone",
-    "slot": "Joia",
+    "slot": "Ativo de Performance",
     "affix_id": "pref_penitente",
     "quantity": 1
   },
   {
     "material_id": "mat_lapis_powder",
-    "slot": "Joia",
+    "slot": "Ativo de Performance",
     "affix_id": "pref_penitente",
     "quantity": 2
   },
   {
     "material_id": "mat_pure_ectoplasm",
-    "slot": "Joia",
+    "slot": "Ativo de Performance",
     "affix_id": "pref_penitente",
     "quantity": 2
   },
   {
     "material_id": "mat_lapis_powder",
-    "slot": "Joia",
+    "slot": "Ativo de Performance",
     "affix_id": "pref_economico",
     "quantity": 2
   },
   {
     "material_id": "mat_soapstone",
-    "slot": "Joia",
+    "slot": "Ativo de Performance",
     "affix_id": "pref_economico",
     "quantity": 2
   },
   {
     "material_id": "mat_common_ash",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "suf_risco_calculado",
     "quantity": 1
   },
   {
     "material_id": "mat_iron_ore",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "suf_risco_calculado",
     "quantity": 1
   },
   {
     "material_id": "mat_runic_gold",
-    "slot": "Joia",
+    "slot": "Ativo de Performance",
     "affix_id": "suf_eficiencia_tributaria",
     "quantity": 1
   },
   {
     "material_id": "mat_lapis_powder",
-    "slot": "Joia",
+    "slot": "Ativo de Performance",
     "affix_id": "suf_eficiencia_tributaria",
     "quantity": 2
   },
   {
     "material_id": "mat_chimera_horn",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "suf_rescisao_imediata",
     "quantity": 1
   },
   {
     "material_id": "mat_black_steel",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "suf_rescisao_imediata",
     "quantity": 1
   },
   {
     "material_id": "mat_ember_coal",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "affix_id": "suf_rescisao_imediata",
     "quantity": 2
   },
   {
     "material_id": "mat_mandrake_root",
-    "slot": "Consumível",
+    "slot": "Provisão Logística",
     "affix_id": "suf_turno_extraordinario",
     "quantity": 1
   },
   {
     "material_id": "mat_glowing_moss",
-    "slot": "Consumível",
+    "slot": "Provisão Logística",
     "affix_id": "suf_turno_extraordinario",
     "quantity": 1
   },
   {
     "material_id": "mat_liquid_mana_crystal",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "affix_id": "suf_compliance_magico",
     "quantity": 1
   },
   {
     "material_id": "mat_mana_crystal",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "affix_id": "suf_compliance_magico",
     "quantity": 1
   },
   {
     "material_id": "mat_tanned_leather",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "suf_responsabilidade_limitada",
     "quantity": 2
   },
   {
     "material_id": "mat_basilisk_scale",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "affix_id": "suf_responsabilidade_limitada",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_mana_crystal",
+    "affix_id": "pref_subaquatico",
+    "slot": "Alvará de Risco",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_mana_crystal",
+    "affix_id": "suf_subaquatico",
+    "slot": "Alvará de Risco",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_mana_crystal",
+    "affix_id": "pref_espectral",
+    "slot": "Alvará de Risco",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_mana_crystal",
+    "affix_id": "suf_visibilidade_espectral",
+    "slot": "Alvará de Risco",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_iron_ore",
+    "affix_id": "pref_voltaico",
+    "slot": "Alvará de Risco",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_iron_ore",
+    "affix_id": "suf_aterramento_voltaico",
+    "slot": "Alvará de Risco",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_iron_ore",
+    "affix_id": "pref_termorregulador",
+    "slot": "Alvará de Risco",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_iron_ore",
+    "affix_id": "suf_termorregulador",
+    "slot": "Alvará de Risco",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_iron_ore",
+    "affix_id": "pref_anticorrosivo",
+    "slot": "Alvará de Risco",
+    "quantity": 1
+  },
+  {
+    "material_id": "mat_iron_ore",
+    "affix_id": "suf_anticorrosivo",
+    "slot": "Alvará de Risco",
     "quantity": 1
   }
 ]

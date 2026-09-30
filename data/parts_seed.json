@@ -8,7 +8,7 @@
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "base_cost": 50,
@@ -34,7 +34,7 @@
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "base_cost": 40,
@@ -60,8 +60,8 @@
     "branch": "Ferragem",
     "part_type": "guard",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 1,
     "base_cost": 60,
@@ -87,7 +87,7 @@
     "branch": "Ferragem",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "base_cost": 90,
@@ -113,8 +113,8 @@
     "branch": "Alquimia",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição",
-      "Consumível"
+      "Alvará de Risco",
+      "Provisão Logística"
     ],
     "tier": 1,
     "base_cost": 55,
@@ -140,7 +140,7 @@
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 1,
     "base_cost": 30,
@@ -166,7 +166,7 @@
     "branch": "Joalheria",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "base_cost": 110,
@@ -189,7 +189,7 @@
     "brand_id": "corp_goblin_eng",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "market_price_base": 75,
@@ -217,7 +217,7 @@
     "brand_id": "corp_goblin_eng",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "market_price_base": 180,
@@ -245,7 +245,7 @@
     "brand_id": "corp_goblin_eng",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 3,
     "market_price_base": 320,
@@ -277,7 +277,7 @@
     "brand_id": "corp_goblin_eng",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 2,
     "market_price_base": 150,
@@ -305,7 +305,7 @@
     "brand_id": "corp_goblin_eng",
     "part_type": "hilt",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "market_price_base": 160,
@@ -338,7 +338,7 @@
     "brand_id": "corp_goblin_eng",
     "part_type": "core",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "market_price_base": 210,
@@ -371,7 +371,7 @@
     "brand_id": "corp_goblin_eng",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 3,
     "market_price_base": 380,
@@ -408,7 +408,7 @@
     "brand_id": "corp_goblin_eng",
     "part_type": "core",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 3,
     "market_price_base": 340,
@@ -445,7 +445,7 @@
     "brand_id": "corp_elf_precision",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "market_price_base": 190,
@@ -473,7 +473,7 @@
     "brand_id": "corp_elf_precision",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 1,
     "market_price_base": 130,
@@ -501,7 +501,7 @@
     "brand_id": "corp_elf_precision",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "market_price_base": 240,
@@ -529,7 +529,7 @@
     "brand_id": "corp_elf_precision",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 3,
     "market_price_base": 330,
@@ -561,7 +561,7 @@
     "brand_id": "corp_elf_precision",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 1,
     "market_price_base": 110,
@@ -589,7 +589,7 @@
     "brand_id": "corp_elf_precision",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "market_price_base": 190,
@@ -622,7 +622,7 @@
     "brand_id": "corp_elf_precision",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 2,
     "market_price_base": 230,
@@ -655,7 +655,7 @@
     "brand_id": "corp_elf_precision",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 3,
     "market_price_base": 370,
@@ -688,7 +688,7 @@
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 1,
     "market_price_base": 85,
@@ -716,7 +716,7 @@
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 1,
     "market_price_base": 95,
@@ -744,7 +744,7 @@
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "market_price_base": 210,
@@ -772,7 +772,7 @@
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "market_price_base": 390,
@@ -804,8 +804,8 @@
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "market_price_base": 350,
@@ -837,7 +837,7 @@
     "brand_id": "corp_dwarf_steel",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 1,
     "market_price_base": 125,
@@ -865,7 +865,7 @@
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "market_price_base": 230,
@@ -898,7 +898,7 @@
     "brand_id": "corp_dwarf_steel",
     "part_type": "core",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "market_price_base": 220,
@@ -931,7 +931,7 @@
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 1,
     "market_price_base": 75,
@@ -959,7 +959,7 @@
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 1,
     "market_price_base": 65,
@@ -987,7 +987,7 @@
     "brand_id": "corp_swamp_alchemy",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 1,
     "market_price_base": 120,
@@ -1015,7 +1015,7 @@
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 2,
     "market_price_base": 175,
@@ -1048,7 +1048,7 @@
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 2,
     "market_price_base": 165,
@@ -1081,7 +1081,7 @@
     "brand_id": "corp_swamp_alchemy",
     "part_type": "core",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 2,
     "market_price_base": 185,
@@ -1114,7 +1114,7 @@
     "brand_id": "corp_swamp_alchemy",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 2,
     "market_price_base": 195,
@@ -1147,7 +1147,7 @@
     "brand_id": "corp_swamp_alchemy",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "market_price_base": 215,
@@ -1180,7 +1180,7 @@
     "brand_id": "corp_crown_notarial",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 1,
     "market_price_base": 90,
@@ -1208,7 +1208,7 @@
     "brand_id": "corp_crown_notarial",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 1,
     "market_price_base": 110,
@@ -1236,7 +1236,7 @@
     "brand_id": "corp_crown_notarial",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "market_price_base": 195,
@@ -1264,7 +1264,7 @@
     "brand_id": "corp_crown_notarial",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 1,
     "market_price_base": 130,
@@ -1292,7 +1292,7 @@
     "brand_id": "corp_crown_notarial",
     "part_type": "hilt",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "market_price_base": 115,
@@ -1325,7 +1325,7 @@
     "brand_id": "corp_crown_notarial",
     "part_type": "hilt",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "market_price_base": 185,
@@ -1358,7 +1358,7 @@
     "brand_id": "corp_crown_notarial",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "market_price_base": 200,
@@ -1391,7 +1391,7 @@
     "brand_id": "corp_crown_notarial",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 2,
     "market_price_base": 220,
@@ -1424,7 +1424,7 @@
     "brand_id": "corp_crown_notarial",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 2,
     "market_price_base": 190,
@@ -1460,8 +1460,8 @@
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 1,
     "base_cost": 60,
@@ -1487,8 +1487,8 @@
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Armadura",
-      "Arma"
+      "Blindagem Operacional",
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "base_cost": 160,
@@ -1514,8 +1514,8 @@
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "base_cost": 170,
@@ -1541,8 +1541,8 @@
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível",
-      "Inscrição"
+      "Provisão Logística",
+      "Alvará de Risco"
     ],
     "tier": 1,
     "base_cost": 70,
@@ -1568,8 +1568,8 @@
     "branch": "Joalheria",
     "part_type": "plating",
     "compatible_slots": [
-      "Joia",
-      "Armadura"
+      "Ativo de Performance",
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "base_cost": 180,
@@ -1595,7 +1595,7 @@
     "branch": "Joalheria",
     "part_type": "hilt",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 1,
     "base_cost": 80,
@@ -1621,8 +1621,8 @@
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Consumível"
+      "Arsenal Ofensivo",
+      "Provisão Logística"
     ],
     "tier": 1,
     "base_cost": 65,
@@ -1648,8 +1648,8 @@
     "branch": "Joalheria",
     "part_type": "core",
     "compatible_slots": [
-      "Joia",
-      "Arma"
+      "Ativo de Performance",
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "base_cost": 75,
@@ -1675,8 +1675,8 @@
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
-      "Armadura",
-      "Arma"
+      "Blindagem Operacional",
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "base_cost": 70,
@@ -1702,8 +1702,8 @@
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
-      "Armadura",
-      "Consumível"
+      "Blindagem Operacional",
+      "Provisão Logística"
     ],
     "tier": 1,
     "base_cost": 75,
@@ -1729,7 +1729,7 @@
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "base_cost": 110,
@@ -1755,7 +1755,7 @@
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "base_cost": 95,
@@ -1781,8 +1781,8 @@
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "base_cost": 100,
@@ -1808,7 +1808,7 @@
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 3,
     "base_cost": 220,
@@ -1834,7 +1834,7 @@
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 3,
     "base_cost": 200,
@@ -1860,8 +1860,8 @@
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "base_cost": 210,
@@ -1887,7 +1887,7 @@
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "base_cost": 55,
@@ -1913,8 +1913,8 @@
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 1,
     "base_cost": 50,
@@ -1940,8 +1940,8 @@
     "branch": "Ferragem",
     "part_type": "guard",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "base_cost": 210,
@@ -1967,7 +1967,7 @@
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 3,
     "base_cost": 230,
@@ -1993,8 +1993,8 @@
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "base_cost": 225,
@@ -2020,7 +2020,7 @@
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
-      "Armadura",
+      "Blindagem Operacional",
       "Acessório"
     ],
     "tier": 2,
@@ -2047,7 +2047,7 @@
     "branch": "Alquimia",
     "part_type": "gem",
     "compatible_slots": [
-      "Arma",
+      "Arsenal Ofensivo",
       "Acessório"
     ],
     "tier": 2,
@@ -2074,7 +2074,7 @@
     "branch": "Alquimia",
     "part_type": "core",
     "compatible_slots": [
-      "Armadura",
+      "Blindagem Operacional",
       "Acessório"
     ],
     "tier": 2,
@@ -2101,7 +2101,7 @@
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
-      "Armadura",
+      "Blindagem Operacional",
       "Acessório"
     ],
     "tier": 3,
@@ -2128,7 +2128,7 @@
     "branch": "Alquimia",
     "part_type": "gem",
     "compatible_slots": [
-      "Arma",
+      "Arsenal Ofensivo",
       "Acessório"
     ],
     "tier": 3,
@@ -2155,7 +2155,7 @@
     "branch": "Alquimia",
     "part_type": "core",
     "compatible_slots": [
-      "Armadura",
+      "Blindagem Operacional",
       "Acessório"
     ],
     "tier": 3,
@@ -2261,7 +2261,7 @@
     "part_type": "plating",
     "compatible_slots": [
       "Acessório",
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "base_cost": 225,
@@ -2313,7 +2313,7 @@
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
-      "Armadura",
+      "Blindagem Operacional",
       "Acessório"
     ],
     "tier": 3,
@@ -2341,7 +2341,7 @@
     "part_type": "gem",
     "compatible_slots": [
       "Acessório",
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 3,
     "base_cost": 225,
@@ -2367,8 +2367,8 @@
     "branch": "Alquimia",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "base_cost": 220,
@@ -2394,7 +2394,7 @@
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 3,
     "base_cost": 200,
@@ -2436,5 +2436,210 @@
     ],
     "slot_role": "suffix",
     "name_modifier": "Rubi Imperial Selado"
+  },
+  {
+    "id": "part_crown_seal_t1",
+    "part_id": "part_crown_seal_t1",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Atestado Notarial Régio",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 1,
+    "base_cost": 60,
+    "market_price_base": 60,
+    "power_bonus": 10,
+    "power_contrib": 10,
+    "catalog_description": "Chassi notarial básico em cera imperial homologada para expedições de baixo risco.",
+    "effects": [],
+    "slot_role": "base",
+    "name_modifier": "Atestado Notarial"
+  },
+  {
+    "id": "part_crown_parchment_t2",
+    "part_id": "part_crown_parchment_t2",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Certidão de Risco Padronizada",
+    "branch": "Ferragem",
+    "part_type": "parchment",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 120,
+    "market_price_base": 120,
+    "power_bonus": 20,
+    "power_contrib": 20,
+    "catalog_description": "Pergaminho reforçado com selos fiscais contra perigos geológicos e atmosféricos.",
+    "effects": [],
+    "slot_role": "base",
+    "name_modifier": "Certidão de Risco"
+  },
+  {
+    "id": "part_crown_seal_t3",
+    "part_id": "part_crown_seal_t3",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Laudo Pericial Extraordinário",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 3,
+    "base_cost": 220,
+    "market_price_base": 220,
+    "power_bonus": 35,
+    "power_contrib": 35,
+    "catalog_description": "Documento solene da Coroa chancelado com ouro para cobertura total de sinistros.",
+    "effects": [],
+    "slot_role": "base",
+    "name_modifier": "Laudo Pericial"
+  },
+  {
+    "id": "part_crown_lic_submerged",
+    "part_id": "part_crown_lic_submerged",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Alvará de Operação Subaquática",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 130,
+    "market_price_base": 130,
+    "power_bonus": 15,
+    "power_contrib": 15,
+    "catalog_description": "Cláusula notarial que homologa técnicas de lastro e respiração subaquática.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "submerged_ruins"
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Operação Subaquática"
+  },
+  {
+    "id": "part_crown_lic_arcane_fog",
+    "part_id": "part_crown_lic_arcane_fog",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Laudo de Visibilidade Espectral",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 130,
+    "market_price_base": 130,
+    "power_bonus": 15,
+    "power_contrib": 15,
+    "catalog_description": "Chancela pericial que dissipa ilusões arcanas e orienta a equipe no nevoeiro denso.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "arcane_fog"
+      },
+      {
+        "effect": "terrain_mitigation",
+        "value": "thick_fog"
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Visibilidade Espectral"
+  },
+  {
+    "id": "part_crown_lic_lightning",
+    "part_id": "part_crown_lic_lightning",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Certificado de Aterramento Voltaico",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 140,
+    "market_price_base": 140,
+    "power_bonus": 16,
+    "power_contrib": 16,
+    "catalog_description": "Isolamento eletrostático certificado contra arcos voltaicos em picos e tempestades elétricas.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "lightning_peaks"
+      },
+      {
+        "effect": "terrain_mitigation",
+        "value": "lightning_storm"
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Aterramento Voltaico"
+  },
+  {
+    "id": "part_crown_lic_volcanic",
+    "part_id": "part_crown_lic_volcanic",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Protocolo Termorregulador",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 135,
+    "market_price_base": 135,
+    "power_bonus": 15,
+    "power_contrib": 15,
+    "catalog_description": "Diretriz operacional de dissipação de calor magmático e resistência a climas tórridos.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "volcanic_heat"
+      },
+      {
+        "effect": "terrain_mitigation",
+        "value": "scorching_heat"
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Termorregulador"
+  },
+  {
+    "id": "part_crown_lic_acid_rain",
+    "part_id": "part_crown_lic_acid_rain",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Apólice contra Danos Corrosivos",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 125,
+    "market_price_base": 125,
+    "power_bonus": 14,
+    "power_contrib": 14,
+    "catalog_description": "Garantia securitária com verniz hidrofóbico contra deterioração por chuva ácida.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "acid_rain"
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Anticorrosivo"
   }
 ]

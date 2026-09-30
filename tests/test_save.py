@@ -202,6 +202,48 @@ class TestSaveSystemOperations(unittest.TestCase):
         with self.assertRaises(ValueError):
             save_system.migrate_save(fake_data)
 
+    def test_legacy_slot_migration(self):
+        """Valida que migrate_save converte identificadores de slots legados em canonical slots."""
+        old_data = {
+            "save_version": 1,
+            "slot": "slot_1",
+            "metadata": {},
+            "game_state": {
+                "loadout": {
+                    "Arma": {"item_instance_id": "i1", "slot_type": "Arma"},
+                    "Armadura": None,
+                },
+                "inventory": [
+                    {"item_instance_id": "i2", "slot": "Joia", "slot_type": "Joia"}
+                ],
+                "showcase": [],
+            },
+            "market_engine": {
+                "ready_items_for_sale": [
+                    {"market_item_id": "m1", "slot_type": "Consumível"}
+                ],
+                "vip_orders": [
+                    {"id": "v1", "target_slot": "Inscrição"}
+                ],
+                "bulletin": {"target": "Arma"},
+            }
+        }
+        migrated = save_system.migrate_save(old_data)
+        gs = migrated["game_state"]
+        self.assertIn("Arsenal Ofensivo", gs["loadout"])
+        self.assertIn("Blindagem Operacional", gs["loadout"])
+        self.assertIn("Ativo de Performance", gs["loadout"])
+        self.assertIn("Alvará de Risco", gs["loadout"])
+        self.assertIn("Provisão Logística", gs["loadout"])
+        self.assertNotIn("Arma", gs["loadout"])
+        self.assertNotIn("Armadura", gs["loadout"])
+        self.assertEqual(gs["loadout"]["Arsenal Ofensivo"]["slot_type"], "Arsenal Ofensivo")
+        self.assertEqual(gs["inventory"][0]["slot"], "Ativo de Performance")
+        self.assertEqual(gs["inventory"][0]["slot_type"], "Ativo de Performance")
+        self.assertEqual(migrated["market_engine"]["ready_items_for_sale"][0]["slot_type"], "Provisão Logística")
+        self.assertEqual(migrated["market_engine"]["vip_orders"][0]["target_slot"], "Alvará de Risco")
+        self.assertEqual(migrated["market_engine"]["bulletin"]["target"], "Arsenal Ofensivo")
+
 
 class TestSeedsImmutabilityAndBloat(unittest.TestCase):
     def test_seed_files_byte_for_byte_unmodified_after_play_and_save(self):

@@ -130,6 +130,30 @@ function AppContent() {
     return null
   }
 
+  function handleAdvanceFromPhase1() {
+    if (gameState.current_phase > 1) {
+      navigate('/phase2')
+    } else {
+      advancePhase()
+    }
+  }
+
+  function handleAdvanceFromPhase2() {
+    if (gameState.current_phase > 2) {
+      navigate('/phase3')
+    } else {
+      advancePhase()
+    }
+  }
+
+  function handleAdvanceFromPhase3() {
+    if (gameState.current_phase > 3) {
+      navigate('/phase4')
+    } else {
+      advancePhase()
+    }
+  }
+
   function handleAdvanceFromPhase4() {
     if (gameState.current_phase === 5) {
       navigate('/phase5')
@@ -176,7 +200,7 @@ function AppContent() {
       item_instance_id: `item_craft_${Date.now()}`,
       name: 'Item',
       quality: 'Normal',
-      slot_type: 'Arma',
+      slot_type: 'Arsenal Ofensivo',
       power_bonus: 20,
       market_value_base: 150,
     }
@@ -214,14 +238,18 @@ function AppContent() {
       }
 
       if (isTinkering && !tinkeringSuccess) {
+        const targetSlot = (rec?.slot as any) || 'offensive_asset'
+        const isCorpAsset = ['offensive_asset', 'defensive_asset', 'terrain_license', 'Arsenal Ofensivo', 'Blindagem Operacional', 'Alvará de Risco', 'Arma', 'Armadura', 'Inscrição'].includes(targetSlot)
         createdItem = {
           item_instance_id: `item_scrap_${Date.now()}`,
-          name: 'Gororoba Experimental',
-          slot_type: (rec?.slot as any) || 'Arma',
+          name: isCorpAsset ? 'Ativo Não-Conforme' : 'Gororoba Experimental',
+          slot_type: targetSlot,
           quality: 'Fraco',
           power_bonus: 0,
           market_value_base: 20,
-          description: 'Resíduo operacional oriundo de processo fabril experimental sem conformidade técnica homologada.',
+          description: isCorpAsset
+            ? 'Lote fabril retido na malha fina por desconformidade técnica e ausência de tolerância dimensional.'
+            : 'Resíduo operacional oriundo de processo experimental sem conformidade técnica homologada.',
         }
       } else {
         createdItem = {
@@ -643,14 +671,16 @@ function AppContent() {
     if (isInterBrand) {
       tinkeringSuccess = Math.random() < 0.60
       if (!tinkeringSuccess) {
+        const targetSlot = (parts[0]?.compatible_slots?.[0] || 'Arsenal Ofensivo') as any
+        const scrapName = targetSlot === 'Provisão Logística' ? 'Gororoba Experimental' : 'Ativo Não-Conforme'
         createdItem = {
           item_instance_id: `mod_scrap_${Date.now()}`,
-          name: 'Gororoba Experimental',
-          slot_type: 'Arma',
+          name: scrapName,
+          slot_type: targetSlot,
           quality: 'Fraco',
           power_bonus: 0,
           market_value_base: 20,
-          description: 'Refugo mecânico de montagem inter-marcas incompatível com as tolerâncias de fábrica.',
+          description: 'Refugo mecânico de montagem inter-marcas incompatível com as tolerâncias de fábrica (reprovado na inspeção).',
         }
       } else {
         overclock = true
@@ -659,7 +689,7 @@ function AppContent() {
         createdItem = {
           item_instance_id: `mod_item_${Date.now()}`,
           name: `${baseName || 'Artefato Modular Híbrido'} (Overclock)`,
-          slot_type: parts[0]?.compatible_slots?.[0] || 'Arma',
+          slot_type: (parts[0]?.compatible_slots?.[0] || 'Arsenal Ofensivo') as any,
           quality: 'Ótimo',
           power_bonus: boostedPower,
           market_value_base: parts.reduce((acc, p) => acc + (p.base_cost || 100), 0) * 1.3,
@@ -672,7 +702,7 @@ function AppContent() {
       createdItem = {
         item_instance_id: `mod_item_${Date.now()}`,
         name: baseName || 'Artefato Modular Padronizado',
-        slot_type: parts[0]?.compatible_slots?.[0] || 'Arma',
+        slot_type: (parts[0]?.compatible_slots?.[0] || 'Arsenal Ofensivo') as any,
         quality: 'Normal',
         power_bonus: tunedPower,
         market_value_base: parts.reduce((acc, p) => acc + (p.base_cost || 100), 0) * 1.2,
@@ -793,7 +823,7 @@ function AppContent() {
                 pendingRenewals={gameState.pending_contract_renewals}
                 youthAcademy={gameState.youth_academy}
                 activeEvent={gameState.active_event}
-                onAdvance={advancePhase}
+                onAdvance={handleAdvanceFromPhase1}
                 onStateUpdate={handleStateChange as any}
               />
             }
@@ -803,7 +833,7 @@ function AppContent() {
             element={
               <Phase2Workshop
                 state={gameState}
-                onAdvance={advancePhase}
+                onAdvance={handleAdvanceFromPhase2}
                 onCraft={handleCraft}
                 onUpgradeWorkshop={handleUpgradeWorkshop}
                 onBuyMaterial={handleBuyMaterial}
@@ -827,7 +857,7 @@ function AppContent() {
             element={
               <Phase3Tactics
                 state={gameState}
-                onAdvance={advancePhase}
+                onAdvance={handleAdvanceFromPhase3}
                 onSaveTactics={handleSaveTactics}
               />
             }

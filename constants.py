@@ -2,7 +2,7 @@
 HeroFoot Canonical Constants and Legacy Normalization Maps.
 """
 
-SLOTS = ["Arma", "Armadura", "Joia", "Inscrição", "Consumível"]
+SLOTS = ["Arsenal Ofensivo", "Blindagem Operacional", "Ativo de Performance", "Alvará de Risco", "Provisão Logística"]
 BRANCHES = ["Ferragem", "Alquimia", "Joalheria", "Culinária"]
 QUALITIES = ["Fraco", "Normal", "Ótimo", "Lendário"]
 STATUSES = ["Apto", "Fatigado", "Afastado"]
@@ -21,18 +21,25 @@ LEGACY_BRANCH_MAP = {
 }
 
 LEGACY_SLOT_MAP = {
-    "weapon": "Arma",
-    "armor": "Armadura",
-    "jewelry": "Joia",
-    "inscription": "Inscrição",
-    "consumable": "Consumível",
-    "arma": "Arma",
-    "armadura": "Armadura",
-    "joia": "Joia",
-    "inscrição": "Inscrição",
-    "inscricao": "Inscrição",
-    "consumível": "Consumível",
-    "consumivel": "Consumível",
+    "weapon": "Arsenal Ofensivo",
+    "armor": "Blindagem Operacional",
+    "jewelry": "Ativo de Performance",
+    "inscription": "Alvará de Risco",
+    "consumable": "Provisão Logística",
+    "arma": "Arsenal Ofensivo",
+    "armadura": "Blindagem Operacional",
+    "joia": "Ativo de Performance",
+    "inscrição": "Alvará de Risco",
+    "inscricao": "Alvará de Risco",
+    "consumível": "Provisão Logística",
+    "consumivel": "Provisão Logística",
+    "arsenal ofensivo": "Arsenal Ofensivo",
+    "blindagem operacional": "Blindagem Operacional",
+    "ativo de performance": "Ativo de Performance",
+    "alvará de risco": "Alvará de Risco",
+    "alvara de risco": "Alvará de Risco",
+    "provisão logística": "Provisão Logística",
+    "provisao logistica": "Provisão Logística",
 }
 
 LEGACY_MARGIN_MAP = {
@@ -70,7 +77,7 @@ def normalize_branch(val: str) -> str:
 
 def normalize_slot(val: str) -> str:
     if not val:
-        return "Arma"
+        return "Arsenal Ofensivo"
     return LEGACY_SLOT_MAP.get(str(val).strip().lower(), val)
 
 

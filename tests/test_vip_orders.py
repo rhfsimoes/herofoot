@@ -92,7 +92,7 @@ class TestVipOrders(unittest.TestCase):
         dummy_order = {
             "id": "vip_test_01",
             "client_name": "Auditoria Imperial",
-            "target_slot": "Armadura",
+            "target_slot": "Blindagem Operacional",
             "required_quality": "Ótimo",
             "reward_multiplier": 3.0,
             "confidence_reward": 15,
@@ -116,7 +116,7 @@ class TestVipOrders(unittest.TestCase):
         dummy_order = {
             "id": "vip_test_state",
             "client_name": "Consórcio Real",
-            "target_slot": "Arma",
+            "target_slot": "Arsenal Ofensivo",
             "required_quality": "Lendário",
             "reward_multiplier": 4.5,
             "confidence_reward": 25,
@@ -133,7 +133,7 @@ class TestVipOrders(unittest.TestCase):
         self.controller.market_engine.active_vip_order = {
             "id": "vip_order_01",
             "client_name": "Guarda Ducal de Prata",
-            "target_slot": "Armadura",
+            "target_slot": "Blindagem Operacional",
             "required_quality": "Ótimo",
             "reward_multiplier": 2.6,
             "confidence_reward": 12,
@@ -142,7 +142,7 @@ class TestVipOrders(unittest.TestCase):
         item = {
             "item_instance_id": "plate_armor_01",
             "name": "Couraça Espelhada da Guarda",
-            "slot_type": "Armadura",
+            "slot_type": "Blindagem Operacional",
             "quality": "Ótimo",
             "power_bonus": 25,
             "market_value_base": 200,
@@ -169,7 +169,7 @@ class TestVipOrders(unittest.TestCase):
         self.controller.market_engine.active_vip_order = {
             "id": "vip_order_02",
             "client_name": "Ordem dos Clérigos",
-            "target_slot": "Joia",
+            "target_slot": "Ativo de Performance",
             "required_quality": "Normal",
             "reward_multiplier": 2.2,
             "confidence_reward": 10,
@@ -179,7 +179,7 @@ class TestVipOrders(unittest.TestCase):
         item = {
             "item_instance_id": "legendary_ring_01",
             "name": "Anel Sagrado dos Auditores",
-            "slot_type": "Joia",
+            "slot_type": "Ativo de Performance",
             "quality": "Lendário",
             "power_bonus": 40,
             "market_value_base": 300,
@@ -196,7 +196,7 @@ class TestVipOrders(unittest.TestCase):
         self.controller.market_engine.active_vip_order = {
             "id": "vip_order_03",
             "client_name": "Sindicato dos Mineiros",
-            "target_slot": "Arma",
+            "target_slot": "Arsenal Ofensivo",
             "required_quality": "Ótimo",
             "reward_multiplier": 2.8,
             "confidence_reward": 14,
@@ -206,7 +206,7 @@ class TestVipOrders(unittest.TestCase):
         item = {
             "item_instance_id": "basic_axe_01",
             "name": "Machado de Desbaste Rústico",
-            "slot_type": "Arma",
+            "slot_type": "Arsenal Ofensivo",
             "quality": "Normal",
             "power_bonus": 15,
             "market_value_base": 150,
@@ -231,17 +231,17 @@ class TestVipOrders(unittest.TestCase):
         self.controller.market_engine.active_vip_order = {
             "id": "vip_order_04",
             "client_name": "Consórcio Real de Seguros",
-            "target_slot": "Consumível",
+            "target_slot": "Provisão Logística",
             "required_quality": "Ótimo",
             "reward_multiplier": 2.4,
             "confidence_reward": 10,
             "expires_round": 3,
         }
-        # Item é Armadura, não Consumível
+        # Item é Blindagem Operacional, não Provisão Logística
         item = {
             "item_instance_id": "armor_for_consumable_01",
             "name": "Escudo Reforçado",
-            "slot_type": "Armadura",
+            "slot_type": "Blindagem Operacional",
             "quality": "Ótimo",
             "power_bonus": 20,
             "market_value_base": 180,
@@ -260,7 +260,7 @@ class TestVipOrders(unittest.TestCase):
         self.controller.market_engine.active_vip_order = {
             "id": "vip_order_05",
             "client_name": "Inspetoria de Postura",
-            "target_slot": "Inscrição",
+            "target_slot": "Alvará de Risco",
             "required_quality": "Normal",
             "reward_multiplier": 2.1,
             "confidence_reward": 8,
@@ -269,13 +269,13 @@ class TestVipOrders(unittest.TestCase):
         item = {
             "item_instance_id": "rune_equipped_01",
             "name": "Runa de Proteção Polar",
-            "slot_type": "Inscrição",
+            "slot_type": "Alvará de Risco",
             "quality": "Normal",
             "power_bonus": 12,
             "market_value_base": 100,
         }
         self.controller.state.inventory.append(item)
-        self.controller.state.loadout["Inscrição"] = "rune_equipped_01"
+        self.controller.state.loadout["Alvará de Risco"] = "rune_equipped_01"
 
         res = self.controller.fulfill_vip_order("rune_equipped_01")
         self.assertFalse(res["success"])
@@ -289,7 +289,7 @@ class TestVipOrders(unittest.TestCase):
         self.controller.market_engine.active_vip_order = {
             "id": "vip_order_cap",
             "client_name": "Grão-Duque",
-            "target_slot": "Arma",
+            "target_slot": "Arsenal Ofensivo",
             "required_quality": "Normal",
             "reward_multiplier": 2.0,
             "confidence_reward": 20,
@@ -298,7 +298,7 @@ class TestVipOrders(unittest.TestCase):
         item = {
             "item_instance_id": "sword_cap_01",
             "name": "Espada Cerimonial",
-            "slot_type": "Arma",
+            "slot_type": "Arsenal Ofensivo",
             "quality": "Normal",
             "power_bonus": 10,
             "market_value_base": 100,
@@ -319,7 +319,7 @@ class TestVipOrders(unittest.TestCase):
 
         self.controller.market_engine.active_vip_order = {
             "id": "vip_order_dummy",
-            "target_slot": "Arma",
+            "target_slot": "Arsenal Ofensivo",
             "required_quality": "Normal",
             "reward_multiplier": 2.0,
             "confidence_reward": 10,
@@ -356,7 +356,7 @@ class TestServerVipOrderEndpoints(unittest.TestCase):
         server.controller.market_engine.active_vip_order = {
             "id": "vip_http_01",
             "client_name": "Câmara dos Mercadores",
-            "target_slot": "Armadura",
+            "target_slot": "Blindagem Operacional",
             "required_quality": "Normal",
             "reward_multiplier": 2.5,
             "confidence_reward": 15,
@@ -364,8 +364,8 @@ class TestServerVipOrderEndpoints(unittest.TestCase):
         }
         valid_item = {
             "item_instance_id": "http_armor_01",
-            "name": "Armadura de Campanha",
-            "slot_type": "Armadura",
+            "name": "Blindagem de Campanha",
+            "slot_type": "Blindagem Operacional",
             "quality": "Normal",
             "power_bonus": 18,
             "market_value_base": 200,

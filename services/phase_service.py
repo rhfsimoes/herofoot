@@ -259,7 +259,7 @@ class PhaseService:
         has_terrain_mitigation = check_terrain_mitigation(self.state.loadout, required_mitigation)
         has_climate_mitigation = check_climate_mitigation(self.state.loadout, required_climate_mitigation)
 
-        consumable_item = self.state.loadout.get("Consumível")
+        consumable_item = self.state.loadout.get("Provisão Logística")
         consumable_energy_bonus = 0
         if consumable_item and isinstance(consumable_item, dict):
             consumable_energy_bonus = consumable_item.get("energy_bonus", consumable_item.get("energy_restore", 0))
@@ -334,9 +334,9 @@ class PhaseService:
             rival_pe = 1
             match_log = [f"Expedição em {dungeon_name} ({climate_name}) concluída com sucesso."]
 
-        # 4. Regra das Cargas do Consumível (usa max_charges configurado no item)
+        # 4. Regra das Cargas da Provisão Logística (usa max_charges configurado no item)
         consumable_report = None
-        equipped_consumable = self.state.loadout.get("Consumível")
+        equipped_consumable = self.state.loadout.get("Provisão Logística")
         if equipped_consumable and isinstance(equipped_consumable, dict):
             instance_id = equipped_consumable.get("item_instance_id")
             inv_item = next((i for i in self.state.inventory if i.get("item_instance_id") == instance_id), None)
@@ -347,7 +347,7 @@ class PhaseService:
             target["charges"] = current_charges
 
             if current_charges <= 0:
-                self.state.loadout["Consumível"] = None
+                self.state.loadout["Provisão Logística"] = None
                 if inv_item in self.state.inventory:
                     self.state.inventory.remove(inv_item)
                 consumable_report = f"O consumível '{target.get('name', 'Consumível')}' esgotou todas as suas rações operacionais e foi descartado."
@@ -607,7 +607,11 @@ class PhaseService:
             "toxic_swamp": ["corp_swamp_alchemy", "corp_goblin_eng"],
             "glacier_frost": ["corp_elf_precision", "corp_goblin_eng"],
             "unstable_mine": ["corp_dwarf_steel", "corp_goblin_eng"],
-            "neutral": ["corp_aethelgard", "corp_valkyria", "corp_crown_notarial", "corp_goblin_eng"],
+            "submerged_ruins": ["corp_elf_precision", "corp_crown_notarial", "corp_goblin_eng"],
+            "arcane_fog": ["corp_elf_precision", "corp_crown_notarial", "corp_chancellor"],
+            "lightning_peaks": ["corp_dwarf_steel", "corp_valkyria", "corp_goblin_eng"],
+            "volcanic_heat": ["corp_dwarf_steel", "corp_valkyria", "corp_goblin_eng"],
+            "neutral": ["corp_aethelgard", "corp_valkyria", "corp_crown_notarial", "corp_goblin_eng", "corp_chancellor"],
         }
         target_corps = terrain_corp_map.get(terrain, terrain_corp_map["neutral"])
 

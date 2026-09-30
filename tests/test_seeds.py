@@ -4,7 +4,7 @@ import unittest
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
 
-CANONICAL_SLOTS = {"Arma", "Armadura", "Joia", "Inscrição", "Consumível"}
+CANONICAL_SLOTS = {"Arsenal Ofensivo", "Blindagem Operacional", "Ativo de Performance", "Alvará de Risco", "Provisão Logística"}
 CANONICAL_BRANCHES = {"Ferragem", "Alquimia", "Joalheria", "Culinária"}
 CANONICAL_BRANCH_IDS = {"blacksmithing", "alchemy", "jewelry", "cooking"}
 CANONICAL_QUALITIES = {"Fraco", "Normal", "Ótimo", "Lendário"}

@@ -60,6 +60,97 @@ def get_save_filepath(slot: str, saves_dir: Optional[str] = None) -> str:
     return os.path.join(target_dir, f"{norm_slot}.json")
 
 
+LEGACY_SLOT_MAP = {
+    "weapon": "Arsenal Ofensivo",
+    "armor": "Blindagem Operacional",
+    "jewelry": "Ativo de Performance",
+    "inscription": "Alvará de Risco",
+    "consumable": "Provisão Logística",
+    "arma": "Arsenal Ofensivo",
+    "armadura": "Blindagem Operacional",
+    "joia": "Ativo de Performance",
+    "inscrição": "Alvará de Risco",
+    "inscricao": "Alvará de Risco",
+    "consumível": "Provisão Logística",
+    "consumivel": "Provisão Logística",
+    "Arma": "Arsenal Ofensivo",
+    "Armadura": "Blindagem Operacional",
+    "Joia": "Ativo de Performance",
+    "Inscrição": "Alvará de Risco",
+    "Consumível": "Provisão Logística",
+    "Arsenal Ofensivo": "Arsenal Ofensivo",
+    "Blindagem Operacional": "Blindagem Operacional",
+    "Ativo de Performance": "Ativo de Performance",
+    "Alvará de Risco": "Alvará de Risco",
+    "Provisão Logística": "Provisão Logística",
+}
+
+
+def migrate_legacy_slots(data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Normaliza identificadores de slots legados em compartimentos de loadout, inventário,
+    vitrine de mercado e ordens VIP para a nova convenção corporativa da guilda.
+    """
+    if not isinstance(data, dict):
+        return data
+
+    def _norm(slot_val: Any) -> Any:
+        if not isinstance(slot_val, str):
+            return slot_val
+        key = slot_val.strip()
+        return LEGACY_SLOT_MAP.get(key.lower(), LEGACY_SLOT_MAP.get(key, slot_val))
+
+    def _norm_item(item: Any):
+        if isinstance(item, dict):
+            if "slot" in item and isinstance(item["slot"], str):
+                item["slot"] = _norm(item["slot"])
+            if "slot_type" in item and isinstance(item["slot_type"], str):
+                item["slot_type"] = _norm(item["slot_type"])
+
+    gs = data.get("game_state")
+    if isinstance(gs, dict):
+        loadout = gs.get("loadout")
+        if isinstance(loadout, dict):
+            new_loadout = {
+                "Arsenal Ofensivo": None,
+                "Blindagem Operacional": None,
+                "Ativo de Performance": None,
+                "Alvará de Risco": None,
+                "Provisão Logística": None,
+            }
+            for k, v in loadout.items():
+                norm_k = _norm(k)
+                if isinstance(v, dict):
+                    _norm_item(v)
+                new_loadout[norm_k] = v
+            gs["loadout"] = new_loadout
+
+        for inv_key in ("inventory", "showcase"):
+            items = gs.get(inv_key)
+            if isinstance(items, list):
+                for item in items:
+                    _norm_item(item)
+
+    market = data.get("market_engine")
+    if isinstance(market, dict):
+        ready_items = market.get("ready_items_for_sale")
+        if isinstance(ready_items, list):
+            for item in ready_items:
+                _norm_item(item)
+
+        vip_orders = market.get("vip_orders")
+        if isinstance(vip_orders, list):
+            for order in vip_orders:
+                if isinstance(order, dict) and "target_slot" in order and isinstance(order["target_slot"], str):
+                    order["target_slot"] = _norm(order["target_slot"])
+
+        bulletin = market.get("bulletin")
+        if isinstance(bulletin, dict) and "target" in bulletin and isinstance(bulletin["target"], str):
+            bulletin["target"] = _norm(bulletin["target"])
+
+    return data
+
+
 def migrate_save(data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Valida e executa rotinas de adequação de versão (migração) para arquivos de arquivamento corporativo.
@@ -81,10 +172,8 @@ def migrate_save(data: Dict[str, Any]) -> Dict[str, Any]:
             f"Registro em versão obsoleta ou irregular ({version}), incompatível com as normas da guilda."
         )
 
-    # Migrações incrementais futuras podem ser encadeadas aqui:
-    # if version == 1:
-    #     data = _migrate_v1_to_v2(data)
-    #     version = 2
+    # Migração de compatibilidade para slots legados
+    data = migrate_legacy_slots(data)
 
     return data
 

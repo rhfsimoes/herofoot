@@ -552,5 +552,105 @@
     "effect": "power_pct",
     "value": 0.1,
     "requires_quality": "Lendário"
+  },
+  {
+    "affix_id": "pref_subaquatico",
+    "effect": "terrain_mitigation",
+    "value": "submerged_ruins"
+  },
+  {
+    "affix_id": "pref_subaquatico",
+    "effect": "value_pct",
+    "value": 0.25
+  },
+  {
+    "affix_id": "suf_subaquatico",
+    "effect": "power_flat",
+    "value": 5
+  },
+  {
+    "affix_id": "suf_subaquatico",
+    "effect": "value_pct",
+    "value": 0.25
+  },
+  {
+    "affix_id": "pref_espectral",
+    "effect": "terrain_mitigation",
+    "value": "arcane_fog"
+  },
+  {
+    "affix_id": "pref_espectral",
+    "effect": "value_pct",
+    "value": 0.25
+  },
+  {
+    "affix_id": "suf_visibilidade_espectral",
+    "effect": "power_flat",
+    "value": 5
+  },
+  {
+    "affix_id": "suf_visibilidade_espectral",
+    "effect": "value_pct",
+    "value": 0.25
+  },
+  {
+    "affix_id": "pref_voltaico",
+    "effect": "terrain_mitigation",
+    "value": "lightning_peaks"
+  },
+  {
+    "affix_id": "pref_voltaico",
+    "effect": "value_pct",
+    "value": 0.3
+  },
+  {
+    "affix_id": "suf_aterramento_voltaico",
+    "effect": "power_flat",
+    "value": 6
+  },
+  {
+    "affix_id": "suf_aterramento_voltaico",
+    "effect": "value_pct",
+    "value": 0.3
+  },
+  {
+    "affix_id": "pref_termorregulador",
+    "effect": "terrain_mitigation",
+    "value": "volcanic_heat"
+  },
+  {
+    "affix_id": "pref_termorregulador",
+    "effect": "value_pct",
+    "value": 0.3
+  },
+  {
+    "affix_id": "suf_termorregulador",
+    "effect": "power_flat",
+    "value": 6
+  },
+  {
+    "affix_id": "suf_termorregulador",
+    "effect": "value_pct",
+    "value": 0.3
+  },
+  {
+    "affix_id": "pref_anticorrosivo",
+    "effect": "climate_mitigation",
+    "value": "climate_acid_rain"
+  },
+  {
+    "affix_id": "pref_anticorrosivo",
+    "effect": "value_pct",
+    "value": 0.25
+  },
+  {
+    "affix_id": "suf_anticorrosivo",
+    "effect": "power_flat",
+    "value": 4
+  },
+  {
+    "affix_id": "suf_anticorrosivo",
+    "effect": "value_pct",
+    "value": 0.25
   }
 ]

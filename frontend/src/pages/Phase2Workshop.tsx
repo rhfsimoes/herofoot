@@ -48,12 +48,10 @@ import {
   type ItemQuality,
   type WorkshopBranch,
   type Recipe,
-  type MarketMaterial,
   type MarketReadyItem,
   type CraftOptions,
   type CraftPreview,
   type MaterialSheet,
-  type AffixManual,
   type VipOrder,
   type ModularPart,
   type B2BContract,
@@ -65,8 +63,6 @@ import {
   RARITY_BADGE_STYLES,
   MATERIAL_RARITY_STYLES,
   getMaterialRarity,
-  getMaterialCategory,
-  type MaterialCategory,
 } from '../utils/rarityStyles'
 import {
   fetchCraftOptionsBackend,
@@ -109,7 +105,7 @@ interface Phase2WorkshopProps {
 
 type MainTab = 'oficina' | 'complexo_b2b' | 'balcao' | 'transferencias'
 type B2BSubTab = 'fornecedores' | 'operarios' | 'montagem' | 'spot'
-type MarketSubTab = 'vender' | 'comprar_prontos' | 'comprar_insumos' | 'manuais'
+type MarketSubTab = 'vender' | 'comprar_prontos'
 
 const BRANCHES: { name: WorkshopBranch; icon: any; key: string }[] = [
   { name: 'Ferragem', icon: Hammer, key: 'Ferragem' },
@@ -131,11 +127,11 @@ export default function Phase2Workshop({
   onAdvance,
   onCraft,
   onUpgradeWorkshop,
-  onBuyMaterial,
+  onBuyMaterial: _onBuyMaterial,
   onBuyItem,
   onSellItem,
   onResolveOffer,
-  onLearnAffix,
+  onLearnAffix: _onLearnAffix,
   onStateUpdate,
   onSignB2BContract,
   onCancelB2BContract,
@@ -561,7 +557,7 @@ export default function Phase2Workshop({
             name: partId,
             branch: 'Ferragem' as WorkshopBranch,
             part_type: 'modular_part',
-            compatible_slots: ['Arma'],
+            compatible_slots: ['Arsenal Ofensivo'],
             tier: 1,
             base_cost: 50,
             market_price_base: 50,
@@ -638,17 +634,10 @@ export default function Phase2Workshop({
   }
 
   const [isUpgrading, setIsUpgrading] = useState<boolean>(false)
-  const [isBuyingManual, setIsBuyingManual] = useState<string | null>(null)
   const [transactionLog, setTransactionLog] = useState<string[]>([])
 
-  const [marketMaterials, setMarketMaterials] = useState<MarketMaterial[]>(
-    state.market?.materials_for_sale ?? []
-  )
   const [marketReadyItems, setMarketReadyItems] = useState<MarketReadyItem[]>(
     state.market?.ready_items_for_sale ?? []
-  )
-  const [affixManuals, setAffixManuals] = useState<AffixManual[]>(
-    state.market?.affix_manuals ?? []
   )
 
   // Encomenda VIP da Nobreza
@@ -687,33 +676,6 @@ export default function Phase2Workshop({
     }
   }
 
-  // Filtros e busca no Mercado Atacadista de Matérias-Primas
-  const [marketCategoryFilter, setMarketCategoryFilter] = useState<MaterialCategory>('Todas')
-  const [marketRarityFilter, setMarketRarityFilter] = useState<string>('Todas')
-  const [marketSearchQuery, setMarketSearchQuery] = useState<string>('')
-
-  const filteredMarketMaterials = useMemo(() => {
-    return marketMaterials.filter(mat => {
-      // 1. Filtro por Categoria
-      if (marketCategoryFilter !== 'Todas') {
-        const cat = getMaterialCategory(mat.material_id, mat.name)
-        if (cat !== marketCategoryFilter) return false
-      }
-      // 2. Filtro por Raridade
-      if (marketRarityFilter !== 'Todas') {
-        const rarity = getMaterialRarity(mat.material_id, mat.name)
-        if (rarity !== marketRarityFilter) return false
-      }
-      // 3. Busca textual em tempo real
-      if (marketSearchQuery.trim()) {
-        const query = marketSearchQuery.trim().toLowerCase()
-        const matchName = mat.name.toLowerCase().includes(query)
-        const matchId = mat.material_id.toLowerCase().includes(query)
-        if (!matchName && !matchId) return false
-      }
-      return true
-    })
-  }, [marketMaterials, marketCategoryFilter, marketRarityFilter, marketSearchQuery])
 
   const activeBranchInfo = BRANCHES.find(b => b.name === selectedBranch)!
   const currentBranchLevel = state.workshop_levels[activeBranchInfo.key] ?? 1
@@ -892,9 +854,7 @@ export default function Phase2Workshop({
     setInventory(state.inventory)
     setMaterials(state.materials)
     setGold(state.gold)
-    if (state.market?.materials_for_sale) setMarketMaterials(state.market.materials_for_sale)
     if (state.market?.ready_items_for_sale) setMarketReadyItems(state.market.ready_items_for_sale)
-    if (state.market?.affix_manuals) setAffixManuals(state.market.affix_manuals)
     if (state.warehouse_parts) setWarehouseParts(state.warehouse_parts)
     if (state.active_b2b_contracts) setActiveB2bContracts(state.active_b2b_contracts)
     if (state.assembly_line_workers) setAssemblyLineWorkers(state.assembly_line_workers)
@@ -1052,102 +1012,7 @@ export default function Phase2Workshop({
     setIsLoadingCraft(false)
   }
 
-  // ─────────────────────────────────────────────
-  // AÇÕES DE MERCADO E COMPRA DE MANUAIS
-  // ─────────────────────────────────────────────
-  async function handleBuyManual(affixId: string, cost: number) {
-    if (gold < cost) {
-      alert(`Recursos em tesouraria insuficientes. Custo: ${cost} Ouro. Saldo: ${gold} Ouro.`)
-      return
-    }
 
-    setIsBuyingManual(affixId)
-    if (onLearnAffix) {
-      try {
-        const res = await onLearnAffix(affixId)
-        if (res && res.result && res.result.success) {
-          setAffixManuals(prev => prev.filter(m => m.affix_id !== affixId))
-          if (res.state) {
-            setGold(res.state.gold)
-          }
-          setTransactionLog(l => [`[Mercado] Manual corporativo '${affixId}' adquirido e arquivado no compêndio.`, ...l])
-          // Recarrega opções de craft da receita ativa
-          if (selectedRecipeId) {
-            const updatedOpts = await fetchCraftOptionsBackend(selectedRecipeId)
-            if (updatedOpts) setCraftOptions(updatedOpts)
-          }
-        } else if (res && res.result && !res.result.success) {
-          alert(res.result.message || 'Falha na aquisição do manual.')
-        }
-      } catch (err) {
-        console.error('Erro ao comprar manual:', err)
-      } finally {
-        setIsBuyingManual(null)
-      }
-      return
-    }
-    setIsBuyingManual(null)
-  }
-
-  async function handleBuyMaterial(mat: MarketMaterial, qty: number = 1) {
-    const totalCost = mat.unit_price * qty
-    if (gold < totalCost) {
-      alert(`Recursos financeiros insuficientes em tesouraria. Custo total: ${totalCost} Ouro. Saldo: ${gold} Ouro.`)
-      return
-    }
-
-    if (onBuyMaterial) {
-      try {
-        const res = await onBuyMaterial(mat.material_id, qty)
-        if (res && res.state) {
-          setGold(res.state.gold)
-          setMaterials(res.state.materials)
-          if (res.state.market?.materials_for_sale) {
-            setMarketMaterials(res.state.market.materials_for_sale)
-          }
-          setCraftPreview(
-            computeLocalPreview(
-              selectedRecipeId,
-              selectedPrefixId,
-              selectedSuffixId,
-              res.state.materials,
-              currentBranchLevel
-            )
-          )
-          setTransactionLog(l => [`[Mercado] ${qty}x ${mat.name} faturados por ⬡ ${totalCost} Ouro.`, ...l])
-          return
-        }
-      } catch (err) {
-        console.warn('Fallback para compra local de insumos:', err)
-      }
-    }
-
-    const newGold = gold - totalCost
-    const newMaterials = {
-      ...materials,
-      [mat.material_id]: (materials[mat.material_id] ?? 0) + qty,
-    }
-    setGold(newGold)
-    setMaterials(newMaterials)
-    setMarketMaterials(prev =>
-      prev.map(m =>
-        m.material_id === mat.material_id
-          ? { ...m, available_quantity: Math.max(0, m.available_quantity - qty) }
-          : m
-      )
-    )
-    setCraftPreview(
-      computeLocalPreview(
-        selectedRecipeId,
-        selectedPrefixId,
-        selectedSuffixId,
-        newMaterials,
-        currentBranchLevel
-      )
-    )
-    onStateUpdate?.({ gold: newGold, materials: newMaterials })
-    setTransactionLog(l => [`[Mercado] ${qty}x ${mat.name} faturados por ⬡ ${totalCost} Ouro.`, ...l])
-  }
 
   async function handleBuyItem(readyItem: MarketReadyItem) {
     if (gold < readyItem.price) {
@@ -3654,26 +3519,6 @@ export default function Phase2Workshop({
             >
               Itens Prontos ({marketReadyItems.length})
             </button>
-            <button
-              onClick={() => setMarketSubTab('comprar_insumos')}
-              className={`px-4 py-2 rounded-lg text-xs uppercase tracking-wider font-bold transition-all cursor-pointer ${
-                marketSubTab === 'comprar_insumos'
-                  ? 'bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 shadow'
-                  : 'bg-stone-900 text-stone-400 hover:text-stone-200'
-              }`}
-            >
-              Matérias-Primas ({marketMaterials.length})
-            </button>
-            <button
-              onClick={() => setMarketSubTab('manuais')}
-              className={`px-4 py-2 rounded-lg text-xs uppercase tracking-wider font-bold transition-all cursor-pointer ${
-                marketSubTab === 'manuais'
-                  ? 'bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 shadow'
-                  : 'bg-stone-900 text-stone-400 hover:text-stone-200'
-              }`}
-            >
-              Manuais de Ofício ({affixManuals.length})
-            </button>
           </div>
 
           {/* Sub-aba 1: Vender Itens no Balcão */}
@@ -3815,249 +3660,6 @@ export default function Phase2Workshop({
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Sub-aba 3: Comprar Insumos */}
-          {marketSubTab === 'comprar_insumos' && (
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-stone-800 pb-3">
-                <div>
-                  <h3 className="text-xs font-bold text-amber-200 uppercase tracking-wider flex items-center gap-2">
-                    <span>Mercado Atacadista de Matérias-Primas</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-800 text-stone-300 border border-stone-700">
-                      {filteredMarketMaterials.length} de {marketMaterials.length} lotes
-                    </span>
-                  </h3>
-                  <p className="text-[11px] text-stone-500 mt-0.5">
-                    Fornecimento semanal auditado pela Corporação Mercantil. Clique no nome do insumo para abrir a Ficha Técnica.
-                  </p>
-                </div>
-              </div>
-
-              {/* Barra de Controle de Filtros & Busca */}
-              <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-3.5 space-y-3 shadow-md">
-                {/* Linha 1: Campo de Busca & Filtro de Raridade */}
-                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
-                  {/* Campo de Busca Textual com Ícone de Lupa */}
-                  <div className="relative flex-1">
-                    <Search className="w-4 h-4 text-stone-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                    <input
-                      type="text"
-                      value={marketSearchQuery}
-                      onChange={e => setMarketSearchQuery(e.target.value)}
-                      placeholder="Localizar insumo por nome (ex: Ferro, Mana, Escama, Erva)..."
-                      className="w-full bg-stone-900/90 border border-stone-700/80 rounded-lg pl-9 pr-8 py-2 text-xs text-stone-200 placeholder:text-stone-500 focus:outline-none focus:border-amber-500/80 focus:ring-1 focus:ring-amber-500/40 transition font-sans"
-                    />
-                    {marketSearchQuery && (
-                      <button
-                        onClick={() => setMarketSearchQuery('')}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-300 text-xs p-0.5 cursor-pointer"
-                        title="Limpar busca"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Filtro por Raridade */}
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-                    <span className="text-[10px] uppercase tracking-wider text-stone-400 font-bold shrink-0 mr-1">
-                      Raridade:
-                    </span>
-                    {(['Todas', 'Comum', 'Raro', 'Épico', 'Lendário'] as const).map(rarity => {
-                      const isSelected = marketRarityFilter === rarity
-                      const rarityChipStyles: Record<string, string> = {
-                        Todas: isSelected
-                          ? 'bg-amber-600/30 text-amber-200 border-amber-500/60 ring-1 ring-amber-500/40'
-                          : 'bg-stone-900 text-stone-400 border-stone-800 hover:border-stone-700',
-                        Comum: isSelected
-                          ? 'bg-slate-800/80 text-slate-200 border-slate-500/60 ring-1 ring-slate-500/40'
-                          : 'bg-stone-900 text-slate-400 border-stone-800 hover:border-slate-700',
-                        Raro: isSelected
-                          ? 'bg-sky-950/80 text-sky-200 border-sky-500/60 ring-1 ring-sky-500/40'
-                          : 'bg-stone-900 text-sky-400 border-stone-800 hover:border-sky-800',
-                        Épico: isSelected
-                          ? 'bg-purple-950/80 text-purple-200 border-purple-500/60 ring-1 ring-purple-500/40'
-                          : 'bg-stone-900 text-purple-400 border-stone-800 hover:border-purple-800',
-                        Lendário: isSelected
-                          ? 'bg-amber-950/80 text-amber-200 border-amber-500/60 ring-1 ring-amber-500/40'
-                          : 'bg-stone-900 text-amber-400 border-stone-800 hover:border-amber-800',
-                      }
-                      return (
-                        <button
-                          key={rarity}
-                          onClick={() => setMarketRarityFilter(rarity)}
-                          className={`px-2.5 py-1 rounded-md text-[11px] font-bold border transition shrink-0 cursor-pointer ${rarityChipStyles[rarity]}`}
-                        >
-                          {rarity}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Linha 2: Abas por Categoria */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pt-1 border-t border-stone-800/60">
-                  <span className="text-[10px] uppercase tracking-wider text-stone-400 font-bold shrink-0 mr-1">
-                    Categoria:
-                  </span>
-                  {(
-                    [
-                      { id: 'Todas', label: 'Todas', icon: Layers },
-                      { id: 'Ferragem (Minérios)', label: 'Ferragem (Minérios)', icon: Hammer },
-                      { id: 'Alquimia (Herbal)', label: 'Alquimia (Herbal)', icon: FlaskConical },
-                      { id: 'Joalheria (Arcano)', label: 'Joalheria (Arcano)', icon: Gem },
-                      { id: 'Culinária & Monstros', label: 'Culinária & Monstros', icon: UtensilsCrossed },
-                    ] as const
-                  ).map(cat => {
-                    const isSelected = marketCategoryFilter === cat.id
-                    const Icon = cat.icon
-                    return (
-                      <button
-                        key={cat.id}
-                        onClick={() => setMarketCategoryFilter(cat.id as MaterialCategory)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition shrink-0 cursor-pointer ${
-                          isSelected
-                            ? 'bg-amber-950/60 text-amber-300 border-amber-600/70 font-bold shadow-sm'
-                            : 'bg-stone-900/60 text-stone-400 border-stone-800 hover:text-stone-200 hover:border-stone-700'
-                        }`}
-                      >
-                        <Icon className="w-3.5 h-3.5" />
-                        <span>{cat.label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Grid de Materiais Filtrados */}
-              {filteredMarketMaterials.length === 0 ? (
-                <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-8 text-center space-y-3">
-                  <AlertTriangle className="w-8 h-8 text-amber-500/60 mx-auto" />
-                  <p className="text-stone-400 text-xs">
-                    Nenhuma matéria-prima encontrada com os filtros e busca selecionados.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setMarketCategoryFilter('Todas')
-                      setMarketRarityFilter('Todas')
-                      setMarketSearchQuery('')
-                    }}
-                    className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-bold transition border border-stone-700 cursor-pointer"
-                  >
-                    Redefinir Filtros
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredMarketMaterials.map(mat => {
-                    const rarity = getMaterialRarity(mat.material_id, mat.name)
-                    const rStyle = MATERIAL_RARITY_STYLES[rarity]
-                    return (
-                      <div
-                        key={mat.material_id}
-                        className={`${rStyle.bg} border ${rStyle.border} ${rStyle.glow} rounded-xl p-4 flex flex-col justify-between gap-3 shadow-md transition-all`}
-                      >
-                        <div>
-                          <div className="flex justify-between items-start gap-2">
-                            <button
-                              onClick={() => handleOpenMaterialSheet(mat.material_id)}
-                              className="text-stone-100 font-bold text-sm hover:text-amber-400 flex items-center gap-1.5 transition text-left cursor-pointer"
-                            >
-                              <Info className="w-3.5 h-3.5 text-stone-500" />
-                              <span>{mat.name}</span>
-                            </button>
-                            <span className={rStyle.badge}>{rarity}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-xs text-stone-400 font-mono mt-2">
-                            <span>
-                              Estoque: <strong className="text-stone-200">{mat.available_quantity} un.</strong>
-                            </span>
-                            <span>
-                              Preço: <strong className="text-amber-300">⬡ {mat.unit_price} Ouro</strong>
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-800/80">
-                          <button
-                            onClick={() => handleBuyMaterial(mat, 1)}
-                            disabled={mat.available_quantity < 1 || gold < mat.unit_price}
-                            className="bg-stone-800 hover:bg-stone-700 text-stone-200 font-bold px-3 py-1.5 rounded-lg text-xs transition cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
-                          >
-                            +1
-                          </button>
-                          <button
-                            onClick={() => handleBuyMaterial(mat, 3)}
-                            disabled={gold < mat.unit_price * 3}
-                            className="bg-amber-600 hover:bg-amber-500 text-stone-950 font-black px-4 py-1.5 rounded-lg text-xs transition cursor-pointer disabled:opacity-30 disabled:pointer-events-none shadow"
-                          >
-                            +3 Lote
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Sub-aba 4: Manuais de Ofício (Crafting v2) */}
-          {marketSubTab === 'manuais' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-amber-200 uppercase tracking-wider flex items-center gap-1.5">
-                  <BookOpen className="w-4 h-4 text-amber-500" />
-                  <span>Manuais de Ofício Mercantis ({affixManuals.length})</span>
-                </h3>
-                <span className="text-xs text-stone-500">
-                  Adquira manuais corporativos para habilitar novos afixos em suas oficinas
-                </span>
-              </div>
-
-              {affixManuals.length === 0 ? (
-                <div className="bg-[#1c1917] border border-stone-800 rounded-xl p-8 text-center text-stone-500 italic text-xs">
-                  Nenhum manual de ofício disponível no mercado nesta rodada.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {affixManuals.map(manual => (
-                    <div
-                      key={manual.affix_id}
-                      className="bg-[#1c1917] border border-amber-950/60 rounded-xl p-4 flex flex-col justify-between gap-3 shadow-md"
-                    >
-                      <div>
-                        <div className="flex justify-between items-start gap-2">
-                          <span className="text-stone-100 font-bold text-sm leading-snug">{manual.name}</span>
-                          <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-mono">
-                            {manual.kind === 'prefix' ? 'Prefixo' : 'Sufixo'}
-                          </span>
-                        </div>
-                        <div className="text-xs text-stone-400 mt-2">
-                          Compatível com:{' '}
-                          <span className="text-stone-300 font-mono">
-                            {manual.slots?.join(', ') || 'Diversos'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-3 border-t border-stone-800">
-                        <span className="text-amber-400 font-mono font-bold text-sm">
-                          ⬡ {manual.cost} Ouro
-                        </span>
-                        <button
-                          onClick={() => handleBuyManual(manual.affix_id, manual.cost)}
-                          disabled={gold < manual.cost || isBuyingManual === manual.affix_id}
-                          className="bg-amber-600 hover:bg-amber-500 text-stone-950 font-black px-4 py-1.5 rounded-lg text-xs transition cursor-pointer disabled:opacity-30 disabled:pointer-events-none shadow"
-                        >
-                          {isBuyingManual === manual.affix_id ? 'Adquirindo...' : 'Adquirir Manual'}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
 

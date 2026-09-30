@@ -17,7 +17,7 @@ class TestTactics(unittest.TestCase):
         self.weapon_item = {
             "item_instance_id": "sword_test_01",
             "name": "Espada de Aço Corporativo",
-            "slot_type": "Arma",
+            "slot_type": "Arsenal Ofensivo",
             "quality": "Normal",
             "power_bonus": 10,
             "market_value_base": 120,
@@ -25,7 +25,7 @@ class TestTactics(unittest.TestCase):
         self.armor_item = {
             "item_instance_id": "armor_test_01",
             "name": "Cota de Malha Protocolar",
-            "slot_type": "Armadura",
+            "slot_type": "Blindagem Operacional",
             "quality": "Normal",
             "power_bonus": 12,
             "market_value_base": 150,
@@ -91,7 +91,7 @@ class TestTactics(unittest.TestCase):
         """Cliente que envia item forjado (que não existe no inventário) é rejeitado com mensagem corporativa."""
         result = self.tactics_service.save_tactics(
             starters=["hero_01"],
-            loadout={"Arma": "item_fantasma_inexistente"},
+            loadout={"Arsenal Ofensivo": "item_fantasma_inexistente"},
             reserves=[]
         )
         self.assertFalse(result["success"])
@@ -101,17 +101,17 @@ class TestTactics(unittest.TestCase):
         """Nunca aceitar o objeto do item enviado pelo cliente; apenas item_instance_id como string ou None."""
         result = self.tactics_service.save_tactics(
             starters=["hero_01"],
-            loadout={"Arma": {"item_instance_id": "sword_test_01", "name": "Item Forjado"}},
+            loadout={"Arsenal Ofensivo": {"item_instance_id": "sword_test_01", "name": "Item Forjado"}},
             reserves=[]
         )
         self.assertFalse(result["success"])
         self.assertIn("objeto estruturado fornecido", result["message"].lower())
 
     def test_reject_swapped_slot_item(self):
-        """Item com slot trocado (ex: espada no slot Armadura) é rejeitado."""
+        """Item com slot trocado (ex: espada no slot Blindagem Operacional) é rejeitado."""
         result = self.tactics_service.save_tactics(
             starters=["hero_01"],
-            loadout={"Armadura": "sword_test_01"},  # sword_test_01 tem slot_type 'Arma'
+            loadout={"Blindagem Operacional": "sword_test_01"},  # sword_test_01 tem slot_type 'Arsenal Ofensivo'
             reserves=[]
         )
         self.assertFalse(result["success"])
@@ -121,7 +121,7 @@ class TestTactics(unittest.TestCase):
         """O mesmo item não pode ocupar dois slots simultaneamente."""
         result = self.tactics_service.save_tactics(
             starters=["hero_01"],
-            loadout={"Arma": "sword_test_01", "Inscrição": "sword_test_01"},
+            loadout={"Arsenal Ofensivo": "sword_test_01", "Alvará de Risco": "sword_test_01"},
             reserves=[]
         )
         self.assertFalse(result["success"])
@@ -236,17 +236,17 @@ class TestTactics(unittest.TestCase):
         """Salva titulares, reservas e loadout com sucesso."""
         result = self.tactics_service.save_tactics(
             starters=["hero_01", "hero_03"],
-            loadout={"Arma": "sword_test_01", "Armadura": "armor_test_01"},
+            loadout={"Arsenal Ofensivo": "sword_test_01", "Blindagem Operacional": "armor_test_01"},
             reserves=["hero_05"]
         )
         self.assertTrue(result["success"])
         self.assertEqual(self.state.starters, ["hero_01", "hero_03"])
         self.assertEqual(self.state.reserves, ["hero_05"])
-        self.assertIsNotNone(self.state.loadout["Arma"])
-        self.assertEqual(self.state.loadout["Arma"]["item_instance_id"], "sword_test_01")
-        self.assertIsNotNone(self.state.loadout["Armadura"])
-        self.assertEqual(self.state.loadout["Armadura"]["item_instance_id"], "armor_test_01")
-        self.assertIsNone(self.state.loadout["Joia"])
+        self.assertIsNotNone(self.state.loadout["Arsenal Ofensivo"])
+        self.assertEqual(self.state.loadout["Arsenal Ofensivo"]["item_instance_id"], "sword_test_01")
+        self.assertIsNotNone(self.state.loadout["Blindagem Operacional"])
+        self.assertEqual(self.state.loadout["Blindagem Operacional"]["item_instance_id"], "armor_test_01")
+        self.assertIsNone(self.state.loadout["Ativo de Performance"])
 
     def test_phase_1_invalidation_of_injured_hero_and_missing_item(self):
         """
@@ -257,7 +257,7 @@ class TestTactics(unittest.TestCase):
         # Salva tática válida com hero_01 em starters, hero_03 em reserves e espada equipada
         save_res = self.tactics_service.save_tactics(
             starters=["hero_01"],
-            loadout={"Arma": "sword_test_01"},
+            loadout={"Arsenal Ofensivo": "sword_test_01"},
             reserves=["hero_03"]
         )
         self.assertTrue(save_res["success"])
@@ -286,7 +286,7 @@ class TestTactics(unittest.TestCase):
         # Verifica saneamento automático
         self.assertNotIn("hero_01", self.state.starters)
         self.assertNotIn("hero_03", self.state.reserves)
-        self.assertIsNone(self.state.loadout["Arma"])
+        self.assertIsNone(self.state.loadout["Arsenal Ofensivo"])
 
         # Verifica registros no relatório da fase
         report_text = " ".join(phase_res["report"])
@@ -300,10 +300,10 @@ class TestTactics(unittest.TestCase):
         """Garante que as mensagens do TacticsService não possuem termos proibidos."""
         test_calls = [
             lambda: self.tactics_service.save_tactics(starters=["hero_04"], loadout={}, reserves=[]),
-            lambda: self.tactics_service.save_tactics(starters=["hero_01"], loadout={"Armadura": "sword_test_01"}, reserves=[]),
-            lambda: self.tactics_service.save_tactics(starters=["hero_01"], loadout={"Arma": "forged_item"}, reserves=[]),
+            lambda: self.tactics_service.save_tactics(starters=["hero_01"], loadout={"Blindagem Operacional": "sword_test_01"}, reserves=[]),
+            lambda: self.tactics_service.save_tactics(starters=["hero_01"], loadout={"Arsenal Ofensivo": "forged_item"}, reserves=[]),
             lambda: self.tactics_service.save_tactics(starters=["hero_01"], loadout={}, reserves=["hero_01"]),
-            lambda: self.tactics_service.save_tactics(starters=["hero_01", "hero_03"], loadout={"Arma": "sword_test_01"}, reserves=[]),
+            lambda: self.tactics_service.save_tactics(starters=["hero_01", "hero_03"], loadout={"Arsenal Ofensivo": "sword_test_01"}, reserves=[]),
         ]
         for call in test_calls:
             res = call()

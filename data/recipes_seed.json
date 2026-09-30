@@ -2,7 +2,7 @@
   "rec_01": {
     "recipe_id": "rec_01",
     "name": "Espada Longa de Aço",
-    "slot": "Arma",
+    "slot": "Arsenal Ofensivo",
     "branch": "Ferragem",
     "gender": "f",
     "min_workshop_level": 1,
@@ -10,12 +10,13 @@
     "market_value_base": 250,
     "unlock": {
       "method": "start"
-    }
+    },
+    "base_item": "Lote de Lâminas"
   },
   "rec_02": {
     "recipe_id": "rec_02",
     "name": "Amuleto de Guarda-Alma",
-    "slot": "Joia",
+    "slot": "Ativo de Performance",
     "branch": "Joalheria",
     "gender": "m",
     "min_workshop_level": 1,
@@ -28,7 +29,7 @@
   "rec_03": {
     "recipe_id": "rec_03",
     "name": "Cota de Malha",
-    "slot": "Armadura",
+    "slot": "Blindagem Operacional",
     "branch": "Ferragem",
     "gender": "f",
     "min_workshop_level": 1,
@@ -36,12 +37,13 @@
     "market_value_base": 220,
     "unlock": {
       "method": "start"
-    }
+    },
+    "base_item": "Fardamento Reforçado"
   },
   "rec_04": {
     "recipe_id": "rec_04",
     "name": "Poção de Cura",
-    "slot": "Consumível",
+    "slot": "Provisão Logística",
     "branch": "Alquimia",
     "gender": "f",
     "min_workshop_level": 1,
@@ -56,7 +58,7 @@
   "rec_05": {
     "recipe_id": "rec_05",
     "name": "Ração de Batalha",
-    "slot": "Consumível",
+    "slot": "Provisão Logística",
     "branch": "Culinária",
     "gender": "f",
     "min_workshop_level": 1,
@@ -71,7 +73,7 @@
   "rec_06": {
     "recipe_id": "rec_06",
     "name": "Runa de Proteção",
-    "slot": "Inscrição",
+    "slot": "Alvará de Risco",
     "branch": "Alquimia",
     "gender": "f",
     "min_workshop_level": 1,
@@ -79,6 +81,7 @@
     "market_value_base": 210,
     "unlock": {
       "method": "start"
-    }
+    },
+    "base_item": "Atestado Notarial"
   }
 }

@@ -76,7 +76,7 @@ class CraftingService:
                 ),
             }
 
-        slot = recipe.get("slot", "Arma")
+        slot = recipe.get("slot", "Arsenal Ofensivo")
 
         # Validações do Prefixo
         chosen_prefix_mat = prefix_material_id
@@ -242,11 +242,18 @@ class CraftingService:
                 }
             else:
                 mults = get_quality_multipliers()
+                corporate_slots = {"Arsenal Ofensivo", "Blindagem Operacional", "Alvará de Risco", "offensive_asset", "defensive_asset", "terrain_license"}
+                scrap_name = "Ativo Não-Conforme" if slot in corporate_slots else "Gororoba Experimental"
+                scrap_desc = (
+                    "Lote retido na malha fina de inspeção técnica por não-conformidade com as diretrizes regulatórias da Liga."
+                    if slot in corporate_slots
+                    else "Resíduo operacional oriundo de processo fabril experimental sem conformidade técnica homologada."
+                )
                 gororoba_item = {
                     "item_instance_id": str(uuid.uuid4()),
                     "recipe_id": recipe_id,
-                    "name": "Gororoba Experimental",
-                    "description": "Resíduo operacional oriundo de processo fabril experimental sem conformidade técnica homologada.",
+                    "name": scrap_name,
+                    "description": scrap_desc,
                     "slot": slot,
                     "slot_type": slot,
                     "branch": norm_branch,
@@ -275,7 +282,7 @@ class CraftingService:
                     "tinkering": True,
                     "tinkering_success": False,
                     "recipe_unlocked": True,
-                    "message": "Falha no processo de forja experimental. Os insumos foram consumidos gerando refugo operacional (Gororoba Experimental), mas o protocolo da receita foi catalogado.",
+                    "message": f"Falha no processo de forja experimental. Os insumos foram consumidos gerando refugo operacional ({scrap_name}), mas o protocolo da receita foi catalogado.",
                     "xp_gained": xp_fail_int,
                     "current_xp": self.state.get_workshop_xp(norm_branch),
                 }
@@ -758,7 +765,7 @@ class CraftingService:
         suffix_part = next((parts_catalog[pid] for pid in part_ids if parts_catalog[pid].get("slot_role") == "suffix"), None)
 
         primary_branch = base_part.get("branch", "Ferragem")
-        slot = base_part.get("compatible_slots", ["Arma"])[0]
+        slot = base_part.get("compatible_slots", ["Arsenal Ofensivo"])[0]
 
         # Nomenclatura procedural baseada nos afixos tangíveis das peças
         if base_item_name and base_item_name != "Artefato Modular":
@@ -781,10 +788,17 @@ class CraftingService:
             if roll >= success_chance:
                 gororoba_val = int(b2b_cfg.get("gororoba_sell_value", 20))
                 mults = get_quality_multipliers()
+                corporate_slots = {"Arsenal Ofensivo", "Blindagem Operacional", "Alvará de Risco", "offensive_asset", "defensive_asset", "terrain_license"}
+                scrap_name = "Ativo Não-Conforme" if slot in corporate_slots else "Gororoba Experimental"
+                scrap_desc = (
+                    "Lote retido na malha fina de inspeção técnica por não-conformidade dimensional entre patentes concorrentes."
+                    if slot in corporate_slots
+                    else "Refugo mecânico de montagem modular entre patentes industriais concorrentes sem conformidade."
+                )
                 gororoba = {
                     "item_instance_id": str(uuid.uuid4()),
-                    "name": "Gororoba Experimental",
-                    "description": "Refugo mecânico de montagem modular entre patentes industriais concorrentes sem conformidade.",
+                    "name": scrap_name,
+                    "description": scrap_desc,
                     "slot": slot,
                     "slot_type": slot,
                     "branch": primary_branch,
@@ -810,7 +824,7 @@ class CraftingService:
                     "tinkering_success": False,
                     "overclock": False,
                     "recipe_unlocked": True,
-                    "message": "Falha na montagem modular: choque de especificações entre marcas rivais gerou refugo fabril (Gororoba Experimental). O esquema foi homologado.",
+                    "message": f"Falha na montagem modular: choque de especificações entre marcas rivais gerou refugo fabril ({scrap_name}). O esquema foi homologado.",
                 }
 
         # Sucesso na montagem (mesma marca OU inter-marcas com sucesso)
@@ -934,7 +948,7 @@ class CraftingService:
                 raw_base_val = int(recipe.get("market_value_base", 120))
                 base_val = max(1, int(raw_base_val * price_factor))
                 base_pow = int(recipe.get("base_power", 20))
-                slot = recipe.get("slot", "Arma")
+                slot = recipe.get("slot", "Arsenal Ofensivo")
 
                 white_label_item = {
                     "item_instance_id": str(uuid.uuid4()),

@@ -1,35 +1,35 @@
 [
   {
     "name": "Espada de Cavalaria",
-    "slot_type": "Arma",
+    "slot_type": "Arsenal Ofensivo",
     "quality": "Normal",
     "power_bonus": 18,
     "base_price": 220
   },
   {
     "name": "Montante de Aço Negro",
-    "slot_type": "Arma",
+    "slot_type": "Arsenal Ofensivo",
     "quality": "Ótimo",
     "power_bonus": 28,
     "base_price": 380
   },
   {
     "name": "Armadura de Placas Leve",
-    "slot_type": "Armadura",
+    "slot_type": "Blindagem Operacional",
     "quality": "Normal",
     "power_bonus": 15,
     "base_price": 240
   },
   {
     "name": "Gibão de Couro Endurecido",
-    "slot_type": "Armadura",
+    "slot_type": "Blindagem Operacional",
     "quality": "Ótimo",
     "power_bonus": 24,
     "base_price": 360
   },
   {
     "name": "Manto Anti-Tóxico",
-    "slot_type": "Armadura",
+    "slot_type": "Blindagem Operacional",
     "quality": "Normal",
     "power_bonus": 12,
     "terrain_mitigation": "toxic_swamp",
@@ -37,21 +37,21 @@
   },
   {
     "name": "Anel de Prata Encantado",
-    "slot_type": "Joia",
+    "slot_type": "Ativo de Performance",
     "quality": "Normal",
     "power_bonus": 10,
     "base_price": 180
   },
   {
     "name": "Pingente de Guarda-Corpo",
-    "slot_type": "Joia",
+    "slot_type": "Ativo de Performance",
     "quality": "Ótimo",
     "power_bonus": 18,
     "base_price": 300
   },
   {
     "name": "Runa de Purificação do Pântano",
-    "slot_type": "Inscrição",
+    "slot_type": "Alvará de Risco",
     "quality": "Normal",
     "power_bonus": 10,
     "terrain_mitigation": "toxic_swamp",
@@ -59,7 +59,7 @@
   },
   {
     "name": "Inscrição de Calor Ígneo",
-    "slot_type": "Inscrição",
+    "slot_type": "Alvará de Risco",
     "quality": "Normal",
     "power_bonus": 10,
     "terrain_mitigation": "glacier_frost",
@@ -67,7 +67,7 @@
   },
   {
     "name": "Selo de Firmeza Estrutural",
-    "slot_type": "Inscrição",
+    "slot_type": "Alvará de Risco",
     "quality": "Normal",
     "power_bonus": 12,
     "terrain_mitigation": "unstable_mine",
@@ -75,7 +75,7 @@
   },
   {
     "name": "Ração Militar Fortificada",
-    "slot_type": "Consumível",
+    "slot_type": "Provisão Logística",
     "quality": "Normal",
     "power_bonus": 5,
     "energy_bonus": 25,
@@ -84,7 +84,7 @@
   },
   {
     "name": "Tônico de Foco Rápido",
-    "slot_type": "Consumível",
+    "slot_type": "Provisão Logística",
     "quality": "Ótimo",
     "power_bonus": 8,
     "energy_bonus": 35,
@@ -93,12 +93,52 @@
   },
   {
     "name": "Elixir do Fôlego Ártico",
-    "slot_type": "Consumível",
+    "slot_type": "Provisão Logística",
     "quality": "Normal",
     "power_bonus": 0,
     "energy_bonus": 25,
     "terrain_mitigation": "glacier_frost",
     "charges": 3,
     "base_price": 130
+  },
+  {
+    "name": "Alvará de Operação Subaquática",
+    "slot_type": "Alvará de Risco",
+    "quality": "Ótimo",
+    "power_bonus": 15,
+    "base_price": 320,
+    "terrain_mitigation": "submerged_ruins"
+  },
+  {
+    "name": "Laudo de Visibilidade Espectral",
+    "slot_type": "Alvará de Risco",
+    "quality": "Ótimo",
+    "power_bonus": 15,
+    "base_price": 310,
+    "terrain_mitigation": "arcane_fog"
+  },
+  {
+    "name": "Certificado de Aterramento Voltaico",
+    "slot_type": "Alvará de Risco",
+    "quality": "Ótimo",
+    "power_bonus": 18,
+    "base_price": 350,
+    "terrain_mitigation": "lightning_peaks"
+  },
+  {
+    "name": "Protocolo Termorregulador",
+    "slot_type": "Alvará de Risco",
+    "quality": "Ótimo",
+    "power_bonus": 18,
+    "base_price": 340,
+    "terrain_mitigation": "volcanic_heat"
+  },
+  {
+    "name": "Apólice contra Danos Corrosivos",
+    "slot_type": "Alvará de Risco",
+    "quality": "Normal",
+    "power_bonus": 12,
+    "base_price": 280,
+    "terrain_mitigation": "acid_rain"
   }
 ]

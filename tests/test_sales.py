@@ -77,8 +77,8 @@ class TestSales(unittest.TestCase):
         """base_price forjado enviado pelo cliente é ignorado; usa estritamente market_value_base."""
         item = {
             "item_instance_id": "item_legit_01",
-            "name": "Armadura de Ferro",
-            "slot_type": "Armadura",
+            "name": "Blindagem de Ferro",
+            "slot_type": "Blindagem Operacional",
             "quality": "Normal",
             "power_bonus": 15,
             "market_value_base": 200,
@@ -102,13 +102,13 @@ class TestSales(unittest.TestCase):
         item = {
             "item_instance_id": "equipped_item_01",
             "name": "Espada em Uso",
-            "slot_type": "Arma",
+            "slot_type": "Arsenal Ofensivo",
             "quality": "Normal",
             "power_bonus": 20,
             "market_value_base": 150,
         }
         self.controller.state.inventory.append(item)
-        self.controller.state.loadout["Arma"] = item
+        self.controller.state.loadout["Arsenal Ofensivo"] = item
 
         initial_gold = self.controller.state.gold
         res = self.controller.list_item_for_sale("equipped_item_01", margin_type="Preço Justo")
@@ -122,15 +122,15 @@ class TestSales(unittest.TestCase):
     def test_bulletin_multiplier_triples_gold(self):
         """Com Boletim x3.0 para o slot correspondente, o valor recebido triplica."""
         self.controller.market_engine.bulletin = {
-            "target": "Arma",
+            "target": "Arsenal Ofensivo",
             "multiplier": 3.0,
-            "headline": "Ruptura de fornecimento eleva a demanda por Armas junto à Câmara dos Mercadores."
+            "headline": "Ruptura de fornecimento eleva a demanda por Arsenais junto à Câmara dos Mercadores."
         }
 
         arma = {
             "item_instance_id": "arma_01",
             "name": "Gládio Vitorioso",
-            "slot_type": "Arma",
+            "slot_type": "Arsenal Ofensivo",
             "quality": "Normal",
             "power_bonus": 15,
             "market_value_base": 100,
@@ -138,21 +138,21 @@ class TestSales(unittest.TestCase):
         armadura = {
             "item_instance_id": "armadura_01",
             "name": "Gibão de Couro",
-            "slot_type": "Armadura",
+            "slot_type": "Blindagem Operacional",
             "quality": "Normal",
             "power_bonus": 15,
             "market_value_base": 100,
         }
         self.controller.state.inventory.extend([arma, armadura])
 
-        # Venda da Arma (slot coincide com o Boletim): ouro triplica
+        # Venda do Arsenal (slot coincide com o Boletim): ouro triplica
         res_arma = self.controller.list_item_for_sale("arma_01", margin_type="Preço Justo")
         self.assertTrue(res_arma["success"])
         self.assertEqual(res_arma["demand_multiplier"], 3.0)
         self.assertEqual(res_arma["asked_price"], 300)
         self.assertEqual(res_arma["gold_received"], 300)
 
-        # Venda da Armadura (slot NÃO coincide): multiplicador 1.0 padrão
+        # Venda da Blindagem (slot NÃO coincide): multiplicador 1.0 padrão
         res_armadura = self.controller.list_item_for_sale("armadura_01", margin_type="Preço Justo")
         self.assertTrue(res_armadura["success"])
         self.assertEqual(res_armadura["demand_multiplier"], 1.0)
@@ -164,7 +164,7 @@ class TestSales(unittest.TestCase):
         item = {
             "item_instance_id": "item_counter_01",
             "name": "Anel Valioso",
-            "slot_type": "Joia",
+            "slot_type": "Ativo de Performance",
             "quality": "Ótimo",
             "power_bonus": 12,
             "market_value_base": 200,
@@ -213,7 +213,7 @@ class TestSales(unittest.TestCase):
         item = {
             "item_instance_id": "item_counter_02",
             "name": "Amuleto Antigo",
-            "slot_type": "Joia",
+            "slot_type": "Ativo de Performance",
             "quality": "Normal",
             "power_bonus": 10,
             "market_value_base": 100,
@@ -248,8 +248,8 @@ class TestSales(unittest.TestCase):
         """A resposta de anúncio NUNCA deve expor a tolerância oculta do comprador."""
         item = {
             "item_instance_id": "item_leak_check",
-            "name": "Inscrição Rúnica",
-            "slot_type": "Inscrição",
+            "name": "Alvará Rúnico",
+            "slot_type": "Alvará de Risco",
             "quality": "Normal",
             "power_bonus": 10,
             "market_value_base": 100,
@@ -307,14 +307,14 @@ class TestSales(unittest.TestCase):
     def test_state_market_bulletin_structure(self):
         """get_state()['market']['bulletin'] expõe o boletim ou None conforme a rodada."""
         self.controller.market_engine.bulletin = {
-            "target": "Armadura",
+            "target": "Blindagem Operacional",
             "multiplier": 2.0,
             "headline": "Edital de suprimentos extraordinários abre concorrência urgente para lotes de Armaduras."
         }
         state = self.controller.get_state()
         self.assertIn("market", state)
         self.assertIn("bulletin", state["market"])
-        self.assertEqual(state["market"]["bulletin"]["target"], "Armadura")
+        self.assertEqual(state["market"]["bulletin"]["target"], "Blindagem Operacional")
         self.assertEqual(state["market"]["bulletin"]["multiplier"], 2.0)
 
     def test_preco_abusivo_listing_fee_deduction(self):
@@ -332,7 +332,7 @@ class TestSales(unittest.TestCase):
         item = {
             "item_instance_id": "fee_item_01",
             "name": "Peitoral Nobre",
-            "slot_type": "Armadura",
+            "slot_type": "Blindagem Operacional",
             "quality": "Normal",
             "power_bonus": 10,
             "market_value_base": 200,
@@ -359,7 +359,7 @@ class TestSales(unittest.TestCase):
         item = {
             "item_instance_id": "poor_item_01",
             "name": "Adaga Rústica",
-            "slot_type": "Arma",
+            "slot_type": "Arsenal Ofensivo",
             "quality": "Normal",
             "power_bonus": 5,
             "market_value_base": 100,
@@ -382,7 +382,7 @@ class TestSales(unittest.TestCase):
         item = {
             "item_instance_id": "stalled_item_01",
             "name": "Elmo Desprezado",
-            "slot_type": "Armadura",
+            "slot_type": "Blindagem Operacional",
             "quality": "Normal",
             "power_bonus": 8,
             "market_value_base": 200,
@@ -428,7 +428,7 @@ class TestSales(unittest.TestCase):
         item1 = {
             "item_instance_id": "rev_item_01",
             "name": "Machado Comercial",
-            "slot_type": "Arma",
+            "slot_type": "Arsenal Ofensivo",
             "quality": "Normal",
             "power_bonus": 10,
             "market_value_base": 100,
@@ -436,7 +436,7 @@ class TestSales(unittest.TestCase):
         item2 = {
             "item_instance_id": "rev_item_02",
             "name": "Escudo de Negociação",
-            "slot_type": "Armadura",
+            "slot_type": "Blindagem Operacional",
             "quality": "Normal",
             "power_bonus": 10,
             "market_value_base": 100,

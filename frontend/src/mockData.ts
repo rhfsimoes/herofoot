@@ -39,7 +39,7 @@ export interface InventoryItem {
   item_instance_id: string
   name: string
   quality: ItemQuality
-  slot_type: 'Arma' | 'Armadura' | 'Joia' | 'Inscrição' | 'Consumível'
+  slot_type: 'Arsenal Ofensivo' | 'Blindagem Operacional' | 'Ativo de Performance' | 'Alvará de Risco' | 'Provisão Logística'
   power_bonus: number
   energy_bonus?: number
   terrain_mitigation?: string | null
@@ -144,7 +144,7 @@ export interface MarketMaterial {
 export interface MarketReadyItem {
   market_item_id: string
   name: string
-  slot_type: 'Arma' | 'Armadura' | 'Joia' | 'Inscrição' | 'Consumível'
+  slot_type: 'Arsenal Ofensivo' | 'Blindagem Operacional' | 'Ativo de Performance' | 'Alvará de Risco' | 'Provisão Logística'
   quality: ItemQuality
   power_bonus: number
   energy_bonus?: number
@@ -265,7 +265,7 @@ export interface ModularPart {
   name: string
   branch?: WorkshopBranch | string
   part_type: 'blade' | 'hilt' | 'guard' | 'plating' | 'filter' | 'core' | 'gem' | string
-  compatible_slots: ('Arma' | 'Armadura' | 'Joia' | 'Inscrição' | 'Consumível' | string)[]
+  compatible_slots: ('Arsenal Ofensivo' | 'Blindagem Operacional' | 'Ativo de Performance' | 'Alvará de Risco' | 'Provisão Logística' | string)[]
   tier: number
   base_cost?: number
   market_price_base?: number
@@ -1001,7 +1001,7 @@ export const MOCK_STATE: GameState = {
       item_instance_id: 'item_001',
       name: 'Afiada Espada Longa de Aço do Acidente de Trabalho',
       quality: 'Ótimo',
-      slot_type: 'Arma',
+      slot_type: 'Arsenal Ofensivo',
       power_bonus: 34,
       market_value_base: 350,
     },
@@ -1009,7 +1009,7 @@ export const MOCK_STATE: GameState = {
       item_instance_id: 'item_002',
       name: 'Concentrada Poção de Cura do Prontuário Médico Padrão',
       quality: 'Normal',
-      slot_type: 'Consumível',
+      slot_type: 'Provisão Logística',
       power_bonus: 0,
       market_value_base: 80,
       charges: 3,
@@ -1037,11 +1037,11 @@ export const MOCK_STATE: GameState = {
     starters: ['hero_01', 'hero_02', 'hero_03', 'hero_05'],
     reserves: [],
     loadout: {
-      Arma: 'item_001',
-      Armadura: null,
-      Joia: null,
-      Inscrição: null,
-      Consumível: 'item_002',
+      'Arsenal Ofensivo': 'item_001',
+      'Blindagem Operacional': null,
+      'Ativo de Performance': null,
+      'Alvará de Risco': null,
+      'Provisão Logística': 'item_002',
     },
   },
   market: {
@@ -1076,13 +1076,13 @@ export const MOCK_STATE: GameState = {
       { material_id: 'mat_wild_honey', name: 'Mel Silvestre', unit_price: 22, available_quantity: 6 },
     ],
     ready_items_for_sale: [
-      { market_item_id: 'mkt_01', name: 'Espada de Cavalaria', slot_type: 'Arma', quality: 'Normal', power_bonus: 18, price: 220 },
-      { market_item_id: 'mkt_02', name: 'Gibão de Couro Endurecido', slot_type: 'Armadura', quality: 'Ótimo', power_bonus: 24, price: 360 },
-      { market_item_id: 'mkt_03', name: 'Anel de Prata Encantado', slot_type: 'Joia', quality: 'Normal', power_bonus: 10, price: 180 },
-      { market_item_id: 'mkt_04', name: 'Ração Militar Fortificada', slot_type: 'Consumível', quality: 'Normal', power_bonus: 5, energy_bonus: 25, price: 95 },
+      { market_item_id: 'mkt_01', name: 'Espada de Cavalaria', slot_type: 'Arsenal Ofensivo', quality: 'Normal', power_bonus: 18, price: 220 },
+      { market_item_id: 'mkt_02', name: 'Gibão de Couro Endurecido', slot_type: 'Blindagem Operacional', quality: 'Ótimo', power_bonus: 24, price: 360 },
+      { market_item_id: 'mkt_03', name: 'Anel de Prata Encantado', slot_type: 'Ativo de Performance', quality: 'Normal', power_bonus: 10, price: 180 },
+      { market_item_id: 'mkt_04', name: 'Ração Militar Fortificada', slot_type: 'Provisão Logística', quality: 'Normal', power_bonus: 5, energy_bonus: 25, price: 95 },
     ],
     bulletin: {
-      target: 'Armadura',
+      target: 'Blindagem Operacional',
       multiplier: 2.2,
       headline: 'Ruptura de fornecimento eleva a demanda por Armaduras junto à Câmara dos Mercadores.',
     },
@@ -1394,6 +1394,18 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "discount_pct": 0.15,
     "weekly_shipment": [
       {
+        "part_id": "part_aethelgard_hilt",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_aethelgard_blade",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_aethelgard_core",
+        "quantity": 2
+      },
+      {
         "part_id": "part_aethelgard_hilt_t2",
         "quantity": 1
       },
@@ -1423,6 +1435,30 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "is_exclusive": true,
     "discount_pct": 0.25,
     "weekly_shipment": [
+      {
+        "part_id": "part_aethelgard_hilt",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_aethelgard_blade",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_aethelgard_core",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_aethelgard_hilt_t2",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_aethelgard_blade_t2",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_aethelgard_core_t2",
+        "quantity": 2
+      },
       {
         "part_id": "part_aethelgard_hilt_t3",
         "quantity": 2
@@ -1462,7 +1498,7 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
         "quantity": 1
       },
       {
-        "part_id": "part_chancellor_frame",
+        "part_id": "part_chancellor_core",
         "quantity": 1
       }
     ],
@@ -1485,14 +1521,18 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "weekly_shipment": [
       {
         "part_id": "part_chancellor_pin",
-        "quantity": 1
+        "quantity": 3
       },
       {
-        "part_id": "part_chancellor_frame",
-        "quantity": 1
+        "part_id": "part_chancellor_gem_t1",
+        "quantity": 2
       },
       {
         "part_id": "part_chancellor_core",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_chancellor_frame",
         "quantity": 1
       }
     ],
@@ -1513,6 +1553,22 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "is_exclusive": true,
     "discount_pct": 0.25,
     "weekly_shipment": [
+      {
+        "part_id": "part_chancellor_pin",
+        "quantity": 5
+      },
+      {
+        "part_id": "part_chancellor_gem_t1",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_chancellor_core",
+        "quantity": 5
+      },
+      {
+        "part_id": "part_chancellor_frame",
+        "quantity": 2
+      },
       {
         "part_id": "part_chancellor_frame_t3",
         "quantity": 2
@@ -1548,7 +1604,7 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
         "quantity": 1
       },
       {
-        "part_id": "part_crown_plating_01",
+        "part_id": "part_crown_seal_t1",
         "quantity": 1
       },
       {
@@ -1574,11 +1630,23 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "discount_pct": 0.15,
     "weekly_shipment": [
       {
+        "part_id": "part_crown_hilt_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_seal_t1",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_gem_01",
+        "quantity": 1
+      },
+      {
         "part_id": "part_crown_hilt_02",
         "quantity": 1
       },
       {
-        "part_id": "part_crown_plating_01",
+        "part_id": "part_crown_parchment_t2",
         "quantity": 1
       },
       {
@@ -1604,15 +1672,39 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "discount_pct": 0.2,
     "weekly_shipment": [
       {
-        "part_id": "part_crown_hilt_02",
-        "quantity": 2
+        "part_id": "part_crown_hilt_01",
+        "quantity": 1
       },
       {
-        "part_id": "part_crown_plating_01",
-        "quantity": 2
+        "part_id": "part_crown_seal_t1",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_gem_01",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_hilt_02",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_parchment_t2",
+        "quantity": 1
       },
       {
         "part_id": "part_crown_gem_02",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_blade_t3",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_crown_seal_t3",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_crown_gem_t3",
         "quantity": 2
       }
     ],
@@ -1664,6 +1756,18 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "discount_pct": 0.15,
     "weekly_shipment": [
       {
+        "part_id": "part_dwarf_prefix_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_dwarf_plating_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_dwarf_core_01",
+        "quantity": 2
+      },
+      {
         "part_id": "part_dwarf_plating_06",
         "quantity": 1
       },
@@ -1694,15 +1798,35 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "discount_pct": 0.25,
     "weekly_shipment": [
       {
+        "part_id": "part_dwarf_prefix_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_dwarf_plating_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_dwarf_core_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_dwarf_plating_06",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_dwarf_plating_03",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_dwarf_core_02",
+        "quantity": 4
+      },
+      {
         "part_id": "part_dwarf_plating_05",
         "quantity": 2
       },
       {
         "part_id": "part_dwarf_plating_04",
-        "quantity": 2
-      },
-      {
-        "part_id": "part_dwarf_core_02",
         "quantity": 2
       }
     ],
@@ -1755,7 +1879,15 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "weekly_shipment": [
       {
         "part_id": "part_elf_filter_01",
-        "quantity": 1
+        "quantity": 3
+      },
+      {
+        "part_id": "part_elf_gem_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_elf_core_00",
+        "quantity": 2
       },
       {
         "part_id": "part_elf_blade_01",
@@ -1785,10 +1917,22 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "weekly_shipment": [
       {
         "part_id": "part_elf_filter_01",
-        "quantity": 2
+        "quantity": 7
+      },
+      {
+        "part_id": "part_elf_gem_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_elf_core_00",
+        "quantity": 3
       },
       {
         "part_id": "part_elf_blade_01",
+        "quantity": 4
+      },
+      {
+        "part_id": "part_elf_gem_03",
         "quantity": 2
       },
       {
@@ -1845,15 +1989,15 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "weekly_shipment": [
       {
         "part_id": "part_flamel_nozzle",
-        "quantity": 1
+        "quantity": 3
       },
       {
         "part_id": "part_flamel_vial",
-        "quantity": 1
+        "quantity": 3
       },
       {
         "part_id": "part_flamel_catalyst",
-        "quantity": 1
+        "quantity": 3
       }
     ],
     "description": "Abastecimento semanal de frascos graduados e catalisadores certificados pela Guilda de Boticários.",
@@ -1873,6 +2017,18 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "is_exclusive": true,
     "discount_pct": 0.25,
     "weekly_shipment": [
+      {
+        "part_id": "part_flamel_nozzle",
+        "quantity": 5
+      },
+      {
+        "part_id": "part_flamel_vial",
+        "quantity": 5
+      },
+      {
+        "part_id": "part_flamel_catalyst",
+        "quantity": 5
+      },
       {
         "part_id": "part_flamel_vial_t3",
         "quantity": 2
@@ -1935,7 +2091,15 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "weekly_shipment": [
       {
         "part_id": "part_gob_hilt_01",
-        "quantity": 1
+        "quantity": 3
+      },
+      {
+        "part_id": "part_gob_blade_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_gob_core_00",
+        "quantity": 2
       },
       {
         "part_id": "part_gob_blade_02",
@@ -1965,6 +2129,22 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "weekly_shipment": [
       {
         "part_id": "part_gob_hilt_01",
+        "quantity": 7
+      },
+      {
+        "part_id": "part_gob_blade_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_gob_core_00",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_gob_blade_02",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_gob_core_02",
         "quantity": 2
       },
       {
@@ -2024,11 +2204,19 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "discount_pct": 0.15,
     "weekly_shipment": [
       {
-        "part_id": "part_swamp_filter_03",
-        "quantity": 1
+        "part_id": "part_swamp_prefix_01",
+        "quantity": 2
       },
       {
         "part_id": "part_swamp_filter_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_swamp_core_01",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_swamp_filter_03",
         "quantity": 1
       },
       {
@@ -2054,16 +2242,24 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "discount_pct": 0.25,
     "weekly_shipment": [
       {
-        "part_id": "part_swamp_filter_03",
-        "quantity": 2
+        "part_id": "part_swamp_prefix_01",
+        "quantity": 3
       },
       {
         "part_id": "part_swamp_filter_01",
-        "quantity": 2
+        "quantity": 7
+      },
+      {
+        "part_id": "part_swamp_core_01",
+        "quantity": 3
+      },
+      {
+        "part_id": "part_swamp_filter_03",
+        "quantity": 4
       },
       {
         "part_id": "part_swamp_core_02",
-        "quantity": 2
+        "quantity": 4
       }
     ],
     "description": "Exclusividade sobre reativos de pântano. Incompatível com acordos dos Irmãos Anões de Aço Negro.",
@@ -2114,11 +2310,19 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "discount_pct": 0.15,
     "weekly_shipment": [
       {
-        "part_id": "part_valkyria_plate",
+        "part_id": "part_valkyria_guard",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_valkyria_blade_t1",
         "quantity": 1
       },
       {
-        "part_id": "part_valkyria_blade",
+        "part_id": "part_valkyria_core_t1",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_valkyria_plate",
         "quantity": 1
       },
       {
@@ -2145,15 +2349,23 @@ export const MOCK_B2B_CONTRACTS: B2BContract[] = [
     "weekly_shipment": [
       {
         "part_id": "part_valkyria_guard",
+        "quantity": 6
+      },
+      {
+        "part_id": "part_valkyria_blade_t1",
+        "quantity": 2
+      },
+      {
+        "part_id": "part_valkyria_core_t1",
         "quantity": 2
       },
       {
         "part_id": "part_valkyria_plate",
-        "quantity": 2
+        "quantity": 4
       },
       {
         "part_id": "part_valkyria_core",
-        "quantity": 2
+        "quantity": 4
       }
     ],
     "description": "Exclusividade contratual com a vanguarda fabril Valkyria. Incompatível com acordos da Siderúrgica Aethelgard.",
@@ -2201,7 +2413,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "base_cost": 50,
@@ -2227,7 +2439,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "base_cost": 40,
@@ -2253,8 +2465,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "guard",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 1,
     "base_cost": 60,
@@ -2280,7 +2492,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "base_cost": 90,
@@ -2306,8 +2518,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Alquimia",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição",
-      "Consumível"
+      "Alvará de Risco",
+      "Provisão Logística"
     ],
     "tier": 1,
     "base_cost": 55,
@@ -2333,7 +2545,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 1,
     "base_cost": 30,
@@ -2359,7 +2571,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Joalheria",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "base_cost": 110,
@@ -2382,7 +2594,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_goblin_eng",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "market_price_base": 75,
@@ -2410,7 +2622,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_goblin_eng",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "market_price_base": 180,
@@ -2438,7 +2650,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_goblin_eng",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 3,
     "market_price_base": 320,
@@ -2470,7 +2682,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_goblin_eng",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 2,
     "market_price_base": 150,
@@ -2498,7 +2710,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_goblin_eng",
     "part_type": "hilt",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "market_price_base": 160,
@@ -2531,7 +2743,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_goblin_eng",
     "part_type": "core",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "market_price_base": 210,
@@ -2564,7 +2776,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_goblin_eng",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 3,
     "market_price_base": 380,
@@ -2601,7 +2813,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_goblin_eng",
     "part_type": "core",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 3,
     "market_price_base": 340,
@@ -2638,7 +2850,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_elf_precision",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "market_price_base": 190,
@@ -2666,7 +2878,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_elf_precision",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 1,
     "market_price_base": 130,
@@ -2694,7 +2906,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_elf_precision",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "market_price_base": 240,
@@ -2722,7 +2934,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_elf_precision",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 3,
     "market_price_base": 330,
@@ -2754,7 +2966,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_elf_precision",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 1,
     "market_price_base": 110,
@@ -2782,7 +2994,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_elf_precision",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "market_price_base": 190,
@@ -2815,7 +3027,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_elf_precision",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 2,
     "market_price_base": 230,
@@ -2848,7 +3060,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_elf_precision",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 3,
     "market_price_base": 370,
@@ -2881,7 +3093,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 1,
     "market_price_base": 85,
@@ -2909,7 +3121,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 1,
     "market_price_base": 95,
@@ -2937,7 +3149,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "market_price_base": 210,
@@ -2965,7 +3177,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "market_price_base": 390,
@@ -2997,8 +3209,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "market_price_base": 350,
@@ -3030,7 +3242,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_dwarf_steel",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 1,
     "market_price_base": 125,
@@ -3058,7 +3270,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "market_price_base": 230,
@@ -3091,7 +3303,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_dwarf_steel",
     "part_type": "core",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "market_price_base": 220,
@@ -3124,7 +3336,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 1,
     "market_price_base": 75,
@@ -3152,7 +3364,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 1,
     "market_price_base": 65,
@@ -3180,7 +3392,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_swamp_alchemy",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 1,
     "market_price_base": 120,
@@ -3208,7 +3420,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 2,
     "market_price_base": 175,
@@ -3241,7 +3453,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 2,
     "market_price_base": 165,
@@ -3274,7 +3486,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_swamp_alchemy",
     "part_type": "core",
     "compatible_slots": [
-      "Consumível"
+      "Provisão Logística"
     ],
     "tier": 2,
     "market_price_base": 185,
@@ -3307,7 +3519,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_swamp_alchemy",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 2,
     "market_price_base": 195,
@@ -3340,7 +3552,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_swamp_alchemy",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "market_price_base": 215,
@@ -3373,7 +3585,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_crown_notarial",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 1,
     "market_price_base": 90,
@@ -3401,7 +3613,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_crown_notarial",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 1,
     "market_price_base": 110,
@@ -3429,7 +3641,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_crown_notarial",
     "part_type": "gem",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "market_price_base": 195,
@@ -3457,7 +3669,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_crown_notarial",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 1,
     "market_price_base": 130,
@@ -3485,7 +3697,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_crown_notarial",
     "part_type": "hilt",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "market_price_base": 115,
@@ -3518,7 +3730,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_crown_notarial",
     "part_type": "hilt",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "market_price_base": 185,
@@ -3551,7 +3763,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_crown_notarial",
     "part_type": "plating",
     "compatible_slots": [
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "market_price_base": 200,
@@ -3584,7 +3796,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_crown_notarial",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 2,
     "market_price_base": 220,
@@ -3617,7 +3829,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "brand_id": "corp_crown_notarial",
     "part_type": "core",
     "compatible_slots": [
-      "Inscrição"
+      "Alvará de Risco"
     ],
     "tier": 2,
     "market_price_base": 190,
@@ -3653,8 +3865,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 1,
     "base_cost": 60,
@@ -3680,8 +3892,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Armadura",
-      "Arma"
+      "Blindagem Operacional",
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "base_cost": 160,
@@ -3707,8 +3919,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "base_cost": 170,
@@ -3734,8 +3946,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
-      "Consumível",
-      "Inscrição"
+      "Provisão Logística",
+      "Alvará de Risco"
     ],
     "tier": 1,
     "base_cost": 70,
@@ -3761,8 +3973,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Joalheria",
     "part_type": "plating",
     "compatible_slots": [
-      "Joia",
-      "Armadura"
+      "Ativo de Performance",
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "base_cost": 180,
@@ -3788,7 +4000,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Joalheria",
     "part_type": "hilt",
     "compatible_slots": [
-      "Joia"
+      "Ativo de Performance"
     ],
     "tier": 1,
     "base_cost": 80,
@@ -3814,8 +4026,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Consumível"
+      "Arsenal Ofensivo",
+      "Provisão Logística"
     ],
     "tier": 1,
     "base_cost": 65,
@@ -3841,8 +4053,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Joalheria",
     "part_type": "core",
     "compatible_slots": [
-      "Joia",
-      "Arma"
+      "Ativo de Performance",
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "base_cost": 75,
@@ -3868,8 +4080,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
-      "Armadura",
-      "Arma"
+      "Blindagem Operacional",
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "base_cost": 70,
@@ -3895,8 +4107,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
-      "Armadura",
-      "Consumível"
+      "Blindagem Operacional",
+      "Provisão Logística"
     ],
     "tier": 1,
     "base_cost": 75,
@@ -3922,7 +4134,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "base_cost": 110,
@@ -3948,7 +4160,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 2,
     "base_cost": 95,
@@ -3974,8 +4186,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 2,
     "base_cost": 100,
@@ -4001,7 +4213,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 3,
     "base_cost": 220,
@@ -4027,7 +4239,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 3,
     "base_cost": 200,
@@ -4053,8 +4265,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "base_cost": 210,
@@ -4080,7 +4292,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 1,
     "base_cost": 55,
@@ -4106,8 +4318,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 1,
     "base_cost": 50,
@@ -4133,8 +4345,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "guard",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "base_cost": 210,
@@ -4160,7 +4372,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 3,
     "base_cost": 230,
@@ -4186,8 +4398,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "base_cost": 225,
@@ -4213,7 +4425,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
-      "Armadura",
+      "Blindagem Operacional",
       "Acessório"
     ],
     "tier": 2,
@@ -4240,7 +4452,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Alquimia",
     "part_type": "gem",
     "compatible_slots": [
-      "Arma",
+      "Arsenal Ofensivo",
       "Acessório"
     ],
     "tier": 2,
@@ -4267,7 +4479,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Alquimia",
     "part_type": "core",
     "compatible_slots": [
-      "Armadura",
+      "Blindagem Operacional",
       "Acessório"
     ],
     "tier": 2,
@@ -4294,7 +4506,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
-      "Armadura",
+      "Blindagem Operacional",
       "Acessório"
     ],
     "tier": 3,
@@ -4321,7 +4533,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Alquimia",
     "part_type": "gem",
     "compatible_slots": [
-      "Arma",
+      "Arsenal Ofensivo",
       "Acessório"
     ],
     "tier": 3,
@@ -4348,7 +4560,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Alquimia",
     "part_type": "core",
     "compatible_slots": [
-      "Armadura",
+      "Blindagem Operacional",
       "Acessório"
     ],
     "tier": 3,
@@ -4454,7 +4666,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "part_type": "plating",
     "compatible_slots": [
       "Acessório",
-      "Armadura"
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "base_cost": 225,
@@ -4506,7 +4718,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
-      "Armadura",
+      "Blindagem Operacional",
       "Acessório"
     ],
     "tier": 3,
@@ -4534,7 +4746,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "part_type": "gem",
     "compatible_slots": [
       "Acessório",
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 3,
     "base_cost": 225,
@@ -4560,8 +4772,8 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Alquimia",
     "part_type": "core",
     "compatible_slots": [
-      "Arma",
-      "Armadura"
+      "Arsenal Ofensivo",
+      "Blindagem Operacional"
     ],
     "tier": 3,
     "base_cost": 220,
@@ -4587,7 +4799,7 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
-      "Arma"
+      "Arsenal Ofensivo"
     ],
     "tier": 3,
     "base_cost": 200,
@@ -4629,6 +4841,211 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     ],
     "slot_role": "suffix",
     "name_modifier": "Rubi Imperial Selado"
+  },
+  {
+    "id": "part_crown_seal_t1",
+    "part_id": "part_crown_seal_t1",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Atestado Notarial Régio",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 1,
+    "base_cost": 60,
+    "market_price_base": 60,
+    "power_bonus": 10,
+    "power_contrib": 10,
+    "catalog_description": "Chassi notarial básico em cera imperial homologada para expedições de baixo risco.",
+    "effects": [],
+    "slot_role": "base",
+    "name_modifier": "Atestado Notarial"
+  },
+  {
+    "id": "part_crown_parchment_t2",
+    "part_id": "part_crown_parchment_t2",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Certidão de Risco Padronizada",
+    "branch": "Ferragem",
+    "part_type": "parchment",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 120,
+    "market_price_base": 120,
+    "power_bonus": 20,
+    "power_contrib": 20,
+    "catalog_description": "Pergaminho reforçado com selos fiscais contra perigos geológicos e atmosféricos.",
+    "effects": [],
+    "slot_role": "base",
+    "name_modifier": "Certidão de Risco"
+  },
+  {
+    "id": "part_crown_seal_t3",
+    "part_id": "part_crown_seal_t3",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Laudo Pericial Extraordinário",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 3,
+    "base_cost": 220,
+    "market_price_base": 220,
+    "power_bonus": 35,
+    "power_contrib": 35,
+    "catalog_description": "Documento solene da Coroa chancelado com ouro para cobertura total de sinistros.",
+    "effects": [],
+    "slot_role": "base",
+    "name_modifier": "Laudo Pericial"
+  },
+  {
+    "id": "part_crown_lic_submerged",
+    "part_id": "part_crown_lic_submerged",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Alvará de Operação Subaquática",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 130,
+    "market_price_base": 130,
+    "power_bonus": 15,
+    "power_contrib": 15,
+    "catalog_description": "Cláusula notarial que homologa técnicas de lastro e respiração subaquática.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "submerged_ruins"
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Operação Subaquática"
+  },
+  {
+    "id": "part_crown_lic_arcane_fog",
+    "part_id": "part_crown_lic_arcane_fog",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Laudo de Visibilidade Espectral",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 130,
+    "market_price_base": 130,
+    "power_bonus": 15,
+    "power_contrib": 15,
+    "catalog_description": "Chancela pericial que dissipa ilusões arcanas e orienta a equipe no nevoeiro denso.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "arcane_fog"
+      },
+      {
+        "effect": "terrain_mitigation",
+        "value": "thick_fog"
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Visibilidade Espectral"
+  },
+  {
+    "id": "part_crown_lic_lightning",
+    "part_id": "part_crown_lic_lightning",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Certificado de Aterramento Voltaico",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 140,
+    "market_price_base": 140,
+    "power_bonus": 16,
+    "power_contrib": 16,
+    "catalog_description": "Isolamento eletrostático certificado contra arcos voltaicos em picos e tempestades elétricas.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "lightning_peaks"
+      },
+      {
+        "effect": "terrain_mitigation",
+        "value": "lightning_storm"
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Aterramento Voltaico"
+  },
+  {
+    "id": "part_crown_lic_volcanic",
+    "part_id": "part_crown_lic_volcanic",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Protocolo Termorregulador",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 135,
+    "market_price_base": 135,
+    "power_bonus": 15,
+    "power_contrib": 15,
+    "catalog_description": "Diretriz operacional de dissipação de calor magmático e resistência a climas tórridos.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "volcanic_heat"
+      },
+      {
+        "effect": "terrain_mitigation",
+        "value": "scorching_heat"
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Termorregulador"
+  },
+  {
+    "id": "part_crown_lic_acid_rain",
+    "part_id": "part_crown_lic_acid_rain",
+    "corp_id": "corp_crown_notarial",
+    "brand_id": "corp_crown_notarial",
+    "name": "Apólice contra Danos Corrosivos",
+    "branch": "Ferragem",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 125,
+    "market_price_base": 125,
+    "power_bonus": 14,
+    "power_contrib": 14,
+    "catalog_description": "Garantia securitária com verniz hidrofóbico contra deterioração por chuva ácida.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "acid_rain"
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Anticorrosivo"
   }
 ]
 

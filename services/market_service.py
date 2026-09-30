@@ -63,7 +63,7 @@ class MarketService:
             "terrain_mitigation": item.get("terrain_mitigation", None),
             "market_value_base": int(item["price"] * 0.8),
         }
-        if item["slot_type"] == "Consumível":
+        if item["slot_type"] == "Provisão Logística":
             inventory_item["charges"] = item.get("charges", 3)
             inventory_item["max_charges"] = item.get("max_charges", 3)
 

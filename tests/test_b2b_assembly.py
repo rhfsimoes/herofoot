@@ -220,7 +220,7 @@ class TestB2BAssembly(unittest.TestCase):
         self.assertTrue(res["tinkering"])
         self.assertFalse(res["tinkering_success"])
         item = res["item"]
-        self.assertEqual(item["name"], "Gororoba Experimental")
+        self.assertEqual(item["name"], "Ativo Não-Conforme")
         self.assertEqual(item["quality"], "Fraco")
         self.assertEqual(item["market_value_base"], 20)
 

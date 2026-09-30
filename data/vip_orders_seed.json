@@ -2,7 +2,7 @@
   {
     "id": "vip_order_01",
     "client_name": "Guarda Ducal de Prata",
-    "target_slot": "Armadura",
+    "target_slot": "Blindagem Operacional",
     "required_quality": "Ótimo",
     "reward_multiplier": 2.6,
     "confidence_reward": 12,
@@ -11,7 +11,7 @@
   {
     "id": "vip_order_02",
     "client_name": "Ordem dos Clérigos Auditores",
-    "target_slot": "Joia",
+    "target_slot": "Ativo de Performance",
     "required_quality": "Normal",
     "reward_multiplier": 2.2,
     "confidence_reward": 10,
@@ -20,7 +20,7 @@
   {
     "id": "vip_order_03",
     "client_name": "Sindicato dos Mineiros de Malaquita",
-    "target_slot": "Arma",
+    "target_slot": "Arsenal Ofensivo",
     "required_quality": "Ótimo",
     "reward_multiplier": 2.8,
     "confidence_reward": 14,
@@ -29,7 +29,7 @@
   {
     "id": "vip_order_04",
     "client_name": "Consórcio Real de Seguros de Vida & Ressurreição",
-    "target_slot": "Consumível",
+    "target_slot": "Provisão Logística",
     "required_quality": "Ótimo",
     "reward_multiplier": 2.4,
     "confidence_reward": 10,
@@ -38,7 +38,7 @@
   {
     "id": "vip_order_05",
     "client_name": "Inspetoria de Postura e Fronteiras",
-    "target_slot": "Inscrição",
+    "target_slot": "Alvará de Risco",
     "required_quality": "Normal",
     "reward_multiplier": 2.1,
     "confidence_reward": 8,
@@ -47,7 +47,7 @@
   {
     "id": "vip_order_06",
     "client_name": "Chancelaria dos Mestres de Bigorna Imperial",
-    "target_slot": "Arma",
+    "target_slot": "Arsenal Ofensivo",
     "required_quality": "Lendário",
     "reward_multiplier": 4.5,
     "confidence_reward": 25,
@@ -56,7 +56,7 @@
   {
     "id": "vip_order_07",
     "client_name": "Tribunal de Apelações e Execuções Fiscais",
-    "target_slot": "Armadura",
+    "target_slot": "Blindagem Operacional",
     "required_quality": "Lendário",
     "reward_multiplier": 4.2,
     "confidence_reward": 22,
@@ -65,7 +65,7 @@
   {
     "id": "vip_order_08",
     "client_name": "Liga Mercantil dos Joalheiros da Capital",
-    "target_slot": "Joia",
+    "target_slot": "Ativo de Performance",
     "required_quality": "Ótimo",
     "reward_multiplier": 3.0,
     "confidence_reward": 15,
@@ -74,7 +74,7 @@
   {
     "id": "vip_order_09",
     "client_name": "Intendência Geral das Expedições Reais",
-    "target_slot": "Consumível",
+    "target_slot": "Provisão Logística",
     "required_quality": "Normal",
     "reward_multiplier": 1.9,
     "confidence_reward": 8,
@@ -83,7 +83,7 @@
   {
     "id": "vip_order_10",
     "client_name": "Colégio Maior de Engenharia Taumatúrgica",
-    "target_slot": "Inscrição",
+    "target_slot": "Alvará de Risco",
     "required_quality": "Ótimo",
     "reward_multiplier": 3.2,
     "confidence_reward": 18,

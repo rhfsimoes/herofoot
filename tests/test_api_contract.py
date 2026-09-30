@@ -42,7 +42,7 @@ class TestApiContract(unittest.TestCase):
         initial_hero = self.controller.state.team[0]["id"]
         result = self.controller.save_tactics(
             starters=[initial_hero],
-            loadout={"Arma": None, "Armadura": None, "Joia": None, "Inscrição": None, "Consumível": None}
+            loadout={"Arsenal Ofensivo": None, "Blindagem Operacional": None, "Ativo de Performance": None, "Alvará de Risco": None, "Provisão Logística": None}
         )
         self.assertTrue(result["success"])
         self.assertIn("tactics", result)
@@ -57,7 +57,7 @@ class TestApiContract(unittest.TestCase):
         self.assertIn("item", result)
         item = result["item"]
         self.assertIn("item_instance_id", item)
-        self.assertEqual(item["slot_type"], "Arma")
+        self.assertEqual(item["slot_type"], "Arsenal Ofensivo")
         self.assertIn(item, self.controller.state.inventory)
 
     def test_market_buy_material_and_item(self):
@@ -80,7 +80,7 @@ class TestApiContract(unittest.TestCase):
         dummy_item = {
             "item_instance_id": "test_sale_item_01",
             "name": "Item Teste",
-            "slot_type": "Arma",
+            "slot_type": "Arsenal Ofensivo",
             "quality": "Normal",
             "power_bonus": 10,
             "market_value_base": 100,

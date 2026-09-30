@@ -57,11 +57,11 @@ def load_ready_templates():
         except Exception:
             pass
     return [
-        {"name": "Espada de Cavalaria", "slot_type": "Arma", "quality": "Normal", "power_bonus": 18, "base_price": 220},
-        {"name": "Montante de Aço Negro", "slot_type": "Arma", "quality": "Ótimo", "power_bonus": 28, "base_price": 380},
-        {"name": "Armadura de Placas Leve", "slot_type": "Armadura", "quality": "Normal", "power_bonus": 15, "base_price": 240},
-        {"name": "Gibão de Couro Endurecido", "slot_type": "Armadura", "quality": "Ótimo", "power_bonus": 24, "base_price": 360},
-        {"name": "Manto Anti-Tóxico", "slot_type": "Armadura", "quality": "Normal", "power_bonus": 12, "terrain_mitigation": "toxic_swamp", "base_price": 270},
+        {"name": "Espada de Cavalaria", "slot_type": "Arsenal Ofensivo", "quality": "Normal", "power_bonus": 18, "base_price": 220},
+        {"name": "Montante de Aço Negro", "slot_type": "Arsenal Ofensivo", "quality": "Ótimo", "power_bonus": 28, "base_price": 380},
+        {"name": "Armadura de Placas Leve", "slot_type": "Blindagem Operacional", "quality": "Normal", "power_bonus": 15, "base_price": 240},
+        {"name": "Gibão de Couro Endurecido", "slot_type": "Blindagem Operacional", "quality": "Ótimo", "power_bonus": 24, "base_price": 360},
+        {"name": "Manto Anti-Tóxico", "slot_type": "Blindagem Operacional", "quality": "Normal", "power_bonus": 12, "terrain_mitigation": "toxic_swamp", "base_price": 270},
         {"name": "Anel de Prata Encantado", "slot_type": "Joia", "quality": "Normal", "power_bonus": 10, "base_price": 180},
         {"name": "Pingente de Guarda-Corpo", "slot_type": "Joia", "quality": "Ótimo", "power_bonus": 18, "base_price": 300},
         {"name": "Runa de Purificação do Pântano", "slot_type": "Inscrição", "quality": "Normal", "power_bonus": 10, "terrain_mitigation": "toxic_swamp", "base_price": 220},

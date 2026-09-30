@@ -80,12 +80,12 @@ class GameState:
         self.starters = []         # IDs dos heróis titulares (máx 6)
         self.reserves = []         # IDs dos heróis reservas (máx 3)
         self.loadout = {
-            "Arma": None,
-            "Armadura": None,
-            "Joia": None,
-            "Inscrição": None,
-            "Consumível": None,
-        }
+    "Arsenal Ofensivo": None,
+    "Blindagem Operacional": None,
+    "Ativo de Performance": None,
+    "Alvará de Risco": None,
+    "Provisão Logística": None,
+}
 
         # Níveis de especialização por ramo da oficina (Níveis 1 a 6)
         self.workshop_levels = {

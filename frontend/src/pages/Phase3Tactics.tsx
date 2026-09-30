@@ -6,6 +6,11 @@ import {
   TrendingUp,
   TrendingDown,
   Sparkles,
+  Briefcase,
+  Shield,
+  Award,
+  FileSignature,
+  Package,
 } from 'lucide-react'
 import type { GameState, Hero, InventoryItem, DungeonInfo } from '../mockData'
 import { RARITY_CARD_STYLES, RARITY_BADGE_STYLES, GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
@@ -20,8 +25,16 @@ interface Phase3TacticsProps {
   onSaveTactics?: (starters: string[], loadout: Record<string, string | null>, reserves?: string[]) => Promise<any>
 }
 
-const SLOTS = ['Arma', 'Armadura', 'Joia', 'Inscrição', 'Consumível'] as const
+const SLOTS = ['Arsenal Ofensivo','Blindagem Operacional','Ativo de Performance','Alvará de Risco','Provisão Logística'] as const
 type Slot = typeof SLOTS[number]
+
+const SLOT_ICONS: Record<Slot, typeof Briefcase> = {
+  'Arsenal Ofensivo': Briefcase,
+  'Blindagem Operacional': Shield,
+  'Ativo de Performance': Award,
+  'Alvará de Risco': FileSignature,
+  'Provisão Logística': Package,
+}
 
 export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase3TacticsProps) {
   // Inicialização segura de Titulares (até 6)
@@ -142,12 +155,9 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
     setServerError(null)
 
     // Enviar apenas os IDs dos itens nos slots
-    const payloadLoadout: Record<string, string | null> = {
-      Arma: loadout.Arma ? loadout.Arma.item_instance_id : null,
-      Armadura: loadout.Armadura ? loadout.Armadura.item_instance_id : null,
-      Joia: loadout.Joia ? loadout.Joia.item_instance_id : null,
-      Inscrição: loadout.Inscrição ? loadout.Inscrição.item_instance_id : null,
-      Consumível: loadout.Consumível ? loadout.Consumível.item_instance_id : null,
+    const payloadLoadout: Record<string, string | null> = {}
+    for (const slot of SLOTS) {
+      payloadLoadout[slot] = loadout[slot]?.item_instance_id ?? null
     }
 
     if (onSaveTactics) {
@@ -287,7 +297,8 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
           {SLOTS.map(slot => {
             const equipped = loadout[slot]
             const isSelecting = selectedSlot === slot
-            const isConsumable = slot === 'Consumível'
+            const isConsumable = slot === 'Provisão Logística'
+            const SlotIcon = SLOT_ICONS[slot]
 
             if (!equipped) {
               return (
@@ -300,10 +311,11 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
                       : 'border-stone-800 text-stone-600 hover:border-stone-700 hover:text-stone-400'
                   }`}
                 >
-                  <span className="text-xs uppercase font-mono font-bold tracking-wider mb-1">
-                    Slot {slot}
+                  <SlotIcon className="w-5 h-5 mb-1.5 opacity-60" />
+                  <span className="text-[11px] uppercase font-mono font-bold tracking-wider mb-1">
+                    {slot}
                   </span>
-                  <span className="text-[11px] text-stone-500">+ Equipar Ativo</span>
+                  <span className="text-[10px] text-stone-500">+ Homologar Ativo</span>
                 </div>
               )
             }
@@ -318,7 +330,8 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
               >
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] uppercase font-mono tracking-widest text-stone-400 font-bold">
+                    <span className="text-[10px] uppercase font-mono tracking-widest text-stone-400 font-bold flex items-center gap-1.5">
+                      <SlotIcon className="w-3.5 h-3.5 text-amber-400/80" />
                       {slot}
                     </span>
                     <button

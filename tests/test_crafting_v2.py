@@ -120,7 +120,7 @@ class TestCraftingV2(unittest.TestCase):
         self.assertIn("não homologado", res["message"].lower())
 
     def test_craft_rejects_affix_of_wrong_slot(self):
-        """Rejeita afixo pertencente a outro slot (ex: pref_reforcada de Armadura na Arma)."""
+        """Rejeita afixo pertencente a outro slot (ex: pref_reforcada de Blindagem Operacional no Arsenal Ofensivo)."""
         # Adiciona pref_reforcada temporariamente para testar compatibilidade de slot
         if "pref_reforcada" not in self.state.known_affixes:
             self.state.known_affixes.append("pref_reforcada")

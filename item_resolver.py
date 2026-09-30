@@ -102,9 +102,11 @@ def resolve_item(
     power_bonus = round((base_power + power_flat) * (1.0 + power_pct) * q_mult)
 
     slot = recipe.get("slot")
+    from constants import normalize_slot
+    is_logistica = normalize_slot(slot) == "Provisão Logística"
     energy_bonus = 0
     charges = 0
-    if slot == "Consumível":
+    if is_logistica:
         base_energy = float(recipe.get("energy_restore", 0))
         energy_bonus = round((base_energy + energy_bonus_flat) * q_mult)
         base_charges = int(recipe.get("charges", 3))
@@ -125,8 +127,8 @@ def resolve_item(
         "quality": quality,
         "power_bonus": int(power_bonus),
         "energy_bonus": int(energy_bonus),
-        "charges": int(charges) if slot == "Consumível" else None,
-        "max_charges": int(charges) if slot == "Consumível" else None,
+        "charges": int(charges) if is_logistica else None,
+        "max_charges": int(charges) if is_logistica else None,
         "terrain_mitigation": terrain_mitigation,
         "market_value_base": int(market_value_base),
         "prefix_id": prefix_id,
@@ -137,7 +139,7 @@ def resolve_item(
         "special_suffix_active": (quality == "Lendário"),
     }
 
-    if slot != "Consumível":
+    if not is_logistica:
         item.pop("charges", None)
         item.pop("max_charges", None)
 

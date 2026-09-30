@@ -281,7 +281,7 @@ class TestCrafting(unittest.TestCase):
 
             # Item de refugo
             item = res["item"]
-            self.assertEqual(item["name"], "Gororoba Experimental")
+            self.assertEqual(item["name"], "Ativo Não-Conforme")
             self.assertEqual(item["quality"], "Fraco")
             self.assertEqual(item["market_value_base"], 20)
             self.assertEqual(item["slot"], cat.recipes["rec_06"]["slot"])

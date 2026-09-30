@@ -142,7 +142,7 @@ class TestMatchEngineContract(unittest.TestCase):
         self.assertEqual(len(boss_events), 0)
 
     def test_terrain_without_mitigation_and_consumable_reduces_rooms(self):
-        """Terreno sem mitigação e sem Consumível reduz o número médio de salas percorridas."""
+        """Terreno sem mitigação e sem Provisão Logística reduz o número médio de salas percorridas."""
         total_rooms_unmitigated = 0
         total_rooms_mitigated = 0
         n_runs = 200
@@ -387,16 +387,16 @@ class TestMatchEngineContract(unittest.TestCase):
     def test_slot_bonus_cap_and_factor(self):
         """Valida que bônus de slots segue factor de 0.15 e cap de 15."""
         loadout_normal = {
-            "Arma": {"power_bonus": 40},
-            "Armadura": {"power_bonus": 40},
+            "Arsenal Ofensivo": {"power_bonus": 40},
+            "Blindagem Operacional": {"power_bonus": 40},
         }
         # 80 * 0.15 = 12.0 <= 15
         self.assertAlmostEqual(calculate_slot_bonus(loadout_normal, self.balance), 12.0)
 
         loadout_over_cap = {
-            "Arma": {"power_bonus": 60},
-            "Armadura": {"power_bonus": 60},
-            "Joia": {"power_bonus": 60},
+            "Arsenal Ofensivo": {"power_bonus": 60},
+            "Blindagem Operacional": {"power_bonus": 60},
+            "Ativo de Performance": {"power_bonus": 60},
         }
         # 180 * 0.15 = 27.0 -> cap em 15.0
         self.assertAlmostEqual(calculate_slot_bonus(loadout_over_cap, self.balance), 15.0)
@@ -496,9 +496,9 @@ class TestDungeonLootFatigueAndDRE(unittest.TestCase):
         """Espólios da masmorra são sorteados de material_sources_seed.json, registrados em last_expedition_loot e creditados em materials."""
         self.controller.state.materials = {}
         # Garante expedição com energia alta para alcançar salas
-        self.controller.state.loadout["Consumível"] = {
+        self.controller.state.loadout["Provisão Logística"] = {
             "name": "Ração de Longa Marcha",
-            "slot_type": "Consumível",
+            "slot_type": "Provisão Logística",
             "energy_bonus": 50,
             "charges": 5,
             "max_charges": 5,

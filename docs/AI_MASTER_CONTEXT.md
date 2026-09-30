@@ -281,3 +281,17 @@ O teste unitário `test_save.py` possui uma asserção reflexiva (`vars(GameStat
 ---
 
 *Documento homologado pelo Cartório da Câmara dos Mercadores do HeroFoot.*
+
+## 🔧 7. Atualizações Recentes (v0.7.0)
+
+- **UI/UX**: Removidos os módulos de *Matéria‑Prima* e *Manuais de Ofício* da loja (arquivo `Phase2Workshop.tsx`). Implementada a lógica de desbloqueio cumulativo de tiers e a UI de requisitos de contrato (exigência de confiança, nível de oficina e pré‑requisitos de tier).
+- **Contratos B2B**: Introduzido o campo `requirements` em `mockData.ts` e atualizado a UI para exibir requisitos de contrato e status de cumprimento.
+- **Assistentes de Montagem**: Novo modelo de dados `assembly_line_workers` adicionado ao `GameState` (`SERIALIZED_FIELDS`). Atualizados testes e backend para suportar trabalhadores automáticos.
+- **Seeds de Dados**: Acrescentados `data/dungeons_seed.json` e `data/climates_seed.json` contendo 8 dungeons e 6 climas. Atualizado o motor de mercado para usar efeitos de clima nas penalidades de energia.
+- **Documentação**: Gerado `docs/DUNGEONS_E_CLIMATES.md` listando todas as masmorras e climas com referências cruzadas.
+- **Persistência**: Campos `active_b2b_contracts`, `assembly_line_workers` e `corporate_exclusivity_tags` incluídos em `SERIALIZED_FIELDS` de `game_state.py`.
+- **Testes**: Atualizados `tests/test_b2b_assembly.py` cobrindo novos requisitos de contrato, progressão de tiers e exclusividade de patrocinadores.
+- **Balanceamento**: Ajustado o multiplicador de punição de compras avulsas de itens não‑parceiros de **300%** para **50%**, conforme decisão de balanceamento.
+- **Roadmap**: Versão `v0.7.0` agora contém o módulo de *Linha de Montagem* e o pivot de *Cadeia de Suprimentos B2B*.
+
+*Este documento será mantido atualizado à medida que novos recursos forem incorporados.*

@@ -17,6 +17,7 @@ import {
   ShieldCheck,
   ShieldAlert,
   Scroll,
+  Package,
 } from 'lucide-react'
 import {
   getDungeonForDay,
@@ -228,6 +229,13 @@ export default function Phase4Dungeon({
   }[]>([])
 
   const [simulatedMatches, setSimulatedMatches] = useState<MatchResult[]>([])
+  const [lootDropped, setLootDropped] = useState<any[]>(state?.last_expedition_loot || [])
+
+  useEffect(() => {
+    if (state?.last_expedition_loot && state.last_expedition_loot.length > 0) {
+      setLootDropped(state.last_expedition_loot)
+    }
+  }, [state?.last_expedition_loot])
 
   // Determinação determinística de Bioma Base e Clima da Semana
   const fallbackDungeon = useMemo(() => getDungeonForDay(day), [day])
@@ -391,6 +399,9 @@ export default function Phase4Dungeon({
           } else if (lastRoundResults && lastRoundResults.length > 0) {
             setSimulatedMatches(lastRoundResults)
           }
+
+          const dropped = res.result.loot_dropped || (res.state && res.state.last_expedition_loot) || []
+          setLootDropped(dropped)
           return
         }
       } catch (err) {
@@ -454,6 +465,19 @@ export default function Phase4Dungeon({
       { home_name: 'Irmandade do Aço Negro', home_score: 2, away_name: 'Lança da Alvorada', away_score: 1 },
       { home_name: 'Corvo e Osso', home_score: 1, away_name: 'Sentinelas da Prata', away_score: 1 },
       { home_name: 'Vigia de Pedra', home_score: 0, away_name: 'Legião do Crepúsculo', away_score: 2 },
+    ])
+
+    setLootDropped([
+      {
+        part_id: 'part_aethelgard_blade',
+        name: 'Lâmina Forjada Aethelgard',
+        quantity: 1,
+        rarity: 'Comum',
+        slot_role: 'base',
+        corp_id: 'corp_aethelgard',
+        power_bonus: 25,
+        tier: 1,
+      }
     ])
   }
 
@@ -905,6 +929,66 @@ export default function Phase4Dungeon({
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ─────────────────────────────────────────────
+          ESPÓLIOS RECOLHIDOS NA MASMORRA (LOOT B2B)
+         ───────────────────────────────────────────── */}
+      {done && (
+        <div className="bg-[#1c1917] border border-amber-600/50 rounded-xl p-5 space-y-3 shadow-xl animate-in fade-in duration-300">
+          <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+            <h3 className="text-amber-300 text-xs uppercase tracking-widest font-black flex items-center gap-2">
+              <Package className="w-4 h-4 text-amber-500" />
+              <span>Espólios de Exploração Coletados (Almoxarifado B2B)</span>
+            </h3>
+            <span className="text-[10px] bg-amber-950/80 border border-amber-800/60 text-amber-300 px-2 py-0.5 rounded font-mono font-bold">
+              {lootDropped.length} {lootDropped.length === 1 ? 'Lote Recuperado' : 'Lotes Recuperados'}
+            </span>
+          </div>
+
+          {lootDropped.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-xs text-stone-400">
+                Os componentes recuperados pela força-tarefa foram catalogados e transferidos automaticamente para o Almoxarifado Industrial da Guilda:
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-1">
+                {lootDropped.map((item, idx) => {
+                  const roleLabel = item.slot_role === 'prefix' ? 'Prefixo' : item.slot_role === 'suffix' ? 'Sufixo' : 'Chassi Base'
+                  return (
+                    <div
+                      key={item.part_id || item.material_id || idx}
+                      className="bg-stone-900/90 border border-amber-900/40 rounded-xl p-3 flex flex-col justify-between gap-2 shadow-sm hover:border-amber-600/50 transition"
+                    >
+                      <div className="flex items-start justify-between gap-1">
+                        <div>
+                          <span className="text-[10px] font-mono text-amber-400 uppercase font-bold tracking-wider block">
+                            {roleLabel} · Tier {item.tier || 1}
+                          </span>
+                          <h4 className="text-xs font-bold text-stone-100 mt-0.5">
+                            {item.quantity ? `${item.quantity}x ` : ''}{item.name}
+                          </h4>
+                        </div>
+                        {item.power_bonus && (
+                          <span className="text-[10px] font-mono font-black text-amber-300 bg-amber-950/80 border border-amber-700/60 px-1.5 py-0.5 rounded">
+                            +{item.power_bonus} PE
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] text-stone-500 border-t border-stone-800/80 pt-1.5 font-mono">
+                        <span className="text-stone-400 uppercase">{item.corp_id ? item.corp_id.replace('corp_', '') : 'Industrial'}</span>
+                        <span className="text-emerald-400 font-bold">✓ Homologado</span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-4 text-xs text-stone-500 font-mono">
+              Nenhum componente íntegro recuperado nas câmaras percorridas nesta expedição.
+            </div>
+          )}
         </div>
       )}
 
