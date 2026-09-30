@@ -205,6 +205,7 @@ class GameController:
             "assembly_line_workers": getattr(self.state, "assembly_line_workers", []),
             "corporate_exclusivity_tags": getattr(self.state, "corporate_exclusivity_tags", []),
             "warehouse_parts": getattr(self.state, "warehouse_parts", {}),
+            "last_expedition_loot": getattr(self.state, "last_expedition_loot", []),
             "b2b_catalog": {
                 "corporations": get_corporations(),
                 "parts": get_parts_dict(),
@@ -415,6 +416,13 @@ class GameController:
 
         if self.state.has_active_contract(contract_id):
             return {"success": False, "message": "Contrato de fornecimento já vigente com esta fornecedora."}
+
+        # Limite regulatório da Coroa: no máximo 3 patrocínios/parcerias corporativas ativas
+        if len(getattr(self.state, "active_b2b_contracts", [])) >= 3:
+            return {
+                "success": False,
+                "message": "Limite regulatório atingido: a guilda pode manter no máximo 3 convênios de patrocínio corporativo ativos simultaneamente.",
+            }
 
         corp_id = contract.get("corp_id")
         corps = get_corporations_dict()

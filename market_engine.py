@@ -319,6 +319,17 @@ class MarketEngine:
         if not part:
             return {"success": False, "message": f"Peça modular '{part_id}' não localizada no catálogo industrial."}
 
+        # Bloqueio de componentes avançados sem patrocínio ativo
+        tier = part.get("tier", 1)
+        corp_id = part.get("corp_id")
+        active_contracts = getattr(state, "active_b2b_contracts", [])
+        has_partnership = any(c.get("corp_id") == corp_id for c in active_contracts)
+        if tier > 1 and not has_partnership and corp_id != "corp_crown_notarial":
+            return {
+                "success": False,
+                "message": f"Aquisição embargada: componentes avançados de Nível {tier} exigem convênio de patrocínio homologado com a fornecedora.",
+            }
+
         unit_price = self.calculate_part_spot_price(part_id, state)
         total_cost = unit_price * quantity
 

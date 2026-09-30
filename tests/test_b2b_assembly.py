@@ -82,6 +82,38 @@ class TestB2BAssembly(unittest.TestCase):
         self.assertIn("exclusividade", res_valkyria["message"].lower())
         self.assertFalse(self.state.has_active_contract("b2b_valkyria_gold"))
 
+    def test_max_three_sponsorship_contracts_limit(self):
+        """A guilda pode manter no máximo 3 patrocínios corporativos simultaneamente."""
+        res1 = self.controller.sign_b2b_contract("b2b_aethelgard_bronze")
+        self.assertTrue(res1["success"])
+        res2 = self.controller.sign_b2b_contract("b2b_flamel_standard")
+        self.assertTrue(res2["success"])
+        res3 = self.controller.sign_b2b_contract("b2b_chancellor_silver")
+        self.assertTrue(res3["success"])
+        self.assertEqual(len(self.state.active_b2b_contracts), 3)
+
+        # Tentativa de celebrar o 4º patrocínio é embargada pela Coroa
+        res4 = self.controller.sign_b2b_contract("b2b_goblin_bronze")
+        self.assertFalse(res4["success"])
+        self.assertIn("máximo 3", res4["message"].lower())
+        self.assertEqual(len(self.state.active_b2b_contracts), 3)
+
+    def test_advanced_parts_spot_embargo_without_sponsorship(self):
+        """Peças avançadas (Tier > 1) não podem ser compradas avulsas sem patrocínio ativo da marca."""
+        # part_gob_blade_02 é Tier 2 da Goblin Eng
+        res = self.controller.buy_part("part_gob_blade_02", quantity=1)
+        self.assertFalse(res["success"])
+        self.assertIn("patrocínio", res["message"].lower())
+
+        # Assina patrocínio com a Goblin
+        sign_res = self.controller.sign_b2b_contract("b2b_goblin_bronze")
+        self.assertTrue(sign_res["success"])
+
+        # Agora a compra da peça avançada é autorizada com desconto
+        buy_res = self.controller.buy_part("part_gob_blade_02", quantity=1)
+        self.assertTrue(buy_res["success"])
+        self.assertEqual(self.state.get_part_quantity("part_gob_blade_02"), 1)
+
     def test_spot_purchase_without_contract_charges_50_pct_markup(self):
         """Compra spot sem contrato ativo cobra ágio alfandegário de +50% (spot_markup: 1.50)."""
         # Base cost da lâmina Aethelgard: 50

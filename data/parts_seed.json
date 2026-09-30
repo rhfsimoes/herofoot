@@ -1450,5 +1450,274 @@
     ],
     "slot_role": "suffix",
     "name_modifier": "da Ordem Boreal"
+  },
+  {
+    "id": "part_aethelgard_core",
+    "part_id": "part_aethelgard_core",
+    "corp_id": "corp_aethelgard",
+    "brand_id": "corp_aethelgard",
+    "name": "Rebite de Fixação Aethelgard",
+    "branch": "Ferragem",
+    "part_type": "core",
+    "compatible_slots": [
+      "Arma",
+      "Armadura"
+    ],
+    "tier": 1,
+    "base_cost": 60,
+    "market_price_base": 60,
+    "power_bonus": 8,
+    "power_contrib": 8,
+    "catalog_description": "Rebite de aço fundido sob alta pressão que sela as tolerâncias da lâmina com certificação da Coroa.",
+    "slot_role": "suffix",
+    "name_modifier": "de Aethelgard",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": "part_valkyria_core",
+    "part_id": "part_valkyria_core",
+    "corp_id": "corp_valkyria",
+    "brand_id": "corp_valkyria",
+    "name": "Placa Balística Valkyria",
+    "branch": "Ferragem",
+    "part_type": "core",
+    "compatible_slots": [
+      "Armadura",
+      "Arma"
+    ],
+    "tier": 2,
+    "base_cost": 160,
+    "market_price_base": 160,
+    "power_bonus": 14,
+    "power_contrib": 14,
+    "catalog_description": "Módulo balístico de absorção de impacto com a chancela estriada do consórcio armamentista Valkyria.",
+    "slot_role": "suffix",
+    "name_modifier": "da Valkyria",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 14
+      }
+    ]
+  },
+  {
+    "id": "part_valkyria_blade",
+    "part_id": "part_valkyria_blade",
+    "corp_id": "corp_valkyria",
+    "brand_id": "corp_valkyria",
+    "name": "Chassi de Combate Valkyria",
+    "branch": "Ferragem",
+    "part_type": "blade",
+    "compatible_slots": [
+      "Arma",
+      "Armadura"
+    ],
+    "tier": 2,
+    "base_cost": 170,
+    "market_price_base": 170,
+    "power_bonus": 15,
+    "power_contrib": 15,
+    "catalog_description": "Estrutura mecânica reforçada em liga estriada para montagem pesada.",
+    "slot_role": "base",
+    "name_modifier": "Chassi Valkyria",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 15
+      }
+    ]
+  },
+  {
+    "id": "part_flamel_nozzle",
+    "part_id": "part_flamel_nozzle",
+    "corp_id": "corp_flamel",
+    "brand_id": "corp_flamel",
+    "name": "Bocal Dosador Flamel",
+    "branch": "Alquimia",
+    "part_type": "filter",
+    "compatible_slots": [
+      "Consumível",
+      "Inscrição"
+    ],
+    "tier": 1,
+    "base_cost": 70,
+    "market_price_base": 70,
+    "power_bonus": 8,
+    "power_contrib": 8,
+    "catalog_description": "Bocal de precisão em vidro temperado para infusão homogênea e fluxo laminar.",
+    "slot_role": "prefix",
+    "name_modifier": "Destilado",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": "part_chancellor_frame",
+    "part_id": "part_chancellor_frame",
+    "corp_id": "corp_chancellor",
+    "brand_id": "corp_chancellor",
+    "name": "Armação de Ouro Chanceler",
+    "branch": "Joalheria",
+    "part_type": "plating",
+    "compatible_slots": [
+      "Joia",
+      "Armadura"
+    ],
+    "tier": 2,
+    "base_cost": 180,
+    "market_price_base": 180,
+    "power_bonus": 14,
+    "power_contrib": 14,
+    "catalog_description": "Estrutura aristocrática em ouro batido para montagem de amuletos da alta nobreza.",
+    "slot_role": "base",
+    "name_modifier": "Chanceler",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 14
+      }
+    ]
+  },
+  {
+    "id": "part_chancellor_pin",
+    "part_id": "part_chancellor_pin",
+    "corp_id": "corp_chancellor",
+    "brand_id": "corp_chancellor",
+    "name": "Broche de Fixação Imperial",
+    "branch": "Joalheria",
+    "part_type": "hilt",
+    "compatible_slots": [
+      "Joia"
+    ],
+    "tier": 1,
+    "base_cost": 80,
+    "market_price_base": 80,
+    "power_bonus": 8,
+    "power_contrib": 8,
+    "catalog_description": "Fecho notarial em platina polida certificado pela corte de auditoria.",
+    "slot_role": "prefix",
+    "name_modifier": "Aureolado",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": "part_gob_core_00",
+    "part_id": "part_gob_core_00",
+    "corp_id": "corp_goblin_eng",
+    "brand_id": "corp_goblin_eng",
+    "name": "Detonador de Atrito Goblin",
+    "branch": "Ferragem",
+    "part_type": "core",
+    "compatible_slots": [
+      "Arma",
+      "Consumível"
+    ],
+    "tier": 1,
+    "base_cost": 65,
+    "market_price_base": 65,
+    "power_bonus": 7,
+    "power_contrib": 7,
+    "catalog_description": "Cápsula de pólvora e limalha de cobre que estala ao menor atrito mecânico.",
+    "slot_role": "suffix",
+    "name_modifier": "Explosivo",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 7
+      }
+    ]
+  },
+  {
+    "id": "part_elf_core_00",
+    "part_id": "part_elf_core_00",
+    "corp_id": "corp_elf_precision",
+    "brand_id": "corp_elf_precision",
+    "name": "Matriz de Ressonância Élfica",
+    "branch": "Joalheria",
+    "part_type": "core",
+    "compatible_slots": [
+      "Joia",
+      "Arma"
+    ],
+    "tier": 1,
+    "base_cost": 75,
+    "market_price_base": 75,
+    "power_bonus": 8,
+    "power_contrib": 8,
+    "catalog_description": "Cristal diminuto polido com frequências harmônicas que sintoniza as peças ao seu redor.",
+    "slot_role": "suffix",
+    "name_modifier": "de Precisão Élfica",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": "part_dwarf_prefix_01",
+    "part_id": "part_dwarf_prefix_01",
+    "corp_id": "corp_dwarf_steel",
+    "brand_id": "corp_dwarf_steel",
+    "name": "Presilha Forjada Anã",
+    "branch": "Ferragem",
+    "part_type": "hilt",
+    "compatible_slots": [
+      "Armadura",
+      "Arma"
+    ],
+    "tier": 1,
+    "base_cost": 70,
+    "market_price_base": 70,
+    "power_bonus": 8,
+    "power_contrib": 8,
+    "catalog_description": "Grampo de ferro fundido nas forjas abissais com pegada inabalável.",
+    "slot_role": "prefix",
+    "name_modifier": "Maciço",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 8
+      }
+    ]
+  },
+  {
+    "id": "part_swamp_prefix_01",
+    "part_id": "part_swamp_prefix_01",
+    "corp_id": "corp_swamp_alchemy",
+    "brand_id": "corp_swamp_alchemy",
+    "name": "Válvula de Lodo Filtrado",
+    "branch": "Alquimia",
+    "part_type": "filter",
+    "compatible_slots": [
+      "Armadura",
+      "Consumível"
+    ],
+    "tier": 1,
+    "base_cost": 75,
+    "market_price_base": 75,
+    "power_bonus": 8,
+    "power_contrib": 8,
+    "catalog_description": "Válvula química com carvão ativado pantanoso para neutralizar miasmas corrosivos.",
+    "slot_role": "prefix",
+    "name_modifier": "Miasmático",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 8
+      }
+    ]
   }
 ]

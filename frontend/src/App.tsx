@@ -71,15 +71,17 @@ function AppContent() {
     init()
   }, [])
 
-  function handleStateChange(newState: GameState) {
+  function handleStateChange(newState: GameState, shouldNavigate: boolean = false) {
     setGameState(prev => ({
       ...prev,
       ...newState,
       day: newState.day || newState.week || prev.day,
       current_phase: newState.current_phase || prev.current_phase,
     }))
-    const targetPhase = newState.current_phase || 1
-    navigate(PHASE_PATHS[targetPhase] || '/')
+    if (shouldNavigate) {
+      const targetPhase = newState.current_phase || 1
+      navigate(PHASE_PATHS[targetPhase] || '/')
+    }
   }
 
   // Avanço de fases integrado
@@ -726,9 +728,10 @@ function AppContent() {
     let errorMsg = ''
     setGameState((prev: GameState): GameState => {
       const activeContract = (prev.active_b2b_contracts ?? []).find(c => c.corp_id === part.corp_id)
+      const baseCost = part.base_cost ?? part.market_price_base ?? 50
       const unitPrice = activeContract
-        ? Math.round(part.base_cost * (1 - activeContract.discount_pct))
-        : Math.round(part.base_cost * 1.50)
+        ? Math.round(baseCost * (1 - activeContract.discount_pct))
+        : Math.round(baseCost * 1.50)
       const totalCost = unitPrice * quantity
 
       if (prev.gold < totalCost) {
@@ -769,7 +772,7 @@ function AppContent() {
       <Header
         state={gameState}
         isBackendOnline={isBackendOnline}
-        onStateChange={handleStateChange}
+        onStateChange={(st) => handleStateChange(st, true)}
       />
       <PhaseStepper currentPhase={gameState.current_phase} />
       <main className="flex-1 overflow-y-auto">

@@ -145,10 +145,10 @@ export default function Phase2Workshop({
   onAssembleModularItem,
   onBuyModularPart,
 }: Phase2WorkshopProps) {
-  const [mainTab, setMainTab] = useState<MainTab>('oficina')
+  const [mainTab, setMainTab] = useState<MainTab>('complexo_b2b')
   const [selectedBranch, setSelectedBranch] = useState<WorkshopBranch>('Ferragem')
   const [marketSubTab, setMarketSubTab] = useState<MarketSubTab>('vender')
-  const [b2bSubTab, setB2bSubTab] = useState<B2BSubTab>('fornecedores')
+  const [b2bSubTab, setB2bSubTab] = useState<B2BSubTab>('montagem')
 
   // Estados B2B e Linha de Montagem
   const [warehouseParts, setWarehouseParts] = useState<Record<string, number>>(state.warehouse_parts ?? {})
@@ -1377,33 +1377,67 @@ export default function Phase2Workshop({
         </button>
       </div>
 
-      {/* Tabs Principais */}
-      <div className="flex border-b border-stone-800 bg-stone-950/60 p-1 rounded-xl max-w-2xl gap-1">
+      {/* Tabs Principais da Fase 2 */}
+      <div className="flex border-b border-stone-800 bg-stone-950/60 p-1.5 rounded-xl max-w-4xl gap-1.5 flex-wrap">
         <button
-          onClick={() => setMainTab('oficina')}
-          className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            mainTab === 'oficina'
+          onClick={() => {
+            setMainTab('complexo_b2b')
+            setB2bSubTab('montagem')
+          }}
+          className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            mainTab === 'complexo_b2b' && b2bSubTab === 'montagem'
               ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
               : 'text-stone-400 hover:text-stone-200'
           }`}
         >
-          <Hammer className="w-4 h-4 text-amber-500" />
-          <span>Oficina</span>
+          <Wrench className="w-4 h-4 text-amber-500" />
+          <span>Montagem Modular</span>
         </button>
         <button
-          onClick={() => setMainTab('complexo_b2b')}
-          className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            mainTab === 'complexo_b2b'
+          onClick={() => {
+            setMainTab('complexo_b2b')
+            setB2bSubTab('fornecedores')
+          }}
+          className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            mainTab === 'complexo_b2b' && b2bSubTab === 'fornecedores'
               ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
               : 'text-stone-400 hover:text-stone-200'
           }`}
         >
           <Building2 className="w-4 h-4 text-amber-500" />
-          <span>Complexo B2B & Fábrica</span>
+          <span>Patrocínios B2B ({activeB2bContracts.length}/3)</span>
+        </button>
+        <button
+          onClick={() => {
+            setMainTab('complexo_b2b')
+            setB2bSubTab('operarios')
+          }}
+          className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            mainTab === 'complexo_b2b' && b2bSubTab === 'operarios'
+              ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
+              : 'text-stone-400 hover:text-stone-200'
+          }`}
+        >
+          <Factory className="w-4 h-4 text-amber-500" />
+          <span>Linha de Montagem ({assemblyLineWorkers.length}/4)</span>
+        </button>
+        <button
+          onClick={() => {
+            setMainTab('complexo_b2b')
+            setB2bSubTab('spot')
+          }}
+          className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+            mainTab === 'complexo_b2b' && b2bSubTab === 'spot'
+              ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
+              : 'text-stone-400 hover:text-stone-200'
+          }`}
+        >
+          <Package className="w-4 h-4 text-amber-500" />
+          <span>Mercado Spot de Peças</span>
         </button>
         <button
           onClick={() => setMainTab('balcao')}
-          className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+          className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
             mainTab === 'balcao'
               ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
               : 'text-stone-400 hover:text-stone-200'
@@ -1414,7 +1448,7 @@ export default function Phase2Workshop({
         </button>
         <button
           onClick={() => setMainTab('transferencias')}
-          className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+          className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
             mainTab === 'transferencias'
               ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
               : 'text-stone-400 hover:text-stone-200'
@@ -2476,6 +2510,15 @@ export default function Phase2Workshop({
                                     <Lock className="w-3.5 h-3.5" />
                                     <span>Embargado por Rival</span>
                                   </button>
+                                ) : activeB2bContracts.length >= 3 ? (
+                                  <button
+                                    disabled
+                                    className="w-full py-2 rounded-lg text-xs font-bold text-stone-500 bg-stone-950 border border-stone-800 cursor-not-allowed flex items-center justify-center gap-1.5"
+                                    title="Sua guilda já possui o limite regulatório máximo de 3 convênios de patrocínio ativos."
+                                  >
+                                    <Lock className="w-3.5 h-3.5 text-amber-600" />
+                                    <span>Limite de Patrocínios (3/3)</span>
+                                  </button>
                                 ) : (
                                   <button
                                     onClick={() => handleSignContract(contract.contract_id)}
@@ -2483,7 +2526,7 @@ export default function Phase2Workshop({
                                     className="w-full py-2 rounded-lg text-xs font-bold text-stone-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:brightness-110 shadow-md transition cursor-pointer flex items-center justify-center gap-1.5"
                                   >
                                     <ShieldCheck className="w-3.5 h-3.5" />
-                                    <span>Homologar Convênio</span>
+                                    <span>Homologar Convênio ({activeB2bContracts.length}/3)</span>
                                   </button>
                                 )}
                               </div>
@@ -3277,13 +3320,16 @@ export default function Phase2Workshop({
                   const activeContract = activeB2bContracts.find(c => c.corp_id === part.corp_id)
                   const hasDiscount = Boolean(activeContract)
                   const discountPct = activeContract?.discount_pct ?? 0
+                  const baseCost = part.base_cost ?? part.market_price_base ?? 50
+                  const isAdvancedPart = part.tier > 1 && part.corp_id !== 'corp_crown_notarial'
+                  const isLockedBySponsorship = isAdvancedPart && !hasDiscount
                   const unitPrice = hasDiscount
-                    ? Math.round(part.base_cost * (1 - discountPct))
-                    : Math.round(part.base_cost * 1.50)
+                    ? Math.round(baseCost * (1 - discountPct))
+                    : Math.round(baseCost * 1.50)
 
                   const qty = spotQuantities[pId] ?? 1
                   const totalCost = unitPrice * qty
-                  const canAfford = gold >= totalCost
+                  const canAfford = gold >= totalCost && !isLockedBySponsorship
                   const inWarehouse = warehouseParts[pId] ?? 0
 
                   return (
@@ -3387,17 +3433,26 @@ export default function Phase2Workshop({
 
                         <button
                           onClick={() => handleBuySpot(pId)}
-                          disabled={!canAfford || isBuyingSpot}
+                          disabled={!canAfford || isBuyingSpot || isLockedBySponsorship}
                           className={`w-full py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                            canAfford && !isBuyingSpot
+                            canAfford && !isBuyingSpot && !isLockedBySponsorship
                               ? 'bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 hover:brightness-110 shadow-md'
                               : 'bg-stone-950 border border-stone-800 text-stone-600 cursor-not-allowed'
                           }`}
                         >
-                          <Coins className="w-3.5 h-3.5" />
-                          <span>
-                            {canAfford ? `Adquirir Lote Spot (⬡ ${totalCost})` : 'Tesouraria Insuficiente'}
-                          </span>
+                          {isLockedBySponsorship ? (
+                            <>
+                              <Lock className="w-3.5 h-3.5 text-amber-500" />
+                              <span>Exige Patrocínio Ativo (Nível {part.tier})</span>
+                            </>
+                          ) : (
+                            <>
+                              <Coins className="w-3.5 h-3.5" />
+                              <span>
+                                {canAfford ? `Adquirir Lote Spot (⬡ ${totalCost})` : 'Tesouraria Insuficiente'}
+                              </span>
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
