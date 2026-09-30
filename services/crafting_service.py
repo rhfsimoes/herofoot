@@ -852,6 +852,7 @@ class CraftingService:
         from catalog import get_catalog
         b2b_cfg = get_b2b_balance()
         xp_rate = float(b2b_cfg.get("assembly_line_xp_rate", 0.10))
+        price_factor = float(b2b_cfg.get("white_label_price_factor", b2b_cfg.get("white_label_resale_rate", 1.0)))
         parts_catalog = get_parts_dict()
         cat = get_catalog()
 
@@ -900,7 +901,8 @@ class CraftingService:
 
                 active_workers_count += 1
                 recipe_tier = int(recipe.get("tier", 1))
-                base_val = int(recipe.get("market_value_base", 120))
+                raw_base_val = int(recipe.get("market_value_base", 120))
+                base_val = max(1, int(raw_base_val * price_factor))
                 base_pow = int(recipe.get("base_power", 20))
                 slot = recipe.get("slot", "Arma")
 
