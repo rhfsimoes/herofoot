@@ -33,6 +33,11 @@ export interface Hero {
     is_potential_revealed: boolean
   }
   transfer_fee?: number
+  training_weeks?: number
+  max_training_weeks?: number
+  maturation_pct?: number
+  is_graduated?: boolean
+  traits?: string[]
 }
 
 export interface InventoryItem {

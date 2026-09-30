@@ -55,7 +55,7 @@ def generate_hero(
     star_potential: int = None,
     rng: random.Random = None
 ) -> dict:
-    if rng is None:
+    if rng is None or not hasattr(rng, "randint"):
         rng = random.Random()
 
     classes = CLASSES_DATA.get("classes", [])
@@ -79,7 +79,7 @@ def generate_hero(
         age = rng.randint(16, 18)
         level = 1
         xp = 0
-        base_min, base_max = 20, 45
+        base_min, base_max = 14, 25  # Calibragem: aprendizes iniciam em ~20-28 PE
         if star_potential is None:
             roll = rng.random()
             if roll < 0.15:
@@ -144,7 +144,12 @@ def generate_hero(
         "season_appearances": 0,
         "happiness": 85,
         "pending_renewal": False,
-        "transfer_fee": 0
+        "transfer_fee": 0,
+        "training_weeks": 0 if is_youth else 4,
+        "max_training_weeks": 4,
+        "maturation_pct": 0 if is_youth else 100,
+        "is_graduated": not is_youth,
+        "traits": []
     }
 
     hero_stub["current_power"] = calculate_hero_power(hero_stub)
@@ -425,6 +430,78 @@ class HeroService:
             y = generate_hero(is_youth=True, rng=rng)
             self.state.youth_academy.append(y)
 
+    def train_youth_academy_weekly(self, rng=None) -> list:
+        """
+        Avança o ciclo semanal de treinamento dos aprendizes na Academia de Base:
+        - Cada semana avança +1 training_weeks.
+        - Evolução nos atributos: atributos principais ganham +4 a +6 (+ bônus estelar), secundários ganham +1 a +2.
+        - Ao atingir max_training_weeks (4 semanas):
+          - maturation_pct = 100
+          - is_graduated = True
+          - Concede o traço exclusivo 'Graduado com Láurea' (+3 em todos os atributos).
+        """
+        if rng is None or not hasattr(rng, "randint"):
+            rng = random.Random()
+
+        youth_list = getattr(self.state, "youth_academy", [])
+        if not youth_list:
+            return []
+
+        trained_reports = []
+        for y in youth_list:
+            if y.get("is_graduated", False) and y.get("maturation_pct", 0) >= 100:
+                continue
+
+            max_weeks = y.get("max_training_weeks", 4)
+            weeks = y.get("training_weeks", 0) + 1
+            y["training_weeks"] = min(max_weeks, weeks)
+            y["maturation_pct"] = min(100, int((y["training_weeks"] / max_weeks) * 100))
+
+            # Crescimento semanal de atributos
+            stars = y.get("potential", {}).get("star_potential", 3)
+            star_bonus = 2 if stars >= 4 else (1 if stars == 3 else 0)
+            spec_id = y.get("specialization_id")
+            profile = SPEC_PROFILES.get(spec_id, {})
+            attrs = y.setdefault("hidden_attributes", {})
+
+            for attr in ["str", "agi", "vit", "int", "wis", "lck"]:
+                weight = profile.get(attr, 0.05)
+                curr_val = attrs.get(attr, 20)
+                if weight >= 0.20:
+                    delta = rng.randint(4, 6) + star_bonus
+                else:
+                    delta = rng.randint(1, 2)
+                attrs[attr] = max(1, min(100, curr_val + delta))
+
+            # Graduação completa após 4 semanas
+            just_graduated = False
+            if y["training_weeks"] >= max_weeks:
+                y["is_graduated"] = True
+                y["maturation_pct"] = 100
+                traits = y.setdefault("traits", [])
+                if "Graduado com Láurea" not in traits:
+                    traits.append("Graduado com Láurea")
+                    just_graduated = True
+                    for attr in attrs:
+                        attrs[attr] = min(100, attrs[attr] + 3)
+
+            old_power = y.get("current_power", 20)
+            new_power = calculate_hero_power(y)
+            y["current_power"] = new_power
+
+            trained_reports.append({
+                "hero_id": y.get("id"),
+                "hero_name": y.get("name"),
+                "weeks": y["training_weeks"],
+                "maturation_pct": y["maturation_pct"],
+                "power_gain": new_power - old_power,
+                "current_power": new_power,
+                "is_graduated": y["is_graduated"],
+                "just_graduated": just_graduated
+            })
+
+        return trained_reports
+
     def promote_youth_apprentice(self, hero_id: str) -> dict:
         balance = get_balance()
         max_team = balance.get("roster", {}).get("max_team_size", 12)
@@ -446,12 +523,32 @@ class HeroService:
         apprentice["season_appearances"] = 0
         apprentice["happiness"] = 90
         apprentice["pending_renewal"] = False
+
+        is_graduated = apprentice.get("is_graduated", False)
+        maturation_pct = apprentice.get("maturation_pct", 0)
+        is_early_promotion = not is_graduated or maturation_pct < 100
+        apprentice["is_early_promotion"] = is_early_promotion
+
         self.state.team.append(apprentice)
+
+        if is_graduated and maturation_pct >= 100:
+            msg = (
+                f"Ordem de Formatura e Promoção com Láurea: O jovem {apprentice['name']} concluiu com êxito "
+                f"o programa probatório de 4 semanas (100% de maturação) e foi promovido ao quadro profissional com o título 'Graduado com Láurea'!"
+            )
+        else:
+            msg = (
+                f"Ordem de Promoção Precoce: O jovem {apprentice['name']} foi promovido prematuramente com apenas "
+                f"{maturation_pct}% de maturação ({apprentice.get('training_weeks', 0)}/4 semanas). "
+                f"Seus atributos refletem formação abreviada e ele não recebeu o título de láurea da academia."
+            )
 
         return {
             "success": True,
-            "message": f"Ordem de Promoção Homologada: O jovem {apprentice['name']} foi promovido ao quadro profissional da guilda com vínculo de {apprentice['contract_seasons_left']} temporadas.",
+            "message": msg,
             "hero": apprentice,
+            "is_early_promotion": is_early_promotion,
+            "maturation_pct": maturation_pct,
             "youth_academy": self.state.youth_academy,
             "team": self.state.team
         }

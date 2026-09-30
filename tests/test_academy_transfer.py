@@ -171,6 +171,65 @@ class TestAcademyAndTransferMarket(unittest.TestCase):
         self.assertEqual(financials["academy_maintenance"], 40)
         self.assertEqual(financials["maintenance"], financials["base_maintenance"] + financials["medical_maintenance"] + 40)
 
+    def test_youth_initial_power_calibration(self):
+        """Aprendizes recém-chegados possuem poder calibrado (~20-28 PE), bem inferior a veteranos."""
+        powers = []
+        for seed in range(20):
+            rng = random.Random(seed)
+            y = generate_hero(is_youth=True, rng=rng)
+            powers.append(y["current_power"])
+            self.assertEqual(y["training_weeks"], 0)
+            self.assertEqual(y["maturation_pct"], 0)
+            self.assertFalse(y["is_graduated"])
+            self.assertEqual(y["traits"], [])
+
+        avg_power = sum(powers) / len(powers)
+        self.assertGreaterEqual(avg_power, 18)
+        self.assertLessEqual(avg_power, 32)
+
+    def test_youth_weekly_maturation_and_graduation(self):
+        """Ciclo probatório de 4 semanas evolui atributos gradualmente até formatura com láurea."""
+        self.hero_service.replenish_academy(rng=random.Random(42))
+        y = self.state.youth_academy[0]
+        initial_power = y["current_power"]
+
+        # Treina 4 semanas
+        for week in range(1, 5):
+            reports = self.hero_service.train_youth_academy_weekly(rng=random.Random(week * 10))
+            self.assertTrue(len(reports) >= 1)
+            y_rep = next(r for r in reports if r["hero_id"] == y["id"])
+            self.assertEqual(y_rep["weeks"], week)
+
+        self.assertEqual(y["training_weeks"], 4)
+        self.assertEqual(y["maturation_pct"], 100)
+        self.assertTrue(y["is_graduated"])
+        self.assertIn("Graduado com Láurea", y["traits"])
+        self.assertGreater(y["current_power"], initial_power)
+
+    def test_youth_early_promotion_vs_graduated_promotion(self):
+        """Promoção prematura (semana 1) vs promoção concluída (semana 4) afeta histórico e láurea."""
+        self.hero_service.replenish_academy(rng=random.Random(100))
+        y_early = self.state.youth_academy[0]
+        y_grad = self.state.youth_academy[1]
+
+        # Treina apenas 1 semana
+        self.hero_service.train_youth_academy_weekly(rng=random.Random(1))
+        res_early = self.hero_service.promote_youth_apprentice(y_early["id"])
+        self.assertTrue(res_early["success"])
+        self.assertTrue(res_early["is_early_promotion"])
+        self.assertIn("Promoção Precoce", res_early["message"])
+        self.assertNotIn("Graduado com Láurea", y_early.get("traits", []))
+
+        # Treina as 3 semanas restantes para o outro aprendiz
+        for w in range(2, 5):
+            self.hero_service.train_youth_academy_weekly(rng=random.Random(w))
+
+        res_grad = self.hero_service.promote_youth_apprentice(y_grad["id"])
+        self.assertTrue(res_grad["success"])
+        self.assertFalse(res_grad["is_early_promotion"])
+        self.assertIn("Láurea", res_grad["message"])
+        self.assertIn("Graduado com Láurea", y_grad.get("traits", []))
+
     def test_no_forbidden_terms(self):
         """Garante ausência de termos esportivos proibidos em arquivos da Onda 4."""
         paths = [

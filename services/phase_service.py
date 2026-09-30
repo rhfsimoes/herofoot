@@ -82,6 +82,8 @@ class PhaseService:
             self.market_engine.refresh_market(self.state.day)
             if hasattr(self, "hero_service"):
                 self.hero_service.refresh_transfer_market()
+                if hasattr(self.hero_service, "train_youth_academy_weekly"):
+                    self.hero_service.train_youth_academy_weekly(rng=rng)
                 self.hero_service.replenish_academy()
 
             # Transição semanal para Fase 1: Reset de cotas spot e entrega de remessas B2B

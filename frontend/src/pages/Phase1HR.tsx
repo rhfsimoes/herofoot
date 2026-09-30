@@ -634,10 +634,17 @@ export default function Phase1HR({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {youthAcademy.map(y => {
               const stars = y.potential?.star_potential ?? 3
+              const trainingWeeks = y.training_weeks ?? 0
+              const maxWeeks = y.max_training_weeks ?? 4
+              const maturationPct = y.maturation_pct ?? Math.min(100, Math.round((trainingWeeks / maxWeeks) * 100))
+              const isGraduated = y.is_graduated || maturationPct >= 100
+
               return (
                 <div
                   key={y.id}
-                  className="bg-stone-900/80 border border-stone-800 hover:border-amber-900/50 rounded-xl p-3.5 flex flex-col justify-between gap-3 shadow transition"
+                  className={`bg-stone-900/80 border rounded-xl p-3.5 flex flex-col justify-between gap-3 shadow transition ${
+                    isGraduated ? 'border-amber-600/60 shadow-amber-950/30' : 'border-stone-800 hover:border-amber-900/50'
+                  }`}
                 >
                   <div>
                     <div className="flex justify-between items-start">
@@ -648,11 +655,53 @@ export default function Phase1HR({
                         </span>
                       </div>
                       <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-stone-800 text-amber-400 border border-stone-700">
-                        {y.current_power ?? 40} Pod.
+                        {y.current_power ?? 24} Pod.
                       </span>
                     </div>
 
-                    <div className="mt-2.5 pt-2 border-t border-stone-800/80">
+                    {/* Barra de Maturação */}
+                    <div className="mt-2.5 pt-2 border-t border-stone-800/80 space-y-1">
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="text-stone-400">Maturação do Treinamento:</span>
+                        <span className={`font-mono font-bold ${isGraduated ? 'text-amber-300' : 'text-stone-300'}`}>
+                          {maturationPct}% ({trainingWeeks}/{maxWeeks} sem)
+                        </span>
+                      </div>
+                      <div className="w-full bg-stone-950 rounded-full h-1.5 overflow-hidden border border-stone-800">
+                        <div
+                          className={`h-full transition-all duration-300 ${
+                            isGraduated
+                              ? 'bg-gradient-to-r from-amber-500 to-yellow-300 shadow-sm shadow-amber-500/50'
+                              : 'bg-gradient-to-r from-amber-700 to-amber-500'
+                          }`}
+                          style={{ width: `${maturationPct}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between pt-0.5">
+                        {isGraduated ? (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-700/60 font-semibold flex items-center gap-1">
+                            🎓 Graduado com Láurea
+                          </span>
+                        ) : (
+                          <span className="text-[9px] text-stone-500 italic">
+                            ⏳ Em Formação ({trainingWeeks}/{maxWeeks} sem)
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Traços Adquiridos */}
+                    {y.traits && y.traits.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {y.traits.map((t, idx) => (
+                          <span key={idx} className="text-[9px] px-1.5 py-0.5 bg-yellow-950/60 text-yellow-300 border border-yellow-700/50 rounded font-semibold">
+                            ★ {t}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="mt-2 pt-2 border-t border-stone-800/80">
                       <div className="flex items-center justify-between text-[11px]">
                         <span className="text-stone-400">Potencial:</span>
                         <div className="flex items-center gap-0.5">
@@ -678,11 +727,21 @@ export default function Phase1HR({
                     <button
                       onClick={() => handlePromoteYouth(y.id)}
                       disabled={isLoading || team.length >= 12}
-                      className="flex-1 py-1.5 px-2 rounded bg-amber-900/60 hover:bg-amber-800 border border-amber-700/60 text-amber-200 text-[10px] font-bold transition flex items-center justify-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed"
-                      title={team.length >= 12 ? 'Plantel cheio (máx 12)' : 'Promover ao quadro profissional (Vínculo 2 temporadas)'}
+                      className={`flex-1 py-1.5 px-2 rounded text-[10px] font-bold transition flex items-center justify-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed ${
+                        isGraduated
+                          ? 'bg-amber-600 hover:bg-amber-500 text-stone-950 shadow-md shadow-amber-950/40'
+                          : 'bg-stone-800 hover:bg-stone-700 border border-amber-900/40 text-amber-200'
+                      }`}
+                      title={
+                        team.length >= 12
+                          ? 'Plantel cheio (máx 12)'
+                          : isGraduated
+                          ? 'Promover com honras (Formação concluída, +Traço exclusivo)'
+                          : 'Promover Precoce (Sem bônus de láurea)'
+                      }
                     >
-                      <Award className="w-3 h-3 text-amber-400" />
-                      <span>Promover</span>
+                      <Award className={`w-3 h-3 ${isGraduated ? 'text-stone-950' : 'text-amber-400'}`} />
+                      <span>{isGraduated ? 'Promover com Láurea' : `Promover Precoce (${maturationPct}%)`}</span>
                     </button>
                     <button
                       onClick={() => handleDismissYouth(y.id)}
