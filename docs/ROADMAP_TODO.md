@@ -1,7 +1,7 @@
 # 📋 HeroFoot — Documento Oficial de Roadmap & To-Do até o 1.0
 
 > **Classificação:** Planejamento Estratégico, Backlog Arquitetural & Regras de Design  
-> **Versão Vigente:** v0.5.0 (Concluída) — Iniciando v0.6.0  
+> **Versão Vigente:** v0.6.0 (Concluída) — Iniciando v0.7.0  
 > **Tom:** Fantasia Corporativa 7/10 (Mundo medieval sério, frieza burocrática e sátira mercantil)  
 > **Conformidade:** [CONTRACT.md](file:///c:/Users/Rafael/Documents/herofoot/docs/CONTRACT.md) & [LORE_BIBLE.md](file:///c:/Users/Rafael/Documents/herofoot/docs/LORE_BIBLE.md)  
 
@@ -124,6 +124,6 @@ flowchart TD
 | Marco | Foco Principal | Entregáveis Chave |
 | :--- | :--- | :--- |
 | **v0.5.0** ✅ *(Concluído)* | **Vida no Escritório & Forja v3** | • Interface de Eventos Corporativos interativos na Fase 1 (`CorporateEventModal`).<br>• Barra de XP para cada bancada com bônus de Staff intercalados (1 a 6).<br>• Sistema de Tinkering (falha técnica com homologação permanente da receita e refugo Gororoba). |
-| **v0.6.0** *(Próximo)* | **Rivais Vivos & Contratos VIP** | • Sorteio de características permanentes dos times NPC (`rival_traits_seed.json`).<br>• Dissolução e geração de novas guildas ao rebaixar na Divisão de Acesso.<br>• Encomendas VIP no Boletim de Mercado (`vip_orders_seed.json`). |
-| **v0.7.0** | **Memorial & O Rei Demônio** | • Mural da Glória e Memorial de baixas.<br>• Aposentados como instrutores de base.<br>• Incursão da Cidadela do Rei Demônio para o campeão da Divisão Nobre. |
+| **v0.6.0** ✅ *(Concluído)* | **Rivais Vivos & Contratos VIP** | • Sorteio de características permanentes dos times NPC (`rival_traits_seed.json`).<br>• Dissolução e refundação de novas guildas ao rebaixar na Divisão de Acesso.<br>• Encomendas VIP no Boletim de Mercado (`vip_orders_seed.json`) e laudo de balanceamento (`BALANCE_REPORT_V060.md`). |
+| **v0.7.0** *(Próximo)* | **Memorial & O Rei Demônio** | • Mural da Glória e Memorial de baixas.<br>• Aposentados como instrutores de base.<br>• Incursão da Cidadela do Rei Demônio para o campeão da Divisão Nobre. |
 | **v1.0.0** | **Polimento Audiovisual & Lançamento** | • Efeitos sonoros (carimbo, moedas, forja, cornetas).<br>• Hall da Fama definitivo.<br>• Empacotamento Desktop executável. |

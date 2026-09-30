@@ -5,6 +5,30 @@ O formato baseia-se em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ---
 
+## [0.6.0] — 2026-09-29
+
+### 🛡️ Perfis Permanentes de Rivais & Identidade de Guilda
+- **Atribuição Determinística de Traços:** Cada guilda NPC sorteia deterministicamente 1 traço tático e 1 traço corporativo da matriz de 16 traços únicos (`rival_traits_seed.json`), semeado por `hash((world_seed, guild_id))`.
+- **Efeitos de Combate e Suprimentos:** O `MatchEngine` e a classe `Team` aplicam modificadores dinâmicos de mitigação de terreno/clima, poder de combate e consumo de suprimentos com base nos traços do adversário.
+- **Painel de Características na Fase 4:** Interface de incursão exibe insígnias táteis (`RivalTraitBadge.tsx`) com tooltips explicativos detalhando os traços do oponente.
+
+### 🏛️ Liquidação Judicial por Falência & Concessões da Câmara
+- **Dissolução das Lanternas de Acesso:** Ao término de cada temporada, as duas últimas colocadas da Divisão de Acesso são compulsoriamente dissolvidas em recuperação judicial.
+- **Refundação Procedural:** A Câmara dos Mercadores funda 2 novas guildas com novos nomes heráldicos, poder calibrado (50–54) e novos traços sorteados deterministicamente.
+- **Persistência Completa:** Salve e restaure preservam integralmente os traços sorteados e o histórico de liquidações judiciais.
+
+### 👑 Encomendas VIP da Nobreza no Balcão de Vendas
+- **Editais Regulares de Alto Valor:** O Boletim de Mercado sorteia encomendas VIP da Nobreza com 35% de probabilidade semanal e prazo de vigência de 2 semanas (`vip_orders_seed.json`).
+- **Liquidação Direta no Balcão:** Card temático na Fase 2 permite atender ordens régias com entrega de itens de qualidade exigida, concedendo ouro multiplicado (2.0x a 3.5x) e bônus de Confiança da Contratante.
+- **Endpoint Dedicado:** `POST /api/fulfill_vip_order` com liquidação atômica e validações de conformidade.
+
+### ⚖️ Auditoria Matemática e Econômica (`docs/BALANCE_REPORT_V060.md`)
+- **Simulação Estocástica de Traços:** 8.500 partidas de confrontos Monte Carlo confirmam que nenhum traço ultrapassa 60% de taxa de vitória em masmorra neutra.
+- **Estabilidade Econômica:** Simulação de 200 semanas aponta aporte médio saudável de 224 ⬡/semana sem risco de hiperinflação.
+- **Rotatividade da Liga:** 3 temporadas simuladas atestam 100% de estabilidade com entropia máxima de 22.7% na distribuição de traços.
+
+---
+
 ## [0.5.0] — 2026-09-29
 
 ### ⚒️ Forja v3: Progressão de Bancada por XP & Bônus de Nível
