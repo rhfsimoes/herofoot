@@ -12,9 +12,14 @@ import {
   MOCK_STATE,
   MOCK_RECIPES,
   WORKSHOP_XP_TABLE,
+  MOCK_B2B_CONTRACTS,
+  MOCK_CORPORATIONS,
+  MOCK_ASSEMBLY_WORKERS,
+  MOCK_MODULAR_PARTS,
   type GameState,
   type InventoryItem,
   type Recipe,
+  type AssemblyWorkerInstance,
 } from './mockData'
 import {
   checkBackendLive,
@@ -28,6 +33,13 @@ import {
   sellItemBackend,
   resolveOfferBackend,
   learnAffixBackend,
+  signB2BContractBackend,
+  cancelB2BContractBackend,
+  hireAssemblyWorkerBackend,
+  setWorkerOrderBackend,
+  dismissAssemblyWorkerBackend,
+  assembleModularItemBackend,
+  buyModularPartBackend,
   type CraftPayload,
 } from './api'
 import './index.css'
@@ -421,6 +433,329 @@ function AppContent() {
     return null
   }
 
+  // ─────────────────────────────────────────────
+  // B2B & LINHA DE MONTAGEM HANDLERS
+  // ─────────────────────────────────────────────
+  async function handleSignB2BContract(contractId: string) {
+    if (isBackendOnline) {
+      const res = await signB2BContractBackend(contractId)
+      if (res && res.state) {
+        setGameState(prev => ({ ...prev, ...res.state }))
+      }
+      return res
+    }
+    // Fallback local
+    const contract = MOCK_B2B_CONTRACTS.find(c => c.contract_id === contractId)
+    if (!contract) return { success: false, message: 'Contrato não localizado no catálogo.' } as any
+    const corp = MOCK_CORPORATIONS.find(c => c.id === contract.corp_id)
+
+    let updatedState: GameState | null = null
+    setGameState((prev: GameState): GameState => {
+      const currentContracts = prev.active_b2b_contracts ?? []
+      if (currentContracts.some(c => c.contract_id === contractId)) {
+        return prev
+      }
+      const newContracts = [...currentContracts, contract]
+      const newTags = [...(prev.corporate_exclusivity_tags ?? [])]
+      if (contract.is_exclusive && corp?.exclusivity_tag && !newTags.includes(corp.exclusivity_tag)) {
+        newTags.push(corp.exclusivity_tag)
+      }
+      const newWarehouse = { ...(prev.warehouse_parts ?? {}) }
+      if (contract.weekly_shipment) {
+        for (const item of contract.weekly_shipment) {
+          newWarehouse[item.part_id] = (newWarehouse[item.part_id] ?? 0) + item.quantity
+        }
+      }
+      updatedState = {
+        ...prev,
+        active_b2b_contracts: newContracts,
+        corporate_exclusivity_tags: newTags,
+        warehouse_parts: newWarehouse,
+      }
+      return updatedState
+    })
+    return {
+      success: true,
+      message: `Convênio B2B com ${corp?.name ?? 'Corporação'} homologado com sucesso!`,
+      state: updatedState ?? undefined,
+      active_b2b_contracts: updatedState ? (updatedState as GameState).active_b2b_contracts : undefined,
+      corporate_exclusivity_tags: updatedState ? (updatedState as GameState).corporate_exclusivity_tags : undefined,
+      warehouse_parts: updatedState ? (updatedState as GameState).warehouse_parts : undefined,
+    } as any
+  }
+
+  async function handleCancelB2BContract(contractId: string) {
+    if (isBackendOnline) {
+      const res = await cancelB2BContractBackend(contractId)
+      if (res && res.state) {
+        setGameState(prev => ({ ...prev, ...res.state }))
+      }
+      return res
+    }
+    let updatedState: GameState | null = null
+    setGameState((prev: GameState): GameState => {
+      const contract = (prev.active_b2b_contracts ?? []).find(c => c.contract_id === contractId)
+      const newContracts = (prev.active_b2b_contracts ?? []).filter(c => c.contract_id !== contractId)
+      const corp = MOCK_CORPORATIONS.find(c => c.id === contract?.corp_id)
+      let newTags = [...(prev.corporate_exclusivity_tags ?? [])]
+      if (corp?.exclusivity_tag) {
+        newTags = newTags.filter(t => t !== corp.exclusivity_tag)
+      }
+      updatedState = {
+        ...prev,
+        active_b2b_contracts: newContracts,
+        corporate_exclusivity_tags: newTags,
+      }
+      return updatedState
+    })
+    return {
+      success: true,
+      message: 'Rescisão notarial homologada.',
+      state: updatedState ?? undefined,
+      active_b2b_contracts: updatedState ? (updatedState as GameState).active_b2b_contracts : undefined,
+      corporate_exclusivity_tags: updatedState ? (updatedState as GameState).corporate_exclusivity_tags : undefined,
+    } as any
+  }
+
+  async function handleHireAssemblyWorker(workerId: string, assignedBranch: string = 'Ferragem') {
+    if (isBackendOnline) {
+      const res = await hireAssemblyWorkerBackend(workerId, assignedBranch)
+      if (res && res.state) {
+        setGameState(prev => ({ ...prev, ...res.state }))
+      }
+      return res
+    }
+    const candidate = MOCK_ASSEMBLY_WORKERS.find(w => w.worker_id === workerId)
+    if (!candidate) return { success: false, message: 'Candidato não localizado.' } as any
+
+    let updatedState: GameState | null = null
+    let errorMsg = ''
+    setGameState((prev: GameState): GameState => {
+      const currentWorkers = prev.assembly_line_workers ?? []
+      if (currentWorkers.length >= 4) {
+        errorMsg = 'Capacidade máxima de operários atingida (4/4).'
+        return prev
+      }
+      if (prev.gold < candidate.hiring_cost) {
+        errorMsg = `Ouro insuficiente para admissão (${candidate.hiring_cost} ⬡ requeridos).`
+        return prev
+      }
+      const newInstance: AssemblyWorkerInstance = {
+        worker_instance_id: `worker_inst_${Date.now()}`,
+        worker_id: candidate.worker_id,
+        name: candidate.name,
+        tier: candidate.tier,
+        weekly_salary: candidate.weekly_salary,
+        production_capacity: candidate.production_capacity,
+        assigned_branch: assignedBranch,
+        supported_branches: candidate.supported_branches || [],
+        allowed_recipes: candidate.allowed_recipes || [],
+        target_recipe: candidate.allowed_recipes?.[0] || 'rec_01',
+      }
+      const newWorkers = [...currentWorkers, newInstance]
+      updatedState = {
+        ...prev,
+        gold: prev.gold - candidate.hiring_cost,
+        assembly_line_workers: newWorkers,
+      }
+      return updatedState
+    })
+    if (errorMsg) return { success: false, message: errorMsg } as any
+    return {
+      success: true,
+      message: `${candidate.name} admitido na linha de produção da filial ${assignedBranch}!`,
+      state: updatedState ?? undefined,
+      assembly_line_workers: updatedState ? (updatedState as GameState).assembly_line_workers : undefined,
+    } as any
+  }
+
+  async function handleSetWorkerOrder(workerInstanceId: string, targetRecipe: string) {
+    if (isBackendOnline) {
+      const res = await setWorkerOrderBackend(workerInstanceId, targetRecipe)
+      if (res && res.state) {
+        setGameState(prev => ({ ...prev, ...res.state }))
+      }
+      return res
+    }
+    let updatedState: GameState | null = null
+    setGameState((prev: GameState): GameState => {
+      const newWorkers = (prev.assembly_line_workers ?? []).map(w =>
+        w.worker_instance_id === workerInstanceId ? { ...w, target_recipe: targetRecipe } : w
+      )
+      updatedState = {
+        ...prev,
+        assembly_line_workers: newWorkers,
+      }
+      return updatedState
+    })
+    return {
+      success: true,
+      message: 'Diretriz de manufatura atualizada com sucesso.',
+      state: updatedState ?? undefined,
+      assembly_line_workers: updatedState ? (updatedState as GameState).assembly_line_workers : undefined,
+    } as any
+  }
+
+  async function handleDismissAssemblyWorker(workerInstanceId: string) {
+    if (isBackendOnline) {
+      const res = await dismissAssemblyWorkerBackend(workerInstanceId)
+      if (res && res.state) {
+        setGameState(prev => ({ ...prev, ...res.state }))
+      }
+      return res
+    }
+    let updatedState: GameState | null = null
+    setGameState((prev: GameState): GameState => {
+      const newWorkers = (prev.assembly_line_workers ?? []).filter(w => w.worker_instance_id !== workerInstanceId)
+      updatedState = {
+        ...prev,
+        assembly_line_workers: newWorkers,
+      }
+      return updatedState
+    })
+    return {
+      success: true,
+      message: 'Operário desligado do quadro fabril.',
+      state: updatedState ?? undefined,
+      assembly_line_workers: updatedState ? (updatedState as GameState).assembly_line_workers : undefined,
+    } as any
+  }
+
+  async function handleAssembleModularItem(partIds: string[], baseName: string, isTinkering: boolean) {
+    if (isBackendOnline) {
+      const res = await assembleModularItemBackend(partIds, baseName, isTinkering)
+      if (res && res.state) {
+        setGameState(prev => ({ ...prev, ...res.state }))
+      }
+      return res
+    }
+    // Fallback local
+    const parts = partIds.map(pid => MOCK_MODULAR_PARTS.find(p => p.part_id === pid || p.id === pid)).filter(Boolean) as any[]
+    const brands = Array.from(new Set(parts.map(p => p.corp_id || p.brand_id)))
+    const isInterBrand = brands.length > 1
+
+    let createdItem: InventoryItem
+    let overclock = false
+    let tinkeringSuccess = true
+
+    if (isInterBrand) {
+      tinkeringSuccess = Math.random() < 0.60
+      if (!tinkeringSuccess) {
+        createdItem = {
+          item_instance_id: `mod_scrap_${Date.now()}`,
+          name: 'Gororoba Experimental',
+          slot_type: 'Arma',
+          quality: 'Fraco',
+          power_bonus: 0,
+          market_value_base: 20,
+          description: 'Refugo mecânico de montagem inter-marcas incompatível com as tolerâncias de fábrica.',
+        }
+      } else {
+        overclock = true
+        const sumPower = parts.reduce((acc, p) => acc + (p.power_bonus || 10), 0)
+        const boostedPower = Math.round(sumPower * 1.15)
+        createdItem = {
+          item_instance_id: `mod_item_${Date.now()}`,
+          name: `${baseName || 'Artefato Modular Híbrido'} (Overclock)`,
+          slot_type: parts[0]?.compatible_slots?.[0] || 'Arma',
+          quality: 'Ótimo',
+          power_bonus: boostedPower,
+          market_value_base: parts.reduce((acc, p) => acc + (p.base_cost || 100), 0) * 1.3,
+          description: 'Artefato montado com peças de marcas distintas sob tensão de overclock não-autorizado (+15% poder).',
+        }
+      }
+    } else {
+      const sumPower = parts.reduce((acc, p) => acc + (p.power_bonus || 10), 0)
+      const tunedPower = Math.round(sumPower * 1.05)
+      createdItem = {
+        item_instance_id: `mod_item_${Date.now()}`,
+        name: baseName || 'Artefato Modular Padronizado',
+        slot_type: parts[0]?.compatible_slots?.[0] || 'Arma',
+        quality: 'Normal',
+        power_bonus: tunedPower,
+        market_value_base: parts.reduce((acc, p) => acc + (p.base_cost || 100), 0) * 1.2,
+        description: 'Artefato de engenharia monomarca com tolerância dimensional perfeita (+5% sintonia).',
+      }
+    }
+
+    let updatedState: GameState | null = null
+    setGameState((prev: GameState): GameState => {
+      const newWarehouse = { ...(prev.warehouse_parts ?? {}) }
+      for (const pid of partIds) {
+        if (newWarehouse[pid]) {
+          newWarehouse[pid] = Math.max(0, newWarehouse[pid] - 1)
+          if (newWarehouse[pid] === 0) delete newWarehouse[pid]
+        }
+      }
+      updatedState = {
+        ...prev,
+        warehouse_parts: newWarehouse,
+        inventory: [createdItem, ...prev.inventory],
+      }
+      return updatedState
+    })
+
+    return {
+      success: true,
+      item: createdItem,
+      tinkering: isInterBrand,
+      tinkering_success: tinkeringSuccess,
+      overclock,
+      message: isInterBrand
+        ? tinkeringSuccess
+          ? 'Overclock Homologado com Sucesso (+15% Poder)!'
+          : 'Falha Mecânica: Gororoba Experimental gerada (20 ⬡).'
+        : 'Montagem Padronizada Concluída com Sucesso (+5% Sintonia)!',
+      state: updatedState ?? undefined,
+      warehouse_parts: updatedState ? (updatedState as GameState).warehouse_parts : undefined,
+    } as any
+  }
+
+  async function handleBuyModularPart(partId: string, quantity: number = 1) {
+    if (isBackendOnline) {
+      const res = await buyModularPartBackend(partId, quantity)
+      if (res && res.state) {
+        setGameState(prev => ({ ...prev, ...res.state }))
+      }
+      return res
+    }
+    const part = MOCK_MODULAR_PARTS.find(p => p.part_id === partId || p.id === partId)
+    if (!part) return { success: false, message: 'Peça não localizada no catálogo.' } as any
+
+    let updatedState: GameState | null = null
+    let errorMsg = ''
+    setGameState((prev: GameState): GameState => {
+      const activeContract = (prev.active_b2b_contracts ?? []).find(c => c.corp_id === part.corp_id)
+      const unitPrice = activeContract
+        ? Math.round(part.base_cost * (1 - activeContract.discount_pct))
+        : Math.round(part.base_cost * 1.50)
+      const totalCost = unitPrice * quantity
+
+      if (prev.gold < totalCost) {
+        errorMsg = `Tesouraria insuficiente: requer ${totalCost} ⬡, você possui ${prev.gold} ⬡.`
+        return prev
+      }
+
+      const newWarehouse = {
+        ...(prev.warehouse_parts ?? {}),
+        [partId]: ((prev.warehouse_parts ?? {})[partId] ?? 0) + quantity,
+      }
+      updatedState = {
+        ...prev,
+        gold: prev.gold - totalCost,
+        warehouse_parts: newWarehouse,
+      }
+      return updatedState
+    })
+
+    if (errorMsg) return { success: false, message: errorMsg } as any
+    return {
+      success: true,
+      message: `Lote de ${quantity}x ${part.name} adquirido no mercado spot com sucesso!`,
+      state: updatedState ?? undefined,
+      warehouse_parts: updatedState ? (updatedState as GameState).warehouse_parts : undefined,
+    } as any
+  }
 
   // Nome do rival do dia
   const rivalGuild = gameState.current_fixture
@@ -474,6 +809,13 @@ function AppContent() {
                 onResolveOffer={handleResolveOffer}
                 onLearnAffix={handleLearnAffix}
                 onStateUpdate={handleStateChange as any}
+                onSignB2BContract={handleSignB2BContract}
+                onCancelB2BContract={handleCancelB2BContract}
+                onHireAssemblyWorker={handleHireAssemblyWorker}
+                onSetWorkerOrder={handleSetWorkerOrder}
+                onDismissAssemblyWorker={handleDismissAssemblyWorker}
+                onAssembleModularItem={handleAssembleModularItem}
+                onBuyModularPart={handleBuyModularPart}
               />
             }
           />

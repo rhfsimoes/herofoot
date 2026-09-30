@@ -229,6 +229,7 @@ export interface FinancialStatement {
   revenue?: number
   expedition_revenue?: number
   sales_revenue?: number
+  assembly_sales_revenue?: number
   season_award?: number
   crown_subsidy?: number
   crown_penalty?: number
@@ -237,9 +238,82 @@ export interface FinancialStatement {
   base_maintenance?: number
   medical_maintenance?: number
   academy_maintenance?: number
+  b2b_royalties_cost?: number
+  assembly_workers_salaries?: number
   net?: number
 }
 
+// ─── Complexo Industrial B2B & Montagem Modular (v0.7.0) ───────────────────
+export interface Corporation {
+  id: string
+  name: string
+  branch: WorkshopBranch | string
+  specialty: string
+  exclusivity_tag: string
+  rival_corp_id: string | null
+  description: string
+}
+
+export interface ModularPart {
+  id: string
+  part_id?: string
+  corp_id: string
+  brand_id?: string
+  name: string
+  branch: WorkshopBranch | string
+  part_type: 'blade' | 'hilt' | 'guard' | 'plating' | 'filter' | 'core' | 'gem' | string
+  compatible_slots: ('Arma' | 'Armadura' | 'Joia' | 'Inscrição' | 'Consumível' | string)[]
+  tier: number
+  base_cost: number
+  market_price_base?: number
+  power_bonus?: number
+  power_contrib?: number
+  energy_bonus?: number
+  catalog_description?: string
+  effects?: { effect: string; value?: number; requires_quality?: string }[]
+}
+
+export interface B2BShipmentItem {
+  part_id: string
+  quantity: number
+}
+
+export interface B2BContract {
+  contract_id: string
+  corp_id: string
+  tier: 'Bronze' | 'Prata' | 'Ouro' | string
+  title: string
+  weekly_royalty: number
+  is_exclusive: boolean
+  discount_pct: number
+  weekly_shipment: B2BShipmentItem[]
+  description: string
+}
+
+export interface AssemblyWorker {
+  worker_id: string
+  name: string
+  tier: number
+  hiring_cost: number
+  weekly_salary: number
+  production_capacity: number
+  supported_branches: string[]
+  allowed_recipes: string[]
+  description: string
+}
+
+export interface AssemblyWorkerInstance {
+  worker_instance_id: string
+  worker_id: string
+  name: string
+  tier: number
+  weekly_salary: number
+  production_capacity: number
+  assigned_branch: string
+  supported_branches: string[]
+  allowed_recipes: string[]
+  target_recipe: string | null
+}
 
 export interface AffixManual {
   affix_id: string
@@ -516,6 +590,10 @@ export interface GameState {
   xp_progression?: Record<string | number, WorkshopXPProgression>
   materials: Record<string, number>
   inventory: InventoryItem[]
+  warehouse_parts?: Record<string, number>
+  active_b2b_contracts?: B2BContract[]
+  assembly_line_workers?: AssemblyWorkerInstance[]
+  corporate_exclusivity_tags?: string[]
   team: Hero[]
   tactics?: {
     starters: string[]
@@ -1110,18 +1188,62 @@ export const MOCK_STATE: GameState = {
       }
     ]
   },
+  warehouse_parts: {
+    part_aethelgard_blade: 4,
+    part_aethelgard_hilt: 3,
+    part_valkyria_guard: 2,
+    part_valkyria_plate: 1,
+    part_flamel_catalyst: 2,
+    part_gob_blade_01: 3,
+    part_elf_gem_01: 2,
+    part_dwarf_plating_01: 2,
+  },
+  active_b2b_contracts: [
+    {
+      contract_id: 'b2b_aethelgard_bronze',
+      corp_id: 'corp_aethelgard',
+      tier: 'Bronze',
+      title: 'Convênio Fornecimento Aethelgard - Padrão Bronze',
+      weekly_royalty: 50,
+      is_exclusive: false,
+      discount_pct: 0.10,
+      weekly_shipment: [
+        { part_id: 'part_aethelgard_blade', quantity: 1 },
+        { part_id: 'part_aethelgard_hilt', quantity: 1 }
+      ],
+      description: 'Fornecimento regular de lâminas e empunhaduras para sustentação da linha de montagem básica.'
+    }
+  ],
+  assembly_line_workers: [
+    {
+      worker_instance_id: 'inst_worker_1',
+      worker_id: 'worker_fitter_junior',
+      name: 'Ajustador de Bancada Júnior',
+      tier: 1,
+      weekly_salary: 40,
+      production_capacity: 1,
+      assigned_branch: 'Ferragem',
+      supported_branches: ['Ferragem', 'Alquimia', 'Joalheria', 'Culinária'],
+      allowed_recipes: ['rec_01', 'rec_03', 'rec_04', 'rec_05'],
+      target_recipe: 'rec_01'
+    }
+  ],
+  corporate_exclusivity_tags: [],
   financials: {
     revenue: 250,
     sales_revenue: 120,
+    assembly_sales_revenue: 0,
     salaries: 340,
     base_maintenance: 50,
     medical_maintenance: 20,
     academy_maintenance: 40,
     maintenance: 110,
+    b2b_royalties_cost: 50,
+    assembly_workers_salaries: 40,
     season_award: 0,
     crown_subsidy: 0,
     crown_penalty: 0,
-    net: -80,
+    net: -170,
   },
   weekly_sales_revenue: 120,
   last_expedition_loot: [
@@ -1130,5 +1252,821 @@ export const MOCK_STATE: GameState = {
     { material_id: 'mat_iron_ore', name: 'Minério de Ferro', quantity: 4, rarity: 'Comum' },
   ],
 }
+
+// ─── Catálogos Oficiais B2B & Montagem Modular ──────────────────────────────
+
+export const MOCK_CORPORATIONS: Corporation[] = [
+  {
+    id: 'corp_goblin_eng',
+    name: 'Engenharia Goblin S.A.',
+    branch: 'Ferragem',
+    specialty: 'Peças de corte agressivo, módulos de detonação e propulsores a vapor.',
+    exclusivity_tag: 'excl_goblin_eng',
+    rival_corp_id: 'corp_elf_precision',
+    description: 'Se não explodir na montagem, corta qualquer armadura. Foco em impacto maciço e risco mecânico.',
+  },
+  {
+    id: 'corp_elf_precision',
+    name: 'Consórcio Élfico de Alta Precisão',
+    branch: 'Joalheria',
+    specialty: 'Joias arcanas de fluxo estrito e componentes de lapidação micrométrica.',
+    exclusivity_tag: 'excl_elf_precision',
+    rival_corp_id: 'corp_goblin_eng',
+    description: 'Perfeição micrométrica homologada em pergaminho velino. Foco em agilidade e valor comercial.',
+  },
+  {
+    id: 'corp_dwarf_steel',
+    name: 'Irmãos Anões de Aço Negro & Cia.',
+    branch: 'Ferragem',
+    specialty: 'Blindagens pesadas, chapas maciças de ferro fundido e escudos balísticos.',
+    exclusivity_tag: 'excl_dwarf_steel',
+    rival_corp_id: 'corp_swamp_alchemy',
+    description: 'Fundido no fundo do abismo, forjado para a eternidade fiscal. Foco em blindagem e robustez defensiva.',
+  },
+  {
+    id: 'corp_swamp_alchemy',
+    name: 'Sindicato dos Alquimistas de Pântano',
+    branch: 'Alquimia',
+    specialty: 'Filtros respiratórios contra miasmas, concentrados e dosadores farmacológicos.',
+    exclusivity_tag: 'excl_swamp_alchemy',
+    rival_corp_id: 'corp_dwarf_steel',
+    description: 'O miasma de hoje é o lucro líquido de amanhã. Foco em mitigação de veneno e cargas operacionais.',
+  },
+  {
+    id: 'corp_crown_notarial',
+    name: 'Manufatura Notarial da Coroa',
+    branch: 'Ferragem',
+    specialty: 'Peças genéricas de linha branca (white-label), alvarás gravados e armações universais.',
+    exclusivity_tag: 'excl_crown_notarial',
+    rival_corp_id: null,
+    description: 'Padronização régia, carimbos invioláveis e estabilidade tributária. Compatível com todas as arquiteturas.',
+  },
+  {
+    id: 'corp_aethelgard',
+    name: 'Siderúrgica Aethelgard & Cia.',
+    branch: 'Ferragem',
+    specialty: 'Lâminas temperadas, chapas prensadas e engrenagens de alto impacto.',
+    exclusivity_tag: 'excl_aethelgard',
+    rival_corp_id: 'corp_valkyria',
+    description: 'Conglomerado hegemônico da metalurgia nortenha com processos fabris certificados pelo Tribunal da Coroa.',
+  },
+  {
+    id: 'corp_valkyria',
+    name: 'Consórcio Bélico Valkyria',
+    branch: 'Ferragem',
+    specialty: 'Ligas estriadas, guardas articuladas e exoesqueletos de proteção.',
+    exclusivity_tag: 'excl_valkyria',
+    rival_corp_id: 'corp_aethelgard',
+    description: 'Indústria armamentista de vanguarda que disputa licitações de suprimentos com a Siderúrgica Aethelgard.',
+  },
+  {
+    id: 'corp_flamel',
+    name: 'Sindicato Bioalquímico Flamel & Associados',
+    branch: 'Alquimia',
+    specialty: 'Extratos catalisadores, ampolas de vidro reforçado e reativos de regeneração.',
+    exclusivity_tag: 'excl_flamel',
+    rival_corp_id: 'corp_mercurius',
+    description: 'Monopólio farmacêutico com patentes herméticas sobre destilados e solventes de mana.',
+  },
+  {
+    id: 'corp_chancellor',
+    name: 'Lapidação Imperial Chanceler & Filhos',
+    branch: 'Joalheria',
+    specialty: 'Amuletos com facetamento óptico, engastes de platina e núcleos prismáticos.',
+    exclusivity_tag: 'excl_chancellor',
+    rival_corp_id: null,
+    description: 'Fornecedora tradicional da alta nobreza e de órgãos reguladores da Liga.',
+  },
+]
+
+export const MOCK_B2B_CONTRACTS: B2BContract[] = [
+  // 1. Goblin S.A.
+  {
+    contract_id: 'b2b_goblin_bronze',
+    corp_id: 'corp_goblin_eng',
+    tier: 'Bronze',
+    title: 'Fornecimento Rápido Goblin - Padrão Bronze',
+    weekly_royalty: 60,
+    is_exclusive: false,
+    discount_pct: 0.10,
+    weekly_shipment: [
+      { part_id: 'part_gob_blade_01', quantity: 2 },
+      { part_id: 'part_gob_hilt_01', quantity: 1 }
+    ],
+    description: 'Remessa semanal de lâminas dentadas e empunhaduras de fricção rápida.'
+  },
+  {
+    contract_id: 'b2b_goblin_silver',
+    corp_id: 'corp_goblin_eng',
+    tier: 'Prata',
+    title: 'Homologação de Impacto Goblin - Nível Prata',
+    weekly_royalty: 120,
+    is_exclusive: false,
+    discount_pct: 0.15,
+    weekly_shipment: [
+      { part_id: 'part_gob_blade_02', quantity: 2 },
+      { part_id: 'part_gob_core_02', quantity: 1 }
+    ],
+    description: 'Cota regular de lâminas predatórias e disjuntores de sobrecarga calculada.'
+  },
+  {
+    contract_id: 'b2b_goblin_gold',
+    corp_id: 'corp_goblin_eng',
+    tier: 'Ouro',
+    title: 'Pacto Bélico de Alta Detonação - Parceiro Ouro',
+    weekly_royalty: 200,
+    is_exclusive: true,
+    discount_pct: 0.25,
+    weekly_shipment: [
+      { part_id: 'part_gob_blade_03', quantity: 2 },
+      { part_id: 'part_gob_core_01', quantity: 1 }
+    ],
+    description: 'Exclusividade contratual com Engenharia Goblin S.A. Proíbe relações com o Consórcio Élfico.'
+  },
+  // 2. Consórcio Élfico
+  {
+    contract_id: 'b2b_elf_bronze',
+    corp_id: 'corp_elf_precision',
+    tier: 'Bronze',
+    title: 'Convênio Lapidação Básica - Padrão Bronze',
+    weekly_royalty: 70,
+    is_exclusive: false,
+    discount_pct: 0.10,
+    weekly_shipment: [
+      { part_id: 'part_elf_gem_01', quantity: 2 },
+      { part_id: 'part_elf_filter_01', quantity: 1 }
+    ],
+    description: 'Remessa regular de gemas focalizadoras e refinadores gustativos élficos.'
+  },
+  {
+    contract_id: 'b2b_elf_silver',
+    corp_id: 'corp_elf_precision',
+    tier: 'Prata',
+    title: 'Fornecimento de Alta Frequência - Nível Prata',
+    weekly_royalty: 130,
+    is_exclusive: false,
+    discount_pct: 0.15,
+    weekly_shipment: [
+      { part_id: 'part_elf_gem_02', quantity: 2 },
+      { part_id: 'part_elf_blade_01', quantity: 1 }
+    ],
+    description: 'Lote de safiras penitenciais e lâminas temperadas a frio élfico.'
+  },
+  {
+    contract_id: 'b2b_elf_gold',
+    corp_id: 'corp_elf_precision',
+    tier: 'Ouro',
+    title: 'Aliança Estratégica Élfica de Platina - Parceiro Ouro',
+    weekly_royalty: 220,
+    is_exclusive: true,
+    discount_pct: 0.25,
+    weekly_shipment: [
+      { part_id: 'part_elf_gem_04', quantity: 2 },
+      { part_id: 'part_elf_core_01', quantity: 1 }
+    ],
+    description: 'Exclusividade de alto escalão com o Consórcio Élfico. Embarga convênios com Engenharia Goblin S.A.'
+  },
+  // 3. Anões de Aço Negro
+  {
+    contract_id: 'b2b_dwarf_bronze',
+    corp_id: 'corp_dwarf_steel',
+    tier: 'Bronze',
+    title: 'Fundição de Cidadela - Padrão Bronze',
+    weekly_royalty: 65,
+    is_exclusive: false,
+    discount_pct: 0.10,
+    weekly_shipment: [
+      { part_id: 'part_dwarf_plating_01', quantity: 2 },
+      { part_id: 'part_dwarf_core_01', quantity: 1 }
+    ],
+    description: 'Placas reforçadas e âncoras gravitacionais forjadas no abismo anão.'
+  },
+  {
+    contract_id: 'b2b_dwarf_silver',
+    corp_id: 'corp_dwarf_steel',
+    tier: 'Prata',
+    title: 'Couraça de Rocha Negra - Nível Prata',
+    weekly_royalty: 125,
+    is_exclusive: false,
+    discount_pct: 0.15,
+    weekly_shipment: [
+      { part_id: 'part_dwarf_plating_03', quantity: 2 },
+      { part_id: 'part_dwarf_plating_06', quantity: 1 }
+    ],
+    description: 'Blindagens maciças de minério negro e reforços torácicos com apólice integrada.'
+  },
+  {
+    contract_id: 'b2b_dwarf_gold',
+    corp_id: 'corp_dwarf_steel',
+    tier: 'Ouro',
+    title: 'Pacto Subterrâneo Ouro de Aço Negro - Parceiro Ouro',
+    weekly_royalty: 210,
+    is_exclusive: true,
+    discount_pct: 0.25,
+    weekly_shipment: [
+      { part_id: 'part_dwarf_plating_04', quantity: 2 },
+      { part_id: 'part_dwarf_plating_05', quantity: 1 }
+    ],
+    description: 'Exclusividade de metalurgia pesada da Cidadela. Veda contratos com o Sindicato de Pântano.'
+  },
+  // 4. Alquimistas de Pântano
+  {
+    contract_id: 'b2b_swamp_bronze',
+    corp_id: 'corp_swamp_alchemy',
+    tier: 'Bronze',
+    title: 'Destilados do Charco - Padrão Bronze',
+    weekly_royalty: 55,
+    is_exclusive: false,
+    discount_pct: 0.10,
+    weekly_shipment: [
+      { part_id: 'part_swamp_filter_01', quantity: 2 },
+      { part_id: 'part_swamp_core_01', quantity: 1 }
+    ],
+    description: 'Filtros decantadores e filtros neutralizadores de miasmas virulentos.'
+  },
+  {
+    contract_id: 'b2b_swamp_silver',
+    corp_id: 'corp_swamp_alchemy',
+    tier: 'Prata',
+    title: 'Farmacologia de Miasma - Nível Prata',
+    weekly_royalty: 115,
+    is_exclusive: false,
+    discount_pct: 0.15,
+    weekly_shipment: [
+      { part_id: 'part_swamp_filter_03', quantity: 2 },
+      { part_id: 'part_swamp_core_02', quantity: 1 }
+    ],
+    description: 'Dosadores graduados e injetores químicos certificados pelos boticários de pântano.'
+  },
+  {
+    contract_id: 'b2b_swamp_gold',
+    corp_id: 'corp_swamp_alchemy',
+    tier: 'Ouro',
+    title: 'Concessão Hermética de Pântano - Parceiro Ouro',
+    weekly_royalty: 195,
+    is_exclusive: true,
+    discount_pct: 0.25,
+    weekly_shipment: [
+      { part_id: 'part_swamp_gem_01', quantity: 2 },
+      { part_id: 'part_swamp_core_03', quantity: 1 }
+    ],
+    description: 'Exclusividade sobre reativos de pântano. Incompatível com acordos dos Irmãos Anões de Aço Negro.'
+  },
+  // 5. Manufatura Notarial da Coroa
+  {
+    contract_id: 'b2b_crown_bronze',
+    corp_id: 'corp_crown_notarial',
+    tier: 'Bronze',
+    title: 'Padronização Régia - Padrão Bronze',
+    weekly_royalty: 50,
+    is_exclusive: false,
+    discount_pct: 0.10,
+    weekly_shipment: [
+      { part_id: 'part_crown_plating_01', quantity: 2 },
+      { part_id: 'part_crown_gem_01', quantity: 1 }
+    ],
+    description: 'Linha branca de couro escamado e ágatas notariais universais da Fazenda Real.'
+  },
+  {
+    contract_id: 'b2b_crown_silver',
+    corp_id: 'corp_crown_notarial',
+    tier: 'Prata',
+    title: 'Certificação Notarial - Nível Prata',
+    weekly_royalty: 110,
+    is_exclusive: false,
+    discount_pct: 0.15,
+    weekly_shipment: [
+      { part_id: 'part_crown_plating_02', quantity: 2 },
+      { part_id: 'part_crown_core_02', quantity: 1 }
+    ],
+    description: 'Braçadeiras chanceladas por laudo e selos rúnicos de alvará de funcionamento.'
+  },
+  {
+    contract_id: 'b2b_crown_gold',
+    corp_id: 'corp_crown_notarial',
+    tier: 'Ouro',
+    title: 'Chancela Régia Imperial - Parceiro Ouro',
+    weekly_royalty: 185,
+    is_exclusive: false,
+    discount_pct: 0.20,
+    weekly_shipment: [
+      { part_id: 'part_crown_core_01', quantity: 2 },
+      { part_id: 'part_crown_hilt_02', quantity: 1 }
+    ],
+    description: 'Convênio nobre da Coroa. Totalmente compatível com todas as corporações do continente.'
+  },
+  // 6. Aethelgard & Valkyria & Chanceler (Compatibilidade de Testes)
+  {
+    contract_id: 'b2b_aethelgard_bronze',
+    corp_id: 'corp_aethelgard',
+    tier: 'Bronze',
+    title: 'Convênio Fornecimento Aethelgard - Padrão Bronze',
+    weekly_royalty: 50,
+    is_exclusive: false,
+    discount_pct: 0.10,
+    weekly_shipment: [
+      { part_id: 'part_aethelgard_blade', quantity: 1 },
+      { part_id: 'part_aethelgard_hilt', quantity: 1 }
+    ],
+    description: 'Fornecimento regular de lâminas e empunhaduras para sustentação da linha de montagem básica.'
+  },
+  {
+    contract_id: 'b2b_aethelgard_gold',
+    corp_id: 'corp_aethelgard',
+    tier: 'Ouro',
+    title: 'Aliança Estratégica Aethelgard - Parceiro Ouro',
+    weekly_royalty: 180,
+    is_exclusive: true,
+    discount_pct: 0.25,
+    weekly_shipment: [
+      { part_id: 'part_aethelgard_blade', quantity: 3 },
+      { part_id: 'part_aethelgard_hilt', quantity: 3 }
+    ],
+    description: 'Contrato exclusivo com Aethelgard. Proíbe parcerias com o Consórcio Bélico Valkyria.'
+  },
+  {
+    contract_id: 'b2b_valkyria_gold',
+    corp_id: 'corp_valkyria',
+    tier: 'Ouro',
+    title: 'Consórcio Bélico Valkyria - Parceiro Ouro',
+    weekly_royalty: 190,
+    is_exclusive: true,
+    discount_pct: 0.25,
+    weekly_shipment: [
+      { part_id: 'part_valkyria_guard', quantity: 3 },
+      { part_id: 'part_valkyria_plate', quantity: 2 }
+    ],
+    description: 'Exclusividade contratual Valkyria. Incompatível com acordos da Siderúrgica Aethelgard.'
+  },
+  {
+    contract_id: 'b2b_flamel_standard',
+    corp_id: 'corp_flamel',
+    tier: 'Prata',
+    title: 'Homologação de Destilados Flamel - Nível Prata',
+    weekly_royalty: 80,
+    is_exclusive: false,
+    discount_pct: 0.15,
+    weekly_shipment: [
+      { part_id: 'part_flamel_catalyst', quantity: 2 },
+      { part_id: 'part_flamel_vial', quantity: 4 }
+    ],
+    description: 'Abastecimento semanal de frascos graduados e catalisadores certificados pela Guilda de Boticários.'
+  },
+  {
+    contract_id: 'b2b_chancellor_silver',
+    corp_id: 'corp_chancellor',
+    tier: 'Prata',
+    title: 'Fornecimento de Gemas Chanceler - Nível Prata',
+    weekly_royalty: 120,
+    is_exclusive: false,
+    discount_pct: 0.15,
+    weekly_shipment: [
+      { part_id: 'part_chancellor_core', quantity: 2 }
+    ],
+    description: 'Remessa de núcleos de safira polida para confecção seriada de amuletos corporativos.'
+  }
+]
+
+export const MOCK_ASSEMBLY_WORKERS: AssemblyWorker[] = [
+  {
+    worker_id: 'worker_fitter_junior',
+    name: 'Ajustador de Bancada Júnior',
+    tier: 1,
+    hiring_cost: 150,
+    weekly_salary: 40,
+    production_capacity: 1,
+    supported_branches: ['Ferragem', 'Alquimia', 'Joalheria', 'Culinária'],
+    allowed_recipes: ['rec_01', 'rec_03', 'rec_04', 'rec_05'],
+    description: 'Montador treinado em processos repetitivos. Converte peças de almoxarifado em artefatos padronizados para revenda.'
+  },
+  {
+    worker_id: 'worker_assembler_senior',
+    name: 'Operador Sênior de Linha Contínua',
+    tier: 2,
+    hiring_cost: 300,
+    weekly_salary: 75,
+    production_capacity: 2,
+    supported_branches: ['Ferragem', 'Alquimia', 'Joalheria', 'Culinária'],
+    allowed_recipes: ['rec_01', 'rec_02', 'rec_03', 'rec_04', 'rec_05', 'rec_06'],
+    description: 'Especialista em cadência industrial capaz de coordenar montagens duplas sem interrupção de fluxo fabril.'
+  }
+]
+
+export const MOCK_MODULAR_PARTS: ModularPart[] = [
+  // Goblin S.A.
+  {
+    id: 'part_gob_blade_01',
+    part_id: 'part_gob_blade_01',
+    corp_id: 'corp_goblin_eng',
+    brand_id: 'corp_goblin_eng',
+    name: 'Lâmina Dentada de Fricção Rápida',
+    branch: 'Ferragem',
+    part_type: 'blade',
+    compatible_slots: ['Arma'],
+    tier: 1,
+    base_cost: 75,
+    market_price_base: 75,
+    power_bonus: 15,
+    catalog_description: 'Peça cortante agressiva com dentes de aço endurecido.',
+    effects: [{ effect: 'power_pct', value: 0.1 }]
+  },
+  {
+    id: 'part_gob_blade_02',
+    part_id: 'part_gob_blade_02',
+    corp_id: 'corp_goblin_eng',
+    brand_id: 'corp_goblin_eng',
+    name: 'Lâmina Predatória de Aço Farpado',
+    branch: 'Ferragem',
+    part_type: 'blade',
+    compatible_slots: ['Arma'],
+    tier: 2,
+    base_cost: 180,
+    market_price_base: 180,
+    power_bonus: 30,
+    catalog_description: 'Gume duplo serrilhado desenvolvido para corte profundo.',
+    effects: [{ effect: 'power_pct', value: 0.18 }]
+  },
+  {
+    id: 'part_gob_blade_03',
+    part_id: 'part_gob_blade_03',
+    corp_id: 'corp_goblin_eng',
+    brand_id: 'corp_goblin_eng',
+    name: 'Gume Guilhotina de Demissão Sumária',
+    branch: 'Ferragem',
+    part_type: 'blade',
+    compatible_slots: ['Arma'],
+    tier: 3,
+    base_cost: 380,
+    market_price_base: 380,
+    power_bonus: 50,
+    catalog_description: 'Lâmina de impacto massivo projetada para rescisão definitiva de debates.',
+    effects: [{ effect: 'power_flat', value: 7 }, { effect: 'power_pct', value: 0.2 }]
+  },
+  {
+    id: 'part_gob_hilt_01',
+    part_id: 'part_gob_hilt_01',
+    corp_id: 'corp_goblin_eng',
+    brand_id: 'corp_goblin_eng',
+    name: 'Empunhadura Sem Guarda de Risco',
+    branch: 'Ferragem',
+    part_type: 'hilt',
+    compatible_slots: ['Arma'],
+    tier: 2,
+    base_cost: 160,
+    market_price_base: 160,
+    power_bonus: 15,
+    catalog_description: 'Empunhadura leve que prioriza velocidade sobre proteção das mãos.',
+    effects: [{ effect: 'power_flat', value: 5 }]
+  },
+  {
+    id: 'part_gob_core_01',
+    part_id: 'part_gob_core_01',
+    corp_id: 'corp_goblin_eng',
+    brand_id: 'corp_goblin_eng',
+    name: 'Câmara de Detonação Magmática',
+    branch: 'Ferragem',
+    part_type: 'core',
+    compatible_slots: ['Inscrição', 'Arma'],
+    tier: 3,
+    base_cost: 320,
+    market_price_base: 320,
+    power_bonus: 40,
+    catalog_description: 'Módulo propulsor que injeta faíscas incandescentes em cada golpe.',
+    effects: [{ effect: 'power_pct', value: 0.2 }, { effect: 'power_flat', value: 4 }]
+  },
+  {
+    id: 'part_gob_core_02',
+    part_id: 'part_gob_core_02',
+    corp_id: 'corp_goblin_eng',
+    brand_id: 'corp_goblin_eng',
+    name: 'Disjuntor de Sobrecarga Calculada',
+    branch: 'Ferragem',
+    part_type: 'core',
+    compatible_slots: ['Arma'],
+    tier: 2,
+    base_cost: 210,
+    market_price_base: 210,
+    power_bonus: 25,
+    catalog_description: 'Circuito que descarrega energia arcana concentrada sob impacto.',
+    effects: [{ effect: 'power_flat', value: 4 }]
+  },
+
+  // Consórcio Élfico
+  {
+    id: 'part_elf_gem_01',
+    part_id: 'part_elf_gem_01',
+    corp_id: 'corp_elf_precision',
+    brand_id: 'corp_elf_precision',
+    name: 'Gema Focalizadora de Cristal Élfico',
+    branch: 'Joalheria',
+    part_type: 'gem',
+    compatible_slots: ['Joia', 'Arma'],
+    tier: 1,
+    base_cost: 130,
+    market_price_base: 130,
+    power_bonus: 20,
+    catalog_description: 'Cristal límpido facetado sob rigorosas métricas arcanas.',
+    effects: [{ effect: 'power_pct', value: 0.12 }]
+  },
+  {
+    id: 'part_elf_gem_02',
+    part_id: 'part_elf_gem_02',
+    corp_id: 'corp_elf_precision',
+    brand_id: 'corp_elf_precision',
+    name: 'Safira Penitencial de Alta Frequência',
+    branch: 'Joalheria',
+    part_type: 'gem',
+    compatible_slots: ['Joia'],
+    tier: 2,
+    base_cost: 240,
+    market_price_base: 240,
+    power_bonus: 35,
+    catalog_description: 'Gema ressonante que amplifica campos mágicos com pureza acústica.',
+    effects: [{ effect: 'power_pct', value: 0.22 }]
+  },
+  {
+    id: 'part_elf_blade_01',
+    part_id: 'part_elf_blade_01',
+    corp_id: 'corp_elf_precision',
+    brand_id: 'corp_elf_precision',
+    name: 'Lâmina Temperada a Frio Élfico',
+    branch: 'Ferragem',
+    part_type: 'blade',
+    compatible_slots: ['Arma'],
+    tier: 2,
+    base_cost: 190,
+    market_price_base: 190,
+    power_bonus: 28,
+    catalog_description: 'Aço tratado em vapores boreais para minimizar atrito e vibração.',
+    effects: [{ effect: 'power_pct', value: 0.15 }]
+  },
+  {
+    id: 'part_elf_core_01',
+    part_id: 'part_elf_core_01',
+    corp_id: 'corp_elf_precision',
+    brand_id: 'corp_elf_precision',
+    name: 'Núcleo Criogênico Boreal',
+    branch: 'Ferragem',
+    part_type: 'core',
+    compatible_slots: ['Inscrição', 'Armadura'],
+    tier: 3,
+    base_cost: 330,
+    market_price_base: 330,
+    power_bonus: 30,
+    catalog_description: 'Emissor rúnico de resfriamento constante com blindagem glacial.',
+    effects: [{ effect: 'power_flat', value: 3 }]
+  },
+
+  // Anões de Aço Negro
+  {
+    id: 'part_dwarf_plating_01',
+    part_id: 'part_dwarf_plating_01',
+    corp_id: 'corp_dwarf_steel',
+    brand_id: 'corp_dwarf_steel',
+    name: 'Placa Reforçada de Aço Anão',
+    branch: 'Ferragem',
+    part_type: 'plating',
+    compatible_slots: ['Armadura'],
+    tier: 1,
+    base_cost: 85,
+    market_price_base: 85,
+    power_bonus: 20,
+    catalog_description: 'Chapa de ferro fundido nas forjas geotérmicas da Cidadela.',
+    effects: [{ effect: 'power_pct', value: 0.1 }]
+  },
+  {
+    id: 'part_dwarf_plating_03',
+    part_id: 'part_dwarf_plating_03',
+    corp_id: 'corp_dwarf_steel',
+    brand_id: 'corp_dwarf_steel',
+    name: 'Couraça Maciça de Minério Negro',
+    branch: 'Ferragem',
+    part_type: 'plating',
+    compatible_slots: ['Armadura'],
+    tier: 2,
+    base_cost: 210,
+    market_price_base: 210,
+    power_bonus: 35,
+    catalog_description: 'Blindagem espessa prensada com rebites reforçados de aço escuro.',
+    effects: [{ effect: 'power_flat', value: 6 }]
+  },
+  {
+    id: 'part_dwarf_plating_04',
+    part_id: 'part_dwarf_plating_04',
+    corp_id: 'corp_dwarf_steel',
+    brand_id: 'corp_dwarf_steel',
+    name: 'Blindagem Impenetrável da Cidadela',
+    branch: 'Ferragem',
+    part_type: 'plating',
+    compatible_slots: ['Armadura'],
+    tier: 3,
+    base_cost: 390,
+    market_price_base: 390,
+    power_bonus: 55,
+    catalog_description: 'O ápice da metalurgia subterrânea: absorve qualquer impacto convencional.',
+    effects: [{ effect: 'power_flat', value: 8 }, { effect: 'power_pct', value: 0.12 }]
+  },
+  {
+    id: 'part_dwarf_core_01',
+    part_id: 'part_dwarf_core_01',
+    corp_id: 'corp_dwarf_steel',
+    brand_id: 'corp_dwarf_steel',
+    name: 'Âncora Gravitacional de Minas',
+    branch: 'Ferragem',
+    part_type: 'core',
+    compatible_slots: ['Inscrição', 'Armadura'],
+    tier: 1,
+    base_cost: 125,
+    market_price_base: 125,
+    power_bonus: 15,
+    catalog_description: 'Mecanismo giroscópico que estabiliza a postura em terrenos acidentados.',
+    effects: [{ effect: 'power_flat', value: 2 }]
+  },
+
+  // Alquimistas de Pântano
+  {
+    id: 'part_swamp_filter_01',
+    part_id: 'part_swamp_filter_01',
+    corp_id: 'corp_swamp_alchemy',
+    brand_id: 'corp_swamp_alchemy',
+    name: 'Filtro Decantador Concentrado',
+    branch: 'Alquimia',
+    part_type: 'filter',
+    compatible_slots: ['Consumível'],
+    tier: 1,
+    base_cost: 75,
+    market_price_base: 75,
+    power_bonus: 10,
+    energy_bonus: 12,
+    catalog_description: 'Membrana de decantação que purifica compostos orgânicos em suspensão.',
+    effects: [{ effect: 'energy_flat', value: 8 }]
+  },
+  {
+    id: 'part_swamp_filter_03',
+    part_id: 'part_swamp_filter_03',
+    corp_id: 'corp_swamp_alchemy',
+    brand_id: 'corp_swamp_alchemy',
+    name: 'Dosador Graduado de Prontuário',
+    branch: 'Alquimia',
+    part_type: 'filter',
+    compatible_slots: ['Consumível'],
+    tier: 2,
+    base_cost: 175,
+    market_price_base: 175,
+    power_bonus: 18,
+    energy_bonus: 20,
+    catalog_description: 'Válvula de administração contínua de elixires de sustentação.',
+    effects: [{ effect: 'energy_flat', value: 12 }]
+  },
+  {
+    id: 'part_swamp_core_01',
+    part_id: 'part_swamp_core_01',
+    corp_id: 'corp_swamp_alchemy',
+    brand_id: 'corp_swamp_alchemy',
+    name: 'Filtro Neutralizador de Miasma',
+    branch: 'Alquimia',
+    part_type: 'core',
+    compatible_slots: ['Inscrição', 'Consumível'],
+    tier: 1,
+    base_cost: 120,
+    market_price_base: 120,
+    power_bonus: 15,
+    catalog_description: 'Filtro de carvão ativado com extratos de cipreste para conter vapores tóxicos.',
+    effects: [{ effect: 'power_flat', value: 3 }]
+  },
+
+  // Manufatura Notarial da Coroa
+  {
+    id: 'part_crown_plating_01',
+    part_id: 'part_crown_plating_01',
+    corp_id: 'corp_crown_notarial',
+    brand_id: 'corp_crown_notarial',
+    name: 'Couro Escamado Padrão Fazenda Real',
+    branch: 'Ferragem',
+    part_type: 'plating',
+    compatible_slots: ['Armadura'],
+    tier: 1,
+    base_cost: 90,
+    market_price_base: 90,
+    power_bonus: 18,
+    catalog_description: 'Revestimento flexível certificado pelo departamento fazendário.',
+    effects: [{ effect: 'power_pct', value: 0.15 }]
+  },
+  {
+    id: 'part_crown_plating_02',
+    part_id: 'part_crown_plating_02',
+    corp_id: 'corp_crown_notarial',
+    brand_id: 'corp_crown_notarial',
+    name: 'Braçadeira Chancelada por Laudo',
+    branch: 'Ferragem',
+    part_type: 'plating',
+    compatible_slots: ['Armadura'],
+    tier: 2,
+    base_cost: 200,
+    market_price_base: 200,
+    power_bonus: 30,
+    catalog_description: 'Peça estandardizada gravada com sinete oficial de conformidade técnica.',
+    effects: [{ effect: 'power_flat', value: 4 }]
+  },
+  {
+    id: 'part_crown_hilt_02',
+    part_id: 'part_crown_hilt_02',
+    corp_id: 'corp_crown_notarial',
+    brand_id: 'corp_crown_notarial',
+    name: 'Guarda-Mão de Cláusula Rescisória',
+    branch: 'Ferragem',
+    part_type: 'hilt',
+    compatible_slots: ['Arma'],
+    tier: 2,
+    base_cost: 185,
+    market_price_base: 185,
+    power_bonus: 22,
+    catalog_description: 'Guarda simétrica com travamento seguro e ergonomia homologada.',
+    effects: [{ effect: 'power_pct', value: 0.12 }]
+  },
+
+  // Peças Siderúrgica Aethelgard & Consórcio Valkyria (Testes e Compatibilidade)
+  {
+    id: 'part_aethelgard_blade',
+    part_id: 'part_aethelgard_blade',
+    corp_id: 'corp_aethelgard',
+    brand_id: 'corp_aethelgard',
+    name: 'Lâmina Forjada Aethelgard',
+    branch: 'Ferragem',
+    part_type: 'blade',
+    compatible_slots: ['Arma'],
+    tier: 1,
+    base_cost: 50,
+    market_price_base: 50,
+    power_bonus: 25,
+    catalog_description: 'Lâmina de corte preciso temperada nas fundições de Aethelgard.',
+    effects: [{ effect: 'power_flat', value: 5 }]
+  },
+  {
+    id: 'part_aethelgard_hilt',
+    part_id: 'part_aethelgard_hilt',
+    corp_id: 'corp_aethelgard',
+    brand_id: 'corp_aethelgard',
+    name: 'Empunhadura Padrão Aethelgard',
+    branch: 'Ferragem',
+    part_type: 'hilt',
+    compatible_slots: ['Arma'],
+    tier: 1,
+    base_cost: 40,
+    market_price_base: 40,
+    power_bonus: 10,
+    catalog_description: 'Guarda de couro trançado com contrapeso balanceado.',
+    effects: [{ effect: 'power_flat', value: 2 }]
+  },
+  {
+    id: 'part_valkyria_guard',
+    part_id: 'part_valkyria_guard',
+    corp_id: 'corp_valkyria',
+    brand_id: 'corp_valkyria',
+    name: 'Guarda Articulada Valkyria',
+    branch: 'Ferragem',
+    part_type: 'guard',
+    compatible_slots: ['Arma', 'Armadura'],
+    tier: 1,
+    base_cost: 60,
+    market_price_base: 60,
+    power_bonus: 15,
+    catalog_description: 'Mecanismo defensivo de absorção de impacto do Consórcio Bélico.',
+    effects: [{ effect: 'power_flat', value: 3 }]
+  },
+  {
+    id: 'part_valkyria_plate',
+    part_id: 'part_valkyria_plate',
+    corp_id: 'corp_valkyria',
+    brand_id: 'corp_valkyria',
+    name: 'Placa Estriada Valkyria',
+    branch: 'Ferragem',
+    part_type: 'plating',
+    compatible_slots: ['Armadura'],
+    tier: 1,
+    base_cost: 70,
+    market_price_base: 70,
+    power_bonus: 20,
+    catalog_description: 'Chapa estriada para deflexão de projéteis e golpes perfurantes.',
+    effects: [{ effect: 'power_flat', value: 4 }]
+  },
+  {
+    id: 'part_flamel_catalyst',
+    part_id: 'part_flamel_catalyst',
+    corp_id: 'corp_flamel',
+    brand_id: 'corp_flamel',
+    name: 'Catalisador de Regeneração Flamel',
+    branch: 'Alquimia',
+    part_type: 'core',
+    compatible_slots: ['Consumível'],
+    tier: 1,
+    base_cost: 80,
+    market_price_base: 80,
+    power_bonus: 15,
+    catalog_description: 'Reativo químico que acelera a cicatrização celular em campo.',
+    effects: [{ effect: 'energy_flat', value: 10 }]
+  }
+]
+
 
 
