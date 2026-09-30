@@ -541,6 +541,7 @@ export interface GameState {
       multiplier: number
       headline: string
     } | null
+    active_vip_order?: VipOrder | null
   }
   recipes?: Record<string, Recipe>
   known_affixes?: string[]
@@ -560,6 +561,28 @@ export interface GameState {
   last_financial_statement?: FinancialStatement
   weekly_sales_revenue?: number
   last_expedition_loot?: ExpeditionLootItem[]
+  rival_traits?: RivalTrait[]
+}
+
+
+export interface RivalTrait {
+  id: string
+  name: string
+  description: string
+  power_bonus_pct?: number
+  supply_bonus_pct?: number
+  terrain_mitigation?: string
+  confidence_impact?: number
+}
+
+export interface VipOrder {
+  id: string
+  item_type: string
+  min_quality: string
+  reward_gold: number
+  reward_confidence: number
+  headline: string
+  expires_in_rounds: number
 }
 
 export const MATERIAL_LABELS: Record<string, string> = {

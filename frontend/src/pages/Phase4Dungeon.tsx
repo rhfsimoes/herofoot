@@ -32,6 +32,7 @@ import { BiomeBanner } from '../components/art'
 import OnboardingBanner from '../components/OnboardingBanner'
 import EmptyState from '../components/EmptyState'
 import Tooltip from '../components/Tooltip'
+import RivalTraitBadge from '../components/RivalTraitBadge'
 
 interface Phase4DungeonProps {
   onAdvance: () => void
@@ -490,6 +491,17 @@ export default function Phase4Dungeon({
         <div className="text-right">
           <span className="text-stone-400 text-xs">Adversário da Rodada: </span>
           <strong className="text-amber-300 text-xs font-mono font-bold">vs {rivalGuildName}</strong>
+          {/* Traços permanentes da guilda rival */}
+          {Array.isArray(state?.rival_traits) && state.rival_traits.length > 0 && (
+            <div className="mt-1.5">
+              <p className="text-xs text-stone-400 uppercase tracking-wide mb-1">Características Permanentes</p>
+              <div className="flex flex-wrap gap-1 justify-end">
+                {state.rival_traits.map((trait: any) => (
+                  <RivalTraitBadge key={trait.id} trait={trait} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
