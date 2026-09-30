@@ -24,6 +24,7 @@ from services.sales_service import SalesService
 from services.market_service import MarketService
 from services.hero_service import HeroService, calculate_hero_power
 from services.event_service import EventService
+from b2b import get_corporations, get_parts_dict, get_b2b_contracts_dict, get_assembly_workers_dict, get_b2b_balance
 
 _CLASSES_CACHE = None
 
@@ -54,11 +55,11 @@ class GameController:
         self.tactics_service = TacticsService(self.state)
         self.hero_service = HeroService(self.state)
         self.event_service = EventService(self.state)
-        self.phase_service = PhaseService(
-            self.state, self.dungeons, self.league_engine, self.market_engine, match_engine, self.hero_service, self.event_service
-        )
-        self.crafting_service = CraftingService(self.state, self.crafting_engine)
         self.sales_service = SalesService(self.state, self.counter_sales, self.market_engine)
+        self.crafting_service = CraftingService(self.state, self.crafting_engine, sales_service=self.sales_service)
+        self.phase_service = PhaseService(
+            self.state, self.dungeons, self.league_engine, self.market_engine, match_engine, self.hero_service, self.event_service, crafting_service=self.crafting_service
+        )
         self.market_service = MarketService(self.state, self.market_engine)
 
     def _rebind_services(self):
@@ -66,14 +67,16 @@ class GameController:
         self.tactics_service.state = self.state
         self.hero_service.state = self.state
         self.event_service.state = self.state
+        self.sales_service.state = self.state
+        self.sales_service.market_engine = self.market_engine
+        self.crafting_service.state = self.state
+        self.crafting_service.sales_service = self.sales_service
         self.phase_service.state = self.state
         self.phase_service.hero_service = self.hero_service
         self.phase_service.event_service = self.event_service
         self.phase_service.league_engine = self.league_engine
         self.phase_service.market_engine = self.market_engine
-        self.crafting_service.state = self.state
-        self.sales_service.state = self.state
-        self.sales_service.market_engine = self.market_engine
+        self.phase_service.crafting_service = self.crafting_service
         self.market_service.state = self.state
         self.market_service.market_engine = self.market_engine
 
@@ -195,6 +198,17 @@ class GameController:
             "resolved_events_history": getattr(self.state, "resolved_events_history", []),
             "supplies_bonus": getattr(self.state, "supplies_bonus", 0),
             "active_slot": self.active_slot,
+            "active_b2b_contracts": getattr(self.state, "active_b2b_contracts", []),
+            "assembly_line_workers": getattr(self.state, "assembly_line_workers", []),
+            "corporate_exclusivity_tags": getattr(self.state, "corporate_exclusivity_tags", []),
+            "warehouse_parts": getattr(self.state, "warehouse_parts", {}),
+            "b2b_catalog": {
+                "corporations": get_corporations(),
+                "parts": get_parts_dict(),
+                "contracts": get_b2b_contracts_dict(),
+                "assembly_workers": get_assembly_workers_dict(),
+                "balance": get_b2b_balance(),
+            },
         }
 
     # Operações de persistência corporativa
@@ -387,4 +401,154 @@ class GameController:
 
     def resolve_event_choice(self, event_id: str, option_id: str) -> dict:
         return self.event_service.resolve_event_choice(event_id, option_id)
+
+    # Operações B2B & Linha de Montagem Modular (v0.7.0)
+    def sign_b2b_contract(self, contract_id: str) -> dict:
+        from b2b import get_b2b_contracts_dict, get_corporations_dict
+        contracts = get_b2b_contracts_dict()
+        contract = contracts.get(contract_id)
+        if not contract:
+            return {"success": False, "message": f"Contrato B2B '{contract_id}' não localizado no catálogo industrial."}
+
+        if self.state.has_active_contract(contract_id):
+            return {"success": False, "message": "Contrato de fornecimento já vigente com esta fornecedora."}
+
+        corp_id = contract.get("corp_id")
+        corps = get_corporations_dict()
+        corp = corps.get(corp_id, {})
+        is_exclusive = contract.get("is_exclusive", False)
+        exclusivity_tag = corp.get("exclusivity_tag")
+        rival_corp_id = corp.get("rival_corp_id")
+
+        # 1. Se o novo contrato é exclusivo, rejeita se já possuir contrato ou tag com o rival corporativo
+        if is_exclusive and rival_corp_id:
+            rival_corp = corps.get(rival_corp_id, {})
+            rival_tag = rival_corp.get("exclusivity_tag")
+            has_rival_contract = any(c.get("corp_id") == rival_corp_id for c in self.state.active_b2b_contracts)
+            if has_rival_contract or (rival_tag and self.state.has_exclusivity_tag(rival_tag)):
+                return {
+                    "success": False,
+                    "message": f"Contrato rejeitado: cláusula de exclusividade com a concorrente '{rival_corp.get('name', rival_corp_id)}' impede a celebração deste convênio.",
+                }
+
+        # 2. Se já possuímos exclusividade com o rival, rejeita qualquer novo contrato com esta corporação
+        if rival_corp_id:
+            rival_corp = corps.get(rival_corp_id, {})
+            rival_tag = rival_corp.get("exclusivity_tag")
+            if rival_tag and self.state.has_exclusivity_tag(rival_tag):
+                return {
+                    "success": False,
+                    "message": f"Contrato rejeitado: parceria exclusiva vigente com a concorrente '{rival_corp.get('name', rival_corp_id)}' impede novos convênios com esta marca.",
+                }
+
+        # Homologação do contrato
+        self.state.active_b2b_contracts.append(dict(contract))
+        if is_exclusive and exclusivity_tag:
+            if not self.state.has_exclusivity_tag(exclusivity_tag):
+                self.state.corporate_exclusivity_tags.append(exclusivity_tag)
+
+        return {
+            "success": True,
+            "contract": contract,
+            "active_b2b_contracts": self.state.active_b2b_contracts,
+            "message": f"Contrato B2B '{contract.get('title')}' celebrado com sucesso junto à {corp.get('name', 'fornecedora')}.",
+        }
+
+    def cancel_b2b_contract(self, contract_id: str) -> dict:
+        contract = next((c for c in self.state.active_b2b_contracts if c.get("contract_id") == contract_id), None)
+        if not contract:
+            return {"success": False, "message": "Contrato B2B não encontrado entre os vigentes."}
+        self.state.active_b2b_contracts.remove(contract)
+        corp_id = contract.get("corp_id")
+        from b2b import get_corporations_dict
+        corps = get_corporations_dict()
+        corp = corps.get(corp_id, {})
+        excl_tag = corp.get("exclusivity_tag")
+        if excl_tag and excl_tag in self.state.corporate_exclusivity_tags:
+            has_other_excl = any(c.get("corp_id") == corp_id and c.get("is_exclusive") for c in self.state.active_b2b_contracts)
+            if not has_other_excl:
+                self.state.corporate_exclusivity_tags.remove(excl_tag)
+        return {"success": True, "message": f"Contrato B2B '{contract.get('title')}' rescindido administrativamente."}
+
+    def hire_assembly_worker(self, worker_id: str, assigned_branch: str = "Ferragem") -> dict:
+        from b2b import get_assembly_workers_dict
+        import uuid
+        from constants import normalize_branch
+        workers = get_assembly_workers_dict()
+        worker = workers.get(worker_id)
+        if not worker:
+            return {"success": False, "message": f"Modelo de operário '{worker_id}' não homologado pelo departamento pessoal."}
+
+        norm_branch = normalize_branch(assigned_branch)
+        if norm_branch not in worker.get("supported_branches", []):
+            return {"success": False, "message": f"Operário '{worker.get('name')}' não possui certificação para operar na filial de {norm_branch}."}
+
+        cost = int(worker.get("hiring_cost", 150))
+        if self.state.gold < cost:
+            return {"success": False, "message": f"Tesouraria insuficiente para admissão do operário (Custo: {cost} Ouro, Saldo: {self.state.gold} Ouro)."}
+
+        self.state.gold -= cost
+        worker_instance = {
+            "worker_instance_id": str(uuid.uuid4()),
+            "worker_id": worker_id,
+            "name": worker.get("name"),
+            "tier": worker.get("tier", 1),
+            "weekly_salary": worker.get("weekly_salary", 40),
+            "production_capacity": worker.get("production_capacity", 1),
+            "assigned_branch": norm_branch,
+            "supported_branches": worker.get("supported_branches", []),
+            "allowed_recipes": worker.get("allowed_recipes", []),
+            "target_recipe": worker.get("allowed_recipes", [None])[0] if worker.get("allowed_recipes") else None,
+        }
+        self.state.assembly_line_workers.append(worker_instance)
+        return {
+            "success": True,
+            "worker": worker_instance,
+            "gold": self.state.gold,
+            "assembly_line_workers": self.state.assembly_line_workers,
+            "message": f"Operário '{worker.get('name')}' admitido e integrado à linha fabril de {norm_branch}.",
+        }
+
+    def set_worker_order(self, worker_instance_id: str, target_recipe: str) -> dict:
+        worker = next(
+            (w for w in self.state.assembly_line_workers if w.get("worker_instance_id") == worker_instance_id or w.get("worker_id") == worker_instance_id),
+            None
+        )
+        if not worker:
+            return {"success": False, "message": "Operário fabril não localizado na linha de montagem."}
+
+        from catalog import get_catalog
+        recipe = get_catalog().get_recipe(target_recipe)
+        if not recipe:
+            return {"success": False, "message": f"Receita '{target_recipe}' não localizada no catálogo corporativo."}
+
+        allowed = worker.get("allowed_recipes", [])
+        if allowed and target_recipe not in allowed:
+            return {"success": False, "message": f"Ordem técnica rejeitada: operário não habilitado para produzir '{recipe.get('name', target_recipe)}'."}
+
+        worker["target_recipe"] = target_recipe
+        return {
+            "success": True,
+            "worker": worker,
+            "message": f"Ordem de fabricação atribuída com sucesso: '{recipe.get('name', target_recipe)}'.",
+        }
+
+    def dismiss_assembly_worker(self, worker_instance_id: str) -> dict:
+        worker = next(
+            (w for w in self.state.assembly_line_workers if w.get("worker_instance_id") == worker_instance_id or w.get("worker_id") == worker_instance_id),
+            None
+        )
+        if not worker:
+            return {"success": False, "message": "Operário não localizado para rescisão."}
+        self.state.assembly_line_workers.remove(worker)
+        return {"success": True, "message": f"Operário '{worker.get('name')}' desligado da linha fabril."}
+
+    def assemble_modular_item(self, part_ids: list, base_name: str = "Artefato Modular", is_tinkering: bool = False, rng=None) -> dict:
+        return self.crafting_service.assemble_item(part_ids, base_name=base_name, is_tinkering=is_tinkering, rng=rng)
+
+    def buy_part(self, part_id: str, quantity: int = 1) -> dict:
+        return self.market_engine.buy_spot_part(part_id, quantity=quantity, state=self.state)
+
+    def calculate_part_spot_price(self, part_id: str) -> int:
+        return self.market_engine.calculate_part_spot_price(part_id, state=self.state)
 

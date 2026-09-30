@@ -133,5 +133,14 @@
       "max_injured_heroes": 0
     }
   },
+  "b2b": {
+    "spot_markup": 1.50,
+    "cutoff_round": 8,
+    "assembly_line_xp_rate": 0.10,
+    "worker_max_hired": 4,
+    "inter_brand_tinkering_success_chance": 0.60,
+    "overclock_power_bonus_pct": 0.15,
+    "gororoba_sell_value": 20
+  },
   "provisional_rescale_factor": 0.55
 }

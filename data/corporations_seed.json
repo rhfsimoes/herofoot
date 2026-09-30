@@ -1,0 +1,56 @@
+[
+  {
+    "id": "corp_aethelgard",
+    "name": "Siderúrgica Aethelgard & Cia.",
+    "branch": "Ferragem",
+    "specialty": "Lâminas temperadas, chapas prensadas e engrenagens de alto impacto.",
+    "exclusivity_tag": "excl_aethelgard",
+    "rival_corp_id": "corp_valkyria",
+    "description": "Conglomerado hegemônico da metalurgia nortenha com processos fabris certificados pelo Tribunal da Coroa."
+  },
+  {
+    "id": "corp_valkyria",
+    "name": "Consórcio Bélico Valkyria",
+    "branch": "Ferragem",
+    "specialty": "Ligas estriadas, guardas articuladas e exoesqueletos de proteção.",
+    "exclusivity_tag": "excl_valkyria",
+    "rival_corp_id": "corp_aethelgard",
+    "description": "Indústria armamentista de vanguarda que disputa licitações de suprimentos com a Siderúrgica Aethelgard."
+  },
+  {
+    "id": "corp_flamel",
+    "name": "Sindicato Bioalquímico Flamel & Associados",
+    "branch": "Alquimia",
+    "specialty": "Extratos catalisadores, ampolas de vidro reforçado e reativos de regeneração.",
+    "exclusivity_tag": "excl_flamel",
+    "rival_corp_id": "corp_mercurius",
+    "description": "Monopólio farmacêutico com patentes herméticas sobre destilados e solventes de mana."
+  },
+  {
+    "id": "corp_mercurius",
+    "name": "Laboratórios Mercurius Arcanos",
+    "branch": "Alquimia",
+    "specialty": "Inscrições químicas, sais de conservação e filtros térmicos.",
+    "exclusivity_tag": "excl_mercurius",
+    "rival_corp_id": "corp_flamel",
+    "description": "Pioneiros em misturas instáveis e destilados voláteis de alta densidade energética."
+  },
+  {
+    "id": "corp_chancellor",
+    "name": "Lapidação Imperial Chanceler & Filhos",
+    "branch": "Joalheria",
+    "specialty": "Amuletos com facetamento óptico, engastes de platina e núcleos prismáticos.",
+    "exclusivity_tag": "excl_chancellor",
+    "rival_corp_id": null,
+    "description": "Fornecedora tradicional da alta nobreza e de órgãos reguladores da Liga."
+  },
+  {
+    "id": "corp_crown_rations",
+    "name": "Intendência Geral de Mantimentos da Coroa",
+    "branch": "Culinária",
+    "specialty": "Rações desidratadas, biscoitos de campanha compactados e embalagens herméticas.",
+    "exclusivity_tag": "excl_crown_rations",
+    "rival_corp_id": null,
+    "description": "Divisão estatal de logística nutricional voltada para grandes incursões e suporte expedicionário."
+  }
+]

@@ -16,9 +16,10 @@ from item_resolver import resolve_item, build_name, get_quality_multipliers
 
 
 class CraftingService:
-    def __init__(self, state, crafting_engine=None):
+    def __init__(self, state, crafting_engine=None, sales_service=None):
         self.state = state
         self.crafting_engine = crafting_engine
+        self.sales_service = sales_service
 
     def craft_item(
         self,
@@ -674,6 +675,274 @@ class CraftingService:
             "xp_consumed": xp_needed,
             "current_xp": self.state.get_workshop_xp(norm_branch),
         }
+
+    def assemble_item(
+        self,
+        part_ids: list,
+        base_item_name: str = "Artefato Modular",
+        is_tinkering: bool = False,
+        rng=None,
+        base_name: str = None,
+    ) -> dict:
+        """
+        Monta um artefato combinando peças modulares do almoxarifado fabril (B2B Modular Assembly).
+        - Se todas as peças pertencerem à mesma corporação: montagem 100% compatível.
+        - Se houver mistura de marcas corporativas rivais/diferentes: dispara Tinkering Inter-Marcas.
+          - Sucesso: confere bônus de Overclock Não-Autorizado (+15% poder) e homologa o esquema.
+          - Falha: gera Gororoba Experimental e consome os insumos.
+        """
+        if base_name is not None:
+            base_item_name = base_name
+
+        if not part_ids:
+            return {"success": False, "message": "Nenhuma peça modular informada para a ordem de montagem."}
+
+        from b2b import get_parts_dict, get_corporations_dict, get_b2b_balance
+        parts_catalog = get_parts_dict()
+        b2b_cfg = get_b2b_balance()
+
+        # Valida existência das peças no catálogo
+        for pid in part_ids:
+            if pid not in parts_catalog:
+                return {"success": False, "message": f"Peça modular '{pid}' não homologada pelo acervo industrial."}
+
+        # Valida estoque no almoxarifado fabril
+        from collections import Counter
+        required_counts = Counter(part_ids)
+        missing_parts = []
+        for pid, req_qty in required_counts.items():
+            avail = self.state.get_part_quantity(pid)
+            if avail < req_qty:
+                p_name = parts_catalog[pid].get("name", pid)
+                missing_parts.append(f"{req_qty - avail}x {p_name}")
+
+        if missing_parts:
+            return {
+                "success": False,
+                "message": f"Insumos modulares insuficientes no almoxarifado fabril. Faltam: {', '.join(missing_parts)}."
+            }
+
+        # Identifica marcas das peças
+        brand_ids = set(parts_catalog[pid].get("corp_id") for pid in part_ids)
+        is_inter_brand = len(brand_ids) > 1
+
+        if is_inter_brand and not is_tinkering:
+            return {
+                "success": False,
+                "tinkering_required": True,
+                "message": "Montagem modular inter-marcas detectada. A integração de patentes concorrentes exige autorização expressa de Tinkering experimental.",
+            }
+
+        # Consome as peças do almoxarifado
+        for pid, req_qty in required_counts.items():
+            self.state.consume_warehouse_part(pid, req_qty)
+
+        primary_part = parts_catalog[part_ids[0]]
+        primary_branch = primary_part.get("branch", "Ferragem")
+        slot = primary_part.get("compatible_slots", ["Arma"])[0]
+
+        if rng is None:
+            rng = random.Random()
+
+        # Tinkering Inter-Marcas se houver mistura de marcas corporativas
+        if is_inter_brand:
+            success_chance = float(b2b_cfg.get("inter_brand_tinkering_success_chance", 0.60))
+            roll = rng.random()
+            if roll >= success_chance:
+                gororoba_val = int(b2b_cfg.get("gororoba_sell_value", 20))
+                mults = get_quality_multipliers()
+                gororoba = {
+                    "item_instance_id": str(uuid.uuid4()),
+                    "name": "Gororoba Experimental",
+                    "description": "Refugo mecânico de montagem modular entre patentes industriais concorrentes sem conformidade.",
+                    "slot": slot,
+                    "slot_type": slot,
+                    "branch": primary_branch,
+                    "quality": "Fraco",
+                    "power_bonus": 0,
+                    "energy_bonus": 0,
+                    "market_value_base": gororoba_val,
+                    "multiplier": mults.get("Fraco", 0.70),
+                    "is_modular": True,
+                    "special_suffix_active": False,
+                }
+                self.state.inventory.append(gororoba)
+
+                recipe_key = f"modular_{'_'.join(sorted(part_ids))}"
+                if hasattr(self.state, "known_recipes") and recipe_key not in self.state.known_recipes:
+                    self.state.known_recipes.append(recipe_key)
+
+                return {
+                    "success": True,
+                    "item": gororoba,
+                    "quality": "Fraco",
+                    "tinkering": True,
+                    "tinkering_success": False,
+                    "overclock": False,
+                    "recipe_unlocked": True,
+                    "message": "Falha na montagem modular: choque de especificações entre marcas rivais gerou refugo fabril (Gororoba Experimental). O esquema foi homologado.",
+                }
+
+        # Sucesso na montagem (mesma marca OU inter-marcas com sucesso)
+        base_power = sum(parts_catalog[pid].get("power_bonus", parts_catalog[pid].get("power_contrib", 10)) for pid in part_ids)
+        base_cost_sum = sum(parts_catalog[pid].get("base_cost", 50) for pid in part_ids)
+        market_value_base = int(base_cost_sum * 1.35)
+
+        is_overclocked = is_inter_brand
+        if is_overclocked:
+            overclock_pct = float(b2b_cfg.get("overclock_power_bonus_pct", 0.15))
+            power_bonus = round(base_power * (1.0 + overclock_pct))
+            item_name = f"{base_item_name} (Overclock Não-Autorizado)"
+            quality = "Ótimo"
+            recipe_key = f"modular_{'_'.join(sorted(part_ids))}"
+            if hasattr(self.state, "known_recipes") and recipe_key not in self.state.known_recipes:
+                self.state.known_recipes.append(recipe_key)
+        else:
+            power_bonus = base_power
+            item_name = base_item_name
+            quality = "Normal"
+
+        mults = get_quality_multipliers()
+        crafted_item = {
+            "item_instance_id": str(uuid.uuid4()),
+            "name": item_name,
+            "slot": slot,
+            "slot_type": slot,
+            "branch": primary_branch,
+            "quality": quality,
+            "power_bonus": int(power_bonus),
+            "energy_bonus": 0,
+            "market_value_base": market_value_base,
+            "multiplier": mults.get(quality, 1.0),
+            "parts": list(part_ids),
+            "is_modular": True,
+            "overclock": is_overclocked,
+            "special_suffix_active": False,
+        }
+        self.state.inventory.append(crafted_item)
+
+        return {
+            "success": True,
+            "item": crafted_item,
+            "quality": quality,
+            "tinkering": is_inter_brand,
+            "tinkering_success": True if is_inter_brand else None,
+            "overclock": is_overclocked,
+            "recipe_unlocked": True if is_inter_brand else False,
+            "message": f"Ordem de montagem modular concluída: '{item_name}' integrado ao almoxarifado.",
+        }
+
+    def process_assembly_line(self, rng=None) -> dict:
+        """
+        Executa a rotina autônoma de montagem semanal dos operários contratados na Linha de Montagem.
+        - Para cada operário ativo, verifica a ordem atribuída e a disponibilidade de peças no almoxarifado.
+        - Produz itens White-label (Tier 1/2) e despacha diretamente via sales_service.queue_auto_sale().
+        - Concede XP reduzida à respectiva filial fabril (assembly_line_xp_rate: 0.10).
+        """
+        workers = getattr(self.state, "assembly_line_workers", [])
+        if not workers:
+            return {
+                "items_produced": [],
+                "assembly_sales_revenue": 0,
+                "workers_count": 0,
+                "active_workers": 0,
+            }
+
+        from b2b import get_b2b_balance, get_parts_dict
+        from catalog import get_catalog
+        b2b_cfg = get_b2b_balance()
+        xp_rate = float(b2b_cfg.get("assembly_line_xp_rate", 0.10))
+        parts_catalog = get_parts_dict()
+        cat = get_catalog()
+
+        items_produced = []
+        total_assembly_revenue = 0
+        active_workers_count = 0
+
+        for worker in workers:
+            target_recipe_id = worker.get("target_recipe")
+            if not target_recipe_id:
+                continue
+
+            recipe = cat.get_recipe(target_recipe_id)
+            if not recipe:
+                continue
+
+            branch = worker.get("assigned_branch") or recipe.get("branch", "Ferragem")
+            capacity = int(worker.get("production_capacity", 1))
+
+            for _ in range(capacity):
+                available_branch_parts = [
+                    pid for pid, qty in self.state.warehouse_parts.items()
+                    if qty > 0 and parts_catalog.get(pid, {}).get("branch") == branch
+                ]
+
+                if len(available_branch_parts) < 2:
+                    available_branch_parts = [
+                        pid for pid, qty in self.state.warehouse_parts.items()
+                        if qty > 0
+                    ]
+
+                total_units_available = sum(self.state.get_part_quantity(pid) for pid in available_branch_parts)
+                if total_units_available < 2:
+                    break
+
+                consumed_pids = []
+                for pid in available_branch_parts:
+                    while self.state.get_part_quantity(pid) > 0 and len(consumed_pids) < 2:
+                        self.state.consume_warehouse_part(pid, 1)
+                        consumed_pids.append(pid)
+                    if len(consumed_pids) >= 2:
+                        break
+
+                if len(consumed_pids) < 2:
+                    break
+
+                active_workers_count += 1
+                recipe_tier = int(recipe.get("tier", 1))
+                base_val = int(recipe.get("market_value_base", 120))
+                base_pow = int(recipe.get("base_power", 20))
+                slot = recipe.get("slot", "Arma")
+
+                white_label_item = {
+                    "item_instance_id": str(uuid.uuid4()),
+                    "name": f"{recipe.get('name', 'Artefato')} (White-label)",
+                    "slot": slot,
+                    "slot_type": slot,
+                    "branch": branch,
+                    "quality": "Normal",
+                    "power_bonus": base_pow,
+                    "energy_bonus": int(recipe.get("energy_restore", 0)),
+                    "market_value_base": base_val,
+                    "is_white_label": True,
+                    "assembler_id": worker.get("worker_instance_id"),
+                }
+
+                sale_revenue = base_val
+                if hasattr(self, "sales_service") and self.sales_service:
+                    sale_res = self.sales_service.queue_auto_sale(white_label_item)
+                    sale_revenue = sale_res.get("sale_price", base_val)
+
+                total_assembly_revenue += sale_revenue
+                items_produced.append({
+                    "item_name": white_label_item["name"],
+                    "sale_price": sale_revenue,
+                    "worker_name": worker.get("name"),
+                })
+
+                base_xp = 10 if recipe_tier == 1 else (25 if recipe_tier == 2 else 60)
+                xp_gain = max(1, int(base_xp * xp_rate))
+                if not hasattr(self.state, "workshop_xp") or not isinstance(self.state.workshop_xp, dict):
+                    self.state.workshop_xp = {"Ferragem": 0, "Alquimia": 0, "Joalheria": 0, "Culinária": 0}
+                self.state.workshop_xp[branch] = self.state.get_workshop_xp(branch) + xp_gain
+
+        return {
+            "items_produced": items_produced,
+            "assembly_sales_revenue": total_assembly_revenue,
+            "workers_count": len(workers),
+            "active_workers": active_workers_count,
+        }
+
 
 
 def _format_effect_label(effect: Dict[str, Any]) -> str:

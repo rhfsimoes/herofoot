@@ -267,3 +267,21 @@ class SalesService:
             "message": "Encomenda VIP entregue com sucesso à Câmara dos Mercadores!",
         }
 
+    def queue_auto_sale(self, item: dict) -> dict:
+        """
+        Liquida imediatamente um ativo produzido na linha de montagem autônoma a Preço Justo.
+        Retorna o valor apurado para consolidação no extrato financeiro (DRE) da Fase 5.
+        """
+        sale_price = item.get("market_value_base")
+        if sale_price is None:
+            sale_price = item.get("base_price", 100)
+        sale_price = int(sale_price)
+
+        return {
+            "success": True,
+            "item_name": item.get("name"),
+            "sale_price": sale_price,
+            "gold": self.state.gold,
+        }
+
+

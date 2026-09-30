@@ -273,3 +273,74 @@ class MarketEngine:
             self.active_vip_order = copy.deepcopy(data["vip_order"])
         return self
 
+    def calculate_part_spot_price(self, part_id: str, state=None) -> int:
+        """
+        Calcula o preço de aquisição spot de uma peça modular.
+        - Se houver contrato B2B ativo com a corporação produtora: aplica eventual desconto contratual (sem ágio).
+        - Se não houver contrato ativo (ou se houver exclusividade com marca rival): aplica o ágio spot alfandegário de +50% (spot_markup: 1.50).
+        """
+        from b2b import get_parts_dict, get_b2b_balance
+        parts = get_parts_dict()
+        part = parts.get(part_id)
+        if not part:
+            return 100
+
+        base_cost = int(part.get("base_cost", 50))
+        corp_id = part.get("corp_id")
+        b2b_cfg = get_b2b_balance()
+        spot_markup = float(b2b_cfg.get("spot_markup", 1.50))
+
+        if not state:
+            return int(base_cost * spot_markup)
+
+        contracts = getattr(state, "active_b2b_contracts", [])
+        active_contract = next((c for c in contracts if c.get("corp_id") == corp_id), None)
+
+        if active_contract:
+            discount = float(active_contract.get("discount_pct", 0.0))
+            return max(1, int(base_cost * (1.0 - discount)))
+
+        # Sem contrato com a corporação da peça: tarifa spot de 50%
+        return int(base_cost * spot_markup)
+
+    def buy_spot_part(self, part_id: str, quantity: int = 1, state=None) -> dict:
+        """
+        Executa a compra spot de peças modulares no mercado industrial.
+        """
+        if state is None:
+            return {"success": False, "message": "Estado do jogo indisponível para transação."}
+
+        if quantity <= 0:
+            return {"success": False, "message": "Quantidade solicitada deve ser maior que zero."}
+
+        from b2b import get_parts_dict
+        parts = get_parts_dict()
+        part = parts.get(part_id)
+        if not part:
+            return {"success": False, "message": f"Peça modular '{part_id}' não localizada no catálogo industrial."}
+
+        unit_price = self.calculate_part_spot_price(part_id, state)
+        total_cost = unit_price * quantity
+
+        if state.gold < total_cost:
+            return {
+                "success": False,
+                "message": f"Saldo em tesouraria insuficiente para aquisição spot. Custo: {total_cost} Ouro, Saldo: {state.gold} Ouro.",
+            }
+
+        state.gold -= total_cost
+        state.add_warehouse_part(part_id, quantity)
+
+        return {
+            "success": True,
+            "part_id": part_id,
+            "part_name": part.get("name", part_id),
+            "quantity": quantity,
+            "unit_price": unit_price,
+            "total_cost": total_cost,
+            "gold": state.gold,
+            "warehouse_parts": state.warehouse_parts,
+            "message": f"Ordem spot aprovada: {quantity}x '{part.get('name')}' adquiridas por {total_cost} Ouro.",
+        }
+
+

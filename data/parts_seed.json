@@ -1,0 +1,1307 @@
+[
+  {
+    "id": "part_aethelgard_blade",
+    "part_id": "part_aethelgard_blade",
+    "corp_id": "corp_aethelgard",
+    "brand_id": "corp_aethelgard",
+    "name": "Lâmina Forjada Aethelgard",
+    "branch": "Ferragem",
+    "part_type": "blade",
+    "compatible_slots": ["Arma"],
+    "tier": 1,
+    "base_cost": 50,
+    "market_price_base": 50,
+    "power_bonus": 25,
+    "power_contrib": 25,
+    "catalog_description": "Lâmina de corte preciso temperada nas fundições de Aethelgard.",
+    "effects": [{"effect": "power_flat", "value": 5}]
+  },
+  {
+    "id": "part_aethelgard_hilt",
+    "part_id": "part_aethelgard_hilt",
+    "corp_id": "corp_aethelgard",
+    "brand_id": "corp_aethelgard",
+    "name": "Empunhadura Padrão Aethelgard",
+    "branch": "Ferragem",
+    "part_type": "hilt",
+    "compatible_slots": ["Arma"],
+    "tier": 1,
+    "base_cost": 40,
+    "market_price_base": 40,
+    "power_bonus": 10,
+    "power_contrib": 10,
+    "catalog_description": "Guarda de couro trançado com contrapeso balanceado.",
+    "effects": [{"effect": "power_flat", "value": 2}]
+  },
+  {
+    "id": "part_valkyria_guard",
+    "part_id": "part_valkyria_guard",
+    "corp_id": "corp_valkyria",
+    "brand_id": "corp_valkyria",
+    "name": "Guarda Articulada Valkyria",
+    "branch": "Ferragem",
+    "part_type": "guard",
+    "compatible_slots": ["Arma", "Armadura"],
+    "tier": 1,
+    "base_cost": 60,
+    "market_price_base": 60,
+    "power_bonus": 15,
+    "power_contrib": 15,
+    "catalog_description": "Mecanismo defensivo de absorção de impacto do Consórcio Bélico.",
+    "effects": [{"effect": "power_flat", "value": 3}]
+  },
+  {
+    "id": "part_valkyria_plate",
+    "part_id": "part_valkyria_plate",
+    "corp_id": "corp_valkyria",
+    "brand_id": "corp_valkyria",
+    "name": "Placa Estriada Valkyria",
+    "branch": "Ferragem",
+    "part_type": "plating",
+    "compatible_slots": ["Armadura"],
+    "tier": 2,
+    "base_cost": 90,
+    "market_price_base": 90,
+    "power_bonus": 20,
+    "power_contrib": 20,
+    "catalog_description": "Blindagem de vanguarda com estrias de deflexão.",
+    "effects": [{"effect": "power_flat", "value": 6}]
+  },
+  {
+    "id": "part_flamel_catalyst",
+    "part_id": "part_flamel_catalyst",
+    "corp_id": "corp_flamel",
+    "brand_id": "corp_flamel",
+    "name": "Catalisador Bioquímico Flamel",
+    "branch": "Alquimia",
+    "part_type": "core",
+    "compatible_slots": ["Inscrição", "Consumível"],
+    "tier": 1,
+    "base_cost": 55,
+    "market_price_base": 55,
+    "power_bonus": 12,
+    "power_contrib": 12,
+    "catalog_description": "Agente reagente de rápida dispersão para soluções químicas.",
+    "effects": [{"effect": "energy_bonus_flat", "value": 10}]
+  },
+  {
+    "id": "part_flamel_vial",
+    "part_id": "part_flamel_vial",
+    "corp_id": "corp_flamel",
+    "brand_id": "corp_flamel",
+    "name": "Ampola Reforçada Flamel",
+    "branch": "Alquimia",
+    "part_type": "filter",
+    "compatible_slots": ["Consumível"],
+    "tier": 1,
+    "base_cost": 30,
+    "market_price_base": 30,
+    "power_bonus": 5,
+    "power_contrib": 5,
+    "catalog_description": "Recipiente estéril para acondicionamento de elixires de combate.",
+    "effects": [{"effect": "charges_flat", "value": 1}]
+  },
+  {
+    "id": "part_chancellor_core",
+    "part_id": "part_chancellor_core",
+    "corp_id": "corp_chancellor",
+    "brand_id": "corp_chancellor",
+    "name": "Núcleo de Safira Imperial",
+    "branch": "Joalheria",
+    "part_type": "gem",
+    "compatible_slots": ["Joia"],
+    "tier": 2,
+    "base_cost": 110,
+    "market_price_base": 110,
+    "power_bonus": 18,
+    "power_contrib": 18,
+    "catalog_description": "Gema lapidada com corte prismático para condução energética sem perda.",
+    "effects": [{"effect": "power_flat", "value": 4}]
+  },
+  {
+    "id": "part_gob_blade_01",
+    "name": "Lâmina Dentada de Fricção Rápida",
+    "brand_id": "corp_goblin_eng",
+    "part_type": "blade",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 1,
+    "market_price_base": 75,
+    "catalog_description": "Lâmina de ferro cru forjada às pressas com gume serrilhado irregular. Corta rápido e desgasta com facilidade se não for lubrificada.",
+    "part_id": "part_gob_blade_01",
+    "corp_id": "corp_goblin_eng",
+    "base_cost": 75,
+    "affix_id_source": "pref_afiada",
+    "effects": [
+      {
+        "effect": "power_pct",
+        "value": 0.1
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.1
+      }
+    ]
+  },
+  {
+    "id": "part_gob_blade_02",
+    "name": "Lâmina Predatória de Aço Farpado",
+    "brand_id": "corp_goblin_eng",
+    "part_type": "blade",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 2,
+    "market_price_base": 180,
+    "catalog_description": "Componente bélico dotado de farpas reversas para arrancar blindagem inimiga em combate próximo. Não recomendada para quem preza a integridade dos dedos.",
+    "part_id": "part_gob_blade_02",
+    "corp_id": "corp_goblin_eng",
+    "base_cost": 180,
+    "affix_id_source": "pref_predatorio",
+    "effects": [
+      {
+        "effect": "power_pct",
+        "value": 0.18
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.4
+      }
+    ]
+  },
+  {
+    "id": "part_gob_core_01",
+    "name": "Câmara de Detonação Magmática",
+    "brand_id": "corp_goblin_eng",
+    "part_type": "core",
+    "compatible_slots": [
+      "Inscrição"
+    ],
+    "tier": 3,
+    "market_price_base": 320,
+    "catalog_description": "Módulo cilíndrico contendo resíduos pirotécnicos instáveis. Aquece o artefato e as mãos do operador até o limite da combustão espontânea.",
+    "part_id": "part_gob_core_01",
+    "corp_id": "corp_goblin_eng",
+    "base_cost": 320,
+    "affix_id_source": "pref_vulcanico",
+    "effects": [
+      {
+        "effect": "power_pct",
+        "value": 0.2
+      },
+      {
+        "effect": "power_flat",
+        "value": 4
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.35
+      }
+    ]
+  },
+  {
+    "id": "part_gob_filter_01",
+    "name": "Compressor de Porções Industriais",
+    "brand_id": "corp_goblin_eng",
+    "part_type": "filter",
+    "compatible_slots": [
+      "Consumível"
+    ],
+    "tier": 2,
+    "market_price_base": 150,
+    "catalog_description": "Prensa mecânica que compacta o dobro de matéria calórica num cartucho de ração sem se importar com a consistência final.",
+    "part_id": "part_gob_filter_01",
+    "corp_id": "corp_goblin_eng",
+    "base_cost": 150,
+    "affix_id_source": "pref_farta",
+    "effects": [
+      {
+        "effect": "charges_flat",
+        "value": 1
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.3
+      }
+    ]
+  },
+  {
+    "id": "part_gob_hilt_01",
+    "name": "Empunhadura Sem Guarda de Risco",
+    "brand_id": "corp_goblin_eng",
+    "part_type": "hilt",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 2,
+    "market_price_base": 160,
+    "catalog_description": "Cabo de combate sem anel protetor para corte de custos industriais. O aventureiro assume voluntariamente o risco de esmagamento de nós dos dedos.",
+    "part_id": "part_gob_hilt_01",
+    "corp_id": "corp_goblin_eng",
+    "base_cost": 160,
+    "affix_id_source": "suf_acidente_trabalho",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 5
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.1
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.1,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_gob_core_02",
+    "name": "Disjuntor de Sobrecarga Calculada",
+    "brand_id": "corp_goblin_eng",
+    "part_type": "core",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 2,
+    "market_price_base": 210,
+    "catalog_description": "Módulo mecânico que libera fluxo cinético desregulado no impacto, confiando que o portador aguentará o tranco da explosão.",
+    "part_id": "part_gob_core_02",
+    "corp_id": "corp_goblin_eng",
+    "base_cost": 210,
+    "affix_id_source": "suf_risco_calculado",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 4
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.2
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.12,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_gob_blade_03",
+    "name": "Gume Guilhotina de Demissão Sumária",
+    "brand_id": "corp_goblin_eng",
+    "part_type": "blade",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 3,
+    "market_price_base": 380,
+    "catalog_description": "Peça de impacto massivo projetada para encerrar discussões contratuais em um único golpe. Letalidade corporativa absoluta.",
+    "part_id": "part_gob_blade_03",
+    "corp_id": "corp_goblin_eng",
+    "base_cost": 380,
+    "affix_id_source": "suf_rescisao_imediata",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 7
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.2
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.35
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.15,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_gob_core_03",
+    "name": "Injetor de Adrenalina de Turno Dobrado",
+    "brand_id": "corp_goblin_eng",
+    "part_type": "core",
+    "compatible_slots": [
+      "Consumível"
+    ],
+    "tier": 3,
+    "market_price_base": 340,
+    "catalog_description": "Cápsula química com estimulantes agressivos que impedem o aventureiro de desmaiar durante marchas noturnas prolongadas.",
+    "part_id": "part_gob_core_03",
+    "corp_id": "corp_goblin_eng",
+    "base_cost": 340,
+    "affix_id_source": "suf_turno_extraordinario",
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 12
+      },
+      {
+        "effect": "charges_flat",
+        "value": 1
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.25
+      },
+      {
+        "effect": "energy_bonus_flat",
+        "value": 15,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_elf_blade_01",
+    "name": "Lâmina Temperada a Frio Élfico",
+    "brand_id": "corp_elf_precision",
+    "part_type": "blade",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 2,
+    "market_price_base": 190,
+    "catalog_description": "Aço purificado submetido a resfriamento criogênico em banho de nascente mística. Fio de navalha com tolerância geométrica estrita.",
+    "part_id": "part_elf_blade_01",
+    "corp_id": "corp_elf_precision",
+    "base_cost": 190,
+    "affix_id_source": "pref_temperada",
+    "effects": [
+      {
+        "effect": "power_pct",
+        "value": 0.15
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.15
+      }
+    ]
+  },
+  {
+    "id": "part_elf_gem_01",
+    "name": "Gema Focalizadora de Cristal Élfico",
+    "brand_id": "corp_elf_precision",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Joia"
+    ],
+    "tier": 1,
+    "market_price_base": 130,
+    "catalog_description": "Cristal lapidado com facetas de ressonância mística harmônica. Eleva o prestígio e o canal de fluxo de qualquer penduricalho.",
+    "part_id": "part_elf_gem_01",
+    "corp_id": "corp_elf_precision",
+    "base_cost": 130,
+    "affix_id_source": "pref_encantada",
+    "effects": [
+      {
+        "effect": "power_pct",
+        "value": 0.12
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.4
+      }
+    ]
+  },
+  {
+    "id": "part_elf_gem_02",
+    "name": "Safira Penitencial de Condutividade Alta",
+    "brand_id": "corp_elf_precision",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Joia"
+    ],
+    "tier": 2,
+    "market_price_base": 240,
+    "catalog_description": "Gema nobre que amplifica a saída de poder através de sacrifício de vibrações periféricas, amplamente apreciada pela nobreza.",
+    "part_id": "part_elf_gem_02",
+    "corp_id": "corp_elf_precision",
+    "base_cost": 240,
+    "affix_id_source": "pref_penitente",
+    "effects": [
+      {
+        "effect": "power_pct",
+        "value": 0.22
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.4
+      }
+    ]
+  },
+  {
+    "id": "part_elf_core_01",
+    "name": "Núcleo Criogênico de Estabilidade Boreal",
+    "brand_id": "corp_elf_precision",
+    "part_type": "core",
+    "compatible_slots": [
+      "Inscrição"
+    ],
+    "tier": 3,
+    "market_price_base": 330,
+    "catalog_description": "Dispositivo arcano élfico que condensa o arredor em gelo puro, neutralizando o frio glacial externo e conferindo solidez estocástica.",
+    "part_id": "part_elf_core_01",
+    "corp_id": "corp_elf_precision",
+    "base_cost": 330,
+    "affix_id_source": "pref_glacial",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "glacier_frost"
+      },
+      {
+        "effect": "power_flat",
+        "value": 3
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.3
+      }
+    ]
+  },
+  {
+    "id": "part_elf_filter_01",
+    "name": "Refinador Gustativo de Alta Gastronomia",
+    "brand_id": "corp_elf_precision",
+    "part_type": "filter",
+    "compatible_slots": [
+      "Consumível"
+    ],
+    "tier": 1,
+    "market_price_base": 110,
+    "catalog_description": "Cartucho de especiarias arcanas que converte gororobas secas em refeições dignas de um banquete do conselho ducal.",
+    "part_id": "part_elf_filter_01",
+    "corp_id": "corp_elf_precision",
+    "base_cost": 110,
+    "affix_id_source": "pref_saborosa",
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 10
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.35
+      }
+    ]
+  },
+  {
+    "id": "part_elf_gem_03",
+    "name": "Topázio de Compensação de Turno Noturno",
+    "brand_id": "corp_elf_precision",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Joia"
+    ],
+    "tier": 2,
+    "market_price_base": 190,
+    "catalog_description": "Cristal sensível à luz baixa que harmoniza o ritmo circadiano de vigias noturnos e combate a fadiga em masmorras escuras.",
+    "part_id": "part_elf_gem_03",
+    "corp_id": "corp_elf_precision",
+    "base_cost": 190,
+    "affix_id_source": "suf_adicional_noturno",
+    "effects": [
+      {
+        "effect": "power_pct",
+        "value": 0.08
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.25
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.08,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_elf_core_02",
+    "name": "Matriz Rúnica de Compliance Arcano",
+    "brand_id": "corp_elf_precision",
+    "part_type": "core",
+    "compatible_slots": [
+      "Inscrição"
+    ],
+    "tier": 2,
+    "market_price_base": 230,
+    "catalog_description": "Inscrição de alta precisão que garante que nenhuma emissão mágica viole os tratados anti-poluição arcana da capital.",
+    "part_id": "part_elf_core_02",
+    "corp_id": "corp_elf_precision",
+    "base_cost": 230,
+    "affix_id_source": "suf_compliance_magico",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 5
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.35
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.1,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_elf_gem_04",
+    "name": "Gema Lapidada de Isenção Fiscal",
+    "brand_id": "corp_elf_precision",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Joia"
+    ],
+    "tier": 3,
+    "market_price_base": 370,
+    "catalog_description": "Amuleto com inscrição secreta de paraíso fiscal interplanar. Agrega valor astronômico de revenda para qualquer anel.",
+    "part_id": "part_elf_gem_04",
+    "corp_id": "corp_elf_precision",
+    "base_cost": 370,
+    "affix_id_source": "suf_eficiencia_tributaria",
+    "effects": [
+      {
+        "effect": "value_pct",
+        "value": 0.5
+      },
+      {
+        "effect": "power_flat",
+        "value": 3
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.3,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_dwarf_plating_01",
+    "name": "Placa Reforçada de Aço Anão",
+    "brand_id": "corp_dwarf_steel",
+    "part_type": "plating",
+    "compatible_slots": [
+      "Armadura"
+    ],
+    "tier": 1,
+    "market_price_base": 85,
+    "catalog_description": "Chapa maciça de ferro laminado prensado sob toneladas de rocha viva. Resistência mecânica simples e impiedosa.",
+    "part_id": "part_dwarf_plating_01",
+    "corp_id": "corp_dwarf_steel",
+    "base_cost": 85,
+    "affix_id_source": "pref_reforcada",
+    "effects": [
+      {
+        "effect": "power_pct",
+        "value": 0.1
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.15
+      }
+    ]
+  },
+  {
+    "id": "part_dwarf_plating_02",
+    "name": "Lamelas Robustas de Granito Vulcânico",
+    "brand_id": "corp_dwarf_steel",
+    "part_type": "plating",
+    "compatible_slots": [
+      "Armadura"
+    ],
+    "tier": 1,
+    "market_price_base": 95,
+    "catalog_description": "Escamas de pedra densa fixadas por rebites de aço negro. Suportam marteladas frontais sem sofrer deformação estrutural.",
+    "part_id": "part_dwarf_plating_02",
+    "corp_id": "corp_dwarf_steel",
+    "base_cost": 95,
+    "affix_id_source": "pref_robusta",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 4
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.2
+      }
+    ]
+  },
+  {
+    "id": "part_dwarf_plating_03",
+    "name": "Couraça Maciça de Minério Negro",
+    "brand_id": "corp_dwarf_steel",
+    "part_type": "plating",
+    "compatible_slots": [
+      "Armadura"
+    ],
+    "tier": 2,
+    "market_price_base": 210,
+    "catalog_description": "Blindagem de altíssima densidade forjada em fornos subterrâneos profundos. Bloqueia flechas e presas com solidez monástica.",
+    "part_id": "part_dwarf_plating_03",
+    "corp_id": "corp_dwarf_steel",
+    "base_cost": 210,
+    "affix_id_source": "pref_macico",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 6
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.2
+      }
+    ]
+  },
+  {
+    "id": "part_dwarf_plating_04",
+    "name": "Blindagem Impenetrável da Cidadela Subterrânea",
+    "brand_id": "corp_dwarf_steel",
+    "part_type": "plating",
+    "compatible_slots": [
+      "Armadura"
+    ],
+    "tier": 3,
+    "market_price_base": 390,
+    "catalog_description": "O ápice da metalurgia anã: ligas de aço titânico impenetráveis a ataques convencionais. Aventureiros dentro dela se sentem como cofres fortes.",
+    "part_id": "part_dwarf_plating_04",
+    "corp_id": "corp_dwarf_steel",
+    "base_cost": 390,
+    "affix_id_source": "pref_impenetravel",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 8
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.12
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.4
+      }
+    ]
+  },
+  {
+    "id": "part_dwarf_plating_05",
+    "name": "Revestimento Galvanizado Anti-Ácido",
+    "brand_id": "corp_dwarf_steel",
+    "part_type": "plating",
+    "compatible_slots": [
+      "Arma",
+      "Armadura"
+    ],
+    "tier": 3,
+    "market_price_base": 350,
+    "catalog_description": "Banho de zinco eletrolítico e resina protetora que impede a corrosão de peças mesmo sob chuvas de ácido sulfúrico.",
+    "part_id": "part_dwarf_plating_05",
+    "corp_id": "corp_dwarf_steel",
+    "base_cost": 350,
+    "affix_id_source": "pref_galvanizado",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 5
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.1
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.5
+      }
+    ]
+  },
+  {
+    "id": "part_dwarf_core_01",
+    "name": "Âncora Gravitacional de Minas Instáveis",
+    "brand_id": "corp_dwarf_steel",
+    "part_type": "core",
+    "compatible_slots": [
+      "Inscrição"
+    ],
+    "tier": 1,
+    "market_price_base": 125,
+    "catalog_description": "Contrapeso rúnico que mitiga vibrações e desabamentos de tetos em galerias instáveis e minas abandonadas.",
+    "part_id": "part_dwarf_core_01",
+    "corp_id": "corp_dwarf_steel",
+    "base_cost": 125,
+    "affix_id_source": "pref_firme",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "unstable_mine"
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.2
+      }
+    ]
+  },
+  {
+    "id": "part_dwarf_plating_06",
+    "name": "Reforço Torácico com Apólice Integrada",
+    "brand_id": "corp_dwarf_steel",
+    "part_type": "plating",
+    "compatible_slots": [
+      "Armadura"
+    ],
+    "tier": 2,
+    "market_price_base": 230,
+    "catalog_description": "Placa peitoral que atende todas as exigências das seguradoras para pagamento de indenização integral em caso de esmagamento.",
+    "part_id": "part_dwarf_plating_06",
+    "corp_id": "corp_dwarf_steel",
+    "base_cost": 230,
+    "affix_id_source": "suf_seguro_vida",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 6
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.35
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.12,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_dwarf_core_02",
+    "name": "Estrutura de Contenção de Responsabilidade Limitada",
+    "brand_id": "corp_dwarf_steel",
+    "part_type": "core",
+    "compatible_slots": [
+      "Armadura"
+    ],
+    "tier": 2,
+    "market_price_base": 220,
+    "catalog_description": "Sistema de travas mecânicas que dissipa o impacto contra terceiros, blindando o patrimônio físico e civil do combatente.",
+    "part_id": "part_dwarf_core_02",
+    "corp_id": "corp_dwarf_steel",
+    "base_cost": 220,
+    "affix_id_source": "suf_responsabilidade_limitada",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 6
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.3
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.1,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_swamp_filter_01",
+    "name": "Filtro Decantador de Caldo Concentrado",
+    "brand_id": "corp_swamp_alchemy",
+    "part_type": "filter",
+    "compatible_slots": [
+      "Consumível"
+    ],
+    "tier": 1,
+    "market_price_base": 75,
+    "catalog_description": "Serpentina de cobre corroído que extrai a última gota de nutrientes e energia calórica de extratos orgânicos fermentados.",
+    "part_id": "part_swamp_filter_01",
+    "corp_id": "corp_swamp_alchemy",
+    "base_cost": 75,
+    "affix_id_source": "pref_concentrada",
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 8
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.25
+      }
+    ]
+  },
+  {
+    "id": "part_swamp_filter_02",
+    "name": "Prensa de Suplemento de Algas Pútridas",
+    "brand_id": "corp_swamp_alchemy",
+    "part_type": "filter",
+    "compatible_slots": [
+      "Consumível"
+    ],
+    "tier": 1,
+    "market_price_base": 65,
+    "catalog_description": "Concentrador de biomassa pantanosa. O gosto lembra lodo estagnado, mas sustenta pernas cansadas por mais duas salas.",
+    "part_id": "part_swamp_filter_02",
+    "corp_id": "corp_swamp_alchemy",
+    "base_cost": 65,
+    "affix_id_source": "pref_nutritiva",
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 5
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.15
+      }
+    ]
+  },
+  {
+    "id": "part_swamp_core_01",
+    "name": "Filtro Neutralizador de Miasma Tóxico",
+    "brand_id": "corp_swamp_alchemy",
+    "part_type": "core",
+    "compatible_slots": [
+      "Inscrição"
+    ],
+    "tier": 1,
+    "market_price_base": 120,
+    "catalog_description": "Cartucho de carvão ativado com infusão de turfa que mitiga automaticamente os vapores asfixiantes de pântanos pestilentos.",
+    "part_id": "part_swamp_core_01",
+    "corp_id": "corp_swamp_alchemy",
+    "base_cost": 120,
+    "affix_id_source": "pref_purificada",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "toxic_swamp"
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.15
+      }
+    ]
+  },
+  {
+    "id": "part_swamp_filter_03",
+    "name": "Dosador Graduado de Prontuário Médico",
+    "brand_id": "corp_swamp_alchemy",
+    "part_type": "filter",
+    "compatible_slots": [
+      "Consumível"
+    ],
+    "tier": 2,
+    "market_price_base": 175,
+    "catalog_description": "Ampola com graduação clínica precisa para administração fracionada de remédios sem desperdiçar doses homologadas.",
+    "part_id": "part_swamp_filter_03",
+    "corp_id": "corp_swamp_alchemy",
+    "base_cost": 175,
+    "affix_id_source": "suf_prontuario",
+    "effects": [
+      {
+        "effect": "charges_flat",
+        "value": 1
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.25
+      },
+      {
+        "effect": "energy_bonus_flat",
+        "value": 10,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_swamp_filter_04",
+    "name": "Válvula de Infusão de Produtividade Contínua",
+    "brand_id": "corp_swamp_alchemy",
+    "part_type": "filter",
+    "compatible_slots": [
+      "Consumível"
+    ],
+    "tier": 2,
+    "market_price_base": 165,
+    "catalog_description": "Gotejador automático de tônico revigorante que mantém o explorador alerta sem pausas sindicais para descanso.",
+    "part_id": "part_swamp_filter_04",
+    "corp_id": "corp_swamp_alchemy",
+    "base_cost": 165,
+    "affix_id_source": "suf_produtividade",
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 6
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.15
+      },
+      {
+        "effect": "charges_flat",
+        "value": 1,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_swamp_core_02",
+    "name": "Injetor Químico de Fuga e Evacuação",
+    "brand_id": "corp_swamp_alchemy",
+    "part_type": "core",
+    "compatible_slots": [
+      "Consumível"
+    ],
+    "tier": 2,
+    "market_price_base": 185,
+    "catalog_description": "Carga de emergência que injeta eletrólitos imediatos na corrente sanguínea em caso de colapso de suprimentos nas profundezas.",
+    "part_id": "part_swamp_core_02",
+    "corp_id": "corp_swamp_alchemy",
+    "base_cost": 185,
+    "affix_id_source": "suf_evacuacao",
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 8
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.35
+      },
+      {
+        "effect": "charges_flat",
+        "value": 1,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_swamp_core_03",
+    "name": "Difusor Balsâmico de Eucalipto Medicinal",
+    "brand_id": "corp_swamp_alchemy",
+    "part_type": "core",
+    "compatible_slots": [
+      "Inscrição"
+    ],
+    "tier": 2,
+    "market_price_base": 195,
+    "catalog_description": "Cápsula aromática que dispersa vapores broncodilatadores, aumentando a tolerância pulmonar dos aventureiros em fendas venenosas.",
+    "part_id": "part_swamp_core_03",
+    "corp_id": "corp_swamp_alchemy",
+    "base_cost": 195,
+    "affix_id_source": "suf_antidoto_eucalipto",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 3
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.15
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.1,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_swamp_gem_01",
+    "name": "Âmbar Fétido de Adicional de Insalubridade",
+    "brand_id": "corp_swamp_alchemy",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Joia"
+    ],
+    "tier": 2,
+    "market_price_base": 215,
+    "catalog_description": "Joia incrustada com fungos luminescentes do pântano. O cheiro é hediondo, mas o valor contábil perante avaliadores de risco é indiscutível.",
+    "part_id": "part_swamp_gem_01",
+    "corp_id": "corp_swamp_alchemy",
+    "base_cost": 215,
+    "affix_id_source": "suf_insalubridade",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 2
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.4
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.08,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_crown_plating_01",
+    "name": "Couro Escamado Padrão da Fazenda Real",
+    "brand_id": "corp_crown_notarial",
+    "part_type": "plating",
+    "compatible_slots": [
+      "Armadura"
+    ],
+    "tier": 1,
+    "market_price_base": 90,
+    "catalog_description": "Lamelas curtidas sob fiscalização da inspeção régia. Peça genérica, padronizada e perfeitamente substituível em qualquer reparo.",
+    "part_id": "part_crown_plating_01",
+    "corp_id": "corp_crown_notarial",
+    "base_cost": 90,
+    "affix_id_source": "pref_escamada",
+    "effects": [
+      {
+        "effect": "power_pct",
+        "value": 0.15
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.2
+      }
+    ]
+  },
+  {
+    "id": "part_crown_gem_01",
+    "name": "Ágata Notarial de Vigor Funcional",
+    "brand_id": "corp_crown_notarial",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Joia"
+    ],
+    "tier": 1,
+    "market_price_base": 110,
+    "catalog_description": "Pedra semipreciosa chancelada pelo conselho de saúde que atesta que o portador encontra-se apto para trabalho físico extenuante.",
+    "part_id": "part_crown_gem_01",
+    "corp_id": "corp_crown_notarial",
+    "base_cost": 110,
+    "affix_id_source": "pref_vigorosa",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 3
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.25
+      }
+    ]
+  },
+  {
+    "id": "part_crown_gem_02",
+    "name": "Quartzo de Austeridade Orçamentária",
+    "brand_id": "corp_crown_notarial",
+    "part_type": "gem",
+    "compatible_slots": [
+      "Joia"
+    ],
+    "tier": 2,
+    "market_price_base": 195,
+    "catalog_description": "Componente lapidado sob rígidas metas de contenção de gastos fiscais. Maximiza a margem de liquidez em vendas no balcão.",
+    "part_id": "part_crown_gem_02",
+    "corp_id": "corp_crown_notarial",
+    "base_cost": 195,
+    "affix_id_source": "pref_economico",
+    "effects": [
+      {
+        "effect": "value_pct",
+        "value": 0.45
+      },
+      {
+        "effect": "power_flat",
+        "value": 2
+      }
+    ]
+  },
+  {
+    "id": "part_crown_core_01",
+    "name": "Inscrição Ígnea de Calefação Regulatória",
+    "brand_id": "corp_crown_notarial",
+    "part_type": "core",
+    "compatible_slots": [
+      "Inscrição"
+    ],
+    "tier": 1,
+    "market_price_base": 130,
+    "catalog_description": "Runa térmica padronizada pela comissão de inverno da Coroa. Impede o congelamento de engrenagens em tundras geladas.",
+    "part_id": "part_crown_core_01",
+    "corp_id": "corp_crown_notarial",
+    "base_cost": 130,
+    "affix_id_source": "pref_ignea",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "glacier_frost"
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.2
+      }
+    ]
+  },
+  {
+    "id": "part_crown_hilt_01",
+    "name": "Pomo Gravado com Termo de Responsabilidade",
+    "brand_id": "corp_crown_notarial",
+    "part_type": "hilt",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 1,
+    "market_price_base": 115,
+    "catalog_description": "Pomo com juramento legal esculpido em baixo-relevo, isentando a Coroa de qualquer sinistro decorrente do manuseio de armas.",
+    "part_id": "part_crown_hilt_01",
+    "corp_id": "corp_crown_notarial",
+    "base_cost": 115,
+    "affix_id_source": "suf_termo_responsabilidade",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 3
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.25
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.08,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_crown_hilt_02",
+    "name": "Guarda-Mão de Cláusula Rescisória",
+    "brand_id": "corp_crown_notarial",
+    "part_type": "hilt",
+    "compatible_slots": [
+      "Arma"
+    ],
+    "tier": 2,
+    "market_price_base": 185,
+    "catalog_description": "Guarda cruzada com carimbo régio que estipula o pagamento de aviso prévio proporcional caso a lâmina se parta em serviço.",
+    "part_id": "part_crown_hilt_02",
+    "corp_id": "corp_crown_notarial",
+    "base_cost": 185,
+    "affix_id_source": "suf_rescisao",
+    "effects": [
+      {
+        "effect": "power_pct",
+        "value": 0.12
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.15
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.12,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_crown_plating_02",
+    "name": "Braçadeira Chancelada por Laudo Pericial",
+    "brand_id": "corp_crown_notarial",
+    "part_type": "plating",
+    "compatible_slots": [
+      "Armadura"
+    ],
+    "tier": 2,
+    "market_price_base": 200,
+    "catalog_description": "Proteção de antebraço vistoriada e carimbada pelos peritos da Fazenda Real, garantindo conformidade balística contra contestações.",
+    "part_id": "part_crown_plating_02",
+    "corp_id": "corp_crown_notarial",
+    "base_cost": 200,
+    "affix_id_source": "suf_laudo_pericial",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 4
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.2
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.1,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_crown_core_02",
+    "name": "Selo Rúnico de Alvará de Funcionamento",
+    "brand_id": "corp_crown_notarial",
+    "part_type": "core",
+    "compatible_slots": [
+      "Inscrição"
+    ],
+    "tier": 2,
+    "market_price_base": 220,
+    "catalog_description": "Inscrição solene que homologa a permissão legal da força-tarefa para transitar e abater criaturas em recintos subterrâneos concedidos.",
+    "part_id": "part_crown_core_02",
+    "corp_id": "corp_crown_notarial",
+    "base_cost": 220,
+    "affix_id_source": "suf_alvara",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 5
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.35
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.1,
+        "requires_quality": "Lendário"
+      }
+    ]
+  },
+  {
+    "id": "part_crown_core_03",
+    "name": "Condutor Térmico de Prevenção à Hipotermia",
+    "brand_id": "corp_crown_notarial",
+    "part_type": "core",
+    "compatible_slots": [
+      "Inscrição"
+    ],
+    "tier": 2,
+    "market_price_base": 190,
+    "catalog_description": "Matriz rúnica em conformidade com as normas regulamentadoras de trabalho em baixas temperaturas da Coroa.",
+    "part_id": "part_crown_core_03",
+    "corp_id": "corp_crown_notarial",
+    "base_cost": 190,
+    "affix_id_source": "suf_prevencao_hipotermia",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 3
+      },
+      {
+        "effect": "value_pct",
+        "value": 0.2
+      },
+      {
+        "effect": "power_pct",
+        "value": 0.1,
+        "requires_quality": "Lendário"
+      }
+    ]
+  }
+]
