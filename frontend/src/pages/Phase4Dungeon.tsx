@@ -315,34 +315,62 @@ export default function Phase4Dungeon({
       setPlayerEnergy(Math.round(evt.energy_t1))
       setRivalEnergy(Math.round(evt.energy_t2))
 
-      // Classifica tipo de sala e pontuação
+      // Atualiza placar real transmitido pela engine sala a sala
+      if (evt.score_t1 !== undefined) {
+        setPlayerScore(evt.score_t1)
+      }
+      if (evt.score_t2 !== undefined) {
+        setRivalScore(evt.score_t2)
+      }
+
+      // Classifica tipo de sala e marcador com base nos pontos reais concedidos
       let roomType: 'room' | 'miniboss' | 'boss' | 'empty' = 'room'
       let scorer: 'player' | 'rival' | 'joint' | null = null
+
+      const pts1 = evt.points_t1 ?? 0
+      const pts2 = evt.points_t2 ?? 0
+      if (pts1 > 0 && pts2 > 0) {
+        scorer = 'joint'
+      } else if (pts1 > 0) {
+        scorer = 'player'
+      } else if (pts2 > 0) {
+        scorer = 'rival'
+      }
 
       const evtText = evt.event || ''
       if (evt.is_final_boss) {
         roomType = 'boss'
-        if (evtText.includes('Abate Conjunto')) {
-          scorer = 'joint'
-          setPlayerScore(s => s + 1)
-          setRivalScore(s => s + 1)
-        } else if (evtText.includes('Guilda do Jogador')) {
-          scorer = 'player'
-          setPlayerScore(s => s + 2)
-        } else if (evtText.includes(rivalGuildName)) {
-          scorer = 'rival'
-          setRivalScore(s => s + 2)
+        // Fallback apenas se não houver score_t1/score_t2 nos eventos
+        if (evt.score_t1 === undefined && evt.score_t2 === undefined) {
+          if (evtText.includes('Abate Conjunto')) {
+            scorer = 'joint'
+            setPlayerScore(s => s + 1)
+            setRivalScore(s => s + 1)
+          } else if (evtText.includes('superou o rival') || evtText.includes('executou o abate')) {
+            if (evtText.includes(rivalGuildName)) {
+              scorer = 'rival'
+              setRivalScore(s => s + 2)
+            } else {
+              scorer = 'player'
+              setPlayerScore(s => s + 2)
+            }
+          }
         }
-      } else if (evtText.includes('sem ocorrências') || evtText.includes('sem confronto')) {
+      } else if (evtText.includes('sem ocorrências') || evtText.includes('sem confronto') || evtText.includes('desimpedida')) {
         roomType = 'empty'
       } else {
         roomType = 'miniboss'
-        if (evtText.includes('Guilda do Jogador')) {
-          scorer = 'player'
-          setPlayerScore(s => s + 1)
-        } else if (evtText.includes(rivalGuildName)) {
-          scorer = 'rival'
-          setRivalScore(s => s + 1)
+        // Fallback apenas se não houver score_t1/score_t2 nos eventos
+        if (evt.score_t1 === undefined && evt.score_t2 === undefined) {
+          if (evtText.includes('neutralizou a ameaça') || evtText.includes('conteve a ameaça')) {
+            if (evtText.includes(rivalGuildName)) {
+              scorer = 'rival'
+              setRivalScore(s => s + 1)
+            } else {
+              scorer = 'player'
+              setPlayerScore(s => s + 1)
+            }
+          }
         }
       }
 
@@ -394,8 +422,9 @@ export default function Phase4Dungeon({
             exitRival: matchData.exit_reason_rival || 'Boss resolvido',
           })
 
-          if (res.result.league_matches && res.result.league_matches.length > 0) {
-            setSimulatedMatches(res.result.league_matches)
+          const roundMatches = res.result.league_matches || res.result.round_results
+          if (roundMatches && roundMatches.length > 0) {
+            setSimulatedMatches(roundMatches)
           } else if (lastRoundResults && lastRoundResults.length > 0) {
             setSimulatedMatches(lastRoundResults)
           }
@@ -414,6 +443,8 @@ export default function Phase4Dungeon({
     const localEvents: DungeonRoomEvent[] = []
     let pE = 100
     let rE = 100
+    let cumScoreT1 = 0
+    let cumScoreT2 = 0
 
     for (let r = 1; r <= totalRooms; r++) {
       const isBoss = r === totalRooms
@@ -424,22 +455,33 @@ export default function Phase4Dungeon({
       rE = Math.max(0, rE - rivalDrain)
 
       let eventMsg = 'Câmara com trânsito estável e sem ocorrências hostis.'
+      let pts1 = 0
+      let pts2 = 0
+
       if (isBoss) {
         if (Math.random() > 0.4) {
           eventMsg = `Guilda do Jogador superou a margem de 15% e abateu o Boss Final (+2 PE)!`
+          pts1 = 2
         } else {
           eventMsg = `Abate Conjunto! Margem de equilíbrio no Boss Final (+1 PE para ambas as guildas).`
+          pts1 = 1
+          pts2 = 1
         }
       } else {
         const hasEncounter = Math.random() < 0.65
         if (hasEncounter) {
           if (Math.random() > 0.4) {
             eventMsg = `Guilda do Jogador neutralizou a ameaça na Câmara ${r} (+1 PE).`
+            pts1 = 1
           } else {
             eventMsg = `${rivalGuildName} neutralizou a ameaça na Câmara ${r} (+1 PE).`
+            pts2 = 1
           }
         }
       }
+
+      cumScoreT1 += pts1
+      cumScoreT2 += pts2
 
       localEvents.push({
         room: r,
@@ -449,6 +491,10 @@ export default function Phase4Dungeon({
         t1_present: pE > 0,
         t2_present: rE > 0,
         event: eventMsg,
+        points_t1: pts1,
+        points_t2: pts2,
+        score_t1: cumScoreT1,
+        score_t2: cumScoreT2,
       })
     }
 
@@ -461,7 +507,7 @@ export default function Phase4Dungeon({
     })
 
     setSimulatedMatches([
-      { home_name: 'Guilda do Jogador', home_score: 3, away_name: rivalGuildName, away_score: 2, is_player_match: true },
+      { home_name: 'Guilda do Jogador', home_score: cumScoreT1, away_name: rivalGuildName, away_score: cumScoreT2, is_player_match: true },
       { home_name: 'Irmandade do Aço Negro', home_score: 2, away_name: 'Lança da Alvorada', away_score: 1 },
       { home_name: 'Corvo e Osso', home_score: 1, away_name: 'Sentinelas da Prata', away_score: 1 },
       { home_name: 'Vigia de Pedra', home_score: 0, away_name: 'Legião do Crepúsculo', away_score: 2 },

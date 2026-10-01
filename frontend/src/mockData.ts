@@ -208,6 +208,10 @@ export interface DungeonRoomEvent {
   t1_present: boolean
   t2_present: boolean
   event: string
+  score_t1?: number
+  score_t2?: number
+  points_t1?: number
+  points_t2?: number
 }
 
 export interface ExpeditionSummary {
@@ -249,6 +253,11 @@ export interface FinancialStatement {
   academy_maintenance?: number
   b2b_royalties_cost?: number
   assembly_workers_salaries?: number
+  market_expenses?: number
+  contract_signing_expenses?: number
+  hiring_expenses?: number
+  total_revenue?: number
+  total_expenses?: number
   net?: number
 }
 

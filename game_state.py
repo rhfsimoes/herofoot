@@ -51,6 +51,9 @@ SERIALIZED_FIELDS = [
     "spot_purchases_this_week",
     "weekly_sales_count",
     "weekly_sales_cash_collected",
+    "weekly_market_expenses",
+    "weekly_contract_signing_expenses",
+    "weekly_hiring_expenses",
     "guild_name",
     "consecutive_negative_gold_weeks",
     "game_over",
@@ -138,6 +141,9 @@ class GameState:
         self.spot_purchases_this_week: Dict[str, int] = {}
         self.weekly_sales_count: int = 0
         self.weekly_sales_cash_collected: int = 0
+        self.weekly_market_expenses: int = 0
+        self.weekly_contract_signing_expenses: int = 0
+        self.weekly_hiring_expenses: int = 0
 
         # Identidade e Stakes de Falência e Temporada
         self.guild_name: str = "Guilda do Jogador"
@@ -206,6 +212,12 @@ class GameState:
             self.weekly_sales_count = 0
         if not hasattr(self, "weekly_sales_cash_collected"):
             self.weekly_sales_cash_collected = 0
+        if not hasattr(self, "weekly_market_expenses"):
+            self.weekly_market_expenses = 0
+        if not hasattr(self, "weekly_contract_signing_expenses"):
+            self.weekly_contract_signing_expenses = 0
+        if not hasattr(self, "weekly_hiring_expenses"):
+            self.weekly_hiring_expenses = 0
         return self
 
     def get_spot_purchases_this_week(self, part_id: str) -> int:
@@ -223,6 +235,9 @@ class GameState:
     def reset_weekly_spot_purchases(self) -> None:
         """Reseta o teto semanal de aquisição spot no fechamento de ciclo."""
         self.spot_purchases_this_week = {}
+        self.weekly_market_expenses = 0
+        self.weekly_contract_signing_expenses = 0
+        self.weekly_hiring_expenses = 0
 
     def get_brand_xp(self, corp_id: str) -> int:
         """Retorna os pontos de EXP comercial acumulados com a corporação."""

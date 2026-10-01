@@ -297,7 +297,7 @@ class TestB2BAssembly(unittest.TestCase):
         self.assertTrue(valid_res["success"], valid_res.get("message"))
         item = valid_res["item"]
         self.assertIn("Equilibrad", item["name"])
-        self.assertIn("Canhões", item["name"])
+        self.assertIn("Canhão", item["name"])
 
     def test_assembly_line_autonomous_production_and_dre_flow(self):
         """Operários montam produtos White-label autonomamente e consolidam no DRE contábil."""
@@ -430,21 +430,15 @@ class TestB2BAssembly(unittest.TestCase):
                 self.assertNotIn(term, text, f"Termo proibido '{term}' encontrado no operário {wid}")
 
     def test_contract_progression_prerequisites(self):
-        """Valida que subir de nível de convênio (Bronze -> Prata -> Ouro) exige confiança, nível de filial e tier prévio."""
+        """Valida que subir de nível de convênio (Bronze -> Prata -> Ouro) exige confiança, tier prévio e nível de relacionamento corporativo."""
         # 1. Tentar assinar Prata diretamente com confiança baixa (40)
         self.state.contractor_confidence = 40
         res_direct_silver = self.controller.sign_b2b_contract("b2b_aethelgard_silver")
         self.assertFalse(res_direct_silver["success"])
         self.assertIn("confian", res_direct_silver["message"].lower())
 
-        # Aumenta confiança para 60, mas filial continua nível 1
+        # Aumenta confiança para 60, mas não possui contrato Bronze prévio
         self.state.contractor_confidence = 60
-        res_filial_lvl1 = self.controller.sign_b2b_contract("b2b_aethelgard_silver")
-        self.assertFalse(res_filial_lvl1["success"])
-        self.assertIn("filial", res_filial_lvl1["message"].lower())
-
-        # Aumenta filial para nível 2, mas não possui contrato Bronze prévio
-        self.state.workshop_levels["Ferragem"] = 2
         res_no_bronze = self.controller.sign_b2b_contract("b2b_aethelgard_silver")
         self.assertFalse(res_no_bronze["success"])
         self.assertIn("bronze", res_no_bronze["message"].lower())
@@ -453,10 +447,15 @@ class TestB2BAssembly(unittest.TestCase):
         res_bronze = self.controller.sign_b2b_contract("b2b_aethelgard_bronze")
         self.assertTrue(res_bronze["success"])
 
+        # Tenta assinar Prata sem Brand XP necessário (Nível 1)
+        res_no_brand_xp = self.controller.sign_b2b_contract("b2b_aethelgard_silver")
+        self.assertFalse(res_no_brand_xp["success"])
+        self.assertIn("relacionamento comercial", res_no_brand_xp["message"].lower())
+
         # Concede Brand XP necessário para Prata (Nível 3 / 100 XP)
         self.state.add_brand_xp("corp_aethelgard", 120)
 
-        # Agora cumpre todos os requisitos para Prata: confiança 60, filial 2, Bronze ativo e Brand XP
+        # Agora cumpre todos os requisitos para Prata: confiança 60, Bronze ativo e Brand XP
         res_silver = self.controller.sign_b2b_contract("b2b_aethelgard_silver")
         self.assertTrue(res_silver["success"])
         self.assertTrue(res_silver.get("is_upgrade", False))
@@ -465,9 +464,8 @@ class TestB2BAssembly(unittest.TestCase):
         res_ouro_fail = self.controller.sign_b2b_contract("b2b_aethelgard_gold")
         self.assertFalse(res_ouro_fail["success"])
 
-        # Atende aos requisitos de Ouro: confiança >= 75, filial nível 3 e Brand XP >= 300 (Nv 7)
+        # Atende aos requisitos de Ouro: confiança >= 75 e Brand XP >= 300 (Nv 7)
         self.state.contractor_confidence = 75
-        self.state.workshop_levels["Ferragem"] = 3
         self.state.add_brand_xp("corp_aethelgard", 200) # total 320 XP -> Nível 7
         res_ouro = self.controller.sign_b2b_contract("b2b_aethelgard_gold")
         self.assertTrue(res_ouro["success"])

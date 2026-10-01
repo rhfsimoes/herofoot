@@ -2394,15 +2394,10 @@ export default function Phase2Workshop({
 
                           const req = contract.requirements
                           const minConfidence = req?.min_confidence ?? 0
-                          const minWorkshopLevel = req?.min_workshop_level ?? 1
                           const requiresPrevTier = req?.requires_previous_tier
 
                           const currentConfidence = state.contractor_confidence ?? 50
                           const isConfidenceMet = currentConfidence >= minConfidence
-
-                          const corpBranch = corp?.branch ?? 'Ferragem'
-                          const currentWorkshopLvl = state.workshop_levels?.[corpBranch] ?? 1
-                          const isWorkshopMet = currentWorkshopLvl >= minWorkshopLevel
 
                           const requiredBrandLevel = contract.tier === 'Ouro' ? 7 : contract.tier === 'Prata' ? 3 : 1
                           const isBrandLevelMet = corpLevel >= requiredBrandLevel
@@ -2411,7 +2406,7 @@ export default function Phase2Workshop({
                           const tierOrder: Record<string, number> = { Bronze: 1, Prata: 2, Ouro: 3 }
                           const isPrevTierMet = !requiresPrevTier || sameCorpActive.some(c => (tierOrder[c.tier] ?? 1) >= (tierOrder[requiresPrevTier] ?? 1))
 
-                          const allReqsMet = isConfidenceMet && isWorkshopMet && isPrevTierMet && isBrandLevelMet
+                          const allReqsMet = isConfidenceMet && isPrevTierMet && isBrandLevelMet
                           const isUpgrade = sameCorpActive.length > 0 && !isActive
 
                           const slotsLocked = state.b2b_slots_locked ?? 0
@@ -2482,15 +2477,6 @@ export default function Phase2Workshop({
                                     </div>
                                   )}
 
-                                  {minWorkshopLevel > 1 && (
-                                    <div className="flex items-center justify-between font-mono text-[10px]">
-                                      <span className="text-stone-400">Filial {corpBranch}:</span>
-                                      <span className={isWorkshopMet ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}>
-                                        Nv. {currentWorkshopLvl} / Nv. {minWorkshopLevel} {isWorkshopMet ? '✓' : '✗'}
-                                      </span>
-                                    </div>
-                                  )}
-
                                   {requiredBrandLevel > 1 && (
                                     <div className="flex items-center justify-between font-mono text-[10px]">
                                       <span className="text-stone-400">Relacionamento Corporativo:</span>
@@ -2509,7 +2495,7 @@ export default function Phase2Workshop({
                                     </div>
                                   )}
 
-                                  {minConfidence === 0 && minWorkshopLevel === 1 && !requiresPrevTier && requiredBrandLevel === 1 && (
+                                  {minConfidence === 0 && !requiresPrevTier && requiredBrandLevel === 1 && (
                                     <div className="text-[10px] text-stone-500 italic">
                                       Homologação livre com alvará da Coroa.
                                     </div>
@@ -3703,11 +3689,11 @@ export default function Phase2Workshop({
                   const hasDiscount = Boolean(activeContract)
                   const discountPct = activeContract?.discount_pct ?? 0
                   const baseCost = part.base_cost ?? part.market_price_base ?? 50
-                  const contractTierOrder: Record<string, number> = { 'Bronze': 1, 'Prata': 2, 'Ouro': 3 }
-                  const currentTierLevel = activeContract ? (contractTierOrder[activeContract.tier] || 1) : 0
+                  const contractTierOrder: Record<string, number> = { 'Bronze': 1, 'Prata': 2, 'Ouro': 3, 'bronze': 1, 'prata': 2, 'ouro': 3 }
+                  const maxUnlockedTier = activeContract ? (contractTierOrder[activeContract.tier] || 1) : 1
                   const isCrown = part.corp_id === 'corp_crown_notarial'
                   const requiredTier = part.tier || 1
-                  const isLockedBySponsorship = !isCrown && requiredTier > 1 && currentTierLevel < requiredTier
+                  const isLockedBySponsorship = !isCrown && requiredTier > maxUnlockedTier
                   const requiredTierName = requiredTier === 2 ? 'Prata' : 'Ouro'
                   const unitPrice = hasDiscount
                     ? Math.round(baseCost * (1 - discountPct))

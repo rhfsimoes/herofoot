@@ -767,16 +767,22 @@ class CraftingService:
         primary_branch = base_part.get("branch", "Ferragem")
         slot = base_part.get("compatible_slots", ["Arsenal Ofensivo"])[0]
 
-        # Nomenclatura procedural baseada nos afixos tangíveis das peças
+        # Nomenclatura procedural concisa baseada nas peças modulares (máximo 2 palavras por componente)
         if base_item_name and base_item_name != "Artefato Modular":
             effective_base_name = base_item_name
         else:
-            p_prefix = prefix_part.get("name_modifier", "") if prefix_part else ""
-            p_base = base_part.get("name_modifier") or base_part.get("name", "Artefato")
-            p_suffix = suffix_part.get("name_modifier", "") if suffix_part else ""
+            def _clean_segment(text: str, max_words: int = 2) -> str:
+                if not text:
+                    return ""
+                words = text.strip().split()
+                return " ".join(words[:max_words])
+
+            p_prefix = _clean_segment(prefix_part.get("name_modifier", "") if prefix_part else "", 2)
+            p_base = _clean_segment(base_part.get("name_modifier") or base_part.get("name", "Artefato"), 2)
+            p_suffix = _clean_segment(suffix_part.get("name_modifier", "") if suffix_part else "", 2)
             effective_base_name = " ".join(filter(None, [p_prefix, p_base, p_suffix])).strip()
             if not effective_base_name:
-                effective_base_name = "Artefato Modular Homologado"
+                effective_base_name = "Artefato Modular"
 
         if rng is None:
             rng = random.Random()

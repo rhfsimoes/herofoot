@@ -199,6 +199,10 @@ class GameController:
             "supplies_bonus": getattr(self.state, "supplies_bonus", 0),
             "active_slot": self.active_slot,
             "weekly_sales_revenue": getattr(self.state, "weekly_sales_revenue", 0),
+            "weekly_sales_count": getattr(self.state, "weekly_sales_count", 0),
+            "weekly_market_expenses": getattr(self.state, "weekly_market_expenses", 0),
+            "weekly_contract_signing_expenses": getattr(self.state, "weekly_contract_signing_expenses", 0),
+            "weekly_hiring_expenses": getattr(self.state, "weekly_hiring_expenses", 0),
             "last_financial_statement": getattr(self.state, "last_financial_statement", {}),
             "financials": getattr(self.state, "last_financial_statement", {}),
             "active_b2b_contracts": getattr(self.state, "active_b2b_contracts", []),
@@ -440,15 +444,6 @@ class GameController:
                 "message": f"Homologação indeferida: a corporação exige Confiança da Contratante mínima de {min_confidence} pontos (Atual: {self.state.contractor_confidence}).",
             }
 
-        # Validação de Nível da Filial da Oficina
-        branch = corp.get("branch", "Ferragem")
-        current_branch_lvl = self.state.workshop_levels.get(branch, 1)
-        if current_branch_lvl < min_workshop_level:
-            return {
-                "success": False,
-                "message": f"Homologação indeferida: a corporação exige filial de {branch} de nível {min_workshop_level} ou superior (Nível atual: {current_branch_lvl}).",
-            }
-
         # Validação de Progressão Gradual (Bronze -> Prata -> Ouro)
         corp_active_contracts = [c for c in self.state.active_b2b_contracts if c.get("corp_id") == corp_id]
         if requires_previous_tier:
@@ -518,8 +513,9 @@ class GameController:
                     "message": f"Contrato rejeitado: parceria exclusiva vigente com a concorrente '{rival_corp.get('name', rival_corp_id)}' impede novos convênios com esta marca.",
                 }
 
-        # Deduz taxa de homologação inicial
+        # Deduz taxa de homologação inicial e registra no DRE
         self.state.gold -= royalty
+        self.state.weekly_contract_signing_expenses = getattr(self.state, "weekly_contract_signing_expenses", 0) + royalty
 
         # Homologação do contrato (Upgrade ou Novo)
         is_upgrade = len(corp_active_contracts) > 0
@@ -596,6 +592,7 @@ class GameController:
             return {"success": False, "message": f"Tesouraria insuficiente para admissão do operário (Custo: {cost} Ouro, Saldo: {self.state.gold} Ouro)."}
 
         self.state.gold -= cost
+        self.state.weekly_hiring_expenses = getattr(self.state, "weekly_hiring_expenses", 0) + cost
         active_contracts = getattr(self.state, "active_b2b_contracts", [])
         default_corp = active_contracts[0].get("corp_id") if active_contracts else None
         default_recipe = default_corp or (worker.get("allowed_recipes", [None])[0] if worker.get("allowed_recipes") else None)
@@ -680,7 +677,11 @@ class GameController:
         return self.crafting_service.assemble_item(part_ids, base_name=base_name, is_tinkering=is_tinkering, rng=rng)
 
     def buy_part(self, part_id: str, quantity: int = 1) -> dict:
-        return self.market_engine.buy_spot_part(part_id, quantity=quantity, state=self.state)
+        res = self.market_engine.buy_spot_part(part_id, quantity=quantity, state=self.state)
+        if res.get("success"):
+            cost = int(res.get("total_cost", 0))
+            self.state.weekly_market_expenses = getattr(self.state, "weekly_market_expenses", 0) + cost
+        return res
 
     def calculate_part_spot_price(self, part_id: str) -> int:
         return self.market_engine.calculate_part_spot_price(part_id, state=self.state)

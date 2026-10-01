@@ -4,7 +4,7 @@
     "part_id": "part_aethelgard_blade",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Bateria de Canhões Aethelgard",
+    "name": "Canhão Aethelgard",
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
@@ -23,14 +23,14 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Bateria de Canhões Aethelgard"
+    "name_modifier": "Canhão"
   },
   {
     "id": "part_aethelgard_hilt",
     "part_id": "part_aethelgard_hilt",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Mancal Estabilizador Aethelgard",
+    "name": "Mancal Equilibrado",
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
@@ -56,7 +56,7 @@
     "part_id": "part_valkyria_guard",
     "corp_id": "corp_valkyria",
     "brand_id": "corp_valkyria",
-    "name": "Guarda de Impacto Valkyria",
+    "name": "Guarda Articulada",
     "branch": "Ferragem",
     "part_type": "guard",
     "compatible_slots": [
@@ -83,7 +83,7 @@
     "part_id": "part_valkyria_plate",
     "corp_id": "corp_valkyria",
     "brand_id": "corp_valkyria",
-    "name": "Kit de Blindagem Valkyria",
+    "name": "Couraça Valkyria",
     "branch": "Ferragem",
     "part_type": "plating",
     "compatible_slots": [
@@ -102,14 +102,14 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Kit de Blindagem Valkyria"
+    "name_modifier": "Couraça"
   },
   {
     "id": "part_flamel_catalyst",
     "part_id": "part_flamel_catalyst",
     "corp_id": "corp_flamel",
     "brand_id": "corp_flamel",
-    "name": "Catalisador Bioquímico Flamel",
+    "name": "Catalisador Puro",
     "branch": "Alquimia",
     "part_type": "core",
     "compatible_slots": [
@@ -129,14 +129,14 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Alquimia Pura"
+    "name_modifier": "de Alquimia"
   },
   {
     "id": "part_flamel_vial",
     "part_id": "part_flamel_vial",
     "corp_id": "corp_flamel",
     "brand_id": "corp_flamel",
-    "name": "Ampola Reforçada Flamel",
+    "name": "Ampola Flamel",
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
@@ -155,14 +155,14 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Ampola Reforçada Flamel"
+    "name_modifier": "Ampola"
   },
   {
     "id": "part_chancellor_core",
     "part_id": "part_chancellor_core",
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
-    "name": "Núcleo de Safira Imperial",
+    "name": "Núcleo de Safira",
     "branch": "Joalheria",
     "part_type": "gem",
     "compatible_slots": [
@@ -181,11 +181,11 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Safira Imperial"
+    "name_modifier": "de Safira"
   },
   {
     "id": "part_gob_blade_01",
-    "name": "Lâmina Dentada de Fricção Rápida",
+    "name": "Dinamite Dentada",
     "brand_id": "corp_goblin_eng",
     "part_type": "blade",
     "compatible_slots": [
@@ -209,11 +209,11 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Lâmina Dentada de Fricção Rápida"
+    "name_modifier": "Dinamite"
   },
   {
     "id": "part_gob_blade_02",
-    "name": "Lâmina Predatória de Aço Farpado",
+    "name": "Dinamite Predatória",
     "brand_id": "corp_goblin_eng",
     "part_type": "blade",
     "compatible_slots": [
@@ -237,11 +237,11 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Lâmina Predatória de Aço Farpado"
+    "name_modifier": "Dinamite"
   },
   {
     "id": "part_gob_core_01",
-    "name": "Câmara de Detonação Magmática",
+    "name": "Espoleta Goblin",
     "brand_id": "corp_goblin_eng",
     "part_type": "core",
     "compatible_slots": [
@@ -269,11 +269,11 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "do Patrono"
+    "name_modifier": "Goblin"
   },
   {
     "id": "part_gob_filter_01",
-    "name": "Compressor de Porções Industriais",
+    "name": "Compressor a Vapor",
     "brand_id": "corp_goblin_eng",
     "part_type": "filter",
     "compatible_slots": [
@@ -297,11 +297,11 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Compressor de Porções Industriais"
+    "name_modifier": "Compressor"
   },
   {
     "id": "part_gob_hilt_01",
-    "name": "Empunhadura Sem Guarda de Risco",
+    "name": "Gatilho Rápido",
     "brand_id": "corp_goblin_eng",
     "part_type": "hilt",
     "compatible_slots": [
@@ -330,11 +330,11 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Imprudente"
+    "name_modifier": "Rápido"
   },
   {
     "id": "part_gob_core_02",
-    "name": "Disjuntor de Sobrecarga Calculada",
+    "name": "Propulsor de Sobrecarga",
     "brand_id": "corp_goblin_eng",
     "part_type": "core",
     "compatible_slots": [
@@ -367,7 +367,7 @@
   },
   {
     "id": "part_gob_blade_03",
-    "name": "Gume Guilhotina de Demissão Sumária",
+    "name": "Morteiro Goblin",
     "brand_id": "corp_goblin_eng",
     "part_type": "blade",
     "compatible_slots": [
@@ -400,11 +400,11 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Gume Guilhotina de Demissão Sumária"
+    "name_modifier": "Morteiro"
   },
   {
     "id": "part_gob_core_03",
-    "name": "Injetor de Adrenalina de Turno Dobrado",
+    "name": "Detonador Noturno",
     "brand_id": "corp_goblin_eng",
     "part_type": "core",
     "compatible_slots": [
@@ -437,11 +437,11 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Turno Noturno"
+    "name_modifier": "Noturno"
   },
   {
     "id": "part_elf_blade_01",
-    "name": "Lâmina Temperada a Frio Élfico",
+    "name": "Cronômetro Élfico",
     "brand_id": "corp_elf_precision",
     "part_type": "blade",
     "compatible_slots": [
@@ -465,11 +465,11 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Lâmina Temperada a Frio Élfico"
+    "name_modifier": "Cronômetro"
   },
   {
     "id": "part_elf_gem_01",
-    "name": "Gema Focalizadora de Cristal Élfico",
+    "name": "Gema Élfica",
     "brand_id": "corp_elf_precision",
     "part_type": "gem",
     "compatible_slots": [
@@ -493,7 +493,7 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Gema Focalizadora de Cristal Élfico"
+    "name_modifier": "Lente"
   },
   {
     "id": "part_elf_gem_02",
@@ -521,11 +521,11 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Safira Penitencial de Condutividade Alta"
+    "name_modifier": "Safira Penitencial"
   },
   {
     "id": "part_elf_core_01",
-    "name": "Núcleo Criogênico de Estabilidade Boreal",
+    "name": "Selo de Vento",
     "brand_id": "corp_elf_precision",
     "part_type": "core",
     "compatible_slots": [
@@ -553,11 +553,11 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Gelo Eterno"
+    "name_modifier": "do Vento"
   },
   {
     "id": "part_elf_filter_01",
-    "name": "Refinador Gustativo de Alta Gastronomia",
+    "name": "Filtro Cristalino",
     "brand_id": "corp_elf_precision",
     "part_type": "filter",
     "compatible_slots": [
@@ -581,11 +581,11 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Refinada"
+    "name_modifier": "Refinado"
   },
   {
     "id": "part_elf_gem_03",
-    "name": "Topázio de Compensação de Turno Noturno",
+    "name": "Safira Estelar",
     "brand_id": "corp_elf_precision",
     "part_type": "gem",
     "compatible_slots": [
@@ -614,7 +614,7 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Turno Noturno"
+    "name_modifier": "Prisma"
   },
   {
     "id": "part_elf_core_02",
@@ -684,7 +684,7 @@
   },
   {
     "id": "part_dwarf_plating_01",
-    "name": "Barricada de Aço Anão",
+    "name": "Escudo de Rocha",
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
@@ -708,7 +708,7 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Barricada de Aço Anão"
+    "name_modifier": "Escudo"
   },
   {
     "id": "part_dwarf_plating_02",
@@ -736,11 +736,11 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Kit de Blindagem Vulcânica"
+    "name_modifier": "Kit de"
   },
   {
     "id": "part_dwarf_plating_03",
-    "name": "Barricada Portátil de Minério Negro",
+    "name": "Barricada de Ferro",
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
@@ -764,11 +764,11 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Barricada de Minério Negro"
+    "name_modifier": "Barricada"
   },
   {
     "id": "part_dwarf_plating_04",
-    "name": "Blindagem Coletiva da Cidadela",
+    "name": "Baluarte Abissal",
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
@@ -796,11 +796,11 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Blindagem da Cidadela"
+    "name_modifier": "Baluarte"
   },
   {
     "id": "part_dwarf_plating_05",
-    "name": "Revestimento Galvanizado",
+    "name": "Blindagem da Cidadela",
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
@@ -829,11 +829,11 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Galvanizado"
+    "name_modifier": "Blindagem"
   },
   {
     "id": "part_dwarf_core_01",
-    "name": "Âncora Gravitacional",
+    "name": "Âncora Anã",
     "brand_id": "corp_dwarf_steel",
     "part_type": "core",
     "compatible_slots": [
@@ -857,11 +857,11 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Pesado"
+    "name_modifier": "Anão"
   },
   {
     "id": "part_dwarf_plating_06",
-    "name": "Reforço Torácico com Apólice Integrada",
+    "name": "Couraça Vulcânica",
     "brand_id": "corp_dwarf_steel",
     "part_type": "plating",
     "compatible_slots": [
@@ -890,11 +890,11 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Apurada"
+    "name_modifier": "Couraça"
   },
   {
     "id": "part_dwarf_core_02",
-    "name": "Estrutura de Contenção de Responsabilidade Limitada",
+    "name": "Chapa de Minério",
     "brand_id": "corp_dwarf_steel",
     "part_type": "core",
     "compatible_slots": [
@@ -923,11 +923,11 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Responsabilidade Limitada"
+    "name_modifier": "Negro"
   },
   {
     "id": "part_swamp_filter_01",
-    "name": "Lote de Provisões do Charco",
+    "name": "Alvará Antitóxico",
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
@@ -951,7 +951,7 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Provisões do Charco"
+    "name_modifier": "Alvará"
   },
   {
     "id": "part_swamp_filter_02",
@@ -979,11 +979,11 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Catering de Algas"
+    "name_modifier": "Catering de"
   },
   {
     "id": "part_swamp_core_01",
-    "name": "Filtro Neutralizador de Miasma",
+    "name": "Selo de Pântano",
     "brand_id": "corp_swamp_alchemy",
     "part_type": "core",
     "compatible_slots": [
@@ -1007,11 +1007,11 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "do Antídoto"
+    "name_modifier": "do Pântano"
   },
   {
     "id": "part_swamp_filter_03",
-    "name": "Dosador Graduado de Prontuário",
+    "name": "Licença de Miasma",
     "brand_id": "corp_swamp_alchemy",
     "part_type": "filter",
     "compatible_slots": [
@@ -1040,7 +1040,7 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Graduado"
+    "name_modifier": "Licença"
   },
   {
     "id": "part_swamp_filter_04",
@@ -1077,7 +1077,7 @@
   },
   {
     "id": "part_swamp_core_02",
-    "name": "Injetor Químico de Evacuação",
+    "name": "Registro Purificador",
     "brand_id": "corp_swamp_alchemy",
     "part_type": "core",
     "compatible_slots": [
@@ -1106,7 +1106,7 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Fuga"
+    "name_modifier": "de Miasma"
   },
   {
     "id": "part_swamp_core_03",
@@ -1200,11 +1200,11 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Fardamento da Fazenda Real"
+    "name_modifier": "Fardamento da"
   },
   {
     "id": "part_crown_gem_01",
-    "name": "Ágata Notarial de Vigor Funcional",
+    "name": "Chancela Notarial",
     "brand_id": "corp_crown_notarial",
     "part_type": "gem",
     "compatible_slots": [
@@ -1228,11 +1228,11 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "do Patrono"
+    "name_modifier": "da Coroa"
   },
   {
     "id": "part_crown_gem_02",
-    "name": "Quartzo de Austeridade Orçamentária",
+    "name": "Certidão Selada",
     "brand_id": "corp_crown_notarial",
     "part_type": "gem",
     "compatible_slots": [
@@ -1256,7 +1256,7 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "da Austeridade"
+    "name_modifier": "Régio"
   },
   {
     "id": "part_crown_core_01",
@@ -1288,7 +1288,7 @@
   },
   {
     "id": "part_crown_hilt_01",
-    "name": "Pomo Notarial de Responsabilidade",
+    "name": "Armação Padrão",
     "brand_id": "corp_crown_notarial",
     "part_type": "hilt",
     "compatible_slots": [
@@ -1317,11 +1317,11 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Chancelado"
+    "name_modifier": "Notarial"
   },
   {
     "id": "part_crown_hilt_02",
-    "name": "Guarda de Cláusula Rescisória",
+    "name": "Braçadeira Oficial",
     "brand_id": "corp_crown_notarial",
     "part_type": "hilt",
     "compatible_slots": [
@@ -1350,7 +1350,7 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Forjado"
+    "name_modifier": "Oficial"
   },
   {
     "id": "part_crown_plating_02",
@@ -1416,7 +1416,7 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "do Alvará Régio"
+    "name_modifier": "do Alvará"
   },
   {
     "id": "part_crown_core_03",
@@ -1449,14 +1449,14 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "da Ordem Boreal"
+    "name_modifier": "da Ordem"
   },
   {
     "id": "part_aethelgard_core",
     "part_id": "part_aethelgard_core",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Rebite de Fixação Aethelgard",
+    "name": "Engrenagem de Aço",
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
@@ -1470,7 +1470,7 @@
     "power_contrib": 8,
     "catalog_description": "Rebites de alta pressão para sustentação de baterias móveis de esquadrão.",
     "slot_role": "suffix",
-    "name_modifier": "de Aethelgard",
+    "name_modifier": "de Aço",
     "effects": [
       {
         "effect": "power_flat",
@@ -1483,7 +1483,7 @@
     "part_id": "part_valkyria_core",
     "corp_id": "corp_valkyria",
     "brand_id": "corp_valkyria",
-    "name": "Placa Balística Valkyria",
+    "name": "Chassi Bélico",
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
@@ -1497,7 +1497,7 @@
     "power_contrib": 14,
     "catalog_description": "Revestimento blindado contra ataques pesados e projéteis inimigos.",
     "slot_role": "suffix",
-    "name_modifier": "da Valkyria",
+    "name_modifier": "Bélico",
     "effects": [
       {
         "effect": "power_flat",
@@ -1524,7 +1524,7 @@
     "power_contrib": 15,
     "catalog_description": "Estrutura tática móvel reforçada para armamento pesado e apoio ofensivo.",
     "slot_role": "base",
-    "name_modifier": "Chassi Bélico Valkyria",
+    "name_modifier": "Chassi Bélico",
     "effects": [
       {
         "effect": "power_flat",
@@ -1537,7 +1537,7 @@
     "part_id": "part_flamel_nozzle",
     "corp_id": "corp_flamel",
     "brand_id": "corp_flamel",
-    "name": "Bocal Dosador Flamel",
+    "name": "Bocal Dosador",
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
@@ -1551,7 +1551,7 @@
     "power_contrib": 8,
     "catalog_description": "Válvula de distribuição precisa de estimulantes e filtros para a equipe.",
     "slot_role": "prefix",
-    "name_modifier": "Destilado",
+    "name_modifier": "Dosador",
     "effects": [
       {
         "effect": "power_flat",
@@ -1564,7 +1564,7 @@
     "part_id": "part_chancellor_frame",
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
-    "name": "Ativo de Retenção Chanceler",
+    "name": "Engaste Fino",
     "branch": "Joalheria",
     "part_type": "plating",
     "compatible_slots": [
@@ -1578,7 +1578,7 @@
     "power_contrib": 14,
     "catalog_description": "Insignia de premiação corporativa que eleva a moral e dedicação da guilda.",
     "slot_role": "base",
-    "name_modifier": "Ativo Chanceler",
+    "name_modifier": "Fino",
     "effects": [
       {
         "effect": "power_flat",
@@ -1591,7 +1591,7 @@
     "part_id": "part_chancellor_pin",
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
-    "name": "Broche de Fixação Imperial",
+    "name": "Broche Imperial",
     "branch": "Joalheria",
     "part_type": "hilt",
     "compatible_slots": [
@@ -1604,7 +1604,7 @@
     "power_contrib": 8,
     "catalog_description": "Fecho nobre decorativo para condecorações da Chancelaria.",
     "slot_role": "prefix",
-    "name_modifier": "Aureolado",
+    "name_modifier": "Imperial",
     "effects": [
       {
         "effect": "power_flat",
@@ -1617,7 +1617,7 @@
     "part_id": "part_gob_core_00",
     "corp_id": "corp_goblin_eng",
     "brand_id": "corp_goblin_eng",
-    "name": "Lote de Dinamites Táticas Goblin",
+    "name": "Pavio Curto",
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
@@ -1631,7 +1631,7 @@
     "power_contrib": 7,
     "catalog_description": "Cartuchos explosivos concentrados para abrir caminhos e aniquilar aglomerações.",
     "slot_role": "suffix",
-    "name_modifier": "Explosivo",
+    "name_modifier": "Instável",
     "effects": [
       {
         "effect": "power_flat",
@@ -1644,7 +1644,7 @@
     "part_id": "part_elf_core_00",
     "corp_id": "corp_elf_precision",
     "brand_id": "corp_elf_precision",
-    "name": "Matriz de Ressonância Élfica",
+    "name": "Fio de Prata",
     "branch": "Joalheria",
     "part_type": "core",
     "compatible_slots": [
@@ -1658,7 +1658,7 @@
     "power_contrib": 8,
     "catalog_description": "Cristal diminuto polido com frequências harmônicas que sintoniza as peças ao seu redor.",
     "slot_role": "suffix",
-    "name_modifier": "de Precisão Élfica",
+    "name_modifier": "Élfico",
     "effects": [
       {
         "effect": "power_flat",
@@ -1671,7 +1671,7 @@
     "part_id": "part_dwarf_prefix_01",
     "corp_id": "corp_dwarf_steel",
     "brand_id": "corp_dwarf_steel",
-    "name": "Presilha Forjada Anã",
+    "name": "Rebite Pesado",
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
@@ -1685,7 +1685,7 @@
     "power_contrib": 8,
     "catalog_description": "Travas de aço maciço para articulações pesadas de defesa e ataque.",
     "slot_role": "prefix",
-    "name_modifier": "Maciço",
+    "name_modifier": "Pesado",
     "effects": [
       {
         "effect": "power_flat",
@@ -1698,7 +1698,7 @@
     "part_id": "part_swamp_prefix_01",
     "corp_id": "corp_swamp_alchemy",
     "brand_id": "corp_swamp_alchemy",
-    "name": "Válvula de Lodo Filtrado",
+    "name": "Filtro Hermético",
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
@@ -1712,7 +1712,7 @@
     "power_contrib": 8,
     "catalog_description": "Válvula química com carvão ativado pantanoso para neutralizar miasmas corrosivos.",
     "slot_role": "prefix",
-    "name_modifier": "Miasmático",
+    "name_modifier": "Hermético",
     "effects": [
       {
         "effect": "power_flat",
@@ -1725,7 +1725,7 @@
     "part_id": "part_aethelgard_blade_t2",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Canhões Prensados Aethelgard",
+    "name": "Bateria Pesada",
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
@@ -1744,14 +1744,14 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Canhões Prensados Aethelgard"
+    "name_modifier": "Bateria"
   },
   {
     "id": "part_aethelgard_hilt_t2",
     "part_id": "part_aethelgard_hilt_t2",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Mancal Reforçado Aethelgard",
+    "name": "Mancal Reforçado",
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
@@ -1777,7 +1777,7 @@
     "part_id": "part_aethelgard_core_t2",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Rebite Temperado Aethelgard",
+    "name": "Engrenagem Temperada",
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
@@ -1797,14 +1797,14 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Aço"
+    "name_modifier": "Temperado"
   },
   {
     "id": "part_aethelgard_blade_t3",
     "part_id": "part_aethelgard_blade_t3",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Arsenal de Mithril Aethelgard",
+    "name": "Canhão de Cerco",
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
@@ -1823,14 +1823,14 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Arsenal de Mithril Aethelgard"
+    "name_modifier": "Canhão"
   },
   {
     "id": "part_aethelgard_hilt_t3",
     "part_id": "part_aethelgard_hilt_t3",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Mancal Nobre Aethelgard",
+    "name": "Mancal Supremo",
     "branch": "Ferragem",
     "part_type": "hilt",
     "compatible_slots": [
@@ -1849,14 +1849,14 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Nobre"
+    "name_modifier": "Supremo"
   },
   {
     "id": "part_aethelgard_core_t3",
     "part_id": "part_aethelgard_core_t3",
     "corp_id": "corp_aethelgard",
     "brand_id": "corp_aethelgard",
-    "name": "Núcleo de Forja Aethelgard",
+    "name": "Engrenagem Titânica",
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
@@ -1876,14 +1876,14 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Forja"
+    "name_modifier": "Titânico"
   },
   {
     "id": "part_valkyria_blade_t1",
     "part_id": "part_valkyria_blade_t1",
     "corp_id": "corp_valkyria",
     "brand_id": "corp_valkyria",
-    "name": "Artilharia Pesada Valkyria",
+    "name": "Lâmina Balística",
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
@@ -1902,14 +1902,14 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Artilharia Valkyria"
+    "name_modifier": "Lâmina"
   },
   {
     "id": "part_valkyria_core_t1",
     "part_id": "part_valkyria_core_t1",
     "corp_id": "corp_valkyria",
     "brand_id": "corp_valkyria",
-    "name": "Rebite Balístico Valkyria",
+    "name": "Rebite Valkyria",
     "branch": "Ferragem",
     "part_type": "core",
     "compatible_slots": [
@@ -1929,7 +1929,7 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Balístico"
+    "name_modifier": "Valkyria"
   },
   {
     "id": "part_valkyria_guard_t3",
@@ -1982,7 +1982,7 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Arsenal Exterminador Valkyria"
+    "name_modifier": "Arsenal Exterminador"
   },
   {
     "id": "part_valkyria_core_t3",
@@ -2097,7 +2097,7 @@
     "part_id": "part_flamel_vial_t3",
     "corp_id": "corp_flamel",
     "brand_id": "corp_flamel",
-    "name": "Ampola Dragônica Flamel",
+    "name": "Ampola Dragônica",
     "branch": "Alquimia",
     "part_type": "filter",
     "compatible_slots": [
@@ -2117,14 +2117,14 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Dragônico"
+    "name_modifier": "Ampola"
   },
   {
     "id": "part_flamel_reagent_t3",
     "part_id": "part_flamel_reagent_t3",
     "corp_id": "corp_flamel",
     "brand_id": "corp_flamel",
-    "name": "Provisão Alquímica Dragônica",
+    "name": "Reativo Puro",
     "branch": "Alquimia",
     "part_type": "gem",
     "compatible_slots": [
@@ -2144,14 +2144,14 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Provisão Dragônica"
+    "name_modifier": "Puro"
   },
   {
     "id": "part_flamel_core_t3",
     "part_id": "part_flamel_core_t3",
     "corp_id": "corp_flamel",
     "brand_id": "corp_flamel",
-    "name": "Catalisador Primordial Flamel",
+    "name": "Núcleo Flamel",
     "branch": "Alquimia",
     "part_type": "core",
     "compatible_slots": [
@@ -2171,14 +2171,14 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Primordial"
+    "name_modifier": "Flamel"
   },
   {
     "id": "part_chancellor_gem_t1",
     "part_id": "part_chancellor_gem_t1",
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
-    "name": "Incentivo Notarial Lapidado",
+    "name": "Ágata Lapidada",
     "branch": "Joalheria",
     "part_type": "gem",
     "compatible_slots": [
@@ -2197,7 +2197,7 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Incentivo Notarial"
+    "name_modifier": "Ágata"
   },
   {
     "id": "part_chancellor_pin_t2",
@@ -2230,7 +2230,7 @@
     "part_id": "part_chancellor_gem_t3",
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
-    "name": "Ativo Imperial Chanceler",
+    "name": "Prisma Solar",
     "branch": "Joalheria",
     "part_type": "gem",
     "compatible_slots": [
@@ -2249,14 +2249,14 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Ativo Imperial"
+    "name_modifier": "Prisma"
   },
   {
     "id": "part_chancellor_frame_t3",
     "part_id": "part_chancellor_frame_t3",
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
-    "name": "Armação de Adamante Chanceler",
+    "name": "Engaste Platina",
     "branch": "Joalheria",
     "part_type": "plating",
     "compatible_slots": [
@@ -2276,14 +2276,14 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Armação de Adamante Chanceler"
+    "name_modifier": "Nobre"
   },
   {
     "id": "part_chancellor_core_t3",
     "part_id": "part_chancellor_core_t3",
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
-    "name": "Prisma Solar Chanceler",
+    "name": "Núcleo Diamantino",
     "branch": "Joalheria",
     "part_type": "core",
     "compatible_slots": [
@@ -2302,7 +2302,7 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Solar"
+    "name_modifier": "Chanceler"
   },
   {
     "id": "part_swamp_filter_t3",
@@ -2390,7 +2390,7 @@
     "part_id": "part_crown_blade_t3",
     "corp_id": "corp_crown_notarial",
     "brand_id": "corp_crown_notarial",
-    "name": "Arsenal Imperial Notarial",
+    "name": "Decreto Imperial",
     "branch": "Ferragem",
     "part_type": "blade",
     "compatible_slots": [
@@ -2409,14 +2409,14 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Arsenal Imperial Notarial"
+    "name_modifier": "Decreto"
   },
   {
     "id": "part_crown_gem_t3",
     "part_id": "part_crown_gem_t3",
     "corp_id": "corp_crown_notarial",
     "brand_id": "corp_crown_notarial",
-    "name": "Rubi Imperial Selado",
+    "name": "Chancela Imperial",
     "branch": "Joalheria",
     "part_type": "gem",
     "compatible_slots": [
@@ -2435,14 +2435,14 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Rubi Imperial Selado"
+    "name_modifier": "Imperial"
   },
   {
     "id": "part_crown_seal_t1",
     "part_id": "part_crown_seal_t1",
     "corp_id": "corp_crown_notarial",
     "brand_id": "corp_crown_notarial",
-    "name": "Atestado Notarial Régio",
+    "name": "Selo Régio",
     "branch": "Ferragem",
     "part_type": "seal",
     "compatible_slots": [
@@ -2456,14 +2456,14 @@
     "catalog_description": "Certidão notarial básica garantindo licença para incursões comerciais.",
     "effects": [],
     "slot_role": "base",
-    "name_modifier": "Atestado Notarial"
+    "name_modifier": "Selo"
   },
   {
     "id": "part_crown_parchment_t2",
     "part_id": "part_crown_parchment_t2",
     "corp_id": "corp_crown_notarial",
     "brand_id": "corp_crown_notarial",
-    "name": "Certidão de Risco Padronizada",
+    "name": "Alvará Régio",
     "branch": "Ferragem",
     "part_type": "parchment",
     "compatible_slots": [
@@ -2477,14 +2477,14 @@
     "catalog_description": "Documento oficial de homologação sanitária e mitigação de risco.",
     "effects": [],
     "slot_role": "base",
-    "name_modifier": "Certidão de Risco"
+    "name_modifier": "Alvará"
   },
   {
     "id": "part_crown_seal_t3",
     "part_id": "part_crown_seal_t3",
     "corp_id": "corp_crown_notarial",
     "brand_id": "corp_crown_notarial",
-    "name": "Laudo Pericial Extraordinário",
+    "name": "Apólice Imperial",
     "branch": "Ferragem",
     "part_type": "seal",
     "compatible_slots": [
@@ -2498,7 +2498,7 @@
     "catalog_description": "Alvará extraordinário da Chancelaria para masmorras de alto perigo.",
     "effects": [],
     "slot_role": "base",
-    "name_modifier": "Laudo Pericial"
+    "name_modifier": "Apólice"
   },
   {
     "id": "part_crown_lic_submerged",
@@ -2641,5 +2641,380 @@
     ],
     "slot_role": "prefix",
     "name_modifier": "Anticorrosivo"
+  },
+  {
+    "id": "part_mercurius_prefix_01",
+    "part_id": "part_mercurius_prefix_01",
+    "corp_id": "corp_mercurius",
+    "brand_id": "corp_mercurius",
+    "name": "Selo Rúnico",
+    "branch": "Alvará de Risco",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 1,
+    "base_cost": 45,
+    "market_price_base": 45,
+    "power_bonus": 10,
+    "power_contrib": 10,
+    "catalog_description": "Inscrição arcana básica que confere proteção contra riscos ambientais.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "arcane"
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Rúnico"
+  },
+  {
+    "id": "part_mercurius_base_01",
+    "part_id": "part_mercurius_base_01",
+    "corp_id": "corp_mercurius",
+    "brand_id": "corp_mercurius",
+    "name": "Alvará de Trânsito",
+    "branch": "Alvará de Risco",
+    "part_type": "license",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 1,
+    "base_cost": 50,
+    "market_price_base": 50,
+    "power_bonus": 20,
+    "power_contrib": 20,
+    "catalog_description": "Documento cartorial autenticado autorizando o ingresso regulamentar em masmorras.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 5
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Alvará"
+  },
+  {
+    "id": "part_mercurius_core_01",
+    "part_id": "part_mercurius_core_01",
+    "corp_id": "corp_mercurius",
+    "brand_id": "corp_mercurius",
+    "name": "Carimbo Notarial",
+    "branch": "Alvará de Risco",
+    "part_type": "stamp",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 1,
+    "base_cost": 40,
+    "market_price_base": 40,
+    "power_bonus": 10,
+    "power_contrib": 10,
+    "catalog_description": "Autenticação em cera vermelha expedida pelo Cartório Mercurius.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 5
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Notarial"
+  },
+  {
+    "id": "part_mercurius_prefix_02",
+    "part_id": "part_mercurius_prefix_02",
+    "corp_id": "corp_mercurius",
+    "brand_id": "corp_mercurius",
+    "name": "Selo Hermético",
+    "branch": "Alvará de Risco",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 85,
+    "market_price_base": 85,
+    "power_bonus": 20,
+    "power_contrib": 20,
+    "catalog_description": "Inscrição protetiva de segundo grau com isolamento vulcânico.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "volcanic"
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Hermético"
+  },
+  {
+    "id": "part_mercurius_base_02",
+    "part_id": "part_mercurius_base_02",
+    "corp_id": "corp_mercurius",
+    "brand_id": "corp_mercurius",
+    "name": "Inscrição Notarial",
+    "branch": "Alvará de Risco",
+    "part_type": "license",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 95,
+    "market_price_base": 95,
+    "power_bonus": 35,
+    "power_contrib": 35,
+    "catalog_description": "Pergaminho reforçado com cláusulas de imunidade perante a Liga.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 10
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Inscrição"
+  },
+  {
+    "id": "part_mercurius_core_02",
+    "part_id": "part_mercurius_core_02",
+    "corp_id": "corp_mercurius",
+    "brand_id": "corp_mercurius",
+    "name": "Chancela Mercurius",
+    "branch": "Alvará de Risco",
+    "part_type": "stamp",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 2,
+    "base_cost": 80,
+    "market_price_base": 80,
+    "power_bonus": 20,
+    "power_contrib": 20,
+    "catalog_description": "Chancela de alta corte reconhecida por todas as corporações.",
+    "effects": [
+      {
+        "effect": "power_flat",
+        "value": 10
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Mercurius"
+  },
+  {
+    "id": "part_mercurius_base_03",
+    "part_id": "part_mercurius_base_03",
+    "corp_id": "corp_mercurius",
+    "brand_id": "corp_mercurius",
+    "name": "Apólice Imperial",
+    "branch": "Alvará de Risco",
+    "part_type": "license",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 3,
+    "base_cost": 150,
+    "market_price_base": 150,
+    "power_bonus": 55,
+    "power_contrib": 55,
+    "catalog_description": "Apólice suprema de mitigação total contra riscos do abismo.",
+    "effects": [
+      {
+        "effect": "power_pct",
+        "value": 0.2
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Apólice"
+  },
+  {
+    "id": "part_crown_rations_prefix_01",
+    "part_id": "part_crown_rations_prefix_01",
+    "corp_id": "corp_crown_rations",
+    "brand_id": "corp_crown_rations",
+    "name": "Extrato Nutritivo",
+    "branch": "Provisão Logística",
+    "part_type": "extract",
+    "compatible_slots": [
+      "Provisão Logística"
+    ],
+    "tier": 1,
+    "base_cost": 40,
+    "market_price_base": 40,
+    "power_bonus": 5,
+    "power_contrib": 5,
+    "energy_restore": 15,
+    "catalog_description": "Extrato vegetal enriquecido para sustento prolongado em masmorras.",
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 15
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Nutritivo"
+  },
+  {
+    "id": "part_crown_rations_base_01",
+    "part_id": "part_crown_rations_base_01",
+    "corp_id": "corp_crown_rations",
+    "brand_id": "corp_crown_rations",
+    "name": "Ração de Campanha",
+    "branch": "Provisão Logística",
+    "part_type": "ration",
+    "compatible_slots": [
+      "Provisão Logística"
+    ],
+    "tier": 1,
+    "base_cost": 50,
+    "market_price_base": 50,
+    "power_bonus": 10,
+    "power_contrib": 10,
+    "energy_restore": 25,
+    "charges": 3,
+    "max_charges": 3,
+    "catalog_description": "Ração desidratada compactada com 3 cargas de sustentação operacional.",
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 20
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Ração"
+  },
+  {
+    "id": "part_crown_rations_core_01",
+    "part_id": "part_crown_rations_core_01",
+    "corp_id": "corp_crown_rations",
+    "brand_id": "corp_crown_rations",
+    "name": "Cantil de Campanha",
+    "branch": "Provisão Logística",
+    "part_type": "canteen",
+    "compatible_slots": [
+      "Provisão Logística"
+    ],
+    "tier": 1,
+    "base_cost": 35,
+    "market_price_base": 35,
+    "power_bonus": 5,
+    "power_contrib": 5,
+    "catalog_description": "Recipiente térmico que garante 1 carga extra de provisões.",
+    "effects": [
+      {
+        "effect": "charges_flat",
+        "value": 1
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "de Campanha"
+  },
+  {
+    "id": "part_crown_rations_prefix_02",
+    "part_id": "part_crown_rations_prefix_02",
+    "corp_id": "corp_crown_rations",
+    "brand_id": "corp_crown_rations",
+    "name": "Dose Concentrada",
+    "branch": "Provisão Logística",
+    "part_type": "extract",
+    "compatible_slots": [
+      "Provisão Logística"
+    ],
+    "tier": 2,
+    "base_cost": 75,
+    "market_price_base": 75,
+    "power_bonus": 10,
+    "power_contrib": 10,
+    "energy_restore": 30,
+    "catalog_description": "Concentrado vitamínico de alto rendimento energético.",
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 30
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Concentrado"
+  },
+  {
+    "id": "part_crown_rations_base_02",
+    "part_id": "part_crown_rations_base_02",
+    "corp_id": "corp_crown_rations",
+    "brand_id": "corp_crown_rations",
+    "name": "Biscoito de Provisão",
+    "branch": "Provisão Logística",
+    "part_type": "ration",
+    "compatible_slots": [
+      "Provisão Logística"
+    ],
+    "tier": 2,
+    "base_cost": 90,
+    "market_price_base": 90,
+    "power_bonus": 15,
+    "power_contrib": 15,
+    "energy_restore": 40,
+    "charges": 4,
+    "max_charges": 4,
+    "catalog_description": "Biscoito hipercalórico embalado a vácuo com 4 cargas operacionais.",
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 35
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Biscoito"
+  },
+  {
+    "id": "part_crown_rations_core_02",
+    "part_id": "part_crown_rations_core_02",
+    "corp_id": "corp_crown_rations",
+    "brand_id": "corp_crown_rations",
+    "name": "Lacre da Coroa",
+    "branch": "Provisão Logística",
+    "part_type": "canteen",
+    "compatible_slots": [
+      "Provisão Logística"
+    ],
+    "tier": 2,
+    "base_cost": 70,
+    "market_price_base": 70,
+    "power_bonus": 10,
+    "power_contrib": 10,
+    "catalog_description": "Embalagem régia inviolável que confere 2 cargas extras.",
+    "effects": [
+      {
+        "effect": "charges_flat",
+        "value": 2
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "da Coroa"
+  },
+  {
+    "id": "part_crown_rations_base_03",
+    "part_id": "part_crown_rations_base_03",
+    "corp_id": "corp_crown_rations",
+    "brand_id": "corp_crown_rations",
+    "name": "Farnel Imperial",
+    "branch": "Provisão Logística",
+    "part_type": "ration",
+    "compatible_slots": [
+      "Provisão Logística"
+    ],
+    "tier": 3,
+    "base_cost": 140,
+    "market_price_base": 140,
+    "power_bonus": 25,
+    "power_contrib": 25,
+    "energy_restore": 60,
+    "charges": 5,
+    "max_charges": 5,
+    "catalog_description": "Banquete expedicionário da Coroa com 5 cargas operacionais.",
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 50
+      }
+    ],
+    "slot_role": "base",
+    "name_modifier": "Farnel"
   }
 ]

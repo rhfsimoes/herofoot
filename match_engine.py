@@ -551,6 +551,9 @@ class MatchEngine:
             "t2_present": t2_entered,
         }
 
+        score_before_t1 = self.team1.score
+        score_before_t2 = self.team2.score
+
         if is_final_boss:
             event_msg = self._resolve_final_boss(ep1, ep2, t1_entered, t2_entered)
             if t1_entered:
@@ -559,6 +562,10 @@ class MatchEngine:
                 self.team2.exit_reason = "Boss resolvido"
             if not self.fast_mode:
                 room_report["event"] = event_msg
+                room_report["score_t1"] = self.team1.score
+                room_report["score_t2"] = self.team2.score
+                room_report["points_t1"] = self.team1.score - score_before_t1
+                room_report["points_t2"] = self.team2.score - score_before_t2
                 self.room_events.append(room_report)
             return True
         else:
@@ -585,6 +592,10 @@ class MatchEngine:
 
             if not self.fast_mode:
                 room_report["event"] = event_msg
+                room_report["score_t1"] = self.team1.score
+                room_report["score_t2"] = self.team2.score
+                room_report["points_t1"] = self.team1.score - score_before_t1
+                room_report["points_t2"] = self.team2.score - score_before_t2
                 self.room_events.append(room_report)
 
         if self.team1.energy == 0 and self.team2.energy == 0:

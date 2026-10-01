@@ -340,12 +340,12 @@ class MarketEngine:
 
         max_unlocked_tier = 1
         if corp_contracts:
-            contract_tier = corp_contracts[0].get("tier", "Bronze")
+            contract_tier = str(corp_contracts[0].get("tier", "Bronze")).capitalize()
             if contract_tier == "Ouro":
                 max_unlocked_tier = 3
             elif contract_tier == "Prata":
                 max_unlocked_tier = 2
-            else:
+            elif contract_tier == "Bronze":
                 max_unlocked_tier = 1
 
         if corp_id != "corp_crown_notarial" and tier > max_unlocked_tier:
@@ -353,7 +353,7 @@ class MarketEngine:
             current_status = "Nenhum" if not corp_contracts else f"Nível {corp_contracts[0].get('tier')}"
             return {
                 "success": False,
-                "message": f"Aquisição embargada: componentes de Nível {tier} exigem convênio de patrocínio de Nível {req_tier} ou superior com esta fornecedora (Seu convênio atual: {current_status}).",
+                "message": f"Aquisição embargada: peças da fornecedora de Nível {tier} exigem convênio ativo de Nível {req_tier} ou superior (Seu convênio atual: {current_status}). Celebre a parceria B2B na aba de Convênios.",
             }
 
         unit_price = self.calculate_part_spot_price(part_id, state)

@@ -94,8 +94,8 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
 
   // Receitas reais
   const expeditionRevenue = fin?.expedition_revenue ?? fin?.revenue ?? 250
-  const salesRevenue = (fin?.sales_revenue !== undefined ? fin.sales_revenue : state.weekly_sales_revenue) ?? 0
-  const salesCount = (fin as any)?.sales_count ?? (state as any)?.weekly_sales_count ?? 0
+  const salesRevenue = Math.max(fin?.sales_revenue ?? 0, state.weekly_sales_revenue ?? 0)
+  const salesCount = Math.max((fin as any)?.sales_count ?? 0, (state as any)?.weekly_sales_count ?? 0)
   const seasonAward = fin?.season_award ?? (state.season_summary?.award_gold || 0)
 
   // B2B & Linha de Montagem Modular
@@ -106,6 +106,11 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
   const assemblyWorkersSalaries =
     fin?.assembly_workers_salaries ??
     (state.assembly_line_workers?.reduce((sum, w) => sum + (w.weekly_salary ?? 0), 0) ?? 0)
+
+  // Despesas com Aquisições, Homologações e Insumos no Ciclo
+  const marketExpenses = fin?.market_expenses ?? (state as any)?.weekly_market_expenses ?? 0
+  const contractSigningExpenses = fin?.contract_signing_expenses ?? (state as any)?.weekly_contract_signing_expenses ?? 0
+  const hiringExpenses = fin?.hiring_expenses ?? (state as any)?.weekly_hiring_expenses ?? 0
 
   const crownAuditThisWeek =
     state.crown_goals?.last_audit_report &&
@@ -119,7 +124,15 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
     fin?.crown_penalty ?? (crownAuditThisWeek && crownAuditThisWeek.delta_gold < 0 ? Math.abs(crownAuditThisWeek.delta_gold) : 0)
 
   const totalRevenue = expeditionRevenue + salesRevenue + seasonAward + crownSubsidy + assemblySalesRevenue
-  const totalExpenses = salaryTotal + maintenance + crownPenalty + b2bRoyaltiesCost + assemblyWorkersSalaries
+  const totalExpenses =
+    salaryTotal +
+    maintenance +
+    crownPenalty +
+    b2bRoyaltiesCost +
+    assemblyWorkersSalaries +
+    marketExpenses +
+    contractSigningExpenses +
+    hiringExpenses
   const netResult = fin?.net ?? (totalRevenue - totalExpenses)
 
   // Divisão selecionada para visualização
@@ -396,6 +409,33 @@ export default function Phase5Results({ state, onAdvance }: Phase5ResultsProps) 
                     Autuação Fiscal da Coroa (Metas Descumpridas)
                   </span>
                   <span className="font-mono text-rose-400">-⬡ {crownPenalty}</span>
+                </div>
+              )}
+              {marketExpenses > 0 && (
+                <div className="flex justify-between text-stone-300">
+                  <span className="flex items-center gap-1.5">
+                    <Coins className="w-3.5 h-3.5 text-rose-400" />
+                    (-) Aquisição de Peças & Insumos Spot
+                  </span>
+                  <span className="font-mono text-rose-400 font-bold">-⬡ {marketExpenses}</span>
+                </div>
+              )}
+              {contractSigningExpenses > 0 && (
+                <div className="flex justify-between text-stone-300">
+                  <span className="flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-rose-400" />
+                    (-) Taxas de Adesão & Homologação B2B
+                  </span>
+                  <span className="font-mono text-rose-400 font-bold">-⬡ {contractSigningExpenses}</span>
+                </div>
+              )}
+              {hiringExpenses > 0 && (
+                <div className="flex justify-between text-stone-300">
+                  <span className="flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5 text-rose-400" />
+                    (-) Honorários de Recrutamento & Olheiro
+                  </span>
+                  <span className="font-mono text-rose-400 font-bold">-⬡ {hiringExpenses}</span>
                 </div>
               )}
               <div className="border-t border-stone-800 pt-2 flex justify-between font-bold text-stone-100">

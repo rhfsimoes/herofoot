@@ -463,6 +463,11 @@ class PhaseService:
             rng=round_rng,
         )
 
+        # Geração do DRE Semanal atualizado para exibição imediata na Fase 5
+        weekly_statement = self.generate_weekly_financial_statement()
+        self.state.last_financial_statement = weekly_statement
+        self.state.financials = weekly_statement
+
         return {
             "phase": 4,
             "dungeon": dungeon,
@@ -470,7 +475,7 @@ class PhaseService:
             "mitigation_applied": has_terrain_mitigation,
             "climate_applied": has_climate_mitigation,
             "player_match": {
-                "player_guild": "Guilda do Jogador",
+                "player_guild": getattr(self.state, "guild_name", "Guilda do Jogador"),
                 "rival_guild": rival_name,
                 "player_pe": player_pe,
                 "rival_pe": rival_pe,
@@ -484,11 +489,17 @@ class PhaseService:
             "consumable_report": consumable_report,
             "loot_dropped": loot_dropped,
             "round_results": round_results,
+            "league_matches": round_results,
             "standings": self.league_engine.get_standings(),
+            "financials": weekly_statement,
+            "last_financial_statement": weekly_statement,
         }
 
-    def phase_5_results(self) -> dict:
-        """Fase 5: Balanço financeiro semanal, despesas de manutenção predial/médica/base e fechamento."""
+    def generate_weekly_financial_statement(self) -> dict:
+        """
+        Calcula e consolida o Demonstrativo do Resultado do Exercício (DRE) da semana atual.
+        Garante rastreamento fidedigno de vendas de balcão, expedição, salários, manutenção e insumos.
+        """
         balance = get_balance()
         econ_cfg = balance.get("economy", {})
         base_maintenance = econ_cfg.get("weekly_maintenance", 50)
@@ -500,6 +511,90 @@ class PhaseService:
         academy_maintenance = acad_cfg.get("weekly_maintenance", 40)
         total_maintenance = base_maintenance + medical_maintenance + academy_maintenance
 
+        season_summary = getattr(self.league_engine, "season_summary", None)
+        season_award = season_summary.get("award_gold", 0) if season_summary else 0
+
+        salary_cost = sum(h.get("salary", 50) for h in self.state.team)
+
+        crown_subsidy = 0
+        crown_penalty = 0
+        last_audit = getattr(self.state, "crown_goals", {}).get("last_audit_report")
+        if last_audit and last_audit.get("audit_week") == (self.state.week or self.state.day):
+            delta = last_audit.get("delta_gold", 0)
+            if delta > 0:
+                crown_subsidy = delta
+            else:
+                crown_penalty = abs(delta)
+
+        b2b_royalties_cost = sum(
+            int(c.get("weekly_royalty", 0))
+            for c in getattr(self.state, "active_b2b_contracts", [])
+        )
+        assembly_workers_salaries = sum(
+            int(w.get("weekly_salary", 0))
+            for w in getattr(self.state, "assembly_line_workers", [])
+        )
+
+        assembly_sales_revenue = getattr(self.state, "assembly_sales_revenue", 0)
+        sales_revenue = getattr(self.state, "weekly_sales_revenue", 0)
+        sales_count = getattr(self.state, "weekly_sales_count", 0)
+        market_expenses = getattr(self.state, "weekly_market_expenses", 0)
+        contract_signing_expenses = getattr(self.state, "weekly_contract_signing_expenses", 0)
+        hiring_expenses = getattr(self.state, "weekly_hiring_expenses", 0)
+
+        total_revenue = expedition_revenue + sales_revenue + assembly_sales_revenue + season_award + crown_subsidy
+        total_expenses = (
+            salary_cost
+            + total_maintenance
+            + b2b_royalties_cost
+            + assembly_workers_salaries
+            + crown_penalty
+            + market_expenses
+            + contract_signing_expenses
+            + hiring_expenses
+        )
+        net = (
+            expedition_revenue
+            + sales_revenue
+            + assembly_sales_revenue
+            + season_award
+            + crown_subsidy
+            - crown_penalty
+            - salary_cost
+            - total_maintenance
+            - b2b_royalties_cost
+            - assembly_workers_salaries
+        )
+
+        return {
+            "week": getattr(self.state, "week", self.state.day),
+            "season": getattr(self.state, "season", 1),
+            "revenue": expedition_revenue,
+            "expedition_revenue": expedition_revenue,
+            "sales_revenue": sales_revenue,
+            "sales_count": sales_count,
+            "assembly_sales_revenue": assembly_sales_revenue,
+            "season_award": season_award,
+            "crown_subsidy": crown_subsidy,
+            "crown_penalty": crown_penalty,
+            "salaries": salary_cost,
+            "maintenance": total_maintenance,
+            "total_maintenance": total_maintenance,
+            "base_maintenance": base_maintenance,
+            "medical_maintenance": medical_maintenance,
+            "academy_maintenance": academy_maintenance,
+            "b2b_royalties_cost": b2b_royalties_cost,
+            "assembly_workers_salaries": assembly_workers_salaries,
+            "market_expenses": market_expenses,
+            "contract_signing_expenses": contract_signing_expenses,
+            "hiring_expenses": hiring_expenses,
+            "total_revenue": total_revenue,
+            "total_expenses": total_expenses,
+            "net": net,
+        }
+
+    def phase_5_results(self) -> dict:
+        """Fase 5: Balanço financeiro semanal, despesas de manutenção predial/médica/base e fechamento."""
         season_award = 0
         development_report = None
         season_summary = getattr(self.league_engine, "season_summary", None)
@@ -543,22 +638,12 @@ class PhaseService:
             self.state.season_outcome = copy.deepcopy(season_summary)
             self.league_engine.season_summary = None
 
-        salary_cost = sum(h.get("salary", 50) for h in self.state.team)
-
         # Auditoria Trimestral das Metas da Coroa
         from services.crown_service import get_crown_goals_data, process_quarterly_audit
         crown_audit_report = None
-        crown_subsidy = 0
-        crown_penalty = 0
         crown_data = get_crown_goals_data(self.state, self.league_engine)
         if crown_data.get("is_audit_week"):
             crown_audit_report = process_quarterly_audit(self.state, self.league_engine)
-            if crown_audit_report:
-                delta = crown_audit_report.get("delta_gold", 0)
-                if delta > 0:
-                    crown_subsidy = delta
-                else:
-                    crown_penalty = abs(delta)
 
         # Executa Linha de Montagem Autônoma de B2B se disponível
         assembly_sales_revenue = 0
@@ -567,37 +652,17 @@ class PhaseService:
             assembly_report = self.crafting_service.process_assembly_line()
             assembly_sales_revenue = int(assembly_report.get("assembly_sales_revenue", 0))
 
-        # Custos B2B: Royalties de contratos de fornecimento e salários de operários fabris
-        b2b_royalties_cost = sum(
-            int(c.get("weekly_royalty", 0))
-            for c in getattr(self.state, "active_b2b_contracts", [])
-        )
-        assembly_workers_salaries = sum(
-            int(w.get("weekly_salary", 0))
-            for w in getattr(self.state, "assembly_line_workers", [])
-        )
+        # Gera o extrato financeiro definitivo do ciclo
+        financial_statement = self.generate_weekly_financial_statement()
+        if assembly_sales_revenue > 0:
+            financial_statement["assembly_sales_revenue"] = assembly_sales_revenue
+            financial_statement["total_revenue"] += assembly_sales_revenue
+            financial_statement["net"] += assembly_sales_revenue
 
-        # Extrato DRE Dinâmico: apuração de receita de vendas e fechamento contábil
-        sales_revenue = getattr(self.state, "weekly_sales_revenue", 0)
-        self.state.weekly_sales_revenue = 0
+        # Liquidação contábil no caixa da guilda:
+        # O resultado líquido (net) liquida receitas e obrigações do ciclo, deduzindo o que já foi recebido em dinheiro
         already_collected = getattr(self.state, "weekly_sales_cash_collected", 0)
-        self.state.weekly_sales_cash_collected = 0
-        sales_count = getattr(self.state, "weekly_sales_count", 0)
-        self.state.weekly_sales_count = 0
-
-        net = (
-            expedition_revenue
-            + sales_revenue
-            + assembly_sales_revenue
-            + season_award
-            + crown_subsidy
-            - crown_penalty
-            - salary_cost
-            - total_maintenance
-            - b2b_royalties_cost
-            - assembly_workers_salaries
-        )
-        self.state.gold += (net - already_collected)
+        self.state.gold += (financial_statement["net"] - already_collected)
 
         # Verificação de Falência por Inadimplência e Liquidação Judicial da Coroa
         if self.state.gold < 0:
@@ -614,32 +679,22 @@ class PhaseService:
 
         self.state.season = getattr(self.league_engine, "season_number", 1)
 
-        last_financial_statement = {
-            "revenue": expedition_revenue,
-            "sales_revenue": sales_revenue,
-            "sales_count": sales_count,
-            "assembly_sales_revenue": assembly_sales_revenue,
-            "b2b_royalties_cost": b2b_royalties_cost,
-            "assembly_workers_salaries": assembly_workers_salaries,
-            "season_award": season_award,
-            "crown_subsidy": crown_subsidy,
-            "crown_penalty": crown_penalty,
-            "salaries": salary_cost,
-            "total_maintenance": total_maintenance,
-            "base_maintenance": base_maintenance,
-            "medical_maintenance": medical_maintenance,
-            "academy_maintenance": academy_maintenance,
-            "net": net,
-        }
-        self.state.last_financial_statement = last_financial_statement
+        # Salva o demonstrativo oficial
+        self.state.last_financial_statement = financial_statement
+        self.state.financials = financial_statement
+
+        # Reinicia os acumuladores semanais para a rodada seguinte
+        self.state.weekly_sales_revenue = 0
+        self.state.weekly_sales_cash_collected = 0
+        self.state.weekly_sales_count = 0
+        self.state.weekly_market_expenses = 0
+        self.state.weekly_contract_signing_expenses = 0
+        self.state.weekly_hiring_expenses = 0
 
         return {
             "phase": 5,
-            "financials": {
-                **last_financial_statement,
-                "maintenance": total_maintenance,
-            },
-            "last_financial_statement": last_financial_statement,
+            "financials": financial_statement,
+            "last_financial_statement": financial_statement,
             "assembly_report": assembly_report,
             "crown_audit": crown_audit_report,
             "crown_goals": get_crown_goals_data(self.state, self.league_engine),

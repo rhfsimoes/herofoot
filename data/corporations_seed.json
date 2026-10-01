@@ -2,100 +2,111 @@
   {
     "id": "corp_aethelgard",
     "name": "Siderúrgica Aethelgard & Cia.",
-    "branch": "Ferragem",
+    "branch": "Blindagem Operacional",
     "specialty": "Lâminas temperadas, chapas prensadas e engrenagens de alto impacto.",
     "exclusivity_tag": "excl_aethelgard",
     "rival_corp_id": "corp_valkyria",
-    "description": "Conglomerado hegemônico da metalurgia nortenha com processos fabris certificados pelo Tribunal da Coroa."
+    "description": "Conglomerado hegemônico da metalurgia nortenha com processos fabris certificados pelo Tribunal da Coroa.",
+    "slot_focus": "Blindagem Operacional"
   },
   {
     "id": "corp_valkyria",
     "name": "Consórcio Bélico Valkyria",
-    "branch": "Ferragem",
+    "branch": "Arsenal Ofensivo",
     "specialty": "Ligas estriadas, guardas articuladas e exoesqueletos de proteção.",
     "exclusivity_tag": "excl_valkyria",
     "rival_corp_id": "corp_aethelgard",
-    "description": "Indústria armamentista de vanguarda que disputa licitações de suprimentos com a Siderúrgica Aethelgard."
+    "description": "Indústria armamentista de vanguarda que disputa licitações de suprimentos com a Siderúrgica Aethelgard.",
+    "slot_focus": "Arsenal Ofensivo"
   },
   {
     "id": "corp_flamel",
     "name": "Sindicato Bioalquímico Flamel & Associados",
-    "branch": "Alquimia",
+    "branch": "Provisão Logística",
     "specialty": "Extratos catalisadores, ampolas de vidro reforçado e reativos de regeneração.",
     "exclusivity_tag": "excl_flamel",
     "rival_corp_id": "corp_mercurius",
-    "description": "Monopólio farmacêutico com patentes herméticas sobre destilados e solventes de mana."
+    "description": "Monopólio farmacêutico com patentes herméticas sobre destilados e solventes de mana.",
+    "slot_focus": "Provisão Logística"
   },
   {
     "id": "corp_mercurius",
-    "name": "Laboratórios Mercurius Arcanos",
-    "branch": "Alquimia",
-    "specialty": "Inscrições químicas, sais de conservação e filtros térmicos.",
+    "name": "Cartório Arcano Mercurius & Inscrições",
+    "branch": "Alvará de Risco",
+    "specialty": "Inscrições arcanas, selos notariais de mitigação climática e alvarás de risco.",
     "exclusivity_tag": "excl_mercurius",
     "rival_corp_id": "corp_flamel",
-    "description": "Pioneiros em misturas instáveis e destilados voláteis de alta densidade energética."
+    "description": "Cartório corporativo hegemônico na emissão de selos de proteção ambiental e alvarás de trânsito em masmorras.",
+    "slot_focus": "Alvará de Risco"
   },
   {
     "id": "corp_chancellor",
     "name": "Lapidação Imperial Chanceler & Filhos",
-    "branch": "Joalheria",
+    "branch": "Dispositivo Tático",
     "specialty": "Amuletos com facetamento óptico, engastes de platina e núcleos prismáticos.",
     "exclusivity_tag": "excl_chancellor",
     "rival_corp_id": null,
-    "description": "Fornecedora tradicional da alta nobreza e de órgãos reguladores da Liga."
+    "description": "Fornecedora tradicional da alta nobreza e de órgãos reguladores da Liga.",
+    "slot_focus": "Dispositivo Tático"
   },
   {
     "id": "corp_crown_rations",
-    "name": "Intendência Geral de Mantimentos da Coroa",
-    "branch": "Culinária",
-    "specialty": "Rações desidratadas, biscoitos de campanha compactados e embalagens herméticas.",
+    "name": "Intendência de Provisões da Coroa",
+    "branch": "Provisão Logística",
+    "specialty": "Rações compactadas, ampolas de energia concentrada e kits de campanha com cargas operacionais.",
     "exclusivity_tag": "excl_crown_rations",
     "rival_corp_id": null,
-    "description": "Divisão estatal de logística nutricional voltada para grandes incursões e suporte expedicionário."
+    "description": "Intendência imperial dedicada a suprimentos expedicionários, provisões logísticas e restauração de energia.",
+    "slot_focus": "Provisão Logística"
   },
   {
     "id": "corp_goblin_eng",
     "name": "Engenharia Goblin S.A.",
-    "branch": "Ferragem",
+    "branch": "Arsenal Ofensivo",
     "specialty": "Peças de corte agressivo, módulos de detonação e propulsores a vapor.",
     "exclusivity_tag": "excl_goblin_eng",
     "rival_corp_id": "corp_elf_precision",
-    "description": "Se não explodir na montagem, corta qualquer armadura. Foco em impacto maciço e risco mecânico."
+    "description": "Se não explodir na montagem, corta qualquer armadura. Foco em impacto maciço e risco mecânico.",
+    "slot_focus": "Arsenal Ofensivo"
   },
   {
     "id": "corp_elf_precision",
     "name": "Consórcio Élfico de Alta Precisão",
-    "branch": "Joalheria",
+    "branch": "Dispositivo Tático",
     "specialty": "Joias arcanas de fluxo estrito e componentes de lapidação micrométrica.",
     "exclusivity_tag": "excl_elf_precision",
     "rival_corp_id": "corp_goblin_eng",
-    "description": "Perfeição micrométrica homologada em pergaminho velino. Foco em agilidade e valor comercial."
+    "description": "Perfeição micrométrica homologada em pergaminho velino. Foco em agilidade e valor comercial.",
+    "slot_focus": "Dispositivo Tático"
   },
   {
     "id": "corp_dwarf_steel",
     "name": "Irmãos Anões de Aço Negro & Cia.",
-    "branch": "Ferragem",
+    "branch": "Blindagem Operacional",
     "specialty": "Blindagens pesadas, chapas maciças de ferro fundido e escudos balísticos.",
     "exclusivity_tag": "excl_dwarf_steel",
     "rival_corp_id": "corp_swamp_alchemy",
-    "description": "Fundido no fundo do abismo, forjado para a eternidade fiscal. Foco em blindagem e robustez defensiva."
+    "description": "Fundido no fundo do abismo, forjado para a eternidade fiscal. Foco em blindagem e robustez defensiva.",
+    "slot_focus": "Blindagem Operacional"
   },
   {
     "id": "corp_swamp_alchemy",
     "name": "Sindicato dos Alquimistas de Pântano",
-    "branch": "Alquimia",
+    "branch": "Alvará de Risco",
     "specialty": "Filtros respiratórios contra miasmas, concentrados e dosadores farmacológicos.",
     "exclusivity_tag": "excl_swamp_alchemy",
     "rival_corp_id": "corp_dwarf_steel",
-    "description": "O miasma de hoje é o lucro líquido de amanhã. Foco em mitigação de veneno e cargas operacionais."
+    "description": "O miasma de hoje é o lucro líquido de amanhã. Foco em mitigação de veneno e cargas operacionais.",
+    "slot_focus": "Alvará de Risco"
   },
   {
     "id": "corp_crown_notarial",
     "name": "Manufatura Notarial da Coroa",
-    "branch": "Ferragem",
+    "branch": "Alvará de Risco",
     "specialty": "Peças genéricas de linha branca (white-label), alvarás gravados e armações universais.",
     "exclusivity_tag": "excl_crown_notarial",
     "rival_corp_id": null,
-    "description": "Padronização régia, carimbos invioláveis e estabilidade tributária. Compatível com todas as arquiteturas."
+    "description": "Padronização régia, carimbos invioláveis e estabilidade tributária. Compatível com todas as arquiteturas.",
+    "slot_focus": "Alvará de Risco"
   }
 ]
