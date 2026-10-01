@@ -20,6 +20,14 @@
       "type": "string",
       "description": "Referência à especialização (ex: spec_warrior_berserker)"
     },
+    "position": {
+      "type": "string",
+      "description": "Nome da posição operacional do aventureiro"
+    },
+    "position_id": {
+      "type": "string",
+      "description": "ID canônico da posição operacional"
+    },
     "age": {
       "type": "integer",
       "minimum": 16,

@@ -899,7 +899,24 @@ export default function Phase1HR({
 
                     {/* Classe & Esp */}
                     <td className="py-3 px-3 text-stone-400">
-                      <div>{hero.class_name ?? hero.class ?? 'Combatente'}</div>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {hero.position && (
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-semibold border flex items-center gap-1 ${
+                              hero.position_id === 'pos_vanguarda' ? 'bg-blue-950/80 text-blue-300 border-blue-800/60' :
+                              hero.position_id === 'pos_dps' ? 'bg-red-950/80 text-red-300 border-red-800/60' :
+                              hero.position_id === 'pos_suporte' ? 'bg-emerald-950/80 text-emerald-300 border-emerald-800/60' :
+                              'bg-amber-950/80 text-amber-300 border-amber-800/60'
+                            }`}
+                            title={hero.position_description}
+                          >
+                            {hero.position_id === 'pos_vanguarda' ? '🛡️' :
+                             hero.position_id === 'pos_dps' ? '⚔️' :
+                             hero.position_id === 'pos_suporte' ? '✨' : '🎒'} {hero.position}
+                          </span>
+                        )}
+                        <span className="text-xs text-stone-300">{hero.class_name ?? hero.class ?? 'Combatente'}</span>
+                      </div>
                       {hero.specialization_name && (
                         <div className="text-[10px] text-stone-500">{hero.specialization_name}</div>
                       )}

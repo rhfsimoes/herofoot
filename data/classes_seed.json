@@ -1,27 +1,106 @@
 {
+  "positions": [
+    {
+      "id": "pos_vanguarda",
+      "name": "Vanguarda",
+      "role": "vanguarda",
+      "icon": "Shield",
+      "description": "Foco em Mitigação de Acidentes de Trabalho. Centraliza o dano colateral em si mesmo, reduzindo o acúmulo de fadiga e a taxa de afastamento médico dos companheiros.",
+      "advantage_against": "pos_dps",
+      "advantage_multiplier": 1.20,
+      "disadvantage_against": "pos_suporte_logistico",
+      "team_fatigue_reduction_pct": 0.15,
+      "team_injury_risk_reduction_pct": 0.25,
+      "self_fatigue_mult": 1.25,
+      "self_injury_risk_mult": 1.25,
+      "pvp_counter_power_debuff_pct": 0.20
+    },
+    {
+      "id": "pos_dps",
+      "name": "DPS",
+      "role": "dps",
+      "icon": "Sword",
+      "description": "Foco em Abate Prioritário. Aumenta drasticamente o Poder Efetivo e a cadência de ataque da equipe, facilitando superar a margem de 15% para o Abate Exclusivo (+2 PE) contra o Boss Final na Câmara 10.",
+      "advantage_against": "pos_suporte",
+      "advantage_multiplier": 1.20,
+      "disadvantage_against": "pos_vanguarda",
+      "raw_power_bonus_pct": 0.10,
+      "boss_execution_bonus_pct": 0.15,
+      "pvp_speed_bonus_pct": 0.15
+    },
+    {
+      "id": "pos_suporte",
+      "name": "Suporte",
+      "role": "suporte",
+      "icon": "Sparkles",
+      "description": "Foco em Medicina Ocupacional. Interage diretamente com as métricas do MedicalService, reduzindo o tempo de tratamento na Enfermaria e curando a Fadiga durante a expedição.",
+      "advantage_against": "pos_suporte_logistico",
+      "advantage_multiplier": 1.20,
+      "disadvantage_against": "pos_dps",
+      "expedition_fatigue_heal": 5,
+      "infirmary_treatment_reduction_weeks": 1,
+      "medical_cost_discount_pct": 0.20,
+      "pvp_sustain_bonus_pct": 0.15
+    },
+    {
+      "id": "pos_suporte_logistico",
+      "name": "Suporte Logístico",
+      "role": "suporte_logistico",
+      "icon": "Backpack",
+      "description": "Foco em Controle de Cadeia de Suprimentos. Reduz o dreno de provisões e energia nas 10 câmaras da masmorra, permitindo avançar mesmo sob intempéries severas de terreno e clima sem esgotar Suprimentos.",
+      "advantage_against": "pos_vanguarda",
+      "advantage_multiplier": 1.20,
+      "disadvantage_against": "pos_suporte",
+      "supply_drain_reduction_pct": 0.15,
+      "max_supply_drain_reduction_pct": 0.40,
+      "pvp_flank_bonus_pct": 0.15
+    }
+  ],
+  "positions_config": {
+    "advantage_multiplier": 1.20,
+    "advantage_cycle": {
+      "pos_vanguarda": "pos_dps",
+      "pos_dps": "pos_suporte",
+      "pos_suporte": "pos_suporte_logistico",
+      "pos_suporte_logistico": "pos_vanguarda"
+    },
+    "counter_log_messages": {
+      "pos_vanguarda": "Vanguarda absorveu o choque mecânico e desarmou a investida do DPS rival",
+      "pos_dps": "DPS avançou com cadência letal superando as barreiras e curas do Suporte rival",
+      "pos_suporte": "Suporte manteve a coesão do destacamento e anulou a sabotagem do Suporte Logístico rival",
+      "pos_suporte_logistico": "Suporte Logístico contornou o bloqueio e sabotou as linhas estáticas da Vanguarda rival"
+    },
+    "base_injury_risk_per_expedition": 0.08,
+    "max_team_fatigue_reduction": 0.45,
+    "max_team_injury_reduction": 0.60
+  },
   "classes": [
     {
       "id": "class_warrior",
       "name": "Guerreiro",
       "description": "Combatente de linha de frente especialista em armas marciais e armaduras pesadas.",
+      "default_position_id": "pos_vanguarda",
       "skill_ids": ["skill_survival", "skill_shield_wall"]
     },
     {
       "id": "class_rogue",
       "name": "Ladino",
       "description": "Especialista em incursões rápidas, ataques de precisão e evasão de perigos.",
+      "default_position_id": "pos_suporte_logistico",
       "skill_ids": ["skill_scout", "skill_cold_execution"]
     },
     {
       "id": "class_mage",
       "name": "Mago",
       "description": "Conjurador arcano focado em projeção de dano elemental em área.",
+      "default_position_id": "pos_dps",
       "skill_ids": ["skill_concentrated_channeling"]
     },
     {
       "id": "class_cleric",
       "name": "Clérigo",
       "description": "Auxiliar sagrado dedicado a suporte vital, preces restauradoras e sustentação da equipe.",
+      "default_position_id": "pos_suporte",
       "skill_ids": ["skill_sustaining_prayer"]
     }
   ],
@@ -29,6 +108,7 @@
     {
       "id": "spec_warrior_berserker",
       "class_id": "class_warrior",
+      "position_id": "pos_dps",
       "name": "Berserker",
       "description": "Focado em impacto físico avassalador e resiliência corporal extrema sob pressão de combate.",
       "skill_id": "skill_survival",
@@ -45,6 +125,7 @@
     {
       "id": "spec_warrior_swordsman",
       "class_id": "class_warrior",
+      "position_id": "pos_vanguarda",
       "name": "Espadachim",
       "description": "Equilíbrio técnico entre manuseio veloz de lâminas, agilidade e postura defensiva sólida.",
       "skill_id": "skill_shield_wall",
@@ -61,6 +142,7 @@
     {
       "id": "spec_rogue_archer",
       "class_id": "class_rogue",
+      "position_id": "pos_suporte_logistico",
       "name": "Arqueiro",
       "description": "Ataques de longa distância baseados em destreza, cadência de disparos e oportunismo crítico.",
       "skill_id": "skill_scout",
@@ -77,6 +159,7 @@
     {
       "id": "spec_rogue_assassin",
       "class_id": "class_rogue",
+      "position_id": "pos_dps",
       "name": "Assassino",
       "description": "Golpes letais em pontos vitais, infiltração ágil e alto índice de sorte tática.",
       "skill_id": "skill_cold_execution",
@@ -93,6 +176,7 @@
     {
       "id": "spec_mage_pyromancer",
       "class_id": "class_mage",
+      "position_id": "pos_dps",
       "name": "Piromante",
       "description": "Canalização de calor destrutivo com alta concentração intelectual e reflexos canalizados.",
       "skill_id": "skill_concentrated_channeling",
@@ -109,6 +193,7 @@
     {
       "id": "spec_cleric_support",
       "class_id": "class_cleric",
+      "position_id": "pos_suporte",
       "name": "Clérigo de Apoio",
       "description": "Suporte espiritual, manutenção de vida e proteção da tropa por meio de profunda sabedoria.",
       "skill_id": "skill_sustaining_prayer",

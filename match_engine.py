@@ -60,6 +60,86 @@ def get_skills_dict() -> Dict[str, Dict[str, Any]]:
     return {s["id"]: s for s in skills if "id" in s}
 
 
+def get_positions_data() -> List[Dict[str, Any]]:
+    """Carrega catálogo de posições operacionais de data/classes_seed.json."""
+    return get_classes_data().get("positions", [])
+
+
+def get_positions_config() -> Dict[str, Any]:
+    """Carrega configurações e ciclo de vantagens das posições operacionais."""
+    return get_classes_data().get("positions_config", {})
+
+
+def get_hero_position(hero: Optional[Dict[str, Any]]) -> str:
+    """Retorna o position_id canônico de um herói a partir de seus metadados."""
+    if not hero or not isinstance(hero, dict):
+        return ""
+    pos_id = hero.get("position_id")
+    if pos_id:
+        return pos_id
+    pos_name = hero.get("position", "")
+    mapping = {
+        "Vanguarda": "pos_vanguarda",
+        "DPS": "pos_dps",
+        "Suporte": "pos_suporte",
+        "Suporte Logístico": "pos_suporte_logistico",
+        "vanguarda": "pos_vanguarda",
+        "dps": "pos_dps",
+        "suporte": "pos_suporte",
+        "suporte_logistico": "pos_suporte_logistico",
+    }
+    if pos_name in mapping:
+        return mapping[pos_name]
+    return ""
+
+
+def calculate_positional_advantage(team1: Any, team2: Any) -> tuple:
+    """
+    Calcula multiplicadores de Poder Efetivo baseados nas vantagens de posições operacionais (PvPvE).
+    Ciclo: Vanguarda > DPS > Suporte > Suporte Logístico > Vanguarda.
+    Retorna (mult_t1, mult_t2, list_of_log_messages).
+    """
+    counts1 = team1.get_position_counts() if hasattr(team1, "get_position_counts") else {}
+    counts2 = team2.get_position_counts() if hasattr(team2, "get_position_counts") else {}
+
+    config = get_positions_config()
+    cycle = config.get("advantage_cycle", {
+        "pos_vanguarda": "pos_dps",
+        "pos_dps": "pos_suporte",
+        "pos_suporte": "pos_suporte_logistico",
+        "pos_suporte_logistico": "pos_vanguarda",
+    })
+    messages_map = config.get("counter_log_messages", {})
+
+    c1_total = 0
+    c2_total = 0
+    logs = []
+
+    for attacker_pos, target_pos in cycle.items():
+        m1 = min(counts1.get(attacker_pos, 0), counts2.get(target_pos, 0))
+        if m1 > 0:
+            c1_total += m1
+            msg = messages_map.get(attacker_pos)
+            if msg:
+                logs.append(f"{team1.name}: {msg}")
+
+        m2 = min(counts2.get(attacker_pos, 0), counts1.get(target_pos, 0))
+        if m2 > 0:
+            c2_total += m2
+            msg = messages_map.get(attacker_pos)
+            if msg:
+                logs.append(f"{team2.name}: {msg}")
+
+    delta = c1_total - c2_total
+    if delta > 0:
+        factor = 1.0 + min(0.35, delta * 0.10)
+        return factor, 1.0 / factor, logs
+    elif delta < 0:
+        factor = 1.0 + min(0.35, (-delta) * 0.10)
+        return 1.0 / factor, factor, logs
+    return 1.0, 1.0, logs
+
+
 def get_climates_data() -> List[Dict[str, Any]]:
     """Carrega catálogo de climas de data/climates_seed.json."""
     global _CLIMATES_CACHE
@@ -320,6 +400,55 @@ class Team:
                 multiplier *= float(eff.get("arid_energy_penalty", 1.0))
         return multiplier
 
+    def get_position_counts(self) -> Dict[str, int]:
+        """Retorna a contagem de colaboradores titulares por posição operacional."""
+        counts = {
+            "pos_vanguarda": 0,
+            "pos_dps": 0,
+            "pos_suporte": 0,
+            "pos_suporte_logistico": 0,
+        }
+        for h in self.heroes:
+            if h and isinstance(h, dict):
+                pos = get_hero_position(h)
+                if pos in counts:
+                    counts[pos] += 1
+        return counts
+
+    def get_logistics_energy_multiplier(self) -> float:
+        """
+        Calcula o multiplicador de consumo de suprimentos conferido por Suportes Logísticos.
+        Fórmula: C = base_drain * ... * team.get_logistics_energy_multiplier()
+        """
+        counts = self.get_position_counts()
+        num_logistics = counts.get("pos_suporte_logistico", 0)
+        if num_logistics <= 0:
+            return 1.0
+        positions = get_positions_data()
+        reduction_per_hero = 0.15
+        max_reduction = 0.40
+        for p in positions:
+            if p.get("id") == "pos_suporte_logistico":
+                reduction_per_hero = float(p.get("supply_drain_reduction_pct", 0.15))
+                max_reduction = float(p.get("max_supply_drain_reduction_pct", 0.40))
+                break
+        total_reduction = min(max_reduction, num_logistics * reduction_per_hero)
+        return max(0.1, 1.0 - total_reduction)
+
+    def get_dps_boss_execution_bonus(self) -> float:
+        """Calcula o bônus percentual de execução contra o Boss Final conferido por heróis DPS."""
+        counts = self.get_position_counts()
+        num_dps = counts.get("pos_dps", 0)
+        if num_dps <= 0:
+            return 0.0
+        positions = get_positions_data()
+        bonus_per_dps = 0.15
+        for p in positions:
+            if p.get("id") == "pos_dps":
+                bonus_per_dps = float(p.get("boss_execution_bonus_pct", 0.15))
+                break
+        return num_dps * bonus_per_dps
+
     def calculate_effective_power(
         self,
         terrain_power_penalty_pct: float = 0.0,
@@ -506,10 +635,11 @@ class MatchEngine:
         if not is_final_boss:
             has_encounter = (self.rng.random() < self.room_encounter_probability)
 
-        # Consumo de suprimentos da sala percorrida (com multiplicador de traços de cada equipe)
+        # Consumo de suprimentos da sala percorrida (com multiplicador de traços de cada equipe e Suporte Logístico)
         if t1_entered:
             agi_reduction_1 = self.agi_energy_reduction_max * (self.team1.agi / 100.0)
-            base_cost_1 = self.base_energy_cost_per_room * room_variance * (1.0 - agi_reduction_1)
+            logistics_mult_1 = self.team1.get_logistics_energy_multiplier()
+            base_cost_1 = self.base_energy_cost_per_room * room_variance * (1.0 - agi_reduction_1) * logistics_mult_1
 
             # Habilidade Batedor (Ladino/Arqueiro):
             # Redução no custo de suprimentos ao explorar salas vazias
@@ -527,7 +657,8 @@ class MatchEngine:
 
         if t2_entered:
             agi_reduction_2 = self.agi_energy_reduction_max * (self.team2.agi / 100.0)
-            base_cost_2 = self.base_energy_cost_per_room * room_variance * (1.0 - agi_reduction_2)
+            logistics_mult_2 = self.team2.get_logistics_energy_multiplier()
+            base_cost_2 = self.base_energy_cost_per_room * room_variance * (1.0 - agi_reduction_2) * logistics_mult_2
 
             # Habilidade Batedor (Ladino/Arqueiro) para Team 2
             if not has_encounter and self.team2.has_skill("skill_scout"):
@@ -655,6 +786,13 @@ class MatchEngine:
         defensive_name_1 = self.team1.get_loadout_item_name("Blindagem Operacional")
 
         if t1_present and t2_present:
+            # Aplica multiplicadores de vantagem de posições operacionais (PvPvE)
+            mult_t1, mult_t2, counter_logs = calculate_positional_advantage(self.team1, self.team2)
+            effective_ep1 *= mult_t1
+            effective_ep2 *= mult_t2
+            for clog in counter_logs:
+                self.log(f"Câmara {room} [Vantagem Posicional]: {clog}")
+
             total_p = effective_ep1 + effective_ep2
             prob_t1 = effective_ep1 / total_p if total_p > 0 else 0.5
             roll = self.rng.random()
@@ -739,6 +877,19 @@ class MatchEngine:
             eval_ep2 += float(eff.get("boss_power_bonus", 0))
 
         if t1_present and t2_present:
+            # Bônus de Execução de Boss dos colaboradores DPS
+            dps_bonus_t1 = self.team1.get_dps_boss_execution_bonus()
+            dps_bonus_t2 = self.team2.get_dps_boss_execution_bonus()
+            eval_ep1 *= (1.0 + dps_bonus_t1)
+            eval_ep2 *= (1.0 + dps_bonus_t2)
+
+            # Vantagens de posições operacionais (PvPvE) no Boss Final
+            mult_t1, mult_t2, counter_logs = calculate_positional_advantage(self.team1, self.team2)
+            eval_ep1 *= mult_t1
+            eval_ep2 *= mult_t2
+            for clog in counter_logs:
+                self.log(f"Câmara do Boss [Vantagem Posicional]: {clog}")
+
             diff = abs(eval_ep1 - eval_ep2)
             higher_p = max(eval_ep1, eval_ep2)
             percent_diff = (diff / higher_p) if higher_p > 0 else 0.0
@@ -804,6 +955,10 @@ class MatchEngine:
             },
             "player_score": self.team1.score,
             "rival_score": self.team2.score,
+            "score_t1": self.team1.score,
+            "score_t2": self.team2.score,
+            "points_t1": self.team1.score,
+            "points_t2": self.team2.score,
             "final_energy_player": round(self.team1.energy, 2),
             "final_energy_rival": round(self.team2.energy, 2),
             "rooms_explored_player": self.team1.rooms_explored,

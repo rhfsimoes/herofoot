@@ -560,9 +560,23 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
                       </div>
                       <div className="truncate">
                         <span className="text-stone-100 text-xs font-bold block truncate">{hero.name}</span>
-                        <span className="text-stone-400 text-[10px] block truncate">
-                          {hero.specialization_name ?? hero.class_name ?? hero.class ?? 'Combatente'}
-                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {hero.position && (
+                            <span className={`px-1 py-0.2 rounded text-[9px] font-semibold border ${
+                              hero.position_id === 'pos_vanguarda' ? 'bg-blue-950 text-blue-300 border-blue-800/60' :
+                              hero.position_id === 'pos_dps' ? 'bg-red-950 text-red-300 border-red-800/60' :
+                              hero.position_id === 'pos_suporte' ? 'bg-emerald-950 text-emerald-300 border-emerald-800/60' :
+                              'bg-amber-950 text-amber-300 border-amber-800/60'
+                            }`}>
+                              {hero.position_id === 'pos_vanguarda' ? '🛡️' :
+                               hero.position_id === 'pos_dps' ? '⚔️' :
+                               hero.position_id === 'pos_suporte' ? '✨' : '🎒'} {hero.position}
+                            </span>
+                          )}
+                          <span className="text-stone-400 text-[10px] truncate">
+                            {hero.specialization_name ?? hero.class_name ?? hero.class ?? 'Combatente'}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -622,9 +636,23 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
                       </div>
                       <div className="truncate">
                         <span className="text-stone-200 text-xs font-semibold block truncate">{hero.name}</span>
-                        <span className="text-stone-500 text-[10px] block truncate">
-                          {hero.specialization_name ?? hero.class_name ?? hero.class ?? 'Combatente'}
-                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {hero.position && (
+                            <span className={`px-1 py-0.2 rounded text-[9px] font-semibold border ${
+                              hero.position_id === 'pos_vanguarda' ? 'bg-blue-950 text-blue-300 border-blue-800/60' :
+                              hero.position_id === 'pos_dps' ? 'bg-red-950 text-red-300 border-red-800/60' :
+                              hero.position_id === 'pos_suporte' ? 'bg-emerald-950 text-emerald-300 border-emerald-800/60' :
+                              'bg-amber-950 text-amber-300 border-amber-800/60'
+                            }`}>
+                              {hero.position_id === 'pos_vanguarda' ? '🛡️' :
+                               hero.position_id === 'pos_dps' ? '⚔️' :
+                               hero.position_id === 'pos_suporte' ? '✨' : '🎒'} {hero.position}
+                            </span>
+                          )}
+                          <span className="text-stone-500 text-[10px] truncate">
+                            {hero.specialization_name ?? hero.class_name ?? hero.class ?? 'Combatente'}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -721,9 +749,23 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
                         </div>
                         <div className="truncate">
                           <span className="text-stone-200 text-xs font-medium block truncate">{hero.name}</span>
-                          <span className="text-stone-500 text-[10px] block truncate">
-                            {hero.specialization_name ?? hero.class_name ?? hero.class ?? 'Combatente'} · P.{hero.current_power ?? hero.power ?? 50}
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {hero.position && (
+                              <span className={`px-1 py-0.2 rounded text-[9px] font-semibold border ${
+                                hero.position_id === 'pos_vanguarda' ? 'bg-blue-950 text-blue-300 border-blue-800/60' :
+                                hero.position_id === 'pos_dps' ? 'bg-red-950 text-red-300 border-red-800/60' :
+                                hero.position_id === 'pos_suporte' ? 'bg-emerald-950 text-emerald-300 border-emerald-800/60' :
+                                'bg-amber-950 text-amber-300 border-amber-800/60'
+                              }`}>
+                                {hero.position_id === 'pos_vanguarda' ? '🛡️' :
+                                 hero.position_id === 'pos_dps' ? '⚔️' :
+                                 hero.position_id === 'pos_suporte' ? '✨' : '🎒'} {hero.position}
+                              </span>
+                            )}
+                            <span className="text-stone-500 text-[10px] truncate">
+                              {hero.specialization_name ?? hero.class_name ?? hero.class ?? 'Combatente'} · P.{hero.current_power ?? hero.power ?? 50}
+                            </span>
+                          </div>
                         </div>
                       </div>
 

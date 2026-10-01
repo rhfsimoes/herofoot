@@ -66,8 +66,18 @@ def generate_hero(
         chosen_spec = rng.choice(specs) if specs else None
         spec_id = chosen_spec["id"] if chosen_spec else "spec_warrior_berserker"
     else:
+        chosen_class = None
+        chosen_spec = None
         class_id = "class_warrior"
         spec_id = "spec_warrior_berserker"
+
+    pos_id = chosen_spec.get("position_id") if chosen_spec else None
+    if not pos_id:
+        pos_id = chosen_class.get("default_position_id", "pos_dps") if chosen_class else "pos_dps"
+
+    positions_data = CLASSES_DATA.get("positions", [])
+    pos_item = next((p for p in positions_data if p["id"] == pos_id), None)
+    pos_name = pos_item.get("name", "DPS") if pos_item else "DPS"
 
     profile = SPEC_PROFILES.get(spec_id, {"str": 0.3, "agi": 0.3, "vit": 0.3, "int": 0.1, "wis": 0.1, "lck": 0.1})
 
@@ -126,6 +136,8 @@ def generate_hero(
         "name": name,
         "class_id": class_id,
         "specialization_id": spec_id,
+        "position": pos_name,
+        "position_id": pos_id,
         "age": age,
         "level": level,
         "xp": xp,
@@ -294,6 +306,18 @@ class HeroService:
         actions = self.facilities_data.get("medical_actions", {})
         action_cfg = actions.get("accelerate_injury", {"cost": 180, "weeks_reduced": 1})
         cost = action_cfg.get("cost", 180)
+
+        # Benefício de Medicina Ocupacional: Heróis ativos da posição Suporte reduzem custos clínicos
+        has_active_support = any(
+            (h.get("position_id") == "pos_suporte" or h.get("position") == "Suporte")
+            and h.get("status") != "Afastado"
+            for h in getattr(self.state, "team", [])
+        )
+        if has_active_support:
+            positions_data = CLASSES_DATA.get("positions", [])
+            sup_item = next((p for p in positions_data if p.get("id") == "pos_suporte"), {})
+            discount_pct = float(sup_item.get("medical_cost_discount_pct", 0.20))
+            cost = max(10, int(cost * (1.0 - discount_pct)))
 
         if self.state.gold < cost:
             return {

@@ -7,6 +7,10 @@ export type MarginType = 'Promoção' | 'Preço Justo' | 'Preço Abusivo'
 export interface Hero {
   id: string
   name: string
+  position?: string
+  position_id?: string
+  position_icon?: string
+  position_description?: string
   class_name?: string
   specialization_name?: string
   class?: string

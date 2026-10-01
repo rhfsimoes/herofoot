@@ -362,23 +362,79 @@ class PhaseService:
                 consumable_report = f"O consumível '{target.get('name', 'Consumível')}' utilizou 1 carga ({current_charges}/{max_charges} cargas restantes)."
                 match_log.append(f"[Logística] {consumable_report}")
 
-        # 5. Adiciona fadiga aos titulares que exploraram a masmorra
+        # 5. Adiciona fadiga e calcula risco pericial de afastamento (lesão) aos titulares
+        from match_engine import get_hero_position, get_positions_data, get_positions_config
         fatigue_cfg = balance.get("fatigue", {})
         gain_val = fatigue_cfg.get("gain_per_expedition", 25)
         fatigued_thresh = fatigue_cfg.get("fatigued_threshold", 70)
 
         # Habilidade Prece de Sustentação (Clérigo/Apoio):
         # Reduz a fadiga resultante da expedição
+        has_sustaining_prayer = False
         if self.match_engine and t1.has_skill("skill_sustaining_prayer"):
+            has_sustaining_prayer = True
             skill_data = t1.get_skill("skill_sustaining_prayer") or {}
             fatigue_reduction = skill_data.get("fatigue_gain_reduction", 5)
             gain_val = max(0, gain_val - fatigue_reduction)
 
+        # Mecânicas de Posições Operacionais (Vanguarda & Suporte)
+        positions_catalog = get_positions_data()
+        pos_cfg = get_positions_config()
+        vanguard_info = next((p for p in positions_catalog if p.get("id") == "pos_vanguarda"), {})
+        suporte_info = next((p for p in positions_catalog if p.get("id") == "pos_suporte"), {})
+
+        num_vanguard = sum(1 for h in starter_heroes if get_hero_position(h) == "pos_vanguarda")
+        num_suporte = sum(1 for h in starter_heroes if get_hero_position(h) == "pos_suporte")
+
+        vanguard_fatigue_red = float(vanguard_info.get("team_fatigue_reduction_pct", 0.15))
+        max_fatigue_red = float(pos_cfg.get("max_team_fatigue_reduction", 0.45))
+        team_fatigue_red_pct = min(max_fatigue_red, num_vanguard * vanguard_fatigue_red)
+
+        # Suporte cura fadiga se não tiver sido curado já pela Prece de Sustentação
+        suporte_heal = 0
+        if num_suporte > 0 and not has_sustaining_prayer:
+            suporte_heal = int(suporte_info.get("expedition_fatigue_heal", 5))
+
+        base_injury_risk = float(pos_cfg.get("base_injury_risk_per_expedition", 0.08))
+        team_injury_red = float(vanguard_info.get("team_injury_risk_reduction_pct", 0.25))
+        max_injury_red = float(pos_cfg.get("max_team_injury_reduction", 0.60))
+        team_injury_red_pct = min(max_injury_red, num_vanguard * team_injury_red)
+
         for h in starter_heroes:
-            h["fatigue"] = min(100, h.get("fatigue", 0) + gain_val)
+            h_pos = get_hero_position(h)
+            if num_vanguard > 0:
+                if h_pos == "pos_vanguarda":
+                    # Centraliza o dano colateral em si mesmo
+                    self_mult = float(vanguard_info.get("self_fatigue_mult", 1.25))
+                    hero_gain = round(gain_val * self_mult) - suporte_heal
+                else:
+                    hero_gain = round(gain_val * (1.0 - team_fatigue_red_pct)) - suporte_heal
+            else:
+                hero_gain = gain_val - suporte_heal
+
+            hero_gain = max(0, hero_gain)
+            h["fatigue"] = min(100, h.get("fatigue", 0) + hero_gain)
             h["season_appearances"] = h.get("season_appearances", 0) + 1
             if h["fatigue"] >= fatigued_thresh:
                 h["status"] = "Fatigado"
+
+            # Avaliação pericial de acidente de trabalho (lesão com afastamento)
+            if h_pos and not h.get("injured", False) and h.get("status") != "Afastado":
+                if h_pos == "pos_vanguarda":
+                    inj_risk = base_injury_risk * float(vanguard_info.get("self_injury_risk_mult", 1.25))
+                else:
+                    inj_risk = base_injury_risk * (1.0 - team_injury_red_pct)
+
+                hero_rng_seed = hash((world_seed, week, h.get("id"), "injury"))
+                hero_rng = random.Random(hero_rng_seed)
+                if hero_rng.random() < inj_risk:
+                    h["injured"] = True
+                    h["status"] = "Afastado"
+                    h["injury_weeks_left"] = hero_rng.randint(1, 3)
+                    match_log.append(
+                        f"[Boletim Médico] Acidente de Trabalho: Colaborador '{h.get('name')}' sofreu lesão em serviço "
+                        f"({h['injury_weeks_left']} semanas de afastamento pericial)."
+                    )
 
         # Registro dos titulares da última expedição
         self.state.last_expedition_starters = [h["id"] for h in starter_heroes] if starter_heroes else list(self.state.starters)

@@ -99,39 +99,30 @@ class GameController:
         classes_data = _get_classes_data()
         class_map = {c["id"]: c.get("name", "Combatente") for c in classes_data.get("classes", [])}
         spec_map = {s["id"]: s for s in classes_data.get("specializations", [])}
+        pos_map = {p["id"]: p for p in classes_data.get("positions", [])}
 
-        decorated_team = []
-        for hero in self.state.team:
-            h = dict(hero)
+        def decorate_hero_dict(hero_dict: dict) -> dict:
+            h = dict(hero_dict)
             c_name = class_map.get(h.get("class_id"), h.get("class_name", "Combatente"))
             spec = spec_map.get(h.get("specialization_id"), {})
             h["class_name"] = c_name
             h["specialization_name"] = spec.get("name", c_name)
             h["stat_weight_profile"] = spec.get("stat_weight_profile", h.get("stat_weight_profile", {}))
-            h["current_power"] = calculate_hero_power(h)
-            decorated_team.append(h)
 
-        decorated_youth = []
-        for y in getattr(self.state, "youth_academy", []):
-            h = dict(y)
-            c_name = class_map.get(h.get("class_id"), h.get("class_name", "Combatente"))
-            spec = spec_map.get(h.get("specialization_id"), {})
-            h["class_name"] = c_name
-            h["specialization_name"] = spec.get("name", c_name)
-            h["stat_weight_profile"] = spec.get("stat_weight_profile", h.get("stat_weight_profile", {}))
-            h["current_power"] = calculate_hero_power(h)
-            decorated_youth.append(h)
+            # Posições Operacionais Canônicas
+            pos_id = h.get("position_id") or spec.get("position_id") or "pos_vanguarda"
+            pos_info = pos_map.get(pos_id, {})
+            h["position_id"] = pos_id
+            h["position"] = h.get("position") or pos_info.get("name", "Vanguarda")
+            h["position_icon"] = pos_info.get("icon", "Shield")
+            h["position_description"] = pos_info.get("description", "")
 
-        decorated_market = []
-        for m in getattr(self.state, "transfer_market_listings", []):
-            h = dict(m)
-            c_name = class_map.get(h.get("class_id"), h.get("class_name", "Combatente"))
-            spec = spec_map.get(h.get("specialization_id"), {})
-            h["class_name"] = c_name
-            h["specialization_name"] = spec.get("name", c_name)
-            h["stat_weight_profile"] = spec.get("stat_weight_profile", h.get("stat_weight_profile", {}))
             h["current_power"] = calculate_hero_power(h)
-            decorated_market.append(h)
+            return h
+
+        decorated_team = [decorate_hero_dict(hero) for hero in self.state.team]
+        decorated_youth = [decorate_hero_dict(y) for y in getattr(self.state, "youth_academy", [])]
+        decorated_market = [decorate_hero_dict(m) for m in getattr(self.state, "transfer_market_listings", [])]
 
         # Montagem das receitas com ingredientes a partir do catálogo normalizado
         from catalog import get_catalog
