@@ -5,7 +5,7 @@ HeroFoot Canonical Constants and Legacy Normalization Maps.
 SLOTS = ["Arsenal Ofensivo", "Blindagem Operacional", "Ativo de Performance", "Alvará de Risco", "Provisão Logística"]
 BRANCHES = ["Ferragem", "Alquimia", "Joalheria", "Culinária"]
 QUALITIES = ["Fraco", "Normal", "Ótimo", "Lendário"]
-STATUSES = ["Apto", "Fatigado", "Afastado"]
+STATUSES = ["Apto", "Fatigado", "Afastado", "Falecido"]
 MARGINS = ["Promoção", "Preço Justo", "Preço Abusivo"]
 
 LEGACY_BRANCH_MAP = {
@@ -66,6 +66,7 @@ LEGACY_STATUS_MAP = {
     "apto": "Apto",
     "fatigado": "Fatigado",
     "afastado": "Afastado",
+    "falecido": "Falecido",
 }
 
 

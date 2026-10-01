@@ -107,7 +107,8 @@
     "max_age": 18,
     "initial_youth_count": 3,
     "promotion_contract_seasons": 2,
-    "promotion_initial_salary": 35
+    "promotion_initial_salary": 35,
+    "training_weeks": 10
   },
   "transfer_market": {
     "listings_count": 5,
@@ -144,7 +145,16 @@
     "overclock_power_bonus_pct": 0.15,
     "gororoba_sell_value": 20,
     "white_label_price_factor": 0.50,
-    "weekly_spot_quota_per_part": 5
+    "weekly_spot_quota_per_part": 3
+  },
+  "fatality": {
+    "enabled": true,
+    "fatal_injury_chance_by_position": {
+      "pos_vanguarda": 0.01,
+      "pos_dps": 0.05,
+      "pos_suporte": 0.08,
+      "pos_suporte_logistico": 0.20
+    }
   },
   "provisional_rescale_factor": 0.55
 }

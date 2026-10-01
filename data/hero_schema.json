@@ -51,7 +51,7 @@
     },
     "status": {
       "type": "string",
-      "enum": ["Apto", "Fatigado", "Afastado"],
+      "enum": ["Apto", "Fatigado", "Afastado", "Falecido"],
       "description": "Status pericial canônico do herói"
     },
     "fatigue": {

@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Swords, ArrowRight, Trophy, Compass } from 'lucide-react'
+import { Swords, ArrowRight, Trophy, Compass, Award, Skull } from 'lucide-react'
 import { getDungeonForDay, getClimateForDay, type GameState } from '../mockData'
 import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
 import { CrownSeal } from '../components/art'
+import MemorialHallOfFame from '../components/MemorialHallOfFame'
 
 interface DashboardProps {
   state: GameState
@@ -23,6 +25,7 @@ const PHASE_PATHS: Record<number, string> = {
 
 export default function Dashboard({ state, onAdvancePhase }: DashboardProps) {
   const navigate = useNavigate()
+  const [showMemorial, setShowMemorial] = useState(false)
   const phaseInfo = PHASE_DESCRIPTIONS[state.current_phase] ?? PHASE_DESCRIPTIONS[1]
 
   const aptCount = state.team.filter(h => h.status === 'Apto').length
@@ -129,7 +132,7 @@ export default function Dashboard({ state, onAdvancePhase }: DashboardProps) {
           </div>
         )}
 
-        <div className="mt-5 flex gap-3 flex-wrap">
+        <div className="mt-5 flex gap-3 flex-wrap items-center">
           <button
             onClick={() => navigate(PHASE_PATHS[state.current_phase] ?? '/')}
             className="px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-500 text-stone-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-amber-950/40 hover:brightness-110 transition flex items-center gap-2"
@@ -143,8 +146,27 @@ export default function Dashboard({ state, onAdvancePhase }: DashboardProps) {
           >
             Avançar Fase
           </button>
+          <button
+            onClick={() => setShowMemorial(prev => !prev)}
+            className={`px-4 py-3 rounded-xl border font-bold text-xs uppercase tracking-wider transition flex items-center gap-2 ${
+              showMemorial
+                ? 'bg-amber-950 border-amber-600 text-amber-300 shadow-lg'
+                : 'bg-stone-950/90 border-stone-800 text-stone-400 hover:text-amber-200 hover:border-amber-900'
+            }`}
+          >
+            <Trophy className="w-4 h-4 text-amber-500" />
+            <span>{showMemorial ? 'Fechar Memorial' : 'Quadro de Honra & Baixas'}</span>
+          </button>
         </div>
       </div>
+
+      {/* Seção Condicional do Mural da Glória & Memorial de Baixas */}
+      {showMemorial && (
+        <MemorialHallOfFame
+          onClose={() => setShowMemorial(false)}
+          currentWeek={state.day}
+        />
+      )}
 
       {/* Cards de Resumo (Pedra, Madeira e Ouro) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

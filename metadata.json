@@ -1,0 +1,6 @@
+{
+  "name": "HeroFoot Studio",
+  "description": "Tech Lead Workspace & Game System Explorer for HeroFoot, combining tycoon management with Atelier crafting mechanics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

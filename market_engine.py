@@ -321,7 +321,7 @@ class MarketEngine:
 
         # Cota semanal máxima de aquisição spot por peça (Anti-Exploit)
         b2b_cfg = get_b2b_balance()
-        max_quota = int(b2b_cfg.get("weekly_spot_quota_per_part", 5))
+        max_quota = int(b2b_cfg.get("weekly_spot_quota_per_part", 3))
         already_bought = state.get_spot_purchases_this_week(part_id) if hasattr(state, "get_spot_purchases_this_week") else 0
         if already_bought + quantity > max_quota:
             remaining = max(0, max_quota - already_bought)

@@ -7,6 +7,7 @@ import os
 import json
 import random
 import copy
+from typing import Optional, List, Dict, Any
 from balance import get_balance
 from constants import normalize_slot
 
@@ -174,7 +175,7 @@ class PhaseService:
         # Auditoria de conformidade tática: saneamento de heróis inaptos da titularidade
         for hid in list(self.state.starters):
             hero = self.state.hero_by_id(hid)
-            if not hero or hero.get("injured", False) or hero.get("status") == "Afastado":
+            if not hero or hero.get("injured", False) or hero.get("status") in ("Afastado", "Falecido"):
                 self.state.starters.remove(hid)
                 hname = hero.get("name", hid) if hero else hid
                 report.append(f"Ajuste na escala: colaborador '{hname}' desconvocado da titularidade por incapacidade funcional ou rescisão contratual.")
@@ -182,7 +183,7 @@ class PhaseService:
         # Auditoria de conformidade tática: saneamento de heróis inaptos da reserva
         for hid in list(getattr(self.state, "reserves", [])):
             hero = self.state.hero_by_id(hid)
-            if not hero or hero.get("injured", False) or hero.get("status") == "Afastado":
+            if not hero or hero.get("injured", False) or hero.get("status") in ("Afastado", "Falecido"):
                 self.state.reserves.remove(hid)
                 hname = hero.get("name", hid) if hero else hid
                 report.append(f"Ajuste na escala: colaborador '{hname}' desconvocado da reserva por incapacidade funcional ou rescisão contratual.")
@@ -418,8 +419,8 @@ class PhaseService:
             if h["fatigue"] >= fatigued_thresh:
                 h["status"] = "Fatigado"
 
-            # Avaliação pericial de acidente de trabalho (lesão com afastamento)
-            if h_pos and not h.get("injured", False) and h.get("status") != "Afastado":
+            # Avaliação pericial de acidente de trabalho (lesão com afastamento e fatalidade ocupacional - TASK-807)
+            if h_pos and not h.get("injured", False) and h.get("status") not in ("Afastado", "Falecido"):
                 if h_pos == "pos_vanguarda":
                     inj_risk = base_injury_risk * float(vanguard_info.get("self_injury_risk_mult", 1.25))
                 else:
@@ -428,31 +429,72 @@ class PhaseService:
                 hero_rng_seed = hash((world_seed, week, h.get("id"), "injury"))
                 hero_rng = random.Random(hero_rng_seed)
                 if hero_rng.random() < inj_risk:
-                    h["injured"] = True
-                    h["status"] = "Afastado"
-                    h["injury_weeks_left"] = hero_rng.randint(1, 3)
-                    match_log.append(
-                        f"[Boletim Médico] Acidente de Trabalho: Colaborador '{h.get('name')}' sofreu lesão em serviço "
-                        f"({h['injury_weeks_left']} semanas de afastamento pericial)."
-                    )
+                    # Dado secundário para agravante fatal conforme posição operacional (TASK-807)
+                    pos_obj = next((p for p in positions_catalog if p.get("id") == h_pos), {})
+                    fatal_chance = float(pos_obj.get("fatal_injury_chance", 0.05))
+
+                    fatal_rng_seed = hash((world_seed, week, h.get("id"), "fatal_injury"))
+                    fatal_rng = random.Random(fatal_rng_seed)
+                    is_fatal = fatal_rng.random() < fatal_chance
+
+                    if is_fatal:
+                        h["injured"] = True
+                        h["status"] = "Falecido"
+                        h["deceased"] = True
+                        h["injury_weeks_left"] = 0
+                        if hasattr(self.state, "starters") and h["id"] in self.state.starters:
+                            if isinstance(self.state.starters, set):
+                                self.state.starters.discard(h["id"])
+                            elif isinstance(self.state.starters, list):
+                                self.state.starters = [sid for sid in self.state.starters if sid != h["id"]]
+                        match_log.append(
+                            f"[Cartório Imperial - Atestado de Óbito] FATALIDADE EM SERVIÇO: O colaborador '{h.get('name')}' "
+                            f"({pos_obj.get('name', h_pos)}) sucumbiu a traumatismo grave na masmorra. "
+                            f"Baixa patrimonial homologada e vaga aberta no quadro de colaboradores sem cobertura securitária."
+                        )
+                    else:
+                        h["injured"] = True
+                        h["status"] = "Afastado"
+                        h["injury_weeks_left"] = hero_rng.randint(1, 3)
+                        match_log.append(
+                            f"[Boletim Médico] Acidente de Trabalho: Colaborador '{h.get('name')}' sofreu lesão em serviço "
+                            f"({h['injury_weeks_left']} semanas de afastamento pericial)."
+                        )
 
         # Registro dos titulares da última expedição
         self.state.last_expedition_starters = [h["id"] for h in starter_heroes] if starter_heroes else list(self.state.starters)
 
-        # Geração e Registro Real de Espólios de Masmorras (Peças Modulares Reais)
+        # Geração e Registro Real de Espólios de Masmorras (Peças Modulares Reais com Catalisador Climático - TASK-806)
         rooms_player = sim_result.get("rooms_explored_player", 0)
         dungeon_terrain = dungeon.get("terrain", "neutral")
-        loot_dropped = self._generate_dungeon_loot(dungeon_terrain, rooms_player, round_rng)
+        loot_dropped = self._generate_dungeon_loot(
+            dungeon_terrain,
+            rooms_player,
+            round_rng,
+            climate=climate,
+            has_catalyst=has_climate_mitigation,
+        )
         self.state.last_expedition_loot = loot_dropped
         for item in loot_dropped:
-            pid = item.get("part_id", item.get("material_id"))
-            qty = item.get("quantity", 1)
-            if hasattr(self.state, "add_warehouse_part"):
-                self.state.add_warehouse_part(pid, qty)
+            if item.get("is_full_item"):
+                full_item_data = item.get("item_data", item)
+                if not hasattr(self.state, "inventory") or self.state.inventory is None:
+                    self.state.inventory = []
+                self.state.inventory.append(full_item_data)
+                match_log.append(
+                    f"[Achado Lendário de Masmorra] Item Completo Recuperado: '{full_item_data.get('name')}' "
+                    f"({full_item_data.get('slot', 'Item')} - Qualidade {full_item_data.get('quality', 'Normal')}) "
+                    f"inserido diretamente no arsenal da guilda!"
+                )
             else:
-                self.state.warehouse_parts[pid] = self.state.warehouse_parts.get(pid, 0) + qty
-            self.state.materials[pid] = self.state.materials.get(pid, 0) + qty
-            match_log.append(f"[Logística de Espólios] Recuperado: {qty}x '{item.get('name', pid)}' ({item.get('slot_role', 'Peça').capitalize()}).")
+                pid = item.get("part_id", item.get("material_id"))
+                qty = item.get("quantity", 1)
+                if hasattr(self.state, "add_warehouse_part"):
+                    self.state.add_warehouse_part(pid, qty)
+                else:
+                    self.state.warehouse_parts[pid] = self.state.warehouse_parts.get(pid, 0) + qty
+                self.state.materials[pid] = self.state.materials.get(pid, 0) + qty
+                match_log.append(f"[Logística de Espólios] Recuperado: {qty}x '{item.get('name', pid)}' ({item.get('slot_role', 'Peça').capitalize()}).")
 
         # Atualização da Confiança da Contratante com base no resultado da expedição
         confidence_gain = balance.get("expedition", {}).get("confidence_gain_win", 3)
@@ -774,8 +816,15 @@ class PhaseService:
         """Alias pericial para fechamento contábil e apuração financeira da Fase 5."""
         return self.phase_5_results()
 
-    def _generate_dungeon_loot(self, terrain: str, rooms_explored: int, rng: random.Random) -> list:
-        """Sorteia peças modulares físicas com base no terreno da masmorra e nas salas alcançadas."""
+    def _generate_dungeon_loot(
+        self,
+        terrain: str,
+        rooms_explored: int,
+        rng: random.Random,
+        climate: Optional[dict] = None,
+        has_catalyst: bool = False
+    ) -> list:
+        """Sorteia peças modulares físicas com base no terreno da masmorra, salas alcançadas e bônus climático B2B."""
         if rooms_explored <= 0:
             return []
 
@@ -817,6 +866,24 @@ class PhaseService:
 
         chosen_parts = rng.sample(eligible, min(part_count, len(eligible)))
 
+        # Bônus de Drop B2B por Tendência Climática / Catalisador Climático (TASK-806)
+        if climate and rooms_explored >= 2:
+            drop_cat = climate.get("drop_bonus_category")
+            if drop_cat:
+                cat_bonus_chance = float(climate.get("catalyst_drop_bonus_pct", 0.30)) if has_catalyst else float(climate.get("drop_bonus_pct", 0.15))
+                if rng.random() < cat_bonus_chance:
+                    cat_parts = [
+                        p for p in all_parts
+                        if p.get("branch") == drop_cat
+                        or drop_cat in p.get("compatible_slots", [])
+                        or p.get("slot_role") == drop_cat
+                        or drop_cat.lower() in p.get("name", "").lower()
+                    ]
+                    if cat_parts:
+                        extra_cat_part = rng.choice(cat_parts)
+                        if extra_cat_part not in chosen_parts:
+                            chosen_parts.append(extra_cat_part)
+
         # Em incursões profundas (5+ salas), chance de recuperar mantimentos de campanha adicionais
         if rooms_explored >= 5 and rng.random() < 0.40:
             provision_parts = [p for p in all_parts if p.get("corp_id") == "corp_crown_rations" or "Provisão Logística" in p.get("compatible_slots", [])]
@@ -841,5 +908,62 @@ class PhaseService:
                 "tier": tier,
                 "branch": p.get("branch", "Ferragem"),
             })
+
+        # TASK-810: Drop Raro de Itens Completos Manufaturados em Masmorras
+        # Taxa de drop raro: 5% a 10% nas câmaras intermediárias (salas 3 a 9) e 25% no Boss Final (sala 10)
+        full_item_chance = 0.0
+        if rooms_explored >= 10:
+            full_item_chance = 0.25
+        elif rooms_explored >= 6:
+            full_item_chance = 0.10
+        elif rooms_explored >= 3:
+            full_item_chance = 0.05
+
+        if full_item_chance > 0 and rng.random() < full_item_chance:
+            recipes_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'recipes_seed.json')
+            if os.path.exists(recipes_path):
+                try:
+                    with open(recipes_path, 'r', encoding='utf-8') as f:
+                        raw_recipes = json.load(f)
+                    all_recipes = list(raw_recipes.values()) if isinstance(raw_recipes, dict) else raw_recipes
+                    if all_recipes:
+                        rec = rng.choice(all_recipes)
+                        quality_roll = rng.random()
+                        quality = "Lendário" if quality_roll < 0.10 else ("Ótimo" if quality_roll < 0.40 else "Normal")
+                        mults = {"Fraco": 0.70, "Normal": 1.0, "Ótimo": 1.35, "Lendário": 1.80}
+                        q_mult = mults.get(quality, 1.0)
+                        base_pwr = int(rec.get("base_power", 20) * q_mult)
+                        item_id = f"loot_{rec.get('id', 'item')}_{rng.randint(10000, 99999)}"
+                        full_item = {
+                            "item_instance_id": item_id,
+                            "recipe_id": rec.get("id"),
+                            "name": f"{rec.get('name', 'Artefato')} Resgatado",
+                            "description": f"Item manufaturado completo resgatado dos tesouros da câmara {rooms_explored}.",
+                            "slot": rec.get("slot", "Arsenal Ofensivo"),
+                            "slot_type": rec.get("slot", "Arsenal Ofensivo"),
+                            "branch": rec.get("branch", "Ferragem"),
+                            "quality": quality,
+                            "power_bonus": base_pwr,
+                            "energy_bonus": int(rec.get("base_energy_bonus", 0) * q_mult),
+                            "terrain_mitigation": rec.get("terrain_mitigation"),
+                            "market_value_base": int(rec.get("base_value", 100) * q_mult),
+                            "multiplier": q_mult,
+                            "special_suffix_active": quality == "Lendário",
+                        }
+                        loot.append({
+                            "is_full_item": True,
+                            "part_id": item_id,
+                            "material_id": item_id,
+                            "name": full_item["name"],
+                            "quantity": 1,
+                            "rarity": quality,
+                            "slot_role": rec.get("slot", "Arsenal Ofensivo"),
+                            "item_data": full_item,
+                            "power_bonus": base_pwr,
+                            "tier": rec.get("tier", 1),
+                            "branch": rec.get("branch", "Ferragem"),
+                        })
+                except Exception:
+                    pass
 
         return loot
