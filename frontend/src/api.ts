@@ -730,3 +730,33 @@ export async function buyModularPartBackend(
   return null
 }
 
+export async function renameGuildBackend(name: string): Promise<ApiResponse<{ guild_name: string }> | null> {
+  try {
+    const res = await fetch(`${API_BASE}/rename_guild`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+      signal: AbortSignal.timeout(3000),
+    })
+    return (await res.json()) as ApiResponse
+  } catch (err) {
+    console.warn('[HeroFoot API] Falha ao renomear guilda:', err)
+  }
+  return null
+}
+
+export async function renameHeroBackend(heroId: string, name: string): Promise<ApiResponse<{ hero: Hero }> | null> {
+  try {
+    const res = await fetch(`${API_BASE}/rename_hero`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hero_id: heroId, name }),
+      signal: AbortSignal.timeout(3000),
+    })
+    return (await res.json()) as ApiResponse
+  } catch (err) {
+    console.warn('[HeroFoot API] Falha ao renomear aventureiro:', err)
+  }
+  return null
+}
+

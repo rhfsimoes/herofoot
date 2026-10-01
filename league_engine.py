@@ -796,3 +796,11 @@ class LeagueEngine:
                     row["traits"] = copy.deepcopy(self.all_guilds[gid].get("traits", []))
 
         return self
+
+    def rename_player_guild(self, new_name: str):
+        """Atualiza a razão social da guilda do jogador na tabela da liga e confrontos."""
+        if "g_player" in self.all_guilds:
+            self.all_guilds["g_player"]["name"] = new_name
+        for div in self.divisions.values():
+            if "g_player" in div.get("table", {}):
+                div["table"]["g_player"]["guild_name"] = new_name

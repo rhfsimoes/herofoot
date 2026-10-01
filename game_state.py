@@ -51,6 +51,12 @@ SERIALIZED_FIELDS = [
     "spot_purchases_this_week",
     "weekly_sales_count",
     "weekly_sales_cash_collected",
+    "guild_name",
+    "consecutive_negative_gold_weeks",
+    "game_over",
+    "game_over_reason",
+    "season_completed",
+    "season_outcome",
 ]
 
 TRANSIENT_FIELDS = [
@@ -132,6 +138,14 @@ class GameState:
         self.spot_purchases_this_week: Dict[str, int] = {}
         self.weekly_sales_count: int = 0
         self.weekly_sales_cash_collected: int = 0
+
+        # Identidade e Stakes de Falência e Temporada
+        self.guild_name: str = "Guilda do Jogador"
+        self.consecutive_negative_gold_weeks: int = 0
+        self.game_over: bool = False
+        self.game_over_reason: Optional[str] = None
+        self.season_completed: bool = False
+        self.season_outcome: Optional[Dict[str, Any]] = None
 
         # Campos transientes de execução
         self.last_match_result = None
@@ -470,3 +484,22 @@ class GameState:
         """Verifica se a guilda possui uma cláusula de exclusividade corporativa ativa."""
         tags = getattr(self, "corporate_exclusivity_tags", [])
         return tag in tags
+
+    def rename_guild(self, new_name: str) -> str:
+        """Atualiza a razão social da guilda corporativa."""
+        cleaned = new_name.strip() if new_name else ""
+        if not cleaned:
+            cleaned = "Guilda do Jogador"
+        self.guild_name = cleaned[:40]
+        return self.guild_name
+
+    def rename_hero(self, hero_id: str, new_name: str) -> Optional[dict]:
+        """Atualiza o nome de registro de um aventureiro no quadro funcional."""
+        cleaned = new_name.strip() if new_name else ""
+        if not cleaned:
+            return None
+        hero = self.hero_by_id(hero_id)
+        if hero:
+            hero["name"] = cleaned[:35]
+            return hero
+        return None

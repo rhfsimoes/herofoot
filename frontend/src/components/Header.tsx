@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   X,
   Crown,
+  Edit3,
 } from 'lucide-react'
 import type { GameState, SaveSlotInfo } from '../mockData'
 import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
@@ -20,6 +21,7 @@ import {
   saveGameBackend,
   loadGameBackend,
   newGameBackend,
+  renameGuildBackend,
 } from '../api'
 import { GuildCrest } from './art'
 import PhaseProgress from './PhaseProgress'
@@ -46,6 +48,33 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
   const [saveSlots, setSaveSlots] = useState<SaveSlotInfo[]>(DEFAULT_SLOTS)
   const [loadingAction, setLoadingAction] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [isEditingGuildName, setIsEditingGuildName] = useState(false)
+  const [guildNameInput, setGuildNameInput] = useState(state.guild_name || 'Guilda do Jogador')
+  const [isRenaming, setIsRenaming] = useState(false)
+
+  async function handleSaveGuildName() {
+    if (!guildNameInput.trim()) return
+    setIsRenaming(true)
+    try {
+      if (isBackendOnline) {
+        const res = await renameGuildBackend(guildNameInput.trim())
+        if (res && res.success) {
+          onStateChange?.({
+            ...state,
+            guild_name: (res as any).guild_name || guildNameInput.trim(),
+          })
+        }
+      } else {
+        onStateChange?.({
+          ...state,
+          guild_name: guildNameInput.trim(),
+        })
+      }
+      setIsEditingGuildName(false)
+    } finally {
+      setIsRenaming(false)
+    }
+  }
 
   // Posição do jogador na liga
   const playerRank = (
@@ -243,9 +272,51 @@ export default function Header({ state, isBackendOnline, onStateChange }: Header
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-amber-100 font-black text-sm tracking-wider uppercase">
-                Guilda do Jogador
-              </h1>
+              {isEditingGuildName ? (
+                <div className="flex items-center gap-1.5 animate-in fade-in duration-200">
+                  <input
+                    type="text"
+                    value={guildNameInput}
+                    onChange={e => setGuildNameInput(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') handleSaveGuildName()
+                      if (e.key === 'Escape') setIsEditingGuildName(false)
+                    }}
+                    maxLength={35}
+                    className="bg-stone-950 border border-amber-500 rounded px-2 py-0.5 text-xs text-amber-100 font-bold focus:outline-none focus:ring-1 focus:ring-amber-400"
+                    autoFocus
+                  />
+                  <button
+                    onClick={handleSaveGuildName}
+                    disabled={isRenaming}
+                    className="px-2 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold text-[10px] cursor-pointer"
+                  >
+                    Salvar
+                  </button>
+                  <button
+                    onClick={() => setIsEditingGuildName(false)}
+                    className="px-1.5 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 text-[10px] cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 group">
+                  <h1 className="text-amber-100 font-black text-sm tracking-wider uppercase">
+                    {state.guild_name || 'Guilda do Jogador'}
+                  </h1>
+                  <button
+                    onClick={() => {
+                      setGuildNameInput(state.guild_name || 'Guilda do Jogador')
+                      setIsEditingGuildName(true)
+                    }}
+                    className="opacity-0 group-hover:opacity-100 text-stone-500 hover:text-amber-400 transition p-0.5 rounded hover:bg-stone-900 cursor-pointer"
+                    title="Alterar Razão Social da Guilda"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
               <span
                 className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-bold ${
                   isBackendOnline

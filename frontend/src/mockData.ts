@@ -48,6 +48,7 @@ export interface InventoryItem {
   power_bonus: number
   energy_bonus?: number
   terrain_mitigation?: string | null
+  mitigations?: string[]
   charges?: number
   max_charges?: number
   market_value_base: number
@@ -662,6 +663,12 @@ export interface GameState {
   weekly_sales_revenue?: number
   last_expedition_loot?: ExpeditionLootItem[]
   rival_traits?: RivalTrait[]
+  guild_name?: string
+  consecutive_negative_gold_weeks?: number
+  game_over?: boolean
+  game_over_reason?: string | null
+  season_completed?: boolean
+  season_outcome?: SeasonSummary | null
 }
 
 

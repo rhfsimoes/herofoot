@@ -110,6 +110,9 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             self._send_json({"error": "Endpoint não encontrado"}, status=404)
         else:
             if os.path.exists(FRONTEND_DIST):
+                req_file = os.path.join(FRONTEND_DIST, path.lstrip('/').replace('/', os.sep))
+                if not os.path.exists(req_file) or os.path.isdir(req_file):
+                    self.path = '/index.html'
                 super().do_GET()
             else:
                 self._send_json({"message": "HeroFoot Backend ativo."}, status=200)
@@ -350,6 +353,19 @@ class HeroFootAPIHandler(SimpleHTTPRequestHandler):
             event_id = body.get('event_id')
             option_id = body.get('option_id')
             result = controller.resolve_event_choice(event_id, option_id)
+            status = 200 if result.get("success", True) else 400
+            self._send_action_result(result, status=status)
+        elif path == '/api/rename_guild':
+            body = self._read_json_body()
+            name = body.get('name', body.get('guild_name', ''))
+            result = controller.rename_guild(name)
+            status = 200 if result.get("success", True) else 400
+            self._send_action_result(result, status=status)
+        elif path == '/api/rename_hero':
+            body = self._read_json_body()
+            hero_id = body.get('hero_id', '')
+            name = body.get('name', body.get('hero_name', ''))
+            result = controller.rename_hero(hero_id, name)
             status = 200 if result.get("success", True) else 400
             self._send_action_result(result, status=status)
         else:

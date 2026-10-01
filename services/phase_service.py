@@ -6,6 +6,7 @@ Gerencia a execução e transição das 5 fases do ciclo semanal.
 import os
 import json
 import random
+import copy
 from balance import get_balance
 from constants import normalize_slot
 
@@ -538,6 +539,8 @@ class PhaseService:
 
             # Desativa o gatilho da engine para não reprocessar anualmente em todas as semanas seguintes
             self.state.season_summary = season_summary
+            self.state.season_completed = True
+            self.state.season_outcome = copy.deepcopy(season_summary)
             self.league_engine.season_summary = None
 
         salary_cost = sum(h.get("salary", 50) for h in self.state.team)
@@ -596,6 +599,19 @@ class PhaseService:
         )
         self.state.gold += (net - already_collected)
 
+        # Verificação de Falência por Inadimplência e Liquidação Judicial da Coroa
+        if self.state.gold < 0:
+            self.state.consecutive_negative_gold_weeks = getattr(self.state, "consecutive_negative_gold_weeks", 0) + 1
+            if self.state.consecutive_negative_gold_weeks >= 2:
+                self.state.game_over = True
+                self.state.game_over_reason = (
+                    "Liquidação Judicial por Insolvência Patrimonial: A guilda encerrou dois ciclos consecutivos "
+                    "com saldo financeiro negativo perante o Tribunal da Coroa. Todos os contratos foram revogados "
+                    "e os bens patrimoniais foram alienados pela Junta de Arbitragem Real."
+                )
+        else:
+            self.state.consecutive_negative_gold_weeks = 0
+
         self.state.season = getattr(self.league_engine, "season_number", 1)
 
         last_financial_statement = {
@@ -634,6 +650,12 @@ class PhaseService:
             "current_division": self.league_engine.get_current_division_info(),
             "season": self.state.season,
             "season_summary": season_summary,
+            "season_completed": getattr(self.state, "season_completed", False),
+            "season_outcome": getattr(self.state, "season_outcome", None),
+            "game_over": getattr(self.state, "game_over", False),
+            "game_over_reason": getattr(self.state, "game_over_reason", None),
+            "consecutive_negative_gold_weeks": getattr(self.state, "consecutive_negative_gold_weeks", 0),
+            "round_matches": getattr(self.league_engine, "last_round_matches", []),
             "pending_contract_renewals": getattr(self.state, "pending_contract_renewals", []),
         }
 

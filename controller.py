@@ -208,6 +208,12 @@ class GameController:
             "brand_xp": getattr(self.state, "brand_xp", {}),
             "b2b_slots_locked": getattr(self.state, "b2b_slots_locked", 0),
             "last_expedition_loot": getattr(self.state, "last_expedition_loot", []),
+            "guild_name": getattr(self.state, "guild_name", "Guilda do Jogador"),
+            "consecutive_negative_gold_weeks": getattr(self.state, "consecutive_negative_gold_weeks", 0),
+            "game_over": getattr(self.state, "game_over", False),
+            "game_over_reason": getattr(self.state, "game_over_reason", None),
+            "season_completed": getattr(self.state, "season_completed", False),
+            "season_outcome": getattr(self.state, "season_outcome", None),
             "b2b_catalog": {
                 "corporations": get_corporations(),
                 "parts": get_parts_dict(),
@@ -678,4 +684,26 @@ class GameController:
 
     def calculate_part_spot_price(self, part_id: str) -> int:
         return self.market_engine.calculate_part_spot_price(part_id, state=self.state)
+
+    def rename_guild(self, name: str) -> dict:
+        new_name = self.state.rename_guild(name)
+        self.league_engine.rename_player_guild(new_name)
+        return {
+            "success": True,
+            "guild_name": new_name,
+            "message": f"Registro notarial: Razão social alterada para '{new_name}' com êxito."
+        }
+
+    def rename_hero(self, hero_id: str, name: str) -> dict:
+        hero = self.state.rename_hero(hero_id, name)
+        if hero:
+            return {
+                "success": True,
+                "hero": hero,
+                "message": f"Certidão de alistamento atualizada: Colaborador renomeado para '{hero['name']}'."
+            }
+        return {
+            "success": False,
+            "error": "Colaborador não localizado no quadro funcional da guilda."
+        }
 

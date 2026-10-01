@@ -128,10 +128,35 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
     setServerError(null)
   }
 
+  // Auto-selecionar os combatentes mais aptos (não lesionados, não fatigados, maior poder)
+  function autoSelectBest() {
+    const eligible = [...state.team].filter(h => !h.injured && h.status !== 'Afastado')
+    eligible.sort((a, b) => {
+      const aFatigued = (a.fatigue ?? 0) >= 80 ? 1 : 0
+      const bFatigued = (b.fatigue ?? 0) >= 80 ? 1 : 0
+      if (aFatigued !== bFatigued) return aFatigued - bFatigued
+
+      const powerA = a.current_power ?? a.power ?? 50
+      const powerB = b.current_power ?? b.power ?? 50
+      if (powerB !== powerA) return powerB - powerA
+
+      return (a.fatigue ?? 0) - (b.fatigue ?? 0)
+    })
+
+    const bestStarters = eligible.slice(0, 6)
+    const bestReserves = eligible.slice(6, 9)
+
+    setStarters(bestStarters)
+    setReserves(bestReserves)
+    setServerError(null)
+  }
+
   // Verifica mitigação do terreno
   const requiredMitigation = dungeon.mitigation_required
   const hasMitigation = requiredMitigation
-    ? Object.values(loadout).some(item => item?.terrain_mitigation === requiredMitigation)
+    ? Object.values(loadout).some(
+        item => item?.terrain_mitigation === requiredMitigation || (item as any)?.mitigations?.includes(requiredMitigation)
+      )
     : true
 
   // Verificação de Sinergia Total (Overgeared Loadout)
@@ -359,6 +384,16 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
                   </span>
                 </div>
 
+                {/* Indicador de Mitigação Ativa no Compartimento */}
+                {requiredMitigation && (
+                  equipped.terrain_mitigation === requiredMitigation || (equipped as any)?.mitigations?.includes(requiredMitigation)
+                ) && (
+                  <div className="mt-1.5 px-2 py-0.5 rounded bg-emerald-950/90 text-emerald-300 border border-emerald-600/70 text-[9px] font-bold flex items-center gap-1 shadow-sm">
+                    <ShieldCheck className="w-3 h-3 text-emerald-400 shrink-0" />
+                    <span>✓ Mitiga Terreno</span>
+                  </div>
+                )}
+
                 {isConsumable && (
                   <div className="text-[10px] text-cyan-300 font-mono mt-1">
                     [{equipped.charges ?? 3}/3 Cargas]
@@ -435,7 +470,15 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
                         <div className="mt-3 pt-2 border-t border-stone-800/60 flex items-center justify-between text-[10px] text-stone-400">
                           <span>Poder Bruto: +{item.power_bonus}</span>
                           {item.terrain_mitigation && (
-                            <span className="text-cyan-400 font-semibold">🛡 Mitiga</span>
+                            <span
+                              className={
+                                item.terrain_mitigation === requiredMitigation || (item as any)?.mitigations?.includes(requiredMitigation)
+                                  ? 'text-emerald-300 font-bold bg-emerald-950/90 border border-emerald-600/70 px-1.5 py-0.5 rounded shadow-sm text-[9px]'
+                                  : 'text-cyan-400 font-semibold text-[10px]'
+                              }
+                            >
+                              🛡 {item.terrain_mitigation === requiredMitigation || (item as any)?.mitigations?.includes(requiredMitigation) ? '✓ Mitiga Terreno da Masmorra!' : `Mitiga: ${item.terrain_mitigation}`}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -459,6 +502,31 @@ export default function Phase3Tactics({ state, onAdvance, onSaveTactics }: Phase
           </div>
         </div>
       )}
+
+      {/* Barra de Ações Operacionais & Otimização do Efetivo */}
+      <div className="flex items-center justify-between flex-wrap gap-3 bg-[#1c1917] border border-amber-950/50 rounded-xl p-3.5 shadow-md">
+        <div className="flex items-center gap-2.5">
+          <Briefcase className="w-4 h-4 text-amber-500" />
+          <div>
+            <span className="text-amber-200 text-xs font-black uppercase tracking-wider block">
+              Composição da Força Operacional da Masmorra
+            </span>
+            <span className="text-[11px] text-stone-400">
+              {starters.length}/6 titulares convocados · {reserves.length}/3 reservas alocados
+            </span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={autoSelectBest}
+          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-600/30 to-amber-500/20 hover:from-amber-600/40 hover:to-amber-500/30 text-amber-300 border border-amber-500/60 hover:border-amber-400 text-xs font-bold flex items-center gap-2 transition shadow cursor-pointer active:scale-95"
+          title="Escala automaticamente os 6 titulares e 3 reservas mais aptos, priorizando combatentes não lesionados, descansados e com maior poder efetivo."
+        >
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <span>Escalar Melhores Aptos</span>
+        </button>
+      </div>
 
       {/* Grid com 3 Colunas: Titulares (Party 6), Reservas (3) e Quadro de Pessoal */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

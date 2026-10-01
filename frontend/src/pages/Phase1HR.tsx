@@ -16,7 +16,8 @@ import {
   Smile,
   GraduationCap,
   Star,
-  Award
+  Award,
+  Edit3
 } from 'lucide-react'
 import type { Hero, MedicalFacilityInfo, PendingContractRenewal, GameState, CorporateEvent } from '../mockData'
 import { GOLD_GRADIENT_TEXT } from '../utils/rarityStyles'
@@ -33,7 +34,8 @@ import {
   promoteYouthBackend,
   dismissYouthBackend,
   fetchActiveEventBackend,
-  resolveEventChoiceBackend
+  resolveEventChoiceBackend,
+  renameHeroBackend
 } from '../api'
 
 interface Phase1HRProps {
@@ -65,6 +67,31 @@ export default function Phase1HR({
   const [activeEvent, setActiveEvent] = useState<CorporateEvent | null>(initialActiveEvent || null)
   const [actionLog, setActionLog] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [editingHeroId, setEditingHeroId] = useState<string | null>(null)
+  const [editingHeroName, setEditingHeroName] = useState<string>('')
+
+  async function handleSaveHeroName(heroId: string) {
+    if (!editingHeroName.trim()) return
+    const newName = editingHeroName.trim()
+    try {
+      const res = await renameHeroBackend(heroId, newName)
+      if (res && res.success) {
+        setTeam(prev => prev.map(h => (h.id === heroId ? { ...h, name: newName } : h)))
+        onStateUpdate?.({
+          team: team.map(h => (h.id === heroId ? { ...h, name: newName } : h))
+        })
+        setActionLog(l => [`Certidão de alistamento atualizada: Aventureiro renomeado para '${newName}'.`, ...l])
+      } else {
+        setTeam(prev => prev.map(h => (h.id === heroId ? { ...h, name: newName } : h)))
+        onStateUpdate?.({
+          team: team.map(h => (h.id === heroId ? { ...h, name: newName } : h))
+        })
+      }
+      setEditingHeroId(null)
+    } catch {
+      setEditingHeroId(null)
+    }
+  }
 
   useEffect(() => {
     if (initialActiveEvent !== undefined) {
@@ -822,8 +849,49 @@ export default function Phase1HR({
                         <div className="w-7 h-7 rounded-lg bg-stone-800 border border-stone-700 flex items-center justify-center font-bold text-amber-400 text-xs shrink-0">
                           {hero.name[0]}
                         </div>
-                        <div>
-                          <span className="truncate max-w-[180px] font-semibold block">{hero.name}</span>
+                        <div className="flex-1 min-w-0">
+                          {editingHeroId === hero.id ? (
+                            <div className="flex items-center gap-1">
+                              <input
+                                type="text"
+                                value={editingHeroName}
+                                onChange={e => setEditingHeroName(e.target.value)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') handleSaveHeroName(hero.id)
+                                  if (e.key === 'Escape') setEditingHeroId(null)
+                                }}
+                                maxLength={30}
+                                className="bg-stone-950 border border-amber-500 rounded px-1.5 py-0.5 text-xs text-amber-100 font-bold focus:outline-none w-28"
+                                autoFocus
+                              />
+                              <button
+                                onClick={() => handleSaveHeroName(hero.id)}
+                                className="px-1.5 py-0.5 rounded bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold text-[9px] cursor-pointer"
+                              >
+                                ✓
+                              </button>
+                              <button
+                                onClick={() => setEditingHeroId(null)}
+                                className="px-1 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 text-[9px] cursor-pointer"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 group">
+                              <span className="truncate max-w-[150px] font-semibold block">{hero.name}</span>
+                              <button
+                                onClick={() => {
+                                  setEditingHeroId(hero.id)
+                                  setEditingHeroName(hero.name)
+                                }}
+                                className="opacity-0 group-hover:opacity-100 text-stone-500 hover:text-amber-400 transition p-0.5 rounded hover:bg-stone-800 cursor-pointer"
+                                title="Alterar nome funcional do aventureiro"
+                              >
+                                <Edit3 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
                           {hero.age && <span className="text-[10px] text-stone-500">{hero.age} anos</span>}
                         </div>
                       </div>
