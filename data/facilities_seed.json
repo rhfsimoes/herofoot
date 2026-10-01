@@ -4,7 +4,7 @@
       "level": 1,
       "name": "Tenda de Curativos de Campanha",
       "description": "Instalação rústica com bandagens básicas e repouso mínimo sob lonas de campo.",
-      "passive_recovery": 15,
+      "passive_recovery": 20,
       "upgrade_cost": 0,
       "weekly_maintenance": 20,
       "injury_duration_reduction_pct": 0.0,

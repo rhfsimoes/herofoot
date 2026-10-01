@@ -13,6 +13,7 @@
       "team_injury_risk_reduction_pct": 0.25,
       "self_fatigue_mult": 1.25,
       "self_injury_risk_mult": 1.25,
+      "fatal_injury_chance": 0.01,
       "pvp_counter_power_debuff_pct": 0.20
     },
     {
@@ -26,6 +27,7 @@
       "disadvantage_against": "pos_vanguarda",
       "raw_power_bonus_pct": 0.10,
       "boss_execution_bonus_pct": 0.15,
+      "fatal_injury_chance": 0.05,
       "pvp_speed_bonus_pct": 0.15
     },
     {
@@ -40,6 +42,7 @@
       "expedition_fatigue_heal": 5,
       "infirmary_treatment_reduction_weeks": 1,
       "medical_cost_discount_pct": 0.20,
+      "fatal_injury_chance": 0.08,
       "pvp_sustain_bonus_pct": 0.15
     },
     {
@@ -53,6 +56,7 @@
       "disadvantage_against": "pos_suporte",
       "supply_drain_reduction_pct": 0.15,
       "max_supply_drain_reduction_pct": 0.40,
+      "fatal_injury_chance": 0.20,
       "pvp_flank_bonus_pct": 0.15
     }
   ],

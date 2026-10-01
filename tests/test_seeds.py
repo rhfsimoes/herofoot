@@ -8,7 +8,7 @@ CANONICAL_SLOTS = {"Arsenal Ofensivo", "Blindagem Operacional", "Ativo de Perfor
 CANONICAL_BRANCHES = {"Ferragem", "Alquimia", "Joalheria", "Culinária"}
 CANONICAL_BRANCH_IDS = {"blacksmithing", "alchemy", "jewelry", "cooking"}
 CANONICAL_QUALITIES = {"Fraco", "Normal", "Ótimo", "Lendário"}
-CANONICAL_STATUSES = {"Apto", "Fatigado", "Afastado"}
+CANONICAL_STATUSES = {"Apto", "Fatigado", "Afastado", "Falecido"}
 FORBIDDEN_TERMS = ["gol", "gramado", "estádio", "estadio", "escanteio", "bilheteria", "brasfoot"]
 
 

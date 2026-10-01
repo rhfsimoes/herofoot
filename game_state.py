@@ -54,12 +54,16 @@ SERIALIZED_FIELDS = [
     "weekly_market_expenses",
     "weekly_contract_signing_expenses",
     "weekly_hiring_expenses",
+    "weekly_severance_expenses",
+    "weekly_medical_expenses",
+    "active_tactical_synergies",
     "guild_name",
     "consecutive_negative_gold_weeks",
     "game_over",
     "game_over_reason",
     "season_completed",
     "season_outcome",
+    "deceased_heroes",
 ]
 
 TRANSIENT_FIELDS = [
@@ -144,6 +148,9 @@ class GameState:
         self.weekly_market_expenses: int = 0
         self.weekly_contract_signing_expenses: int = 0
         self.weekly_hiring_expenses: int = 0
+        self.weekly_severance_expenses: int = 0
+        self.weekly_medical_expenses: int = 0
+        self.active_tactical_synergies: List[Dict[str, Any]] = []
 
         # Identidade e Stakes de Falência e Temporada
         self.guild_name: str = "Guilda do Jogador"
@@ -152,6 +159,7 @@ class GameState:
         self.game_over_reason: Optional[str] = None
         self.season_completed: bool = False
         self.season_outcome: Optional[Dict[str, Any]] = None
+        self.deceased_heroes: List[Dict[str, Any]] = []  # Histórico de baixas permanentes em campo
 
         # Campos transientes de execução
         self.last_match_result = None
@@ -218,6 +226,12 @@ class GameState:
             self.weekly_contract_signing_expenses = 0
         if not hasattr(self, "weekly_hiring_expenses"):
             self.weekly_hiring_expenses = 0
+        if not hasattr(self, "weekly_severance_expenses"):
+            self.weekly_severance_expenses = 0
+        if not hasattr(self, "weekly_medical_expenses"):
+            self.weekly_medical_expenses = 0
+        if not hasattr(self, "active_tactical_synergies") or not isinstance(self.active_tactical_synergies, list):
+            self.active_tactical_synergies = []
         return self
 
     def get_spot_purchases_this_week(self, part_id: str) -> int:
@@ -238,6 +252,8 @@ class GameState:
         self.weekly_market_expenses = 0
         self.weekly_contract_signing_expenses = 0
         self.weekly_hiring_expenses = 0
+        self.weekly_severance_expenses = 0
+        self.weekly_medical_expenses = 0
 
     def get_brand_xp(self, corp_id: str) -> int:
         """Retorna os pontos de EXP comercial acumulados com a corporação."""

@@ -1,4 +1,4 @@
-export type HeroStatus = 'Apto' | 'Fatigado' | 'Afastado'
+export type HeroStatus = 'Apto' | 'Fatigado' | 'Afastado' | 'Falecido'
 export type ItemQuality = 'Fraco' | 'Normal' | 'Ótimo' | 'Lendário'
 export type SaleStatus = 'vendido' | 'não vendido' | 'contraproposta'
 export type WorkshopBranch = 'Ferragem' | 'Alquimia' | 'Joalheria' | 'Culinária'
@@ -173,6 +173,11 @@ export interface DungeonClimateInfo {
   energy_cost_extra: number
   mitigation_required: string | null
   mitigation_label: string
+  drop_bonus_category?: string
+  drop_bonus_pct?: number
+  catalyst_drop_bonus_pct?: number
+  market_trend?: string
+  catalyst_label?: string
 }
 
 export interface DungeonInfo {

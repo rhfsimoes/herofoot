@@ -17,20 +17,20 @@ def load_default_guilds():
         try:
             with open(data_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                player_g = data.get("player_guild", {"id": "g_player", "name": "Guilda do Jogador", "is_player": True, "power_rating": 61})
+                player_g = data.get("player_guild", {"id": "g_player", "name": "Guilda do Jogador", "is_player": True, "power_rating": 43})
                 rivals = data.get("rival_guilds", [])
                 return [player_g] + rivals
         except Exception:
             pass
     return [
-        {"id": "g_player", "name": "Guilda do Jogador", "is_player": True, "power_rating": 61},
-        {"id": "g_grifo", "name": "Ordem do Grifo Dourado", "is_player": False, "power_rating": 76},
-        {"id": "g_aco", "name": "Irmandade do Aço Negro", "is_player": False, "power_rating": 71},
-        {"id": "g_alvorada", "name": "Lança da Alvorada", "is_player": False, "power_rating": 67},
-        {"id": "g_corvo", "name": "Corvo e Osso", "is_player": False, "power_rating": 59},
-        {"id": "g_prata", "name": "Sentinelas da Prata", "is_player": False, "power_rating": 56},
-        {"id": "g_pedra", "name": "Vigia de Pedra", "is_player": False, "power_rating": 54},
-        {"id": "g_crepusculo", "name": "Legião do Crepúsculo", "is_player": False, "power_rating": 51},
+        {"id": "g_player", "name": "Guilda do Jogador", "is_player": True, "power_rating": 43},
+        {"id": "g_grifo", "name": "Ordem do Grifo Dourado", "is_player": False, "power_rating": 64},
+        {"id": "g_aco", "name": "Irmandade do Aço Negro", "is_player": False, "power_rating": 59},
+        {"id": "g_alvorada", "name": "Lança da Alvorada", "is_player": False, "power_rating": 55},
+        {"id": "g_corvo", "name": "Corvo e Osso", "is_player": False, "power_rating": 48},
+        {"id": "g_prata", "name": "Sentinelas da Prata", "is_player": False, "power_rating": 46},
+        {"id": "g_pedra", "name": "Vigia de Pedra", "is_player": False, "power_rating": 44},
+        {"id": "g_crepusculo", "name": "Legião do Crepúsculo", "is_player": False, "power_rating": 40},
     ]
 
 

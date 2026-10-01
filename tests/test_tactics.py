@@ -84,8 +84,8 @@ class TestTactics(unittest.TestCase):
         self.assertEqual(expected_reserves[0], "hero_mock_3")
 
         # Verifica no GameState padrão carregado
-        # Em team.json, temos 3 aptos (hero_05 com 80, hero_01 com 66, hero_03 com 63)
-        self.assertEqual(self.state.starters, ["hero_05", "hero_01", "hero_03"])
+        # Em team.json, temos 6 aptos titulares ordenados por poder descendente
+        self.assertEqual(self.state.starters, ["hero_05", "hero_01", "hero_03", "hero_06", "hero_07", "hero_08"])
 
     def test_reject_forged_item(self):
         """Cliente que envia item forjado (que não existe no inventário) é rejeitado com mensagem corporativa."""

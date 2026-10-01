@@ -157,8 +157,8 @@ def generate_hero(
         "happiness": 85,
         "pending_renewal": False,
         "transfer_fee": 0,
-        "training_weeks": 0 if is_youth else 4,
-        "max_training_weeks": 4,
+        "training_weeks": 0 if is_youth else 10,
+        "max_training_weeks": 10,
         "maturation_pct": 0 if is_youth else 100,
         "is_graduated": not is_youth,
         "traits": []
@@ -300,6 +300,9 @@ class HeroService:
         if not hero:
             return {"success": False, "message": f"Aventureiro '{hero_id}' não localizado."}
 
+        if hero.get("status") == "Falecido":
+            return {"success": False, "message": f"{hero['name']} consta com óbito homologado em cartório. Procedimento médico inviável."}
+
         if not hero.get("injured") or hero.get("injury_weeks_left", 0) <= 0:
             return {"success": False, "message": f"{hero['name']} não possui atestado médico ativo de afastamento."}
 
@@ -310,7 +313,7 @@ class HeroService:
         # Benefício de Medicina Ocupacional: Heróis ativos da posição Suporte reduzem custos clínicos
         has_active_support = any(
             (h.get("position_id") == "pos_suporte" or h.get("position") == "Suporte")
-            and h.get("status") != "Afastado"
+            and h.get("status") not in ("Afastado", "Falecido")
             for h in getattr(self.state, "team", [])
         )
         if has_active_support:
@@ -476,14 +479,15 @@ class HeroService:
             if y.get("is_graduated", False) and y.get("maturation_pct", 0) >= 100:
                 continue
 
-            max_weeks = y.get("max_training_weeks", 4)
+            max_weeks = y.get("max_training_weeks", get_balance().get("academy", {}).get("training_weeks", 10))
             weeks = y.get("training_weeks", 0) + 1
             y["training_weeks"] = min(max_weeks, weeks)
+            y["max_training_weeks"] = max_weeks
             y["maturation_pct"] = min(100, int((y["training_weeks"] / max_weeks) * 100))
 
-            # Crescimento semanal de atributos
+            # Crescimento semanal de atributos (TASK-805: calibragem para ciclo de 10 semanas sem inflação)
             stars = y.get("potential", {}).get("star_potential", 3)
-            star_bonus = 2 if stars >= 4 else (1 if stars == 3 else 0)
+            star_bonus = 1 if stars >= 4 else 0
             spec_id = y.get("specialization_id")
             profile = SPEC_PROFILES.get(spec_id, {})
             attrs = y.setdefault("hidden_attributes", {})
@@ -492,12 +496,12 @@ class HeroService:
                 weight = profile.get(attr, 0.05)
                 curr_val = attrs.get(attr, 20)
                 if weight >= 0.20:
-                    delta = rng.randint(4, 6) + star_bonus
+                    delta = rng.randint(2, 3) + star_bonus
                 else:
-                    delta = rng.randint(1, 2)
+                    delta = rng.randint(0, 1)
                 attrs[attr] = max(1, min(100, curr_val + delta))
 
-            # Graduação completa após 4 semanas
+            # Graduação completa após 10 semanas
             just_graduated = False
             if y["training_weeks"] >= max_weeks:
                 y["is_graduated"] = True
@@ -507,7 +511,7 @@ class HeroService:
                     traits.append("Graduado com Láurea")
                     just_graduated = True
                     for attr in attrs:
-                        attrs[attr] = min(100, attrs[attr] + 3)
+                        attrs[attr] = min(100, attrs[attr] + 2)
 
             old_power = y.get("current_power", 20)
             new_power = calculate_hero_power(y)
@@ -555,15 +559,16 @@ class HeroService:
 
         self.state.team.append(apprentice)
 
+        max_w = apprentice.get("max_training_weeks", 10)
         if is_graduated and maturation_pct >= 100:
             msg = (
                 f"Ordem de Formatura e Promoção com Láurea: O jovem {apprentice['name']} concluiu com êxito "
-                f"o programa probatório de 4 semanas (100% de maturação) e foi promovido ao quadro profissional com o título 'Graduado com Láurea'!"
+                f"o programa probatório de {max_w} semanas (100% de maturação) e foi promovido ao quadro profissional com o título 'Graduado com Láurea'!"
             )
         else:
             msg = (
                 f"Ordem de Promoção Precoce: O jovem {apprentice['name']} foi promovido prematuramente com apenas "
-                f"{maturation_pct}% de maturação ({apprentice.get('training_weeks', 0)}/4 semanas). "
+                f"{maturation_pct}% de maturação ({apprentice.get('training_weeks', 0)}/{max_w} semanas). "
                 f"Seus atributos refletem formação abreviada e ele não recebeu o título de láurea da academia."
             )
 

@@ -2,7 +2,8 @@
 A pasta de dados vem de HEROFOOT_DATA_DIR (padrão: data)."""
 import json, os, re, unittest
 
-DATA = os.environ.get("HEROFOOT_DATA_DIR", "data")
+default_data = "data" if os.path.exists("data") else os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+DATA = os.environ.get("HEROFOOT_DATA_DIR", default_data)
 SLOTS = {"Arsenal Ofensivo", "Blindagem Operacional", "Ativo de Performance", "Alvará de Risco", "Provisão Logística"}
 BRANCHES = {"Ferragem", "Alquimia", "Joalheria", "Culinária"}
 TERRAINS = {"neutral", "toxic_swamp", "glacier_frost", "unstable_mine", "submerged_ruins", "arcane_fog", "lightning_peaks", "volcanic_heat"}

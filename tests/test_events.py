@@ -4,6 +4,7 @@ HeroFoot - Fantasy Corporate 7/10
 """
 
 import unittest
+import os
 import random
 import copy
 import json
@@ -213,7 +214,10 @@ class TestCorporateEvents(unittest.TestCase):
             r'\b(gol|gols|gramado|gramados|estádio|estádios|escanteio|escanteios|bilheteria|bilheterias|brasfoot)\b',
             re.IGNORECASE
         )
-        with open("services/event_service.py", "r", encoding="utf-8") as f:
+        path = "services/event_service.py"
+        if not os.path.exists(path):
+            path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "services", "event_service.py")
+        with open(path, "r", encoding="utf-8") as f:
             content = f.read()
         matches = forbidden_regex.findall(content)
         self.assertEqual(matches, [], f"Termos proibidos detectados em services/event_service.py: {matches}")

@@ -15,6 +15,61 @@ _CLASSES_CACHE = None
 _CLIMATES_CACHE = None
 _RIVAL_TRAITS_CACHE = None
 
+# ==============================================================================
+# Matrizes Narrativas de Fantasia Corporativa (Ordem de Serviço: TASK-804)
+# ==============================================================================
+
+EMPTY_LOGS = [
+    'Corredor silencioso. O Suporte Logístico mapeia as armadilhas no chão e a equipe avança sem gastar recursos extras.',
+    'A câmara está vazia, mas a tensão continua. Trânsito livre aprovado e a formação tática se mantém intacta.',
+    'Nenhum monstro à vista. O Suporte aproveita para curar escoriações leves e a expedição ganha fôlego.',
+    'Caminho limpo! A equipe economiza Suprimentos e marcha a passos largos para a próxima câmara.'
+]
+
+PLAYER_MINIBOSS_LOGS = [
+    'O Vanguarda segura a linha de frente de forma heroica, abrindo espaço para a Guilda do Jogador esmagar a ameaça! (+1 PE).',
+    'Lâminas e magias voando! Os DPS limpam a câmara em tempo recorde e faturam o Abate Prioritário para a nossa Guilda! (+1 PE).',
+    'Numa manobra brilhante de controle, o Suporte isola o Mini-boss e a Guilda do Jogador garante mais um abate! (+1 PE).',
+    'Deixamos a concorrência comendo poeira! A Guilda do Jogador limpa a sala e o Cartório homologa o Ponto! (+1 PE).'
+]
+
+RIVAL_MINIBOSS_LOGS = [
+    'Que golpe baixo! O Suporte Logístico rival passou furtivamente pelo nosso bloqueio e roubou o Abate Prioritário! (+1 PE).',
+    'A Vanguarda rival formou uma parede intransponível, esmagando o monstro antes da nossa equipe se posicionar! (+1 PE).',
+    'Desastre tático! Os DPS rivais foram mais rápidos no gatilho e limparam a sala na nossa frente! (+1 PE).',
+    'Fomos atropelados na corrida! A guilda rival finaliza o Mini-boss e garante o ponto da câmara! (+1 PE).'
+]
+
+PLAYER_BOSS_LOGS = [
+    'UM VERDADEIRO MASSACRE! Os DPS da Guilda do Jogador atropelam o Boss Final com vantagem máxima e levam a glória exclusiva! (+2 PE).',
+    'É O FIM DA LINHA PARA O BOSS! A Guilda do Jogador domina a arena, fatura o Abate Exclusivo e a torcida vai à loucura! (+2 PE).'
+]
+
+JOINT_BOSS_LOGS = [
+    'QUE LUTA FRENÉTICA! Ninguém cedeu espaço! O Boss cai sob os ataques cruzados das duas guildas e o abate é dividido! (+1 PE para cada).',
+    'Empate técnico e brutal na câmara final! As espadas se cruzaram no golpe fatal, e a Coroa homologa um Abate Conjunto! (+1 PE para cada).'
+]
+
+PLAYER_EXHAUSTION_LOGS = [
+    'FALÊNCIA LOGÍSTICA! Os Suprimentos da Guilda do Jogador zeraram antes da reta final! A equipe abandona a masmorra exausta!',
+    'Pane no planejamento! A equipe do Jogador não aguenta o dreno da masmorra, recua e deixa o caminho livre para a concorrência!'
+]
+
+RIVAL_EXHAUSTION_LOGS = [
+    'QUEBROU O MOTOR! A guilda rival ficou sem Suprimentos no meio do caminho e joga a toalha! O caminho está livre!',
+    'Que vexame logístico! Os rivais ficaram sem rações e bateram em retirada. A nossa torcida faz a festa!'
+]
+
+INJURY_LOGS = [
+    'CENA TERRÍVEL NA MASMORRA! A linha de frente cede e um herói sofre um dano colateral gravíssimo! O Cartório já prepara a notificação de Afastamento Médico!',
+    'Um golpe fatal devastador quebra a nossa formação! Baixa confirmada na equipe! Isso vai custar caro no DRE e na alma da Guilda!'
+]
+
+LEGENDARY_LOOT_LOGS = [
+    'BINGO OPERACIONAL!!! O Suporte Logístico encontrou um baú oculto contendo um Ativo Lendário! A diretoria da Guilda vai à loucura!',
+    'INACREDITÁVEL! No meio dos escombros, a equipe fatura um Lote Nível Ouro! O Almoxarifado nunca viu uma peça tão valiosa!'
+]
+
 
 def get_rival_traits_data() -> List[Dict[str, Any]]:
     """Carrega catálogo de traços de rivais de data/rival_traits_seed.json."""
@@ -477,9 +532,9 @@ class Team:
             multiplier = float(skill_data.get("severe_terrain_penalty_multiplier", 0.50))
             terrain_pct *= multiplier
 
-        climate_pct = 0.0 if self.has_climate_mitigation else raw_climate_pct
-
-        total_penalty_pct = min(1.0, terrain_pct + climate_pct)
+        # Desacoplamento da Dupla Penalidade (TASK-806):
+        # O Bioma (Terreno) é o único vetor de impacto em Poder Efetivo.
+        total_penalty_pct = min(1.0, terrain_pct)
         trait_bonus = self.get_trait_power_bonus(terrain_type, climate_type)
         effective = (self.base_power + self.bonus_slots + trait_bonus) * (1.0 - total_penalty_pct)
         return max(0.0, effective)
@@ -590,24 +645,23 @@ class MatchEngine:
         else:
             self.penalty_pct_t2 = 0.0 if (not req_mitigation or team2.has_terrain_mitigation) else dungeon_penalty
 
-        # Penalidades climáticas calculadas para cada equipe
-        self.climate_penalty_t1 = 0.0 if (not climate_req_mitigation or team1.has_climate_mitigation) else climate_penalty
-        self.climate_penalty_t2 = 0.0 if (not climate_req_mitigation or team2.has_climate_mitigation) else climate_penalty
+        # Desacoplamento da Dupla Penalidade (TASK-806):
+        # O Bioma (Terreno) é o único vetor de impacto em Poder Efetivo e Consumo Extra de Suprimentos.
+        self.climate_penalty_t1 = 0.0
+        self.climate_penalty_t2 = 0.0
 
-        # Custos extras de suprimentos combinando terreno e clima
+        # Custos extras de suprimentos exclusivos do Terreno (Bioma)
         t1_terrain_extra = 0 if (not req_mitigation or team1.has_terrain_mitigation) else dungeon_extra_energy
-        t1_climate_extra = 0 if (not climate_req_mitigation or team1.has_climate_mitigation) else climate_extra_energy
         if energy_cost_extra_t1 is not None:
             self.extra_cost_t1 = energy_cost_extra_t1
         else:
-            self.extra_cost_t1 = t1_terrain_extra + t1_climate_extra
+            self.extra_cost_t1 = t1_terrain_extra
 
         t2_terrain_extra = 0 if (not req_mitigation or team2.has_terrain_mitigation) else dungeon_extra_energy
-        t2_climate_extra = 0 if (not climate_req_mitigation or team2.has_climate_mitigation) else climate_extra_energy
         if energy_cost_extra_t2 is not None:
             self.extra_cost_t2 = energy_cost_extra_t2
         else:
-            self.extra_cost_t2 = t2_terrain_extra + t2_climate_extra
+            self.extra_cost_t2 = t2_terrain_extra
 
         self.match_log: List[str] = []
         self.room_events: List[Dict[str, Any]] = []
@@ -701,20 +755,8 @@ class MatchEngine:
             return True
         else:
             if not has_encounter:
-                offensive_name = self.team1.get_loadout_item_name("Arsenal Ofensivo")
-                defensive_name = self.team1.get_loadout_item_name("Blindagem Operacional")
-                license_name = self.team1.get_loadout_item_name("Alvará de Risco")
-                provision_name = self.team1.get_loadout_item_name("Provisão Logística")
-
-                if room % 3 == 1 and provision_name:
-                    event_msg = f"Avanço tático estável. A força-tarefa de {self.team1.name} consumiu rações de '{provision_name}', mantendo a cadência e sustentando as provisões."
-                elif room % 3 == 2 and license_name and self.team1.has_terrain_mitigation:
-                    event_msg = f"Trânsito regulamentar. O '{license_name}' repeliu os riscos do bioma {self.terrain_name}, permitindo deslocamento sem penalidades."
-                elif room % 3 == 0 and defensive_name:
-                    event_msg = f"Câmara sem hostis. A blindagem coletiva '{defensive_name}' absorveu o atrito ambiental do trajeto."
-                else:
-                    event_msg = "Câmara desimpedida e sem ocorrências hostis no trajeto."
-
+                empty_idx = self.rng.randint(0, len(EMPTY_LOGS) - 1)
+                event_msg = EMPTY_LOGS[empty_idx]
                 if t1_entered and self.team1.has_skill("skill_scout"):
                     event_msg += f" (Batedor de {self.team1.name} otimizou a rota e reduziu custos de provisão)."
                 self.log(f"Câmara {room}: {event_msg}")
@@ -804,16 +846,14 @@ class MatchEngine:
 
             if roll < prob_t1 - draw_margin_1:
                 self.team1.score += self.miniboss_points
-                if offensive_name_1:
-                    msg = (
-                        f"{self.team1.name} acionou uma barragem de '{offensive_name_1}', antecipou-se a {self.team2.name} "
-                        f"e neutralizou a ameaça na Câmara {room} (+{self.miniboss_points} PE)."
-                    )
-                else:
-                    msg = f"{self.team1.name} neutralizou a ameaça na Câmara {room} (+{self.miniboss_points} PE)."
+                base_log = PLAYER_MINIBOSS_LOGS[self.rng.randint(0, len(PLAYER_MINIBOSS_LOGS) - 1)]
+                loot_bonus = f" — {LEGENDARY_LOOT_LOGS[self.rng.randint(0, len(LEGENDARY_LOOT_LOGS) - 1)]}" if self.rng.random() < 0.20 else ""
+                msg = f"{self.team1.name}: {base_log}{loot_bonus}"
             elif roll > prob_t1 + self.miniboss_draw_margin:
                 self.team2.score += self.miniboss_points
-                msg = f"{self.team2.name} neutralizou a ameaça na Câmara {room} (+{self.miniboss_points} PE)."
+                base_log = RIVAL_MINIBOSS_LOGS[self.rng.randint(0, len(RIVAL_MINIBOSS_LOGS) - 1)]
+                inj_bonus = f" — ⚠️ {INJURY_LOGS[self.rng.randint(0, len(INJURY_LOGS) - 1)]}" if self.rng.random() < 0.15 else ""
+                msg = f"{self.team2.name}: {base_log}{inj_bonus}"
             else:
                 # Zona de desempate:
                 # Habilidade Parede de Escudos (Guerreiro/Espadachim):
@@ -840,10 +880,8 @@ class MatchEngine:
             p_clear = max(0.05, min(0.95, (self.solo_clear_base + solo_bonus) * effective_ep1 / self.recommended_power))
             if self.rng.random() < p_clear:
                 self.team1.score += self.miniboss_points
-                if offensive_name_1:
-                    msg = f"{self.team1.name} conteve a ameaça na Câmara {room} de forma autônoma (+{self.miniboss_points} PE) com apoio de '{offensive_name_1}'."
-                else:
-                    msg = f"{self.team1.name} conteve a ameaça na Câmara {room} de forma autônoma (+{self.miniboss_points} PE)."
+                base_log = PLAYER_MINIBOSS_LOGS[self.rng.randint(0, len(PLAYER_MINIBOSS_LOGS) - 1)]
+                msg = f"{self.team1.name}: {base_log}"
             else:
                 if defensive_name_1:
                     msg = f"{self.team1.name} não obteve êxito na contenção da ameaça na Câmara {room} (0 PE); a blindagem '{defensive_name_1}' mitigou danos maiores."
@@ -854,7 +892,8 @@ class MatchEngine:
             p_clear = max(0.05, min(0.95, (self.solo_clear_base + solo_bonus) * effective_ep2 / self.recommended_power))
             if self.rng.random() < p_clear:
                 self.team2.score += self.miniboss_points
-                msg = f"{self.team2.name} conteve a ameaça na Câmara {room} de forma autônoma (+{self.miniboss_points} PE)."
+                base_log = RIVAL_MINIBOSS_LOGS[self.rng.randint(0, len(RIVAL_MINIBOSS_LOGS) - 1)]
+                msg = f"{self.team2.name}: {base_log}"
             else:
                 msg = f"{self.team2.name} não obteve êxito na contenção da ameaça na Câmara {room} (0 PE)."
         else:
@@ -897,20 +936,17 @@ class MatchEngine:
             if percent_diff > self.boss_threshold_pct:
                 if eval_ep1 > eval_ep2:
                     self.team1.score += self.boss_win_points
-                    if offensive_name_1:
-                        msg = (
-                            f"{self.team1.name} superou o rival em mais de 15% de poder com saraivada de '{offensive_name_1}' "
-                            f"e garantiu o Abate do Boss Final (+{self.boss_win_points} PE)!"
-                        )
-                    else:
-                        msg = f"{self.team1.name} superou o rival em mais de 15% de poder e garantiu o Abate do Boss Final (+{self.boss_win_points} PE)!"
+                    boss_log = PLAYER_BOSS_LOGS[self.rng.randint(0, len(PLAYER_BOSS_LOGS) - 1)]
+                    msg = f"{self.team1.name}: {boss_log}"
                 else:
                     self.team2.score += self.boss_win_points
-                    msg = f"{self.team2.name} superou o rival em mais de 15% de poder e garantiu o Abate do Boss Final (+{self.boss_win_points} PE)!"
+                    boss_log = PLAYER_BOSS_LOGS[self.rng.randint(0, len(PLAYER_BOSS_LOGS) - 1)].replace("da Guilda do Jogador", f"de {self.team2.name}")
+                    msg = f"{self.team2.name}: {boss_log}"
             else:
                 self.team1.score += self.boss_joint_points
                 self.team2.score += self.boss_joint_points
-                msg = f"Equilíbrio tático no Boss Final (margem ≤ 15%). Abate Conjunto registrado (+{self.boss_joint_points} PE para cada guilda)!"
+                joint_log = JOINT_BOSS_LOGS[self.rng.randint(0, len(JOINT_BOSS_LOGS) - 1)]
+                msg = f"{joint_log} (Abate Conjunto)"
         elif t1_present:
             # Habilidade Execução Fria (Ladino/Assassino):
             # Bônus na rolagem de Boss solitário
@@ -922,10 +958,8 @@ class MatchEngine:
 
             if solo_eval >= self.recommended_power:
                 self.team1.score += self.boss_win_points
-                if offensive_name_1:
-                    msg = f"{self.team1.name} enfrentou o Boss Final de forma autônoma com seu '{offensive_name_1}' e executou o abate (+{self.boss_win_points} PE)!"
-                else:
-                    msg = f"{self.team1.name} enfrentou o Boss Final de forma autônoma e executou o abate (+{self.boss_win_points} PE)!"
+                boss_log = PLAYER_BOSS_LOGS[self.rng.randint(0, len(PLAYER_BOSS_LOGS) - 1)]
+                msg = f"{self.team1.name}: {boss_log}"
             else:
                 msg = f"{self.team1.name} enfrentou o Boss Final, mas o contingente operacional não atingiu o poder recomendado de {self.recommended_power} (0 PE)."
         elif t2_present:
@@ -937,7 +971,8 @@ class MatchEngine:
 
             if solo_eval >= self.recommended_power:
                 self.team2.score += self.boss_win_points
-                msg = f"{self.team2.name} enfrentou o Boss Final de forma autônoma e executou o abate (+{self.boss_win_points} PE)!"
+                boss_log = PLAYER_BOSS_LOGS[self.rng.randint(0, len(PLAYER_BOSS_LOGS) - 1)].replace("da Guilda do Jogador", f"de {self.team2.name}")
+                msg = f"{self.team2.name}: {boss_log}"
             else:
                 msg = f"{self.team2.name} enfrentou o Boss Final, mas o contingente operacional não atingiu o poder recomendado de {self.recommended_power} (0 PE)."
         else:

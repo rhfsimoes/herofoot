@@ -103,19 +103,26 @@ class GameController:
 
         def decorate_hero_dict(hero_dict: dict) -> dict:
             h = dict(hero_dict)
-            c_name = class_map.get(h.get("class_id"), h.get("class_name", "Combatente"))
             spec = spec_map.get(h.get("specialization_id"), {})
-            h["class_name"] = c_name
-            h["specialization_name"] = spec.get("name", c_name)
-            h["stat_weight_profile"] = spec.get("stat_weight_profile", h.get("stat_weight_profile", {}))
+            spec_name = spec.get("name") or h.get("specialization_name") or h.get("specialization") or "Especialista"
 
             # Posições Operacionais Canônicas
             pos_id = h.get("position_id") or spec.get("position_id") or "pos_vanguarda"
             pos_info = pos_map.get(pos_id, {})
+            pos_name = h.get("position") or pos_info.get("name", "Vanguarda")
+
             h["position_id"] = pos_id
-            h["position"] = h.get("position") or pos_info.get("name", "Vanguarda")
+            h["position"] = pos_name
             h["position_icon"] = pos_info.get("icon", "Shield")
             h["position_description"] = pos_info.get("description", "")
+            h["specialization"] = spec_name
+            h["specialization_name"] = spec_name
+            h["stat_weight_profile"] = spec.get("stat_weight_profile", h.get("stat_weight_profile", {}))
+
+            # Formato Canônico: "Posição - Especialização" (ex: "Vanguarda - Berserk")
+            role_title = f"{pos_name} - {spec_name}"
+            h["role_title"] = role_title
+            h["class_name"] = role_title
 
             h["current_power"] = calculate_hero_power(h)
             return h

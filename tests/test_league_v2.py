@@ -45,8 +45,8 @@ class TestLeagueV2(unittest.TestCase):
             rival_count += 1
             roster = g.get("roster", [])
             self.assertEqual(len(roster), 6, f"Guilda {gid} não possui 6 heróis no elenco")
-            self.assertGreater(g.get("power_rating", 0), 40)
-            self.assertGreater(g.get("average_agi", 0), 30)
+            self.assertGreater(g.get("power_rating", 0), 30)
+            self.assertGreater(g.get("average_agi", 0), 20)
 
             for h in roster:
                 self.assertIn("class_id", h)

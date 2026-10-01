@@ -450,6 +450,9 @@ class TestDungeonLootFatigueAndDRE(unittest.TestCase):
         for h in starters:
             h["specialization_id"] = "spec_berserker"
             h["fatigue"] = 0
+            h.pop("position_id", None)
+            h.pop("position", None)
+            h.pop("class_id", None)
 
         for h in reserves:
             h["fatigue"] = 50
@@ -482,7 +485,11 @@ class TestDungeonLootFatigueAndDRE(unittest.TestCase):
         starters = self.controller.state.team[:6]
         self.controller.state.starters = [h["id"] for h in starters]
         for h in starters:
+            h["specialization_id"] = "spec_berserker"
             h["fatigue"] = 0
+            h.pop("position_id", None)
+            h.pop("position", None)
+            h.pop("class_id", None)
 
         # Atribui especialização de Clérigo de Suporte com a habilidade
         starters[0]["specialization_id"] = "spec_cleric_support"

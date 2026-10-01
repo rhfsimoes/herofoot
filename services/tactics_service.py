@@ -84,10 +84,11 @@ class TacticsService:
                     "success": False,
                     "message": f"Colaborador com registro '{hid}' não localizado no quadro funcional da guilda."
                 }
-            if hero.get("injured", False) or hero.get("status") == "Afastado":
+            if hero.get("injured", False) or hero.get("status") in ("Afastado", "Falecido"):
+                reason = "óbito em serviço homologado em cartório" if hero.get("status") == "Falecido" else "afastamento médico pericial"
                 return {
                     "success": False,
-                    "message": f"Colaborador '{hero.get('name', hid)}' sob afastamento médico pericial. Alocação indeferida pelo departamento de saúde ocupacional."
+                    "message": f"Colaborador '{hero.get('name', hid)}' sob {reason}. Alocação indeferida pelo departamento de saúde ocupacional."
                 }
 
         # 6. Validação do loadout de itens

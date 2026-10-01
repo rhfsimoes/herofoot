@@ -506,6 +506,91 @@ class TestB2BAssembly(unittest.TestCase):
             server.shutdown()
             server.server_close()
 
+    def test_canonical_tactical_synergies_detection_and_combat_effects(self):
+        """Valida detecção das 3 sinergias canônicas B2B e seus impactos matemáticos na expedição."""
+        from match_engine import Team
+
+        # Monta heróis das posições necessárias
+        h_dps_1 = {"id": "h_d1", "name": "DPS 1", "position_id": "pos_dps", "position": "DPS", "current_power": 50}
+        h_dps_2 = {"id": "h_d2", "name": "DPS 2", "position_id": "pos_dps", "position": "DPS", "current_power": 50}
+        h_van_1 = {"id": "h_v1", "name": "Van 1", "position_id": "pos_vanguarda", "position": "Vanguarda", "current_power": 50}
+        h_van_2 = {"id": "h_v2", "name": "Van 2", "position_id": "pos_vanguarda", "position": "Vanguarda", "current_power": 50}
+        h_sup_1 = {"id": "h_s1", "name": "Sup 1", "position_id": "pos_suporte", "position": "Suporte", "current_power": 50}
+        h_log_1 = {"id": "h_l1", "name": "Log 1", "position_id": "pos_suporte_logistico", "position": "Suporte Logístico", "current_power": 50}
+
+        self.state.team = [h_dps_1, h_dps_2, h_van_1, h_van_2, h_sup_1, h_log_1]
+        starters = [h["id"] for h in self.state.team]
+
+        loadout = {
+            "Arsenal Ofensivo": {
+                "item_instance_id": "item_valk_off",
+                "name": "Canhão Valkyria",
+                "corp_id": "corp_valkyria",
+                "slot_type": "Arsenal Ofensivo",
+                "power_bonus": 20,
+            },
+            "Blindagem Operacional": {
+                "item_instance_id": "item_aeth_def",
+                "name": "Couraça Aethelgard",
+                "corp_id": "corp_aethelgard",
+                "slot_type": "Blindagem Operacional",
+                "power_bonus": 15,
+            },
+            "Alvará de Risco": {
+                "item_instance_id": "item_merc_lic",
+                "name": "Alvará Mercurius",
+                "corp_id": "corp_mercurius",
+                "slot_type": "Alvará de Risco",
+                "power_bonus": 5,
+            },
+            "Provisão Logística": None,
+            "Ativo de Performance": None,
+        }
+
+        # 1. Detecção das Sinergias no TacticsService
+        synergies = self.controller.tactics_service.detect_b2b_synergies(starters, loadout)
+        syn_ids = {s["id"] for s in synergies}
+
+        self.assertIn("syn_monopolio_ofensivo", syn_ids)
+        self.assertIn("syn_blindagem_pesada", syn_ids)
+        self.assertIn("syn_logistica_avancada", syn_ids)
+
+        monopolio = next(s for s in synergies if s["id"] == "syn_monopolio_ofensivo")
+        # 2 DPS escalados = +10% PE
+        self.assertEqual(monopolio["position_count"], 2)
+        self.assertAlmostEqual(monopolio["bonus_pe_pct"], 0.10)
+
+        # 2. Impacto Matemático no Team do MatchEngine
+        team_with_syn = Team(
+            "Guilda Teste",
+            base_power=100,
+            bonus_slots=0,
+            heroes=self.state.team,
+            loadout=loadout,
+            active_synergies=synergies,
+        )
+
+        team_no_syn = Team(
+            "Guilda Teste Sem Sinergia",
+            base_power=100,
+            bonus_slots=0,
+            heroes=self.state.team,
+            loadout=loadout,
+            active_synergies=[],
+        )
+
+        # Monopólio Ofensivo concede +10% no Poder Efetivo calculado
+        pe_with = team_with_syn.calculate_effective_power(terrain_power_penalty_pct=0.0)
+        pe_without = team_no_syn.calculate_effective_power(terrain_power_penalty_pct=0.0)
+        self.assertAlmostEqual(pe_with, 110.0)
+        self.assertAlmostEqual(pe_without, 100.0)
+
+        # Logística Avançada reduz o dreno de suprimentos adicionalmente
+        mult_with = team_with_syn.get_logistics_energy_multiplier()
+        mult_without = team_no_syn.get_logistics_energy_multiplier()
+        self.assertLess(mult_with, mult_without)
+
 
 if __name__ == '__main__':
     unittest.main()
+

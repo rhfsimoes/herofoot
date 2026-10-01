@@ -85,8 +85,8 @@ class TestDungeonClimatesAndSkills(unittest.TestCase):
                 self.assertIn(key, c, f"Campo {key} ausente no clima {c.get('id')}")
 
     def test_cumulative_penalties_biome_and_climate(self):
-        """Verifica se bioma e clima somam suas penalidades de poder e custos extras de suprimentos."""
-        # Sem mitigação para bioma nem clima
+        """Verifica o desacoplamento (TASK-806): Terreno é o único vetor de impacto em PE e dreno de rações."""
+        # Sem mitigação para bioma
         t1 = Team("Equipe Vulnerável", base_power=70, has_terrain_mitigation=False, has_climate_mitigation=False, balance=self.balance)
         t2 = Team("Equipe Dummy", base_power=70, balance=self.balance)
 
@@ -99,39 +99,34 @@ class TestDungeonClimatesAndSkills(unittest.TestCase):
             balance=self.balance,
         )
 
-        # Penalidades somadas: 0.14 (volcano) + 0.06 (storm) = 0.20
+        # O Terreno é o único vetor de penalidade: 0.14 (volcano), Clima é 0.0
         self.assertAlmostEqual(engine.penalty_pct_t1, 0.14)
-        self.assertAlmostEqual(engine.climate_penalty_t1, 0.06)
+        self.assertAlmostEqual(engine.climate_penalty_t1, 0.0)
 
         ep1 = t1.calculate_effective_power(engine.penalty_pct_t1, engine.climate_penalty_t1)
-        # 70 * (1 - 0.20) = 56.0
-        self.assertAlmostEqual(ep1, 56.0)
+        # 70 * (1 - 0.14) = 60.2
+        self.assertAlmostEqual(ep1, 60.2)
 
-        # Custos extras somados: 6 (volcano) + 3 (storm) = 9
-        self.assertEqual(engine.extra_cost_t1, 9)
+        # Custos extras: exclusivo do terreno (6 do volcano), clima não drena rações
+        self.assertEqual(engine.extra_cost_t1, 6)
 
     def test_partial_mitigation_terrain_vs_climate(self):
-        """Verifica mitigações independentes: mitigar terreno não anula clima, e vice-versa."""
-        # Mitiga terreno mas não clima
+        """Verifica que mitigar terreno anula a penalidade de PE e que o clima opera com bônus de drop."""
         t_mit_terrain = Team("Mitiga Terreno", base_power=80, has_terrain_mitigation=True, has_climate_mitigation=False, balance=self.balance)
         t_dummy = Team("Dummy", base_power=80, balance=self.balance)
 
         eng1 = MatchEngine(t_mit_terrain, t_dummy, dungeon=self.dungeon_volcano, climate=self.climate_acid, balance=self.balance)
-        # Terreno mitigado (0.0), Clima ativo (0.08)
+        # Terreno mitigado (0.0), Clima desacoplado de PE (0.0)
         ep1 = t_mit_terrain.calculate_effective_power(eng1.penalty_pct_t1, eng1.climate_penalty_t1)
-        # 80 * (1 - 0.08) = 73.6
-        self.assertAlmostEqual(ep1, 73.6)
-        # Custo extra: apenas o clima (3)
-        self.assertEqual(eng1.extra_cost_t1, 3)
+        # 80 * (1 - 0.0) = 80.0
+        self.assertAlmostEqual(ep1, 80.0)
+        # Custo extra: terreno mitigado (0)
+        self.assertEqual(eng1.extra_cost_t1, 0)
 
-        # Mitiga clima mas não terreno
-        t_mit_climate = Team("Mitiga Clima", base_power=80, has_terrain_mitigation=False, has_climate_mitigation=True, balance=self.balance)
-        eng2 = MatchEngine(t_mit_climate, t_dummy, dungeon=self.dungeon_volcano, climate=self.climate_acid, balance=self.balance)
-        ep2 = t_mit_climate.calculate_effective_power(eng2.penalty_pct_t1, eng2.climate_penalty_t1)
-        # 80 * (1 - 0.14) = 68.8
-        self.assertAlmostEqual(ep2, 68.8)
-        # Custo extra: apenas o terreno (6)
-        self.assertEqual(eng2.extra_cost_t1, 6)
+        # Verifica campos de bônus de drop nos climas (TASK-806)
+        self.assertIn("drop_bonus_category", self.climate_acid)
+        self.assertEqual(self.climate_acid.get("drop_bonus_pct"), 0.15)
+        self.assertEqual(self.climate_acid.get("catalyst_drop_bonus_pct"), 0.30)
 
     def test_skill_survival_berserker_halves_terrain_penalty(self):
         """Habilidade Sobrevivência (Guerreiro/Berserker): reduz pela metade a penalidade de terreno sem item."""

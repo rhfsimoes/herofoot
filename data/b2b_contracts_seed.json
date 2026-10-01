@@ -27,7 +27,9 @@
       "requires_previous_tier": null,
       "description": "Homologação livre. Requer Nível Comercial 1+.",
       "min_brand_level": 1
-    }
+    },
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "contract_id": "b2b_aethelgard_silver",
@@ -69,7 +71,9 @@
       "requires_previous_tier": "Bronze",
       "description": "Requer Confiança ≥ 60, Nível Comercial 3+ e Convênio Bronze ativo.",
       "min_brand_level": 3
-    }
+    },
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "contract_id": "b2b_aethelgard_gold",
@@ -123,7 +127,9 @@
       "requires_previous_tier": "Prata",
       "description": "Requer Confiança ≥ 75, Nível Comercial 7+ e Convênio Prata ativo.",
       "min_brand_level": 7
-    }
+    },
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "contract_id": "b2b_chancellor_bronze",
@@ -153,7 +159,9 @@
       "requires_previous_tier": null,
       "description": "Homologação livre. Requer Nível Comercial 1+.",
       "min_brand_level": 1
-    }
+    },
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_chancellor_silver",
@@ -187,7 +195,9 @@
       "requires_previous_tier": "Bronze",
       "description": "Requer Confiança ≥ 60, Nível Comercial 3+ e Convênio Bronze ativo.",
       "min_brand_level": 3
-    }
+    },
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_chancellor_gold",
@@ -233,7 +243,9 @@
       "requires_previous_tier": "Prata",
       "description": "Requer Confiança ≥ 75, Nível Comercial 7+ e Convênio Prata ativo.",
       "min_brand_level": 7
-    }
+    },
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_crown_bronze",
@@ -263,7 +275,9 @@
       "requires_previous_tier": null,
       "description": "Homologação livre. Requer Nível Comercial 1+.",
       "min_brand_level": 1
-    }
+    },
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_crown_silver",
@@ -305,7 +319,9 @@
       "requires_previous_tier": "Bronze",
       "description": "Requer Confiança ≥ 60, Nível Comercial 3+ e Convênio Bronze ativo.",
       "min_brand_level": 3
-    }
+    },
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_crown_gold",
@@ -359,7 +375,9 @@
       "requires_previous_tier": "Prata",
       "description": "Requer Confiança ≥ 75, Nível Comercial 7+ e Convênio Prata ativo.",
       "min_brand_level": 7
-    }
+    },
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_dwarf_bronze",
@@ -389,7 +407,9 @@
       "requires_previous_tier": null,
       "description": "Homologação livre. Requer Nível Comercial 1+.",
       "min_brand_level": 1
-    }
+    },
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "contract_id": "b2b_dwarf_silver",
@@ -431,7 +451,9 @@
       "requires_previous_tier": "Bronze",
       "description": "Requer Confiança ≥ 60, Nível Comercial 3+ e Convênio Bronze ativo.",
       "min_brand_level": 3
-    }
+    },
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "contract_id": "b2b_dwarf_gold",
@@ -481,7 +503,9 @@
       "requires_previous_tier": "Prata",
       "description": "Requer Confiança ≥ 75, Nível Comercial 7+ e Convênio Prata ativo.",
       "min_brand_level": 7
-    }
+    },
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "contract_id": "b2b_elf_bronze",
@@ -511,7 +535,9 @@
       "requires_previous_tier": null,
       "description": "Homologação livre. Requer Nível Comercial 1+.",
       "min_brand_level": 1
-    }
+    },
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_elf_silver",
@@ -549,7 +575,9 @@
       "requires_previous_tier": "Bronze",
       "description": "Requer Confiança ≥ 60, Nível Comercial 3+ e Convênio Bronze ativo.",
       "min_brand_level": 3
-    }
+    },
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_elf_gold",
@@ -591,7 +619,9 @@
       "requires_previous_tier": "Prata",
       "description": "Requer Confiança ≥ 75, Nível Comercial 7+ e Convênio Prata ativo.",
       "min_brand_level": 7
-    }
+    },
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_flamel_bronze",
@@ -621,7 +651,9 @@
       "requires_previous_tier": null,
       "description": "Homologação livre. Requer Nível Comercial 1+.",
       "min_brand_level": 1
-    }
+    },
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_flamel_standard",
@@ -651,7 +683,9 @@
       "requires_previous_tier": "Bronze",
       "description": "Requer Confiança ≥ 60, Nível Comercial 3+ e Convênio Bronze ativo.",
       "min_brand_level": 3
-    }
+    },
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_flamel_gold",
@@ -693,7 +727,9 @@
       "requires_previous_tier": "Prata",
       "description": "Requer Confiança ≥ 75, Nível Comercial 7+ e Convênio Prata ativo.",
       "min_brand_level": 7
-    }
+    },
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_goblin_bronze",
@@ -723,7 +759,9 @@
       "requires_previous_tier": null,
       "description": "Homologação livre. Requer Nível Comercial 1+.",
       "min_brand_level": 1
-    }
+    },
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_goblin_silver",
@@ -761,7 +799,9 @@
       "requires_previous_tier": "Bronze",
       "description": "Requer Confiança ≥ 60, Nível Comercial 3+ e Convênio Bronze ativo.",
       "min_brand_level": 3
-    }
+    },
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_goblin_gold",
@@ -807,7 +847,9 @@
       "requires_previous_tier": "Prata",
       "description": "Requer Confiança ≥ 75, Nível Comercial 7+ e Convênio Prata ativo.",
       "min_brand_level": 7
-    }
+    },
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_swamp_bronze",
@@ -837,7 +879,9 @@
       "requires_previous_tier": null,
       "description": "Homologação livre. Requer Nível Comercial 1+.",
       "min_brand_level": 1
-    }
+    },
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_swamp_silver",
@@ -875,7 +919,9 @@
       "requires_previous_tier": "Bronze",
       "description": "Requer Confiança ≥ 60, Nível Comercial 3+ e Convênio Bronze ativo.",
       "min_brand_level": 3
-    }
+    },
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_swamp_gold",
@@ -913,7 +959,9 @@
       "requires_previous_tier": "Prata",
       "description": "Requer Confiança ≥ 75, Nível Comercial 7+ e Convênio Prata ativo.",
       "min_brand_level": 7
-    }
+    },
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_valkyria_bronze",
@@ -943,7 +991,9 @@
       "requires_previous_tier": null,
       "description": "Homologação livre. Requer Nível Comercial 1+.",
       "min_brand_level": 1
-    }
+    },
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_valkyria_silver",
@@ -981,7 +1031,9 @@
       "requires_previous_tier": "Bronze",
       "description": "Requer Confiança ≥ 60, Nível Comercial 3+ e Convênio Bronze ativo.",
       "min_brand_level": 3
-    }
+    },
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_valkyria_gold",
@@ -1019,7 +1071,9 @@
       "requires_previous_tier": "Prata",
       "description": "Requer Confiança ≥ 75, Nível Comercial 7+ e Convênio Prata ativo.",
       "min_brand_level": 7
-    }
+    },
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_mercurius_bronze",
@@ -1049,7 +1103,9 @@
       "min_brand_level": 1,
       "requires_previous_tier": null,
       "description": "Homologação livre. Requer Nível Comercial 1+."
-    }
+    },
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_mercurius_silver",
@@ -1091,7 +1147,9 @@
       "min_brand_level": 3,
       "requires_previous_tier": "Bronze",
       "description": "Requer Confiança ≥ 60, Nível Comercial 3+ e Convênio Bronze ativo."
-    }
+    },
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_mercurius_gold",
@@ -1129,6 +1187,14 @@
       {
         "part_id": "part_mercurius_base_03",
         "quantity": 2
+      },
+      {
+        "part_id": "part_mercurius_prefix_03",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_mercurius_core_03",
+        "quantity": 1
       }
     ],
     "description": "Exclusividade com o Cartório Mercurius. Apólices imperiais de trânsito em masmorras extremas.",
@@ -1137,7 +1203,9 @@
       "min_brand_level": 7,
       "requires_previous_tier": "Prata",
       "description": "Requer Confiança ≥ 75, Nível Comercial 7+ e Convênio Prata ativo."
-    }
+    },
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_crown_rations_bronze",
@@ -1167,7 +1235,9 @@
       "min_brand_level": 1,
       "requires_previous_tier": null,
       "description": "Homologação livre. Requer Nível Comercial 1+."
-    }
+    },
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_crown_rations_silver",
@@ -1209,7 +1279,9 @@
       "min_brand_level": 3,
       "requires_previous_tier": "Bronze",
       "description": "Requer Confiança ≥ 60, Nível Comercial 3+ e Convênio Bronze ativo."
-    }
+    },
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "contract_id": "b2b_crown_rations_gold",
@@ -1247,6 +1319,14 @@
       {
         "part_id": "part_crown_rations_base_03",
         "quantity": 2
+      },
+      {
+        "part_id": "part_crown_rations_prefix_03",
+        "quantity": 1
+      },
+      {
+        "part_id": "part_crown_rations_core_03",
+        "quantity": 1
       }
     ],
     "description": "Abastecimento imperial completo. Farnéis de 5 cargas e concentrados nutricionais de elite.",
@@ -1255,6 +1335,8 @@
       "min_brand_level": 7,
       "requires_previous_tier": "Prata",
       "description": "Requer Confiança ≥ 75, Nível Comercial 7+ e Convênio Prata ativo."
-    }
+    },
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   }
 ]

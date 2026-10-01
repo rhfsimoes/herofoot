@@ -23,7 +23,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Canhão"
+    "name_modifier": "Canhão",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_aethelgard_hilt",
@@ -49,7 +51,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Equilibrado"
+    "name_modifier": "Equilibrado",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_valkyria_guard",
@@ -76,7 +80,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Articulado"
+    "name_modifier": "Articulado",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_valkyria_plate",
@@ -102,7 +108,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Couraça"
+    "name_modifier": "Couraça",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_flamel_catalyst",
@@ -129,7 +137,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Alquimia"
+    "name_modifier": "de Alquimia",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_flamel_vial",
@@ -155,7 +165,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Ampola"
+    "name_modifier": "Ampola",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_chancellor_core",
@@ -181,7 +193,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Safira"
+    "name_modifier": "de Safira",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_gob_blade_01",
@@ -209,7 +223,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Dinamite"
+    "name_modifier": "Dinamite",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_gob_blade_02",
@@ -237,7 +253,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Dinamite"
+    "name_modifier": "Dinamite",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_gob_core_01",
@@ -269,7 +287,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Goblin"
+    "name_modifier": "Goblin",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_gob_filter_01",
@@ -297,7 +317,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Compressor"
+    "name_modifier": "Compressor",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_gob_hilt_01",
@@ -330,7 +352,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Rápido"
+    "name_modifier": "Rápido",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_gob_core_02",
@@ -363,7 +387,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Sobrecarga"
+    "name_modifier": "de Sobrecarga",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_gob_blade_03",
@@ -400,7 +426,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Morteiro"
+    "name_modifier": "Morteiro",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_gob_core_03",
@@ -437,7 +465,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Noturno"
+    "name_modifier": "Noturno",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_elf_blade_01",
@@ -465,7 +495,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Cronômetro"
+    "name_modifier": "Cronômetro",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_elf_gem_01",
@@ -493,7 +525,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Lente"
+    "name_modifier": "Lente",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_elf_gem_02",
@@ -521,7 +555,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Safira Penitencial"
+    "name_modifier": "Safira Penitencial",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_elf_core_01",
@@ -553,7 +589,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "do Vento"
+    "name_modifier": "do Vento",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_elf_filter_01",
@@ -581,7 +619,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Refinado"
+    "name_modifier": "Refinado",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_elf_gem_03",
@@ -614,7 +654,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Prisma"
+    "name_modifier": "Prisma",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_elf_core_02",
@@ -647,7 +689,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Conformidade"
+    "name_modifier": "de Conformidade",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_elf_gem_04",
@@ -680,7 +724,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "do Patrono"
+    "name_modifier": "do Patrono",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_dwarf_plating_01",
@@ -708,7 +754,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Escudo"
+    "name_modifier": "Escudo",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_dwarf_plating_02",
@@ -736,7 +784,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Kit de"
+    "name_modifier": "Kit de",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_dwarf_plating_03",
@@ -764,7 +814,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Barricada"
+    "name_modifier": "Barricada",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_dwarf_plating_04",
@@ -796,7 +848,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Baluarte"
+    "name_modifier": "Baluarte",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_dwarf_plating_05",
@@ -829,7 +883,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Blindagem"
+    "name_modifier": "Blindagem",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_dwarf_core_01",
@@ -857,7 +913,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Anão"
+    "name_modifier": "Anão",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_dwarf_plating_06",
@@ -890,7 +948,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Couraça"
+    "name_modifier": "Couraça",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_dwarf_core_02",
@@ -923,7 +983,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Negro"
+    "name_modifier": "Negro",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_swamp_filter_01",
@@ -951,7 +1013,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Alvará"
+    "name_modifier": "Alvará",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_swamp_filter_02",
@@ -979,7 +1043,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Catering de"
+    "name_modifier": "Catering de",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_swamp_core_01",
@@ -1007,7 +1073,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "do Pântano"
+    "name_modifier": "do Pântano",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_swamp_filter_03",
@@ -1040,7 +1108,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Licença"
+    "name_modifier": "Licença",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_swamp_filter_04",
@@ -1073,7 +1143,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Apurado"
+    "name_modifier": "Apurado",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_swamp_core_02",
@@ -1106,7 +1178,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Miasma"
+    "name_modifier": "de Miasma",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_swamp_core_03",
@@ -1139,7 +1213,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Balsâmico"
+    "name_modifier": "Balsâmico",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_swamp_gem_01",
@@ -1172,7 +1248,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "da Insalubridade"
+    "name_modifier": "da Insalubridade",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_plating_01",
@@ -1200,7 +1278,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Fardamento da"
+    "name_modifier": "Fardamento da",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_gem_01",
@@ -1228,7 +1308,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "da Coroa"
+    "name_modifier": "da Coroa",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_gem_02",
@@ -1256,7 +1338,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Régio"
+    "name_modifier": "Régio",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_core_01",
@@ -1284,7 +1368,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "do Patrono"
+    "name_modifier": "do Patrono",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_hilt_01",
@@ -1317,7 +1403,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Notarial"
+    "name_modifier": "Notarial",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_hilt_02",
@@ -1350,7 +1438,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Oficial"
+    "name_modifier": "Oficial",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_plating_02",
@@ -1383,7 +1473,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Homologado"
+    "name_modifier": "Homologado",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_core_02",
@@ -1416,7 +1508,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "do Alvará"
+    "name_modifier": "do Alvará",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_core_03",
@@ -1449,7 +1543,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "da Ordem"
+    "name_modifier": "da Ordem",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_aethelgard_core",
@@ -1476,7 +1572,9 @@
         "effect": "power_flat",
         "value": 8
       }
-    ]
+    ],
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_valkyria_core",
@@ -1503,7 +1601,9 @@
         "effect": "power_flat",
         "value": 14
       }
-    ]
+    ],
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_valkyria_blade",
@@ -1530,7 +1630,9 @@
         "effect": "power_flat",
         "value": 15
       }
-    ]
+    ],
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_flamel_nozzle",
@@ -1557,7 +1659,9 @@
         "effect": "power_flat",
         "value": 8
       }
-    ]
+    ],
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_chancellor_frame",
@@ -1584,7 +1688,9 @@
         "effect": "power_flat",
         "value": 14
       }
-    ]
+    ],
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_chancellor_pin",
@@ -1610,7 +1716,9 @@
         "effect": "power_flat",
         "value": 8
       }
-    ]
+    ],
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_gob_core_00",
@@ -1637,7 +1745,9 @@
         "effect": "power_flat",
         "value": 7
       }
-    ]
+    ],
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_elf_core_00",
@@ -1664,7 +1774,9 @@
         "effect": "power_flat",
         "value": 8
       }
-    ]
+    ],
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_dwarf_prefix_01",
@@ -1691,7 +1803,9 @@
         "effect": "power_flat",
         "value": 8
       }
-    ]
+    ],
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_swamp_prefix_01",
@@ -1718,7 +1832,9 @@
         "effect": "power_flat",
         "value": 8
       }
-    ]
+    ],
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_aethelgard_blade_t2",
@@ -1744,7 +1860,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Bateria"
+    "name_modifier": "Bateria",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_aethelgard_hilt_t2",
@@ -1770,7 +1888,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Reforçado"
+    "name_modifier": "Reforçado",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_aethelgard_core_t2",
@@ -1797,7 +1917,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Temperado"
+    "name_modifier": "Temperado",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_aethelgard_blade_t3",
@@ -1823,7 +1945,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Canhão"
+    "name_modifier": "Canhão",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_aethelgard_hilt_t3",
@@ -1849,7 +1973,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Supremo"
+    "name_modifier": "Supremo",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_aethelgard_core_t3",
@@ -1876,7 +2002,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Titânico"
+    "name_modifier": "Titânico",
+    "synergy_position": "pos_vanguarda",
+    "min_synergy_count": 2
   },
   {
     "id": "part_valkyria_blade_t1",
@@ -1902,7 +2030,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Lâmina"
+    "name_modifier": "Lâmina",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_valkyria_core_t1",
@@ -1929,7 +2059,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Valkyria"
+    "name_modifier": "Valkyria",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_valkyria_guard_t3",
@@ -1956,7 +2088,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Pesado"
+    "name_modifier": "Pesado",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_valkyria_blade_t3",
@@ -1982,7 +2116,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Arsenal Exterminador"
+    "name_modifier": "Arsenal Exterminador",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_valkyria_core_t3",
@@ -2009,7 +2145,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Deflexão"
+    "name_modifier": "de Deflexão",
+    "synergy_position": "pos_dps",
+    "min_synergy_count": 1
   },
   {
     "id": "part_flamel_vial_t2",
@@ -2036,7 +2174,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Hermético"
+    "name_modifier": "Hermético",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_flamel_reagent_t2",
@@ -2063,7 +2203,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Remessa Flamel"
+    "name_modifier": "Remessa Flamel",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_flamel_core_t2",
@@ -2090,7 +2232,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Purificado"
+    "name_modifier": "Purificado",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_flamel_vial_t3",
@@ -2117,7 +2261,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Ampola"
+    "name_modifier": "Ampola",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_flamel_reagent_t3",
@@ -2144,7 +2290,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Puro"
+    "name_modifier": "Puro",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_flamel_core_t3",
@@ -2171,7 +2319,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Flamel"
+    "name_modifier": "Flamel",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_chancellor_gem_t1",
@@ -2197,7 +2347,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Ágata"
+    "name_modifier": "Ágata",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_chancellor_pin_t2",
@@ -2223,7 +2375,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Platinado"
+    "name_modifier": "Platinado",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_chancellor_gem_t3",
@@ -2249,7 +2403,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Prisma"
+    "name_modifier": "Prisma",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_chancellor_frame_t3",
@@ -2276,7 +2432,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Nobre"
+    "name_modifier": "Nobre",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_chancellor_core_t3",
@@ -2302,7 +2460,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Chanceler"
+    "name_modifier": "Chanceler",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_swamp_filter_t3",
@@ -2329,7 +2489,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Purificado"
+    "name_modifier": "Purificado",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_swamp_gem_t3",
@@ -2356,7 +2518,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Incentivo Tóxico"
+    "name_modifier": "Incentivo Tóxico",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_swamp_core_t3",
@@ -2383,7 +2547,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Virulento"
+    "name_modifier": "Virulento",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_blade_t3",
@@ -2409,7 +2575,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Decreto"
+    "name_modifier": "Decreto",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_gem_t3",
@@ -2435,7 +2603,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Imperial"
+    "name_modifier": "Imperial",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_seal_t1",
@@ -2456,7 +2626,9 @@
     "catalog_description": "Certidão notarial básica garantindo licença para incursões comerciais.",
     "effects": [],
     "slot_role": "base",
-    "name_modifier": "Selo"
+    "name_modifier": "Selo",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_parchment_t2",
@@ -2477,7 +2649,9 @@
     "catalog_description": "Documento oficial de homologação sanitária e mitigação de risco.",
     "effects": [],
     "slot_role": "base",
-    "name_modifier": "Alvará"
+    "name_modifier": "Alvará",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_seal_t3",
@@ -2498,7 +2672,9 @@
     "catalog_description": "Alvará extraordinário da Chancelaria para masmorras de alto perigo.",
     "effects": [],
     "slot_role": "base",
-    "name_modifier": "Apólice"
+    "name_modifier": "Apólice",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_lic_submerged",
@@ -2524,7 +2700,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Subaquático"
+    "name_modifier": "Subaquático",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_lic_arcane_fog",
@@ -2554,7 +2732,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Espectral"
+    "name_modifier": "Espectral",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_lic_lightning",
@@ -2584,7 +2764,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Voltaico"
+    "name_modifier": "Voltaico",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_lic_volcanic",
@@ -2614,7 +2796,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Termorregulador"
+    "name_modifier": "Termorregulador",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_lic_acid_rain",
@@ -2640,7 +2824,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Anticorrosivo"
+    "name_modifier": "Anticorrosivo",
+    "synergy_position": "pos_suporte",
+    "min_synergy_count": 1
   },
   {
     "id": "part_mercurius_prefix_01",
@@ -2666,7 +2852,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Rúnico"
+    "name_modifier": "Rúnico",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_mercurius_base_01",
@@ -2692,7 +2880,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Alvará"
+    "name_modifier": "Alvará",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_mercurius_core_01",
@@ -2718,7 +2908,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Notarial"
+    "name_modifier": "Notarial",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_mercurius_prefix_02",
@@ -2744,7 +2936,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Hermético"
+    "name_modifier": "Hermético",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_mercurius_base_02",
@@ -2770,7 +2964,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Inscrição"
+    "name_modifier": "Inscrição",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_mercurius_core_02",
@@ -2796,7 +2992,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "Mercurius"
+    "name_modifier": "Mercurius",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_mercurius_base_03",
@@ -2822,7 +3020,69 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Apólice"
+    "name_modifier": "Apólice",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
+  },
+  {
+    "id": "part_mercurius_core_03",
+    "part_id": "part_mercurius_core_03",
+    "corp_id": "corp_mercurius",
+    "brand_id": "corp_mercurius",
+    "name": "Sinete Notarial",
+    "branch": "Alvará de Risco",
+    "part_type": "stamp",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 3,
+    "base_cost": 125,
+    "market_price_base": 125,
+    "power_bonus": 25,
+    "power_contrib": 25,
+    "catalog_description": "Sinete de ouro rúnico autenticado pelo Chanceler Supremo da Câmara.",
+    "effects": [
+      {
+        "effect": "power_pct",
+        "value": 0.15
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Notarial",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
+  },
+  {
+    "id": "part_mercurius_prefix_03",
+    "part_id": "part_mercurius_prefix_03",
+    "corp_id": "corp_mercurius",
+    "brand_id": "corp_mercurius",
+    "name": "Selo Primordial",
+    "branch": "Alvará de Risco",
+    "part_type": "seal",
+    "compatible_slots": [
+      "Alvará de Risco"
+    ],
+    "tier": 3,
+    "base_cost": 130,
+    "market_price_base": 130,
+    "power_bonus": 30,
+    "power_contrib": 30,
+    "catalog_description": "Inscrição arcana ancestral para anulação pericial de riscos abissais e armadilhas.",
+    "effects": [
+      {
+        "effect": "terrain_mitigation",
+        "value": "arcane"
+      },
+      {
+        "effect": "trap_mitigation",
+        "value": 0.5
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Primordial",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_rations_prefix_01",
@@ -2849,7 +3109,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Nutritivo"
+    "name_modifier": "Nutritivo",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_rations_base_01",
@@ -2878,7 +3140,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Ração"
+    "name_modifier": "Ração",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_rations_core_01",
@@ -2904,7 +3168,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "de Campanha"
+    "name_modifier": "de Campanha",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_rations_prefix_02",
@@ -2931,7 +3197,9 @@
       }
     ],
     "slot_role": "prefix",
-    "name_modifier": "Concentrado"
+    "name_modifier": "Concentrado",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_rations_base_02",
@@ -2960,7 +3228,9 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Biscoito"
+    "name_modifier": "Biscoito",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_rations_core_02",
@@ -2986,7 +3256,9 @@
       }
     ],
     "slot_role": "suffix",
-    "name_modifier": "da Coroa"
+    "name_modifier": "da Coroa",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   },
   {
     "id": "part_crown_rations_base_03",
@@ -3015,6 +3287,67 @@
       }
     ],
     "slot_role": "base",
-    "name_modifier": "Farnel"
+    "name_modifier": "Farnel",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
+  },
+  {
+    "id": "part_crown_rations_prefix_03",
+    "part_id": "part_crown_rations_prefix_03",
+    "corp_id": "corp_crown_rations",
+    "brand_id": "corp_crown_rations",
+    "name": "Extrato Imperial",
+    "branch": "Provisão Logística",
+    "part_type": "extract",
+    "compatible_slots": [
+      "Provisão Logística"
+    ],
+    "tier": 3,
+    "base_cost": 120,
+    "market_price_base": 120,
+    "power_bonus": 15,
+    "power_contrib": 15,
+    "energy_restore": 50,
+    "catalog_description": "Extrato imperial refinado que garante reposição emergencial máxima de suprimentos.",
+    "effects": [
+      {
+        "effect": "energy_bonus_flat",
+        "value": 50
+      }
+    ],
+    "slot_role": "prefix",
+    "name_modifier": "Imperial",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
+  },
+  {
+    "id": "part_crown_rations_core_03",
+    "part_id": "part_crown_rations_core_03",
+    "corp_id": "corp_crown_rations",
+    "brand_id": "corp_crown_rations",
+    "name": "Cantil Régio",
+    "branch": "Provisão Logística",
+    "part_type": "canteen",
+    "compatible_slots": [
+      "Provisão Logística"
+    ],
+    "tier": 3,
+    "base_cost": 110,
+    "market_price_base": 110,
+    "power_bonus": 15,
+    "power_contrib": 15,
+    "charges": 3,
+    "max_charges": 3,
+    "catalog_description": "Cantil régio com encantamento de expansão que confere 3 cargas extras de suprimentos.",
+    "effects": [
+      {
+        "effect": "charges_flat",
+        "value": 3
+      }
+    ],
+    "slot_role": "suffix",
+    "name_modifier": "Régio",
+    "synergy_position": "pos_suporte_logistico",
+    "min_synergy_count": 1
   }
 ]

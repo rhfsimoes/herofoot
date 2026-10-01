@@ -308,10 +308,13 @@ def load_bundle(slot: str, saves_dir: Optional[str] = None) -> Dict[str, Any]:
     return validated
 
 
-def new_game(slot: Optional[str] = None) -> Tuple[GameState, LeagueEngine, MarketEngine]:
+def new_game(slot: Optional[str] = None, saves_dir: Optional[str] = None) -> Tuple[GameState, LeagueEngine, MarketEngine]:
     """
     Inicializa novas instâncias para um novo ciclo corporativo da guilda.
     NUNCA sobrescreve arquivos seed originais de data/.
+    
+    A inicialização força o salvamento de um bundle novo, assegurando 
+    que saves de versões antigas sejam substituídos pelo novo padrão.
     """
     state = GameState()
     league = LeagueEngine()
@@ -320,6 +323,9 @@ def new_game(slot: Optional[str] = None) -> Tuple[GameState, LeagueEngine, Marke
     if slot is not None:
         norm_slot = normalize_slot(slot)
         state.active_save_slot = norm_slot
+        
+        # O segredo está aqui: Força a sobrescrita do save antigo no disco pelo novo estado limpo.
+        save_bundle(state, league, market, slot=norm_slot, saves_dir=saves_dir)
 
     return state, league, market
 
@@ -349,4 +355,4 @@ class SaveManager:
         return load_bundle(slot, saves_dir=self.saves_dir)
 
     def new_game(self, slot: Optional[str] = None) -> Tuple[GameState, LeagueEngine, MarketEngine]:
-        return new_game(slot=slot)
+        return new_game(slot=slot, saves_dir=self.saves_dir)

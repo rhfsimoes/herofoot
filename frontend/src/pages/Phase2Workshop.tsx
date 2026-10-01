@@ -60,6 +60,7 @@ import {
   type ModularPart,
   type B2BContract,
   type AssemblyWorkerInstance,
+  type Corporation,
 } from '../mockData'
 import { useSound } from '../hooks/useSound'
 import {
@@ -391,7 +392,13 @@ export default function Phase2Workshop({
 
   function handleAttachPart(part: ModularPart) {
     const pId = part.part_id || part.id
-    const role = part.slot_role || (part.part_type === 'hilt' || part.part_type === 'guard' ? 'prefix' : part.part_type === 'blade' || part.part_type === 'plating' ? 'base' : 'suffix')
+    const role =
+      part.slot_role ||
+      (part.part_type === 'hilt' || part.part_type === 'guard' || pId.includes('prefix')
+        ? 'prefix'
+        : part.part_type === 'blade' || part.part_type === 'plating' || part.part_type === 'license' || part.part_type === 'ration' || pId.includes('base')
+        ? 'base'
+        : 'suffix')
     if (role === 'prefix') {
       setSlottedPrefix(prev => (prev === pId ? null : pId))
     } else if (role === 'base') {
@@ -528,10 +535,24 @@ export default function Phase2Workshop({
     ? Math.round(baseModularPower * 1.15)
     : Math.round(baseModularPower * 1.05)
 
+  const allB2BCorporations = useMemo(() => {
+    if (state?.b2b_catalog?.corporations && Array.isArray(state.b2b_catalog.corporations) && state.b2b_catalog.corporations.length > 0) {
+      return state.b2b_catalog.corporations as Corporation[]
+    }
+    return MOCK_CORPORATIONS
+  }, [state?.b2b_catalog?.corporations])
+
+  const allB2BContracts = useMemo(() => {
+    if (state?.b2b_catalog?.contracts && typeof state.b2b_catalog.contracts === 'object' && Object.keys(state.b2b_catalog.contracts).length > 0) {
+      return Object.values(state.b2b_catalog.contracts) as B2BContract[]
+    }
+    return MOCK_B2B_CONTRACTS
+  }, [state?.b2b_catalog?.contracts])
+
   const filteredB2BCorporations = useMemo(() => {
-    if (b2bCorpFilter === 'todos') return MOCK_CORPORATIONS
-    return MOCK_CORPORATIONS.filter(c => c.id === b2bCorpFilter || c.branch === b2bCorpFilter)
-  }, [b2bCorpFilter])
+    if (b2bCorpFilter === 'todos') return allB2BCorporations
+    return allB2BCorporations.filter(c => c.id === b2bCorpFilter || c.branch === b2bCorpFilter || c.slot_focus === b2bCorpFilter)
+  }, [b2bCorpFilter, allB2BCorporations])
 
   const filteredSpotParts = useMemo(() => {
     return MOCK_MODULAR_PARTS.filter(p => {
@@ -549,24 +570,47 @@ export default function Phase2Workshop({
       .filter(([, qty]) => qty > 0)
       .map(([partId, qty]) => {
         const part = MOCK_MODULAR_PARTS.find(p => p.part_id === partId || p.id === partId)
+        const inferredSlotRole: 'prefix' | 'base' | 'suffix' =
+          part?.slot_role ||
+          (partId.includes('prefix') || partId.includes('hilt') || partId.includes('guard') || partId.includes('pin') || partId.includes('nozzle') || partId.includes('extract')
+            ? 'prefix'
+            : partId.includes('core') || partId.includes('suffix') || partId.includes('gem') || partId.includes('stamp') || partId.includes('canteen') || partId.includes('filter')
+            ? 'suffix'
+            : 'base')
+
+        const inferredSlot =
+          part?.compatible_slots?.[0] ||
+          (partId.includes('mercurius')
+            ? 'Alvará de Risco'
+            : partId.includes('crown_rations')
+            ? 'Provisão Logística'
+            : 'Arsenal Ofensivo')
+
+        const inferredCorp =
+          part?.corp_id ||
+          (partId.includes('mercurius')
+            ? 'corp_mercurius'
+            : partId.includes('crown_rations')
+            ? 'corp_crown_rations'
+            : 'corp_generic')
+
         const pObj: ModularPart = part || {
           id: partId,
           part_id: partId,
-          corp_id: 'corp_generic',
+          corp_id: inferredCorp,
           name: partId,
           branch: 'Ferragem' as WorkshopBranch,
           part_type: 'modular_part',
-          compatible_slots: ['Arsenal Ofensivo'],
+          compatible_slots: [inferredSlot],
           tier: 1,
           base_cost: 50,
           market_price_base: 50,
           power_bonus: 10,
           catalog_description: 'Peça técnica modular registrada no almoxarifado.',
-          slot_role: 'base',
+          slot_role: inferredSlotRole,
         }
         const role: 'prefix' | 'base' | 'suffix' =
-          pObj.slot_role ||
-          (pObj.part_type === 'hilt' || pObj.part_type === 'guard' ? 'prefix' : pObj.part_type === 'blade' || pObj.part_type === 'plating' ? 'base' : 'suffix')
+          pObj.slot_role || inferredSlotRole
         return {
           partId,
           qty,
@@ -2282,9 +2326,9 @@ export default function Phase2Workshop({
                   className="bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-amber-500 focus:outline-none"
                 >
                   <option value="todos">Todos os Conglomerados Industriais</option>
-                  {MOCK_CORPORATIONS.map(corp => (
+                  {allB2BCorporations.map(corp => (
                     <option key={corp.id} value={corp.id}>
-                      {corp.name} ({corp.branch})
+                      {corp.name} ({corp.slot_focus || corp.branch})
                     </option>
                   ))}
                 </select>
@@ -2293,8 +2337,8 @@ export default function Phase2Workshop({
               {/* Grid de Corporações e Contratos */}
               <div className="space-y-6">
                 {filteredB2BCorporations.map(corp => {
-                  const corpContracts = MOCK_B2B_CONTRACTS.filter(c => c.corp_id === corp.id)
-                  const rivalCorp = MOCK_CORPORATIONS.find(c => c.id === corp.rival_corp_id)
+                  const corpContracts = allB2BContracts.filter(c => c.corp_id === corp.id)
+                  const rivalCorp = allB2BCorporations.find(c => c.id === corp.rival_corp_id)
                   const hasRivalExclusive = Boolean(
                     corp.rival_corp_id &&
                     activeB2bContracts.some(c => c.corp_id === corp.rival_corp_id && c.is_exclusive)
@@ -2316,8 +2360,8 @@ export default function Phase2Workshop({
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="text-base font-extrabold text-amber-200">{corp.name}</h3>
-                            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-900 border border-stone-700 text-stone-300">
-                              Filial: {corp.branch}
+                            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-950/40 border border-amber-800/60 text-amber-300">
+                              Compartimento: {corp.slot_focus || corp.branch}
                             </span>
                             {corp.rival_corp_id && rivalCorp && (
                               <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-rose-950/60 border border-rose-800 text-rose-300 flex items-center gap-1">
@@ -2751,7 +2795,7 @@ export default function Phase2Workshop({
                               {activeB2bContracts.length > 0 && (
                                 <optgroup label="Convênios B2B Ativos (Gera Brand XP)">
                                   {activeB2bContracts.map(c => {
-                                    const corp = MOCK_CORPORATIONS.find(cp => cp.id === c.corp_id)
+                                    const corp = allB2BCorporations.find(cp => cp.id === c.corp_id)
                                     return (
                                       <option key={c.contract_id} value={c.corp_id}>
                                         {corp?.name || c.corp_id} (Convênio {c.tier} — Lote Padronizado)
@@ -3279,9 +3323,9 @@ export default function Phase2Workshop({
                       className="w-full bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-amber-500 focus:outline-none"
                     >
                       <option value="todos">Todas as Fabricantes</option>
-                      {MOCK_CORPORATIONS.map(c => (
+                      {allB2BCorporations.map(c => (
                         <option key={c.id} value={c.id}>
-                          {c.name} ({c.branch})
+                          {c.name} ({c.slot_focus || c.branch})
                         </option>
                       ))}
                     </select>
@@ -3672,7 +3716,7 @@ export default function Phase2Workshop({
                     className="bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-lg px-2.5 py-2 focus:border-amber-500 focus:outline-none"
                   >
                     <option value="todos">Todos os Fabricantes</option>
-                    {MOCK_CORPORATIONS.map(corp => (
+                    {allB2BCorporations.map(corp => (
                       <option key={corp.id} value={corp.id}>
                         {corp.name}
                       </option>

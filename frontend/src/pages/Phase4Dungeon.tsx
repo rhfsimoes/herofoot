@@ -191,6 +191,62 @@ const BIOME_BY_DAY: Record<number, { terrain: string; name: string }> = {
   0: { terrain: 'caldeira_vulcanica', name: 'Caldeira de Enxofre — Magma & Basalto' },
 }
 
+// 1. Trânsito Livre (Salas Vazias)
+const emptyLogs = [
+  'Corredor silencioso. O Suporte Logístico mapeia as armadilhas no chão e a equipe avança sem gastar recursos extras.',
+  'A câmara está vazia, mas a tensão continua. Trânsito livre aprovado e a formação tática se mantém intacta.',
+  'Nenhum monstro à vista. O Suporte aproveita para curar escoriações leves e a expedição ganha fôlego.',
+  'Caminho limpo! A equipe economiza Suprimentos e marcha a passos largos para a próxima câmara.',
+]
+
+// 2. Disputa de Mini-boss (Vitória do Jogador)
+const playerMinibossLogs = [
+  'O Vanguarda segura a linha de frente de forma heroica, abrindo espaço para a Guilda do Jogador esmagar a ameaça! (+1 PE).',
+  'Lâminas e magias voando! Os DPS limpam a câmara em tempo recorde e faturam o Abate Prioritário para a nossa Guilda! (+1 PE).',
+  'Numa manobra brilhante de controle, o Suporte isola o Mini-boss e a Guilda do Jogador garante mais um abate! (+1 PE).',
+  'Deixamos a concorrência comendo poeira! A Guilda do Jogador limpa a sala e o Cartório homologa o Ponto! (+1 PE).',
+]
+
+// 3. Disputa de Mini-boss (Vitória do Rival)
+const rivalMinibossLogs = [
+  'Que golpe baixo! O Suporte Logístico rival passou furtivamente pelo nosso bloqueio e roubou o Abate Prioritário! (+1 PE).',
+  'A Vanguarda rival formou uma parede intransponível, esmagando o monstro antes da nossa equipe se posicionar! (+1 PE).',
+  'Desastre tático! Os DPS rivais foram mais rápidos no gatilho e limparam a sala na nossa frente! (+1 PE).',
+  'Fomos atropelados na corrida! A guilda rival finaliza o Mini-boss e garante o ponto da câmara! (+1 PE).',
+]
+
+// 4. Boss Final
+const playerBossLogs = [
+  'UM VERDADEIRO MASSACRE! Os DPS da Guilda do Jogador atropelam o Boss Final com vantagem máxima e levam a glória exclusiva! (+2 PE).',
+  'É O FIM DA LINHA PARA O BOSS! A Guilda do Jogador domina a arena, fatura o Abate Exclusivo e a torcida vai à loucura! (+2 PE).',
+]
+const jointBossLogs = [
+  'QUE LUTA FRENÉTICA! Ninguém cedeu espaço! O Boss cai sob os ataques cruzados das duas guildas e o abate é dividido! (+1 PE para cada).',
+  'Empate técnico e brutal na câmara final! As espadas se cruzaram no golpe fatal, e a Coroa homologa um Abate Conjunto! (+1 PE para cada).',
+]
+
+// 5. Eventos Críticos: Exaustão e Falência Logística
+const playerExhaustionLogs = [
+  'FALÊNCIA LOGÍSTICA! Os Suprimentos da Guilda do Jogador zeraram antes da reta final! A equipe abandona a masmorra exausta!',
+  'Pane no planejamento! A equipe do Jogador não aguenta o dreno da masmorra, recua e deixa o caminho livre para a concorrência!',
+]
+const rivalExhaustionLogs = [
+  'QUEBROU O MOTOR! A guilda rival ficou sem Suprimentos no meio do caminho e joga a toalha! O caminho está livre!',
+  'Que vexame logístico! Os rivais ficaram sem rações e bateram em retirada. A nossa torcida faz a festa!',
+]
+
+// 6. Eventos Críticos: Lesão e Morte (Acidente de Trabalho)
+const injuryLogs = [
+  'CENA TERRÍVEL NA MASMORRA! A linha de frente cede e um herói sofre um dano colateral gravíssimo! O Cartório já prepara a notificação de Afastamento Médico!',
+  'Um golpe fatal devastador quebra a nossa formação! Baixa confirmada na equipe! Isso vai custar caro no DRE e na alma da Guilda!',
+]
+
+// 7. Eventos Críticos: Espólios B2B Lendários
+const legendaryLootLogs = [
+  'BINGO OPERACIONAL!!! O Suporte Logístico encontrou um baú oculto contendo um Ativo Lendário! A diretoria da Guilda vai à loucura!',
+  'INACREDITÁVEL! No meio dos escombros, a equipe fatura um Lote Nível Ouro! O Almoxarifado nunca viu uma peça tão valiosa!',
+]
+
 export default function Phase4Dungeon({
   onAdvance,
   onExecuteExpedition,
@@ -287,14 +343,12 @@ export default function Phase4Dungeon({
     return loadoutItems.some(i => i.terrain_mitigation === activeClimate.mitigation_required)
   }, [activeClimate.mitigation_required, loadoutItems])
 
-  // Cálculo consolidado de penalidades
+  // Cálculo consolidado de penalidades (TASK-806: Bioma é o único vetor de impacto em PE e dreno de rações)
   const terrainPenaltyPct = isTerrainMitigated ? 0 : (activeDungeon.power_penalty_pct ?? 0.12)
-  const climatePenaltyPct = isClimateMitigated ? 0 : activeClimate.power_penalty_pct
-  const totalPowerPenaltyPct = Math.round((terrainPenaltyPct + climatePenaltyPct) * 100)
+  const totalPowerPenaltyPct = Math.round(terrainPenaltyPct * 100)
 
   const terrainExtraEnergy = isTerrainMitigated ? 0 : activeDungeon.energy_cost_extra
-  const climateExtraEnergy = isClimateMitigated ? 0 : activeClimate.energy_cost_extra
-  const totalExtraEnergyCost = terrainExtraEnergy + climateExtraEnergy
+  const totalExtraEnergyCost = terrainExtraEnergy
 
   // Animação sala a sala através dos room_events
   useEffect(() => {
@@ -454,27 +508,41 @@ export default function Phase4Dungeon({
       pE = Math.max(0, pE - playerDrain)
       rE = Math.max(0, rE - rivalDrain)
 
-      let eventMsg = 'Câmara com trânsito estável e sem ocorrências hostis.'
+      let eventMsg = emptyLogs[Math.floor(Math.random() * emptyLogs.length)]
       let pts1 = 0
       let pts2 = 0
 
-      if (isBoss) {
-        if (Math.random() > 0.4) {
-          eventMsg = `Guilda do Jogador superou a margem de 15% e abateu o Boss Final (+2 PE)!`
+      // Injeção de eventos críticos de exaustão
+      if (pE === 0 && !isBoss && Math.random() < 0.35) {
+        eventMsg = playerExhaustionLogs[Math.floor(Math.random() * playerExhaustionLogs.length)]
+      } else if (rE === 0 && !isBoss && Math.random() < 0.35) {
+        eventMsg = rivalExhaustionLogs[Math.floor(Math.random() * rivalExhaustionLogs.length)]
+      } else if (isBoss) {
+        if (pE > 0 && rE > 0) {
+          if (Math.random() > 0.4) {
+            eventMsg = playerBossLogs[Math.floor(Math.random() * playerBossLogs.length)]
+            pts1 = 2
+          } else {
+            eventMsg = jointBossLogs[Math.floor(Math.random() * jointBossLogs.length)]
+            pts1 = 1
+            pts2 = 1
+          }
+        } else if (pE > 0) {
+          eventMsg = `${rivalExhaustionLogs[0]} ${playerBossLogs[0]}`
           pts1 = 2
         } else {
-          eventMsg = `Abate Conjunto! Margem de equilíbrio no Boss Final (+1 PE para ambas as guildas).`
-          pts1 = 1
-          pts2 = 1
+          eventMsg = playerExhaustionLogs[0]
         }
       } else {
         const hasEncounter = Math.random() < 0.65
         if (hasEncounter) {
-          if (Math.random() > 0.4) {
-            eventMsg = `Guilda do Jogador neutralizou a ameaça na Câmara ${r} (+1 PE).`
+          if (Math.random() > 0.45) {
+            const lootBonus = Math.random() < 0.20 ? ` — ${legendaryLootLogs[Math.floor(Math.random() * legendaryLootLogs.length)]}` : ''
+            eventMsg = `${playerMinibossLogs[Math.floor(Math.random() * playerMinibossLogs.length)]}${lootBonus}`
             pts1 = 1
           } else {
-            eventMsg = `${rivalGuildName} neutralizou a ameaça na Câmara ${r} (+1 PE).`
+            const injBonus = Math.random() < 0.15 ? ` — ${injuryLogs[Math.floor(Math.random() * injuryLogs.length)]}` : ''
+            eventMsg = `${rivalMinibossLogs[Math.floor(Math.random() * rivalMinibossLogs.length)]}${injBonus}`
             pts2 = 1
           }
         }
@@ -667,33 +735,47 @@ export default function Phase4Dungeon({
             {activeClimate.description}
           </p>
 
-          {/* Status de Mitigação Climática */}
+          {/* Tendência de Mercado / Bônus de Drop B2B (TASK-806) */}
+          <div className="p-2.5 rounded-lg bg-stone-950/80 border border-stone-800 text-xs space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-amber-400 font-bold font-mono text-[10px] uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Tendência de Mercado / Espólios B2B</span>
+              </span>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                isClimateMitigated
+                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-700/60'
+                  : 'bg-stone-900 text-stone-300 border border-stone-800'
+              }`}>
+                {isClimateMitigated ? '+30% Drop Ampliado' : '+15% Drop Base'}
+              </span>
+            </div>
+            <p className="text-[11px] text-stone-300">
+              {activeClimate.market_trend || `Alta Demanda por peças de ${activeClimate.drop_bonus_category || 'Manufatura'}`}
+            </p>
+          </div>
+
+          {/* Status do Catalisador Climático */}
           <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between text-xs">
             <div className="flex items-center gap-1.5">
-              <span className="text-stone-400 font-mono text-[11px]">Mitigação da Guilda:</span>
+              <span className="text-stone-400 font-mono text-[11px]">Catalisador da Guilda:</span>
               {isClimateMitigated ? (
                 <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-700/60 px-2 py-0.5 rounded">
                   <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>{activeClimate.climate === 'clear_sky' ? 'Atmosfera Estável' : 'Protegido'}</span>
+                  <span>{activeClimate.climate === 'clear_sky' ? 'Condições Ideais' : 'Catalisador Equipado'}</span>
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-amber-400 bg-amber-950/70 border border-amber-700/60 px-2 py-0.5 rounded">
                   <ShieldAlert className="w-3.5 h-3.5" />
-                  <span>Sobrecarga Climática</span>
+                  <span>Sem Catalisador (+15% apenas)</span>
                 </span>
               )}
             </div>
 
             <div className="text-[11px] font-mono">
-              {!isClimateMitigated ? (
-                <span className="text-amber-300 font-bold">
-                  -{Math.round(activeClimate.power_penalty_pct * 100)}% Poder · +{activeClimate.energy_cost_extra} Dreno
-                </span>
-              ) : (
-                <span className="text-stone-400">
-                  {activeClimate.mitigation_required ? 'Proteção Ativa' : 'Sem Penalidade'}
-                </span>
-              )}
+              <span className="text-stone-400">
+                {isClimateMitigated ? 'Bônus Máximo (+30%)' : 'Bônus Padrão (+15%)'}
+              </span>
             </div>
           </div>
         </div>

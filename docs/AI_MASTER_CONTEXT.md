@@ -2,9 +2,9 @@
 
 > **Destinatário Principal:** Modelos de Linguagem Avançados (Google Gemini, Claude, etc.), Engenheiros de Software, Arquitetos de Sistemas e Agentes Especializados do Projeto.  
 > **Propósito do Documento:** Transferência completa e incondicional de estado mental, arquitetura, regras de negócio e processos em atividade. Ao ingerir este arquivo, qualquer IA ou desenvolvedor deve compreender com precisão cirúrgica a alma do jogo, todas as mecânicas existentes, os processos ativos em execução no loop, o padrão estrito de engenharia adotado, as lições aprendidas e o exato ponto de progresso no roadmap até o lançamento 1.0.  
-> **Versão Vigente:** **v0.7.1 (Complexo B2B, DRE Dinâmico & Sincronização de Simulação)** — Rumo ao Beta Teste e Memorial do Rei Demônio.  
+> **Versão Vigente:** **v0.7.2 (Quadro de Posições, Sinergias Industriais B2B & Reforma Contábil)** — Rumo ao Beta Teste e Memorial do Rei Demônio.  
 > **Data de Atualização:** 01 de Outubro de 2026.  
-> **Status de Testes:** **223 testes unitários aprovados (100% OK)** em ~4.3s | **Frontend Build:** 0 erros de tipagem/lint (Vite + TypeScript).  
+> **Status de Testes:** **234 testes unitários aprovados (100% OK)** em ~4.7s | **Frontend Build:** 0 erros de tipagem/lint (Vite + TypeScript).  
 
 ---
 
@@ -177,10 +177,13 @@ graph TD
   - `market_expenses`, `contract_signing_expenses`, `hiring_expenses`: Gastos com investimentos spot e celebrações.
 - Previne dupla contagem no caixa através do acumulador `weekly_sales_cash_collected`.
 
-### Processo 5: Recursos Humanos, Fadiga & Medicina Ocupacional (`HeroService`, `MedicalService`)
-- Rastreamento individual de fadiga (0–100%) para cada aventureiro.
-- Desgaste físico na expedição mitigado por instalações médicas (Enfermaria Básica até Casa de Banhos Termais).
-- Contratos plurianuais (1 a 3 anos); na virada de temporada, aventureiros com contratos expirando exigem luvas de assinatura e reajuste salarial de 25% a 45%.
+### Processo 5: Recursos Humanos, Posições Operacionais, Elencos & Medicina Ocupacional (`HeroService`, `MedicalService`)
+- **Quadro de Posições Funcionais & Especializações:** Extinção do modelo abstrato de classes (guerreiro, mago, clérigo) e unificação em 4 Posições Operacionais com especializações diretas (ex: `Vanguarda - Berserk`, `Vanguarda - Guardião`, `DPS - Assassino`, `DPS - Piromante`, `Suporte - Clérigo de Apoio`, `Suporte - Taumaturgo`, `Suporte Logístico - Arqueiro`, `Suporte Logístico - Intendente`).
+- **Geração Canônica de Elencos & Hierarquia Competitiva:** Todos os 16 clubes da Liga (8 na Nobre e 8 no Acesso, incluindo o jogador) possuem elencos balanceados contendo obrigatoriamente as 4 posições (com garantia de presença de Suportes Logísticos em 100% dos times).
+- **Hierarquia de Força por Liga & Filosofia de Poder (Lógica Flamengo vs. Criciúma):** A distribuição de poder dos atletas reflete rigorosamente a divisão competitiva: potências de topo da Divisão Nobre (*Flamengo tier*, média de poder 52 a 64) contra formações mais modestas da Divisão de Acesso (*Criciúma tier*, média de poder 35 a 48, com a guilda do jogador iniciando no meio de tabela avaliada em 43 de poder / 4º lugar).
+  - *Âncora de Poder:* O valor 100 de poder é o teto mítico inalcançável para aventureiros normais (o "Pelé/Messi" do universo HeroFoot, atingido unicamente pelo ex-herói da profecia Arthus Valente, hoje garçom afastado e NPC). O valor 3 representa o pior atleta amador ou reserva da Série D. Os heróis contratados em atividade orbitam a faixa realista de 30 a 65, eliminando a inflação irrealista de atributos.
+- **Rastreamento Individual de Fadiga e Saúde Ocupacional:** Desgaste físico na expedição mitigado por instalações médicas (Enfermaria Básica com recuperação 20 até Casa de Banhos Termais com 40).
+- **Contratos Plurianuais:** Contratos de 1 a 3 anos; na virada de temporada, aventureiros com contratos expirando exigem luvas de assinatura e reajuste salarial proporcional à sua posição operacional no mercado.
 
 ### Processo 6: Academia de Aprendizes & Mercado de Transferências (`AcademyService`)
 - Manutenção fixa de 40 ouro/semana para formação de jovens talentos.
@@ -229,7 +232,7 @@ graph TD
 4. **Ambiente Operacional (Windows PowerShell):**
    - Nunca use `&&` para encadear comandos no shell do usuário. O separador correto do PowerShell é `;`.
 5. **Critério de Aceite Técnico:**
-   - `python -m unittest discover tests` deve rodar com 100% de aprovação (**223 testes**).
+   - `python -m unittest discover tests` deve rodar com 100% de aprovação (**234 testes**).
    - `npm run build` dentro de `frontend/` deve compilar com 0 erros de tipagem.
 
 ---
@@ -330,15 +333,16 @@ herofoot/
 | **v0.6.0** | Rivais Vivos & Contratos VIP | • **Perfis Permanentes de Rivais:** Matriz com 16 traços únicos atribuídos deterministicamente via seed mundial aos times NPC.<br>• **Liquidação Judicial por Falência:** As 2 últimas colocadas da Divisão de Acesso são dissolvidas por insolvência e a Câmara funda 2 novas guildas.<br>• **Encomendas VIP da Nobreza:** Ordens de alto valor e prestígio no Boletim de Mercado com prazo de 2 semanas e despacho direto no balcão.<br>• **Auditoria Monte Carlo v0.6.0:** 8.500 partidas de confrontos simuladas garantindo calibragem sem arquétipos desequilibrados. |
 | **v0.7.0** | Cadeia B2B & Montagem Modular | • **Transição para Peças Físicas Tangíveis:** Substituição da forja abstrata pelo Almoxarifado Fabril com peças de marcas corporativas.<br>• **Linha de Montagem Automatizada:** Operários assalariados produzindo lotes seriais *White-label*.<br>• **Mercado Spot com Cotas:** Aquisição avulsa de componentes com ágio de +50% e limite semanal de 5 un./peça.<br>• **Tinkering Inter-Marcas:** Risco de curto-circuito vs. *Overclock Não-Autorizado* (+15% PE). |
 | **v0.7.1** | Calibração B2B, DRE & Sincronia | • **Sincronização 100% de Placar:** Registro e leitura direta de `score_t1` e `score_t2` da simulação, eliminando discrepâncias entre Fase 4 e Fase 5.<br>• **DRE Dinâmico em Tempo Real:** Apuração ao fim da Fase 4, reconciliação sem duplicação de caixa e exibição de despesas operacionais.<br>• **Novas Fornecedoras B2B:** Inclusão de parceiras de Alvarás de Risco (`corp_mercurius`) e Provisões/Consumíveis (`corp_crown_rations`), expandindo para 107 peças e 33 convênios.<br>• **Nomenclatura Concisa (1-2 Palavras):** Sanitização rigorosa eliminando nomes excessivamente longos.<br>• **Condições de Fim de Jogo:** Falência por 2 ciclos negativos consecutivos e encerramento de temporada estruturado. |
+| **v0.7.2** | Posições, Sinergias & Reforma Contábil | • **Quadro de Posições Operacionais & Especializações:** Extinção do modelo legado de classes genéricas (Guerreiro, Mago, etc.) e substituição por 4 Posições Operacionais (Vanguarda, DPS, Suporte, Suporte Logístico) diretamente vinculadas às especializações (ex: `Vanguarda - Berserk`).<br>• **Sinergias Canônicas do Complexo B2B:** Implementação de *Monopólio Ofensivo* (Valkyria & Goblin Eng.: +5% PE/DPS), *Blindagem Pesada* (Aethelgard & Dwarf Steel + 2+ Vanguardas: +20% mitigação de acidentes) e *Logística Avançada* (Mercurius & Flamel + Suporte Logístico: +1 espólio extra e -15% no dreno).<br>• **Precificação de Mercado & Folha Salarial:** Matriz `position_market_modifiers` implementando inflação salarial de DPS, alta rotatividade e custos ocultos de recrutamento de Suporte Logístico (40 ouro) e passivo de saúde ocupacional da Vanguarda (1.30x em tratamento médico).<br>• **Reconciliação Contábil no DRE:** Registro transparente de indenizações rescisórias (`weekly_severance_expenses`) e tratamentos da enfermaria (`weekly_medical_expenses`) no DRE sem dupla contagem sobre a tesouraria.<br>• **UI de Oficinas Atualizada:** Sincronização em tempo real das 11 corporações e 33 contratos B2B e substituição de referências a filiais pela categorização `Compartimento: {slot_focus}`. |
 
 ---
 
 ## 🎯 7. Em Que Ponto Estamos Exatamente Agora?
 
 ### 7.1 Status Imediato
-- A **v0.7.1 está 100% implementada, testada e homologada**.
+- A **v0.7.2 está 100% implementada, testada e homologada**.
 - O código está em estado **verde absoluto**:
-  - `python -m unittest discover tests` → **223 testes aprovados (100% OK)** em ~4.3 segundos.
+  - `python -m unittest discover tests` → **234 testes aprovados (100% OK)** em ~4.7 segundos.
   - `npm run build` → 1915 módulos compilados com **0 erros de tipagem**.
   - Servidores ativos em `http://localhost:8000` (Backend) e `http://localhost:5173` (Frontend).
 

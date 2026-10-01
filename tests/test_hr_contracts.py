@@ -172,10 +172,103 @@ class TestHRContractsAndMedical(unittest.TestCase):
         self.assertTrue(res_del["success"])
         self.assertNotIn(hero, ctrl.state.team)
 
+    def test_position_market_modifiers_and_pricing(self):
+        """Valida precificação por posições: inflação de DPS vs baixo custo de Logística e passivo de Vanguarda."""
+        from services.hero_service import generate_hero
+        import random
+
+        rng_dps = random.Random(101)
+        hero_dps = generate_hero(is_youth=False, rng=rng_dps)
+        hero_dps["position_id"] = "pos_dps"
+        hero_dps["position"] = "DPS"
+
+        # Simula cálculo de tratamento médico para Vanguarda vs Suporte
+        hero_vanguard = {
+            "id": "h_vanguard_test",
+            "name": "Vanguarda Teste",
+            "position_id": "pos_vanguarda",
+            "position": "Vanguarda",
+            "injured": True,
+            "status": "Afastado",
+            "injury_weeks_left": 2,
+        }
+        hero_support = {
+            "id": "h_support_test",
+            "name": "Suporte Teste",
+            "position_id": "pos_suporte",
+            "position": "Suporte",
+            "injured": True,
+            "status": "Afastado",
+            "injury_weeks_left": 2,
+        }
+        self.state.team = [hero_vanguard, hero_support]
+        vanguard_cost = self.hero_service.calculate_injury_treatment_cost(hero_vanguard)
+        support_cost = self.hero_service.calculate_injury_treatment_cost(hero_support)
+
+        # Vanguarda tem passivo médico de absorver dano -> custo de tratamento 1.30x maior que Suporte
+        self.assertGreater(vanguard_cost, support_cost)
+
+        # Contratação de Suporte Logístico deduz custo oculto de recrutamento (turnover)
+        hero_logistics = {
+            "id": "h_logistics_mkt",
+            "name": "Operário Logístico",
+            "position_id": "pos_suporte_logistico",
+            "position": "Suporte Logístico",
+            "transfer_fee": 100,
+            "salary": 25,
+            "injured": False,
+            "status": "Apto",
+            "age": 22,
+        }
+        self.state.transfer_market_listings = [hero_logistics]
+        self.state.gold = 1000
+        hire_res = self.hero_service.hire_market_hero("h_logistics_mkt")
+        self.assertTrue(hire_res["success"])
+        # Custo total: fee (100) + hidden_recruitment_cost (40) = 140
+        self.assertEqual(hire_res["total_cost"], 140)
+        self.assertEqual(self.state.gold, 1000 - 140)
+        self.assertEqual(self.state.weekly_hiring_expenses, 140)
+
+    def test_severance_fee_deduction_and_tracking(self):
+        """Rescisão contratual calcula multa rescisória e acumula em weekly_severance_expenses."""
+        hero = self.state.team[0]
+        hero["salary"] = 100
+        hero["contract_seasons_left"] = 2
+        hero["position_id"] = "pos_vanguarda"
+        self.state.gold = 2000
+
+        res = self.hero_service.release_hero(hero["id"])
+        self.assertTrue(res["success"])
+        severance = res.get("severance_fee", 0)
+        self.assertGreater(severance, 0)
+        self.assertEqual(self.state.weekly_severance_expenses, severance)
+        self.assertEqual(self.state.gold, 2000 - severance)
+
+    def test_phase5_dre_reconciliation_no_double_counting(self):
+        """Despesas de saúde e rescisões constam no DRE como despesas operacionais sem dupla dedução de caixa."""
+        ctrl = GameController()
+        ctrl.state.gold = 5000
+        ctrl.state.weekly_medical_expenses = 150
+        ctrl.state.weekly_severance_expenses = 200
+
+        gold_before = ctrl.state.gold
+        res = ctrl.phase_service.phase_5_results()
+        financials = res["financials"]
+
+        self.assertIn("medical_expenses", financials)
+        self.assertEqual(financials["medical_expenses"], 150)
+        self.assertIn("severance_expenses", financials)
+        self.assertEqual(financials["severance_expenses"], 200)
+
+        # Confirma que após a fase 5 os acumuladores semanais foram resetados
+        self.assertEqual(ctrl.state.weekly_medical_expenses, 0)
+        self.assertEqual(ctrl.state.weekly_severance_expenses, 0)
+
     def test_no_forbidden_terms_in_hr_service(self):
         """Garante conformidade com as restrições terminológicas do projeto."""
         paths = [
             os.path.join(os.path.dirname(__file__), "..", "services", "hero_service.py"),
+            os.path.join(os.path.dirname(__file__), "..", "services", "medical_service.py"),
             os.path.join(os.path.dirname(__file__), "..", "data", "facilities_seed.json")
         ]
         for path in paths:
@@ -191,3 +284,4 @@ class TestHRContractsAndMedical(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
