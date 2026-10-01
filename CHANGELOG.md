@@ -3,6 +3,17 @@
 Todas as alterações notáveis deste projeto serão documentadas neste arquivo.  
 O formato baseia-se em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/), e este projeto adere ao versionamento semântico.
 
+## [0.7.1] — 2026-10-01
+
+### ⚖️ Sincronização de Simulação, DRE em Tempo Real & Calibração B2B
+- **Sincronização Fidedigna do Placar (Fase 4 vs Fase 5):** `match_engine.py` passa a emitir deltas (`points_t1`, `points_t2`) e pontuações acumuladas (`score_t1`, `score_t2`) em cada `room_report`. O ticker da Fase 4 lê diretamente os valores da simulação em vez de tentar reconstruir a pontuação por inspeção de texto.
+- **Demonstrativo Contábil Dinâmico e Reconciliação em Tempo Real:** Criação de `generate_weekly_financial_statement()` disparado no encerramento da expedição (Fase 4), tornando o DRE imediatamente disponível ao entrar na Fase 5. Inclusão de rastreadores para despesas spot, contratação e homologação sem risco de dupla contagem no saldo de ouro.
+- **Expansão de Parceiras B2B (Alvarás & Provisões):** Inclusão de corporações focadas em Alvarás de Risco (`corp_mercurius` - Cartório Arcano Mercurius) e Provisão Logística / Consumíveis (`corp_crown_rations` - Intendência de Provisões da Coroa), expandindo o catálogo para 11 corporações, 107 peças modulares tangíveis e 33 convênios B2B.
+- **Nomenclatura Concisa e Elegante (Regra 1-2 Palavras):** Sanitização procedural em `assemble_item` e reescrita de todas as peças modulares em `parts_seed.json` para no máximo 1-2 palavras por parte (Prefixo: 1 palavra | Base: 1-2 palavras | Sufixo: 1-2 palavras), eliminando nomes excessivamente longos.
+- **Remoção de Resquícios Legados de Oficina:** Substituição de `min_workshop_level` por `min_brand_level` (Bronze: Nv 1, Prata: Nv 3 / 100 Brand XP, Ouro: Nv 7 / 300 Brand XP) nos convênios B2B.
+- **Mercado Spot com Desbloqueio Progressivo:** Peças Tier 1 podem ser compradas no mercado spot sem convênio (com tarifa de +50%), enquanto Tiers 2 e 3 exigem convênios Prata e Ouro ativos.
+- **Condições Formais de Fim de Temporada & Falência:** 2 ciclos consecutivos com tesouro negativo disparam Falência e Liquidação Judicial compulsória pela Coroa.
+
 ---
 
 ## [0.7.0] — 2026-09-30
