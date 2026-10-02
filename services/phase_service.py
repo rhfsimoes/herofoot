@@ -276,6 +276,10 @@ class PhaseService:
             consumable_energy_bonus += supplies_bonus
             self.state.supplies_bonus = 0
 
+        temporary_power_pct_modifier = float(getattr(self.state, "temporary_power_pct_modifier", 0.0))
+        if temporary_power_pct_modifier:
+            self.state.temporary_power_pct_modifier = 0.0
+
         # 3. Parâmetros da equipe Rival
         rival_guild_info = next((g for g in self.league_engine.guilds if g["name"] == rival_name), None)
         rival_base_power = rival_guild_info["power_rating"] if rival_guild_info else 60
@@ -298,6 +302,7 @@ class PhaseService:
                 base_power=base_power,
                 bonus_slots=bonus_slots_power,
                 consumable_energy_bonus=consumable_energy_bonus,
+                temporary_power_pct_modifier=temporary_power_pct_modifier,
                 agi=player_agi,
                 has_terrain_mitigation=has_terrain_mitigation,
                 has_climate_mitigation=has_climate_mitigation,

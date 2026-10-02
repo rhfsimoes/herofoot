@@ -42,6 +42,7 @@ SERIALIZED_FIELDS = [
     "active_event",
     "resolved_events_history",
     "supplies_bonus",
+    "temporary_power_pct_modifier",
     "active_b2b_contracts",
     "assembly_line_workers",
     "corporate_exclusivity_tags",
@@ -134,6 +135,7 @@ class GameState:
         self.active_event: Optional[Dict[str, Any]] = None
         self.resolved_events_history: List[str] = []
         self.supplies_bonus: int = 0
+        self.temporary_power_pct_modifier: float = 0.0
 
         # Pivot B2B & Linha de Montagem Modular (v0.7.0)
         self.active_b2b_contracts: List[Dict[str, Any]] = []
@@ -191,6 +193,8 @@ class GameState:
             self.resolved_events_history = []
         if not hasattr(self, "supplies_bonus"):
             self.supplies_bonus = 0
+        if not hasattr(self, "temporary_power_pct_modifier"):
+            self.temporary_power_pct_modifier = 0.0
         if not hasattr(self, "workshop_xp") or not isinstance(self.workshop_xp, dict):
             self.workshop_xp = {
                 "Ferragem": 0,

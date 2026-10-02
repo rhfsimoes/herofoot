@@ -322,6 +322,7 @@ class Team:
         base_power: float = 0.0,
         bonus_slots: float = 0.0,
         consumable_energy_bonus: float = 0.0,
+        temporary_power_pct_modifier: float = 0.0,
         agi: float = 50.0,
         has_terrain_mitigation: bool = True,
         has_climate_mitigation: bool = True,
@@ -337,6 +338,7 @@ class Team:
         self.base_power = float(base_power)
         self.bonus_slots = float(bonus_slots)
         self.consumable_energy_bonus = float(consumable_energy_bonus)
+        self.temporary_power_pct_modifier = float(temporary_power_pct_modifier)
         self.agi = float(agi)
         self.has_terrain_mitigation = has_terrain_mitigation
         self.has_climate_mitigation = has_climate_mitigation
@@ -537,6 +539,7 @@ class Team:
         total_penalty_pct = min(1.0, terrain_pct)
         trait_bonus = self.get_trait_power_bonus(terrain_type, climate_type)
         effective = (self.base_power + self.bonus_slots + trait_bonus) * (1.0 - total_penalty_pct)
+        effective *= 1.0 + self.temporary_power_pct_modifier
         return max(0.0, effective)
 
 

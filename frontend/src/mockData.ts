@@ -1,3 +1,5 @@
+import partsSeed from '../../data/parts_seed.json'
+
 export type HeroStatus = 'Apto' | 'Fatigado' | 'Afastado' | 'Falecido'
 export type ItemQuality = 'Fraco' | 'Normal' | 'Ótimo' | 'Lendário'
 export type SaleStatus = 'vendido' | 'não vendido' | 'contraproposta'
@@ -2484,7 +2486,7 @@ export const MOCK_ASSEMBLY_WORKERS: AssemblyWorker[] = [
   }
 ]
 
-export const MOCK_MODULAR_PARTS: ModularPart[] = [
+const STATIC_MOCK_MODULAR_PARTS: ModularPart[] = [
   {
     "id": "part_aethelgard_blade",
     "part_id": "part_aethelgard_blade",
@@ -5128,6 +5130,19 @@ export const MOCK_MODULAR_PARTS: ModularPart[] = [
     "slot_role": "prefix",
     "name_modifier": "Anticorrosivo"
   }
+]
+
+const staticPartIds = new Set(STATIC_MOCK_MODULAR_PARTS.map(part => part.part_id || part.id))
+
+export const MOCK_MODULAR_PARTS: ModularPart[] = [
+  ...STATIC_MOCK_MODULAR_PARTS,
+  ...partsSeed
+    .filter(
+      part =>
+        (part.corp_id === 'corp_mercurius' || part.corp_id === 'corp_crown_rations') &&
+        !staticPartIds.has(part.part_id || part.id)
+    )
+    .map(part => ({ ...part, slot_role: part.slot_role as ModularPart['slot_role'] })),
 ]
 
 export const CORPORATIONS_MAP: Record<string, { id: string; name: string; tag: string; specialty: string }> = {

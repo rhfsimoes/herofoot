@@ -411,6 +411,16 @@ class TestMatchEngineContract(unittest.TestCase):
         # (50 + 10) * 1.0 = 60.0
         self.assertAlmostEqual(t_mitigated.calculate_effective_power(0.12), 60.0)
 
+        t_boosted = Team(
+            "Com bônus temporário",
+            base_power=50,
+            bonus_slots=10,
+            temporary_power_pct_modifier=0.04,
+            has_terrain_mitigation=False,
+            balance=self.balance,
+        )
+        self.assertAlmostEqual(t_boosted.calculate_effective_power(0.12), 52.8 * 1.04)
+
     def test_forbidden_terms_check(self):
         """Garante que nenhum termo proibido (gol, gramado, estádio, escanteio, bilheteria, Brasfoot) está em arquivos de jogo."""
         forbidden = ["gol", "gramado", "estádio", "estadio", "escanteio", "bilheteria", "brasfoot"]

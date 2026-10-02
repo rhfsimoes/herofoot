@@ -10,6 +10,7 @@ import copy
 import json
 import re
 import threading
+from unittest.mock import patch
 from http.server import HTTPServer
 from urllib.request import urlopen, Request
 
@@ -102,6 +103,7 @@ class TestCorporateEvents(unittest.TestCase):
                         "gold": -250,
                         "fatigue_all": 15,
                         "supplies_bonus": 10,
+                        "power_pct_modifier": 0.04,
                         "morale": -8,
                     },
                 }
@@ -124,10 +126,34 @@ class TestCorporateEvents(unittest.TestCase):
         self.assertEqual(self.state.team[1]["fatigue"], 55)
         self.assertEqual(self.state.contractor_confidence, 67)
         self.assertEqual(self.state.supplies_bonus, 10)
+        self.assertEqual(self.state.temporary_power_pct_modifier, 0.04)
+
+        restored_state = GameState()
+        restored_state.from_dict(self.state.to_dict())
+        self.assertEqual(restored_state.temporary_power_pct_modifier, 0.04)
 
         # Validação do ciclo do evento
         self.assertIsNone(self.state.active_event)
         self.assertIn("evt_test_audit", self.state.resolved_events_history)
+
+    def test_phase_4_applies_and_consumes_temporary_power_modifier(self):
+        controller = GameController()
+        controller.state.temporary_power_pct_modifier = 0.04
+        applied_modifiers = []
+        match_engine_module = controller.phase_service.match_engine
+        original_team = match_engine_module.Team
+
+        class RecordingTeam(original_team):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                if self.name == "Guilda do Jogador":
+                    applied_modifiers.append(self.temporary_power_pct_modifier)
+
+        with patch.object(match_engine_module, "Team", RecordingTeam):
+            controller.phase_service.phase_4_dungeon()
+
+        self.assertEqual(applied_modifiers, [0.04])
+        self.assertEqual(controller.state.temporary_power_pct_modifier, 0.0)
 
     def test_resolve_event_fatigue_and_morale_clamping(self):
         """Fadiga e confiança da contratante devem ser estritamente limitadas entre 0 e 100."""

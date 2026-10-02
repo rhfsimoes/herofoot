@@ -18,6 +18,7 @@ import {
   ShieldAlert,
   Scroll,
   Package,
+  Sparkles,
 } from 'lucide-react'
 import {
   getDungeonForDay,
@@ -680,8 +681,8 @@ export default function Phase4Dungeon({
           </p>
 
           {/* Status de Mitigação de Terreno */}
-          <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5">
+          <div className="pt-2 border-t border-stone-800/80 flex flex-col gap-2 text-xs sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 flex-wrap items-center gap-1.5">
               <span className="text-stone-400 font-mono text-[11px]">Mitigação da Guilda:</span>
               {isTerrainMitigated ? (
                 <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-700/60 px-2 py-0.5 rounded">
@@ -765,14 +766,14 @@ export default function Phase4Dungeon({
                   <span>{activeClimate.climate === 'clear_sky' ? 'Condições Ideais' : 'Catalisador Equipado'}</span>
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-amber-400 bg-amber-950/70 border border-amber-700/60 px-2 py-0.5 rounded">
+                <span className="inline-flex shrink-0 items-center gap-1 text-[11px] font-mono font-bold text-amber-400 bg-amber-950/70 border border-amber-700/60 px-2 py-0.5 rounded">
                   <ShieldAlert className="w-3.5 h-3.5" />
-                  <span>Sem Catalisador (+15% apenas)</span>
+                  <span>Sem Catalisador</span>
                 </span>
               )}
             </div>
 
-            <div className="text-[11px] font-mono">
+            <div className="shrink-0 text-[11px] font-mono">
               <span className="text-stone-400">
                 {isClimateMitigated ? 'Bônus Máximo (+30%)' : 'Bônus Padrão (+15%)'}
               </span>

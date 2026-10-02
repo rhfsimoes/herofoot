@@ -1348,86 +1348,87 @@ export default function Phase2Workshop({
         )
       })()}
 
-      {/* Tabs Principais da Fase 2 */}
-      <div className="flex border-b border-stone-800 bg-stone-950/60 p-1.5 rounded-xl max-w-4xl gap-1.5 flex-wrap">
-        <button
-          onClick={() => {
-            setMainTab('complexo_b2b')
-            setB2bSubTab('montagem')
-          }}
-          className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            mainTab === 'complexo_b2b' && b2bSubTab === 'montagem'
-              ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
-              : 'text-stone-400 hover:text-stone-200'
-          }`}
-        >
-          <Wrench className="w-4 h-4 text-amber-500" />
-          <span>Montagem Modular</span>
-        </button>
-        <button
-          onClick={() => {
-            setMainTab('complexo_b2b')
-            setB2bSubTab('fornecedores')
-          }}
-          className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            mainTab === 'complexo_b2b' && b2bSubTab === 'fornecedores'
-              ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
-              : 'text-stone-400 hover:text-stone-200'
-          }`}
-        >
-          <Building2 className="w-4 h-4 text-amber-500" />
-          <span>Patrocínios B2B ({activeB2bContracts.length}/3)</span>
-        </button>
-        <button
-          onClick={() => {
-            setMainTab('complexo_b2b')
-            setB2bSubTab('operarios')
-          }}
-          className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            mainTab === 'complexo_b2b' && b2bSubTab === 'operarios'
-              ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
-              : 'text-stone-400 hover:text-stone-200'
-          }`}
-        >
-          <Factory className="w-4 h-4 text-amber-500" />
-          <span>Linha de Montagem ({assemblyLineWorkers.length}/4)</span>
-        </button>
-        <button
-          onClick={() => {
-            setMainTab('complexo_b2b')
-            setB2bSubTab('spot')
-          }}
-          className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            mainTab === 'complexo_b2b' && b2bSubTab === 'spot'
-              ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
-              : 'text-stone-400 hover:text-stone-200'
-          }`}
-        >
-          <Package className="w-4 h-4 text-amber-500" />
-          <span>Mercado Spot de Peças</span>
-        </button>
-        <button
-          onClick={() => setMainTab('balcao')}
-          className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            mainTab === 'balcao'
-              ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
-              : 'text-stone-400 hover:text-stone-200'
-          }`}
-        >
-          <Coins className="w-4 h-4 text-amber-500" />
-          <span>Balcão & Loja</span>
-        </button>
-        <button
-          onClick={() => setMainTab('transferencias')}
-          className={`py-2 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-            mainTab === 'transferencias'
-              ? 'bg-[#1c1917] border border-amber-600/50 text-amber-300 shadow-md'
-              : 'text-stone-400 hover:text-stone-200'
-          }`}
-        >
-          <Users className="w-4 h-4 text-amber-500" />
-          <span>Bolsa de Heróis ({marketListings.length})</span>
-        </button>
+      <div className="w-full overflow-x-auto">
+        <div className="flex w-max min-w-full items-center justify-center gap-2 border-b border-stone-800 pb-3">
+          <button
+            onClick={() => {
+              setMainTab('complexo_b2b')
+              setB2bSubTab('montagem')
+            }}
+            className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+              mainTab === 'complexo_b2b' && b2bSubTab === 'montagem'
+                ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-amber-100 font-black shadow-lg shadow-amber-950/40'
+                : 'bg-stone-900 border border-stone-800 text-amber-400 hover:text-amber-200 hover:border-stone-700'
+            }`}
+          >
+            <Wrench className="w-4 h-4" />
+            <span>Montagem Modular</span>
+          </button>
+          <button
+            onClick={() => {
+              setMainTab('complexo_b2b')
+              setB2bSubTab('fornecedores')
+            }}
+            className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+              mainTab === 'complexo_b2b' && b2bSubTab === 'fornecedores'
+                ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-amber-100 font-black shadow-lg shadow-amber-950/40'
+                : 'bg-stone-900 border border-stone-800 text-amber-400 hover:text-amber-200 hover:border-stone-700'
+            }`}
+          >
+            <Building2 className="w-4 h-4" />
+            <span>Patrocínios B2B ({activeB2bContracts.length}/3)</span>
+          </button>
+          <button
+            onClick={() => {
+              setMainTab('complexo_b2b')
+              setB2bSubTab('operarios')
+            }}
+            className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+              mainTab === 'complexo_b2b' && b2bSubTab === 'operarios'
+                ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-amber-100 font-black shadow-lg shadow-amber-950/40'
+                : 'bg-stone-900 border border-stone-800 text-amber-400 hover:text-amber-200 hover:border-stone-700'
+            }`}
+          >
+            <Factory className="w-4 h-4" />
+            <span>Linha de Montagem ({assemblyLineWorkers.length}/4)</span>
+          </button>
+          <button
+            onClick={() => {
+              setMainTab('complexo_b2b')
+              setB2bSubTab('spot')
+            }}
+            className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+              mainTab === 'complexo_b2b' && b2bSubTab === 'spot'
+                ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-amber-100 font-black shadow-lg shadow-amber-950/40'
+                : 'bg-stone-900 border border-stone-800 text-amber-400 hover:text-amber-200 hover:border-stone-700'
+            }`}
+          >
+            <Package className="w-4 h-4" />
+            <span>Mercado Spot de Peças</span>
+          </button>
+          <button
+            onClick={() => setMainTab('balcao')}
+            className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+              mainTab === 'balcao'
+                ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-amber-100 font-black shadow-lg shadow-amber-950/40'
+                : 'bg-stone-900 border border-stone-800 text-amber-400 hover:text-amber-200 hover:border-stone-700'
+            }`}
+          >
+            <Coins className="w-4 h-4" />
+            <span>Balcão & Loja</span>
+          </button>
+          <button
+            onClick={() => setMainTab('transferencias')}
+            className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-xs font-bold transition cursor-pointer ${
+              mainTab === 'transferencias'
+                ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-amber-100 font-black shadow-lg shadow-amber-950/40'
+                : 'bg-stone-900 border border-stone-800 text-amber-400 hover:text-amber-200 hover:border-stone-700'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>Bolsa de Heróis ({marketListings.length})</span>
+          </button>
+        </div>
       </div>
 
       {/* ─────────────────────────────────────────────
@@ -2204,54 +2205,6 @@ export default function Phase2Workshop({
          ───────────────────────────────────────────── */}
       {mainTab === 'complexo_b2b' && (
         <div className="space-y-6 animate-in fade-in duration-200">
-          {/* Sub-tabs do Complexo B2B */}
-          <div className="flex flex-wrap gap-2 border-b border-stone-800 pb-3">
-            <button
-              onClick={() => setB2bSubTab('fornecedores')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-                b2bSubTab === 'fornecedores'
-                  ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-stone-950 font-black shadow-lg shadow-amber-950/40'
-                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 hover:border-stone-700'
-              }`}
-            >
-              <Building2 className="w-4 h-4" />
-              <span>Convênios B2B ({activeB2bContracts.length} Ativos)</span>
-            </button>
-            <button
-              onClick={() => setB2bSubTab('operarios')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-                b2bSubTab === 'operarios'
-                  ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-stone-950 font-black shadow-lg shadow-amber-950/40'
-                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 hover:border-stone-700'
-              }`}
-            >
-              <Factory className="w-4 h-4" />
-              <span>Linha de Montagem ({assemblyLineWorkers.length}/4)</span>
-            </button>
-            <button
-              onClick={() => setB2bSubTab('montagem')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-                b2bSubTab === 'montagem'
-                  ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-stone-950 font-black shadow-lg shadow-amber-950/40'
-                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 hover:border-stone-700'
-              }`}
-            >
-              <Wrench className="w-4 h-4" />
-              <span>Bancada Modular (Tinkering)</span>
-            </button>
-            <button
-              onClick={() => setB2bSubTab('spot')}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer ${
-                b2bSubTab === 'spot'
-                  ? 'bg-gradient-to-r from-amber-700 to-amber-600 text-stone-950 font-black shadow-lg shadow-amber-950/40'
-                  : 'bg-stone-900 border border-stone-800 text-stone-400 hover:text-stone-200 hover:border-stone-700'
-              }`}
-            >
-              <Package className="w-4 h-4" />
-              <span>Mercado Spot de Peças</span>
-            </button>
-          </div>
-
           {/* ════════════════════════════════════════════
               SUB-TAB 1: FORNECEDORES & CONVÊNIOS B2B
              ════════════════════════════════════════════ */}
@@ -2737,9 +2690,6 @@ export default function Phase2Workshop({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {assemblyLineWorkers.map(worker => {
                       const candidateDef = MOCK_ASSEMBLY_WORKERS.find(c => c.worker_id === worker.worker_id)
-                      const branchRecipesForWorker = recipesList.filter(
-                        r => !worker.assigned_branch || r.branch === worker.assigned_branch
-                      )
 
                       return (
                         <div
@@ -2802,15 +2752,6 @@ export default function Phase2Workshop({
                                       </option>
                                     )
                                   })}
-                                </optgroup>
-                              )}
-                              {branchRecipesForWorker.length > 0 && (
-                                <optgroup label="Receitas Tradicionais da Filial (Legado)">
-                                  {branchRecipesForWorker.map(rec => (
-                                    <option key={rec.recipe_id || rec.id} value={rec.recipe_id || rec.id}>
-                                      {rec.name} ({rec.branch} - Nv. {rec.min_workshop_level ?? 1})
-                                    </option>
-                                  ))}
                                 </optgroup>
                               )}
                             </select>
