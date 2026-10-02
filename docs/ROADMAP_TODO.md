@@ -58,8 +58,8 @@ Em vez de upgrades que apenas aumentam a porcentagem de itens raros ou menus sol
 
 ### 🏛️ 1.5 Mural da Glória & Memorial Corporativo
 - **Heróis Aposentados:**
-  - Atletas que atingem 34+ anos e encerram contratos entram no *Quadro de Honra*.
-  - Podem ser recontratados pela guilda como **Instrutores da Academia de Base**, transferindo bônus passivo para as novas gerações de aprendizes.
+  - Atletas que atingem 34+ anos e encerram contratos entram solenemente no *Quadro de Honra*.
+  - Histórico preservado de conquistas e títulos da carreira na guilda.
 - **Heróis Tombados (Memorial de Baixas em Serviço):**
   - Registro solene dos que caíram em combate em masmorras de alto risco ou contra o Rei Demônio.
   - Exibe prontuário de serviço: expedições completadas, pontos de expedição conquistados e causa jurídica da baixa (*"Sinistro em Incursão sem Cobertura Securitária"*).
@@ -100,7 +100,7 @@ flowchart TD
     subgraph v070["v0.7.0 — Memorial, Glória & Rei Demônio"]
         direction TB
         m1["Mural da Glória (Aposentados & Tombados)"]
-        m2["Aposentados como Instrutores da Academia"]
+        m2["Os 5 Slots Canônicos & Cobertura B2B"]
         m3["Expedição da Cidadela do Rei Demônio (Supercopa)"]
     end
 
@@ -127,5 +127,5 @@ flowchart TD
 | **v0.6.0** ✅ *(Concluído)* | **Rivais Vivos & Contratos VIP** | • Sorteio de características permanentes dos times NPC (`rival_traits_seed.json`).<br>• Dissolução e refundação de novas guildas ao rebaixar na Divisão de Acesso.<br>• Encomendas VIP no Boletim de Mercado (`vip_orders_seed.json`) e laudo de balanceamento (`BALANCE_REPORT_V060.md`). |
 | **v0.7.0** ✅ *(Concluído)* | **Cadeia de Suprimentos B2B & Linha de Montagem** | • 5 Grandes Corporações e conversão de afixos em Peças Modulares físicas (`parts_seed.json`).<br>• Contratos de remessa contínua B2B com exclusividade Ouro.<br>• Linha de Montagem automatizada com operários de fábrica e DRE expandida.<br>• Tinkering Inter-Marcas (overclock +15% vs. gororoba) e ágio spot de 50%.<br>• Auditoria Monte Carlo (`BALANCE_REPORT_V070_B2B.md`). |
 | **v0.7.1** ✅ *(Concluído)* | **DRE Dinâmico, Sincronia de Placar & Expansão B2B** | • Sincronização 100% de placar entre simulação e Fase 4/Fase 5 (`score_t1` e `score_t2` emitidos diretamente da engine).<br>• DRE dinâmico apurado em tempo real no final da Fase 4 com reconciliação contábil sem duplicidade.<br>• Expansão para 11 corporações, 107 peças e 33 convênios com parceiras de Alvarás de Risco (`corp_mercurius`) e Provisões (`corp_crown_rations`).<br>• Nomes concisos (1-2 palavras por parte) e migração para Nível de Marca (Brand Level).<br>• Condições de vitória, derrota e falência judicial após 2 ciclos negativos. |
-| **v0.8.0** *(Próximo)* | **Memorial & O Rei Demônio** | • Mural da Glória e Memorial de baixas.<br>• Aposentados como instrutores de base.<br>• Incursão da Cidadela do Rei Demônio para o campeão da Divisão Nobre. |
+| **v0.8.0** *(Próximo)* | **Memorial & O Rei Demônio** | • Mural da Glória e Memorial de baixas.<br>• 5 Slots Canônicos com cobertura integral B2B e trade-offs nítidos.<br>• Incursão da Cidadela do Rei Demônio para o campeão da Divisão Nobre. |
 | **v1.0.0** | **Polimento Audiovisual & Lançamento** | • Efeitos sonoros (carimbo, moedas, forja, cornetas).<br>• Hall da Fama definitivo.<br>• Empacotamento Desktop executável. |

@@ -85,7 +85,7 @@ class TestSeeds(unittest.TestCase):
     def test_class_specialization_references(self):
         """Refs de classe -> especialização são válidas."""
         classes_data = self.load_json('classes_seed.json')
-        class_ids = {c['id'] for c in classes_data['classes']}
+        class_ids = {c['id'] for c in classes_data['classes']} | {p['id'] for p in classes_data.get('positions', [])}
         for spec in classes_data['specializations']:
             self.assertIn(spec['class_id'], class_ids, f"class_id {spec['class_id']} em {spec['id']} não existe")
 
@@ -94,7 +94,7 @@ class TestSeeds(unittest.TestCase):
         schema = self.load_json('hero_schema.json')
         heroes = self.load_json('team.json')
         classes_data = self.load_json('classes_seed.json')
-        class_ids = {c['id'] for c in classes_data['classes']}
+        class_ids = {c['id'] for c in classes_data['classes']} | {p['id'] for p in classes_data.get('positions', [])}
         spec_ids = {s['id'] for s in classes_data['specializations']}
 
         required_props = set(schema.get('required', []))

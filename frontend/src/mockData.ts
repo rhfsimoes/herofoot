@@ -273,14 +273,43 @@ export interface FinancialStatement {
 }
 
 // ─── Complexo Industrial B2B & Montagem Modular (v0.7.0) ───────────────────
+export interface CorporationTradeoffModifiers {
+  bonus_pe_pct?: number
+  energy_cost_multiplier?: number
+  spot_discount_pct?: number
+  fatigue_gain_multiplier?: number
+  injury_risk_reduction_pct?: number
+  royalty_cost_multiplier?: number
+  auto_mitigate_terrains?: string[]
+  team_agi_penalty?: number
+  sales_margin_bonus_pct?: number
+  contractor_confidence_bonus?: number
+  team_agi_bonus?: number
+  climate_fragility?: boolean
+  cancellation_lock_weeks?: number
+  toxic_swamp_loot_bonus_pct?: number
+  happiness_penalty?: number
+  zero_royalties?: boolean
+  universal_compatibility?: boolean
+  post_expedition_fatigue_heal?: number
+  max_charges?: number
+  min_charges?: number
+  offensive_bonus?: number
+}
+
 export interface Corporation {
   id: string
   name: string
   branch: WorkshopBranch | string
+  slot_focus?: string
   specialty: string
   exclusivity_tag: string
   rival_corp_id: string | null
   description: string
+  advantage?: string
+  disadvantage?: string
+  tradeoff_summary?: string
+  tradeoff_modifiers?: CorporationTradeoffModifiers
 }
 
 export interface ModularPart {
@@ -1354,87 +1383,202 @@ export const MOCK_STATE: GameState = {
 
 export const MOCK_CORPORATIONS: Corporation[] = [
   {
-    id: 'corp_goblin_eng',
-    name: 'Engenharia Goblin S.A.',
-    branch: 'Ferragem',
-    specialty: 'Peças de corte agressivo, módulos de detonação e propulsores a vapor.',
-    exclusivity_tag: 'excl_goblin_eng',
-    rival_corp_id: 'corp_elf_precision',
-    description: 'Se não explodir na montagem, corta qualquer armadura. Foco em impacto maciço e risco mecânico.',
+    "id": "corp_valkyria",
+    "name": "Consórcio Bélico Valkyria",
+    "branch": "Arsenal Ofensivo",
+    "slot_focus": "Arsenal Ofensivo",
+    "specialty": "Ligas estriadas, guardas articuladas e exoesqueletos de proteção.",
+    "exclusivity_tag": "excl_valkyria",
+    "rival_corp_id": "corp_goblin_eng",
+    "description": "Indústria armamentista de vanguarda que projeta armamentos de elite para a Divisão Nobre da Coroa.",
+    "advantage": "Engenharia Bélica Pesada: +20% de impacto no Poder Efetivo e bônus crítico contra Guardiões de Masmorra.",
+    "disadvantage": "Sobrecarga de Artilharia: Peças pesadas aumentam em +15% o consumo de suprimentos (energia) por câmara explorada.",
+    "tradeoff_summary": "Pró: +20% PE Ofensivo Crítico | Contra: +15% Dreno de Suprimentos",
+    "tradeoff_modifiers": {
+      "bonus_pe_pct": 0.2,
+      "energy_cost_multiplier": 1.15
+    }
   },
   {
-    id: 'corp_elf_precision',
-    name: 'Consórcio Élfico de Alta Precisão',
-    branch: 'Joalheria',
-    specialty: 'Joias arcanas de fluxo estrito e componentes de lapidação micrométrica.',
-    exclusivity_tag: 'excl_elf_precision',
-    rival_corp_id: 'corp_goblin_eng',
-    description: 'Perfeição micrométrica homologada em pergaminho velino. Foco em agilidade e valor comercial.',
+    "id": "corp_goblin_eng",
+    "name": "Engenharia Goblin S.A.",
+    "branch": "Arsenal Ofensivo",
+    "slot_focus": "Arsenal Ofensivo",
+    "specialty": "Peças de corte agressivo, módulos de detonação e propulsores a vapor.",
+    "exclusivity_tag": "excl_goblin_eng",
+    "rival_corp_id": "corp_valkyria",
+    "description": "Se não explodir na bancada, fura qualquer armadura. Soluções agressivas com custo acessível e risco de desgaste.",
+    "advantage": "Sucata de Vanguarda: Peças 30% mais baratas no mercado spot e alto bônus de explosão bruta.",
+    "disadvantage": "Risco de Instabilidade: Vibração e estresse mecânico elevam o ganho de fadiga dos titulares em +20% por incursão.",
+    "tradeoff_summary": "Pró: Peças 30% mais Baratas | Contra: +20% Desgaste e Fadiga",
+    "tradeoff_modifiers": {
+      "spot_discount_pct": 0.3,
+      "fatigue_gain_multiplier": 1.2
+    }
   },
   {
-    id: 'corp_dwarf_steel',
-    name: 'Irmãos Anões de Aço Negro & Cia.',
-    branch: 'Ferragem',
-    specialty: 'Blindagens pesadas, chapas maciças de ferro fundido e escudos balísticos.',
-    exclusivity_tag: 'excl_dwarf_steel',
-    rival_corp_id: 'corp_swamp_alchemy',
-    description: 'Fundido no fundo do abismo, forjado para a eternidade fiscal. Foco em blindagem e robustez defensiva.',
+    "id": "corp_aethelgard",
+    "name": "Siderúrgica Aethelgard & Cia.",
+    "branch": "Blindagem Operacional",
+    "slot_focus": "Blindagem Operacional",
+    "specialty": "Lâminas temperadas, chapas prensadas e engrenagens de alto impacto.",
+    "exclusivity_tag": "excl_aethelgard",
+    "rival_corp_id": "corp_dwarf_steel",
+    "description": "Conglomerado hegemônico da metalurgia nortenha com processos fabris certificados pelo Tribunal da Coroa.",
+    "advantage": "Certificação de Segurança Ocupacional: Placas temperadas reduzem em 40% a probabilidade de acidentes de trabalho e afastamentos médicos.",
+    "disadvantage": "Royalties Monopolistas: Cláusulas de patente elevam as taxas semanais de contrato em +25% e encarecem o ágio spot.",
+    "tradeoff_summary": "Pró: -40% Risco de Lesão Ocupacional | Contra: +25% Royalties Semanais",
+    "tradeoff_modifiers": {
+      "injury_risk_reduction_pct": 0.4,
+      "royalty_cost_multiplier": 1.25
+    }
   },
   {
-    id: 'corp_swamp_alchemy',
-    name: 'Sindicato dos Alquimistas de Pântano',
-    branch: 'Alquimia',
-    specialty: 'Filtros respiratórios contra miasmas, concentrados e dosadores farmacológicos.',
-    exclusivity_tag: 'excl_swamp_alchemy',
-    rival_corp_id: 'corp_dwarf_steel',
-    description: 'O miasma de hoje é o lucro líquido de amanhã. Foco em mitigação de veneno e cargas operacionais.',
+    "id": "corp_dwarf_steel",
+    "name": "Irmãos Anões de Aço Negro & Cia.",
+    "branch": "Blindagem Operacional",
+    "slot_focus": "Blindagem Operacional",
+    "specialty": "Blindagens pesadas, chapas maciças de ferro fundido e escudos balísticos.",
+    "exclusivity_tag": "excl_dwarf_steel",
+    "rival_corp_id": "corp_aethelgard",
+    "description": "Fundido no fundo do abismo, forjado para a eternidade fiscal. Foco em blindagem impenetrável e robustez defensiva.",
+    "advantage": "Liga Mineral Ancestral: Imunidade total a biomas rochosos/minas instáveis e resistência maciça contra colapso estrutural.",
+    "disadvantage": "Densidade Metálica Extrema: O peso maciço das couraças anãs reduz a Agilidade média da equipe em -10 pontos nos confrontos da Liga.",
+    "tradeoff_summary": "Pró: Imunidade a Terreno Rochoso/Mina | Contra: -10 Agilidade da Equipe",
+    "tradeoff_modifiers": {
+      "auto_mitigate_terrains": [
+        "unstable_mine"
+      ],
+      "team_agi_penalty": 10
+    }
   },
   {
-    id: 'corp_crown_notarial',
-    name: 'Manufatura Notarial da Coroa',
-    branch: 'Ferragem',
-    specialty: 'Peças genéricas de linha branca (white-label), alvarás gravados e armações universais.',
-    exclusivity_tag: 'excl_crown_notarial',
-    rival_corp_id: null,
-    description: 'Padronização régia, carimbos invioláveis e estabilidade tributária. Compatível com todas as arquiteturas.',
+    "id": "corp_chancellor",
+    "name": "Lapidação Imperial Chanceler & Filhos",
+    "branch": "Ativo de Performance",
+    "slot_focus": "Ativo de Performance",
+    "specialty": "Amuletos com facetamento óptico, engastes de platina e núcleos prismáticos.",
+    "exclusivity_tag": "excl_chancellor",
+    "rival_corp_id": "corp_elf_precision",
+    "description": "Fornecedora tradicional da alta nobreza e de órgãos reguladores da Liga das Guildas.",
+    "advantage": "Prestígio Aristocrático Imperial: Joias e amuletos elevam em +25% a margem de faturamento no Balcão de Vendas e concedem +5 de Confiança da Contratante.",
+    "disadvantage": "Exigência de Insumos Nobres: Peças de lapidação exigem o dobro de tempo de bancada e alto custo de capital de giro.",
+    "tradeoff_summary": "Pró: +25% Margem de Venda no Balcão | Contra: Custo de Aquisição Elevado",
+    "tradeoff_modifiers": {
+      "sales_margin_bonus_pct": 0.25,
+      "contractor_confidence_bonus": 5
+    }
   },
   {
-    id: 'corp_aethelgard',
-    name: 'Siderúrgica Aethelgard & Cia.',
-    branch: 'Ferragem',
-    specialty: 'Lâminas temperadas, chapas prensadas e engrenagens de alto impacto.',
-    exclusivity_tag: 'excl_aethelgard',
-    rival_corp_id: 'corp_valkyria',
-    description: 'Conglomerado hegemônico da metalurgia nortenha com processos fabris certificados pelo Tribunal da Coroa.',
+    "id": "corp_elf_precision",
+    "name": "Consórcio Élfico de Alta Precisão",
+    "branch": "Ativo de Performance",
+    "slot_focus": "Ativo de Performance",
+    "specialty": "Joias arcanas de fluxo estrito e componentes de lapidação micrométrica.",
+    "exclusivity_tag": "excl_elf_precision",
+    "rival_corp_id": "corp_chancellor",
+    "description": "Perfeição micrométrica homologada em pergaminho velino. Foco em agilidade, reflexo e fluidez expedicionária.",
+    "advantage": "Geometria Sagrada & Fluxo Arcano: Concede +15 de Agilidade para a equipe, aumentando a taxa de iniciativa e reduzindo o consumo de energia em marcha.",
+    "disadvantage": "Fragilidade Microestrutural: Componentes élficos perdem 50% da sua eficácia se expostos a climas severos sem alvará correspondente.",
+    "tradeoff_summary": "Pró: +15 Agilidade & Iniciativa | Contra: Frágil em Climas Adversos",
+    "tradeoff_modifiers": {
+      "team_agi_bonus": 15,
+      "climate_fragility": true
+    }
   },
   {
-    id: 'corp_valkyria',
-    name: 'Consórcio Bélico Valkyria',
-    branch: 'Ferragem',
-    specialty: 'Ligas estriadas, guardas articuladas e exoesqueletos de proteção.',
-    exclusivity_tag: 'excl_valkyria',
-    rival_corp_id: 'corp_aethelgard',
-    description: 'Indústria armamentista de vanguarda que disputa licitações de suprimentos com a Siderúrgica Aethelgard.',
+    "id": "corp_mercurius",
+    "name": "Cartório Arcano Mercurius & Inscrições",
+    "branch": "Alvará de Risco",
+    "slot_focus": "Alvará de Risco",
+    "specialty": "Inscrições arcanas, selos notariais de mitigação climática e alvarás de risco.",
+    "exclusivity_tag": "excl_mercurius",
+    "rival_corp_id": "corp_swamp_alchemy",
+    "description": "Cartório corporativo hegemônico na emissão de selos de proteção ambiental e alvarás de trânsito em masmorras.",
+    "advantage": "Garantia Notarial Régia: Alvarás mitigam penalidades de ruínas submersas e glaciares, além de assegurarem indenização de 100 Ouro se a guilda for derrotada na expedição.",
+    "disadvantage": "Burocracia Cartorária: Cláusulas de fidelidade estrita geram carência de desvinculação dobrada (2 rodadas de slot travado em caso de rescisão).",
+    "tradeoff_summary": "Pró: Mitigação Glaciar & Seguro de Incursão | Contra: Carência de Desvinculação Dobrada",
+    "tradeoff_modifiers": {
+      "auto_mitigate_terrains": [
+        "glacier_frost",
+        "submerged_ruins"
+      ],
+      "cancellation_lock_weeks": 2
+    }
   },
   {
-    id: 'corp_flamel',
-    name: 'Sindicato Bioalquímico Flamel & Associados',
-    branch: 'Alquimia',
-    specialty: 'Extratos catalisadores, ampolas de vidro reforçado e reativos de regeneração.',
-    exclusivity_tag: 'excl_flamel',
-    rival_corp_id: 'corp_mercurius',
-    description: 'Monopólio farmacêutico com patentes herméticas sobre destilados e solventes de mana.',
+    "id": "corp_swamp_alchemy",
+    "name": "Sindicato dos Alquimistas de Pântano",
+    "branch": "Alvará de Risco",
+    "slot_focus": "Alvará de Risco",
+    "specialty": "Filtros respiratórios contra miasmas, concentrados e dosadores farmacológicos.",
+    "exclusivity_tag": "excl_swamp_alchemy",
+    "rival_corp_id": "corp_mercurius",
+    "description": "O miasma de hoje é o lucro líquido de amanhã. Foco em mitigação de veneno e extração de biomateriais em zonas alagadiças.",
+    "advantage": "Imunidade a Miasmas & Bioextração: Converte pântanos tóxicos em ambiente favorável (+25% chance de espólios raros em biomas tóxicos).",
+    "disadvantage": "Gases Fétidos & Insalubridade: Vapores sulfurosos degradam o moral dos atletas (-10 Felicidade e menor tolerância à pressão de campeonato).",
+    "tradeoff_summary": "Pró: +25% Espólios em Pântanos Tóxicos | Contra: -10 Felicidade dos Atletas",
+    "tradeoff_modifiers": {
+      "auto_mitigate_terrains": [
+        "toxic_swamp"
+      ],
+      "toxic_swamp_loot_bonus_pct": 0.25,
+      "happiness_penalty": 10
+    }
   },
   {
-    id: 'corp_chancellor',
-    name: 'Lapidação Imperial Chanceler & Filhos',
-    branch: 'Joalheria',
-    specialty: 'Amuletos com facetamento óptico, engastes de platina e núcleos prismáticos.',
-    exclusivity_tag: 'excl_chancellor',
-    rival_corp_id: null,
-    description: 'Fornecedora tradicional da alta nobreza e de órgãos reguladores da Liga.',
+    "id": "corp_crown_notarial",
+    "name": "Manufatura Notarial da Coroa",
+    "branch": "Alvará de Risco",
+    "slot_focus": "Alvará de Risco",
+    "specialty": "Peças genéricas de linha branca (white-label), alvarás gravados e armações universais.",
+    "exclusivity_tag": "excl_crown_notarial",
+    "rival_corp_id": null,
+    "description": "Padronização régia, carimbos invioláveis e estabilidade tributária. Compatível com todas as arquiteturas modulares.",
+    "advantage": "Arquitetura Universal White-Label: Peças universais isentas de royalties semanais, compatíveis com qualquer marca sem penalidade de compatibilidade.",
+    "disadvantage": "Desempenho Padronizado: Atributos medianos sem capacidade de overclock ou bônus exponenciais de especialização.",
+    "tradeoff_summary": "Pró: Zero Royalties & Compatibilidade Universal | Contra: Sem Picos de Poder (Atributos Básicos)",
+    "tradeoff_modifiers": {
+      "zero_royalties": true,
+      "universal_compatibility": true
+    }
   },
-]
+  {
+    "id": "corp_flamel",
+    "name": "Sindicato Bioalquímico Flamel & Associados",
+    "branch": "Provisão Logística",
+    "slot_focus": "Provisão Logística",
+    "specialty": "Extratos catalisadores, ampolas de vidro reforçado e reativos de regeneração.",
+    "exclusivity_tag": "excl_flamel",
+    "rival_corp_id": "corp_crown_rations",
+    "description": "Monopólio farmacêutico com patentes herméticas sobre destilados e solventes de mana.",
+    "advantage": "Absorção Rápida: Elixires e concentrados de regeneração curam imediatamente 15 pontos de fadiga dos titulares no encerramento da expedição.",
+    "disadvantage": "Frascos Efêmeros: Cargas operacionais limitadas (máximo de 2 utilizações por frasco antes do descarte).",
+    "tradeoff_summary": "Pró: Recupera 15 Fadiga pós-Expedição | Contra: Menor Número de Cargas (2 Máx)",
+    "tradeoff_modifiers": {
+      "post_expedition_fatigue_heal": 15,
+      "max_charges": 2
+    }
+  },
+  {
+    "id": "corp_crown_rations",
+    "name": "Intendência de Provisões da Coroa",
+    "branch": "Provisão Logística",
+    "slot_focus": "Provisão Logística",
+    "specialty": "Rações compactadas, ampolas de energia concentrada e kits de campanha com cargas operacionais.",
+    "exclusivity_tag": "excl_crown_rations",
+    "rival_corp_id": "corp_flamel",
+    "description": "Intendência imperial dedicada a suprimentos expedicionários, provisões logísticas e restauração de energia.",
+    "advantage": "Rações Militares de Alta Densidade: Provisões ultracompactadas contendo de 3 a 4 cargas operacionais que asseguram avanço em masmorras longas de 10 salas.",
+    "disadvantage": "Alimento Burocrático Rançoso: Não confere bônus de energia inicial ou poder ofensivo (provisão puramente utilitária).",
+    "tradeoff_summary": "Pró: 3 a 4 Cargas Operacionais (Maior Durabilidade) | Contra: Zero Bônus Ofensivo",
+    "tradeoff_modifiers": {
+      "min_charges": 3,
+      "max_charges": 4,
+      "offensive_bonus": 0
+    }
+  }
+];
 
 export const MOCK_B2B_CONTRACTS: B2BContract[] = [
   {

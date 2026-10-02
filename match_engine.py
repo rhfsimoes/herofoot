@@ -330,6 +330,7 @@ class Team:
         heroes: Optional[List[Dict[str, Any]]] = None,
         traits: Optional[List[Any]] = None,
         loadout: Optional[Dict[str, Any]] = None,
+        active_synergies: Optional[List[Dict[str, Any]]] = None,
     ):
         if balance is None:
             balance = get_balance()
@@ -345,6 +346,7 @@ class Team:
         self.heroes = heroes or []
         self.traits = traits or []
         self.loadout = loadout or {}
+        self.active_synergies = active_synergies or []
 
         # Extração das habilidades ativas da equipe com base nos heróis titulares
         self.skills = self._extract_active_skills()
@@ -490,6 +492,9 @@ class Team:
                 max_reduction = float(p.get("max_supply_drain_reduction_pct", 0.40))
                 break
         total_reduction = min(max_reduction, num_logistics * reduction_per_hero)
+        for s in getattr(self, "active_synergies", []):
+            if s.get("id") == "syn_logistica_avancada":
+                total_reduction = min(0.60, total_reduction + float(s.get("energy_reduction_pct", 0.05)))
         return max(0.1, 1.0 - total_reduction)
 
     def get_dps_boss_execution_bonus(self) -> float:
@@ -538,8 +543,9 @@ class Team:
         # O Bioma (Terreno) é o único vetor de impacto em Poder Efetivo.
         total_penalty_pct = min(1.0, terrain_pct)
         trait_bonus = self.get_trait_power_bonus(terrain_type, climate_type)
+        synergy_pe_pct = sum(float(s.get("bonus_pe_pct", 0.0)) for s in getattr(self, "active_synergies", []))
         effective = (self.base_power + self.bonus_slots + trait_bonus) * (1.0 - total_penalty_pct)
-        effective *= 1.0 + self.temporary_power_pct_modifier
+        effective *= 1.0 + self.temporary_power_pct_modifier + synergy_pe_pct
         return max(0.0, effective)
 
 

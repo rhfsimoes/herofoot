@@ -1,7 +1,7 @@
 """
 HeroFoot Hero & Facilities Service.
 Gerencia atributos derivados, cálculo de Poder real, contratos de temporada,
-renovações, e o Departamento de Saúde & Bem-Estar Ocupacional (Money Sinks).
+renovações e departamento de saúde & medicina ocupacional.
 """
 
 import os
@@ -344,6 +344,23 @@ class HeroService:
             "gold": self.state.gold
         }
 
+    def calculate_injury_treatment_cost(self, hero: dict) -> int:
+        """
+        Calcula o custo pericial de tratamento e reabilitação médica de um herói.
+        Vanguarda absorve impacto frontal pesado: custo 1.30x maior que Suporte.
+        """
+        base_cost = 100
+        from match_engine import get_hero_position
+        pos = get_hero_position(hero)
+        if pos == "pos_vanguarda":
+            return int(base_cost * 1.30)
+        elif pos == "pos_suporte":
+            return int(base_cost * 0.90)
+        elif pos == "pos_suporte_logistico":
+            return int(base_cost * 0.80)
+        return base_cost
+
+
     def collective_banquet(self) -> dict:
         """Banquete de Descompressão Coletiva para toda a equipe."""
         actions = self.facilities_data.get("medical_actions", {})
@@ -414,10 +431,26 @@ class HeroService:
         }
 
     def release_hero(self, hero_id: str) -> dict:
-        """Rescinde amigavelmente o contrato de um herói."""
+        """Rescinde amigavelmente o contrato de um herói com indenização rescisória."""
         hero = next((h for h in self.state.team if h["id"] == hero_id), None)
         if not hero:
             return {"success": False, "message": f"Aventureiro '{hero_id}' não encontrado."}
+
+        # Multa rescisória calculada com base no salário e temporadas restantes (50% do valor restante)
+        salary = hero.get("salary", 50)
+        seasons_left = max(1, hero.get("contract_seasons_left", 1))
+        severance = int(salary * seasons_left * 0.5)
+        if severance <= 0:
+            severance = salary
+
+        if self.state.gold < severance:
+            return {
+                "success": False,
+                "message": f"Recursos financeiros insuficientes para liquidação rescisória. Exigido: {severance} Ouro. Saldo: {self.state.gold} Ouro."
+            }
+
+        self.state.gold -= severance
+        self.state.weekly_severance_expenses = getattr(self.state, "weekly_severance_expenses", 0) + severance
 
         self.state.team.remove(hero)
         if hero_id in self.state.starters:
@@ -432,7 +465,8 @@ class HeroService:
 
         return {
             "success": True,
-            "message": f"Rescisão Contratual Efetivada: {hero['name']} foi desligado dos quadros da guilda.",
+            "message": f"Rescisão Contratual Efetivada: {hero['name']} foi desligado dos quadros da guilda (Multa rescisória de ⬡ {severance} liquidada).",
+            "severance_fee": severance,
             "gold": self.state.gold
         }
 
@@ -658,14 +692,23 @@ class HeroService:
         if not hero:
             return {"success": False, "message": f"Aventureiro '{hero_id}' não disponível para contratação."}
 
-        cost = hero.get("transfer_fee", 200)
-        if self.state.gold < cost:
+        from match_engine import get_hero_position
+        pos = get_hero_position(hero)
+        # Contratação de Suporte Logístico deduz custo oculto de recrutamento (turnover): +40 ouro
+        hidden_recruitment_cost = 40 if pos == "pos_suporte_logistico" else 0
+
+        fee = hero.get("transfer_fee", 200)
+        total_cost = fee + hidden_recruitment_cost
+
+        if self.state.gold < total_cost:
             return {
                 "success": False,
-                "message": f"Recursos financeiros insuficientes. Custo de aquisição de {hero['name']}: {cost} Ouro. Saldo: {self.state.gold} Ouro."
+                "message": f"Recursos financeiros insuficientes. Custo de aquisição de {hero['name']}: {total_cost} Ouro. Saldo: {self.state.gold} Ouro."
             }
 
-        self.state.gold -= cost
+        self.state.gold -= total_cost
+        self.state.weekly_hiring_expenses = getattr(self.state, "weekly_hiring_expenses", 0) + total_cost
+
         listings.remove(hero)
         hero["contract_seasons_left"] = balance.get("transfer_market", {}).get("contract_duration_seasons", 2)
         hero["season_appearances"] = 0
@@ -677,6 +720,7 @@ class HeroService:
             "success": True,
             "message": f"Contrato de Aquisição Homologado: {hero['name']} foi integrado ao quadro profissional da guilda.",
             "hero": hero,
+            "total_cost": total_cost,
             "gold": self.state.gold,
             "team": self.state.team,
             "transfer_market_listings": self.state.transfer_market_listings

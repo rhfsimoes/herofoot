@@ -706,3 +706,4 @@ class GameController:
             "error": "Colaborador não localizado no quadro funcional da guilda."
         }
 
+

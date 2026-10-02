@@ -51,7 +51,12 @@
     },
     "status": {
       "type": "string",
-      "enum": ["Apto", "Fatigado", "Afastado", "Falecido"],
+      "enum": [
+        "Apto",
+        "Fatigado",
+        "Afastado",
+        "Falecido"
+      ],
       "description": "Status pericial canônico do herói"
     },
     "fatigue": {
@@ -78,14 +83,51 @@
       "type": "object",
       "description": "Atributos internos ocultos (cada um de 1 a 100)",
       "properties": {
-        "str": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Força" },
-        "agi": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Agilidade" },
-        "vit": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Vitalidade" },
-        "int": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Inteligência" },
-        "wis": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Sabedoria" },
-        "lck": { "type": "integer", "minimum": 1, "maximum": 100, "description": "Sorte" }
+        "str": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Força"
+        },
+        "agi": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Agilidade"
+        },
+        "vit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Vitalidade"
+        },
+        "int": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Inteligência"
+        },
+        "wis": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Sabedoria"
+        },
+        "lck": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Sorte"
+        }
       },
-      "required": ["str", "agi", "vit", "int", "wis", "lck"],
+      "required": [
+        "str",
+        "agi",
+        "vit",
+        "int",
+        "wis",
+        "lck"
+      ],
       "additionalProperties": false
     },
     "potential": {
@@ -103,7 +145,10 @@
           "description": "Se verdadeiro, o potencial é visível na Academia"
         }
       },
-      "required": ["star_potential", "is_potential_revealed"],
+      "required": [
+        "star_potential",
+        "is_potential_revealed"
+      ],
       "additionalProperties": false
     },
     "contract_seasons_left": {
@@ -132,8 +177,23 @@
       "description": "Taxa de transferência ou custo de aquisição do passe"
     },
     "renewal_demand": {
-      "type": ["object", "null"],
+      "type": [
+        "object",
+        "null"
+      ],
       "description": "Demanda salarial e bônus exigidos para renovação"
+    },
+    "role_title": {
+      "type": "string"
+    },
+    "class_name": {
+      "type": "string"
+    },
+    "specialization_name": {
+      "type": "string"
+    },
+    "specialization": {
+      "type": "string"
     }
   },
   "required": [

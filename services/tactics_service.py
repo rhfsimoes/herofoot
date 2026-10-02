@@ -11,6 +11,74 @@ class TacticsService:
     def __init__(self, state):
         self.state = state
 
+    def detect_b2b_synergies(self, starters: list, loadout: dict) -> list:
+        """
+        Detecta e calcula as 3 sinergias táticas canônicas B2B com base na composição de titulares e loadout equipado:
+        1. Monopólio Ofensivo (Arsenal Ofensivo + >=2 DPS): +5% PE por DPS escalado.
+        2. Blindagem Pesada (Blindagem Operacional + >=2 Vanguardas): +5% PE defensivo conjunto.
+        3. Logística Avançada (Alvará/Provisão + >=1 Suporte Logístico): +5% PE de eficiência de suprimentos.
+        """
+        if not starters or not isinstance(starters, list):
+            return []
+        if not loadout or not isinstance(loadout, dict):
+            loadout = {}
+
+        from match_engine import get_hero_position
+
+        # Mapeia heróis escalados
+        starter_heroes = []
+        for s in starters:
+            if isinstance(s, dict):
+                starter_heroes.append(s)
+            elif isinstance(s, str):
+                h = self.state.hero_by_id(s)
+                if h:
+                    starter_heroes.append(h)
+
+        num_dps = sum(1 for h in starter_heroes if get_hero_position(h) == "pos_dps")
+        num_vanguarda = sum(1 for h in starter_heroes if get_hero_position(h) == "pos_vanguarda")
+        num_logistica = sum(1 for h in starter_heroes if get_hero_position(h) == "pos_suporte_logistico")
+
+        has_arsenal = loadout.get("Arsenal Ofensivo") is not None
+        has_blindagem = loadout.get("Blindagem Operacional") is not None
+        has_logistica = (loadout.get("Alvará de Risco") is not None) or (loadout.get("Provisão Logística") is not None)
+
+        synergies = []
+
+        # 1. Monopólio Ofensivo
+        if num_dps >= 2 and has_arsenal:
+            bonus_pe = round(num_dps * 0.05, 2)
+            synergies.append({
+                "id": "syn_monopolio_ofensivo",
+                "name": "Monopólio Ofensivo",
+                "position_count": num_dps,
+                "bonus_pe_pct": bonus_pe,
+                "description": f"Sinergia B2B Ofensiva: +{int(bonus_pe * 100)}% no Poder Efetivo pelo domínio da linha de frente com {num_dps} DPS armados.",
+            })
+
+        # 2. Blindagem Pesada
+        if num_vanguarda >= 2 and has_blindagem:
+            synergies.append({
+                "id": "syn_blindagem_pesada",
+                "name": "Blindagem Pesada",
+                "position_count": num_vanguarda,
+                "damage_mitigation_pct": 0.05,
+                "description": f"Sinergia B2B Defensiva: +5% de mitigação de dano pela couraça blindada sustentada por {num_vanguarda} Vanguardas.",
+            })
+
+        # 3. Logística Avançada
+        if num_logistica >= 1 and has_logistica:
+            synergies.append({
+                "id": "syn_logistica_avancada",
+                "name": "Logística Avançada",
+                "position_count": num_logistica,
+                "energy_reduction_pct": 0.05,
+                "description": f"Sinergia B2B Logística: Redução extra no dreno de suprimentos pela otimização e fluxo de carga.",
+            })
+
+        self.state.active_tactical_synergies = synergies
+        return synergies
+
     def save_tactics(self, starters: list, loadout: dict, reserves: list = None) -> dict:
         """
         Valida e persiste a escalação de titulares, reservas e compartimentos de suprimentos.

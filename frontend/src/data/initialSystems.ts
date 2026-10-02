@@ -457,21 +457,6 @@ export const INITIAL_BACKLOG: BacklogTask[] = [
     estimatedPoints: 8
   },
   {
-    id: 'TASK-802',
-    title: 'Contratação de Veteranos Aposentados (34+ anos) como Instrutores da Academia',
-    pillar: 'phase1_hr',
-    priority: 'P1 - Alta',
-    status: 'backlog',
-    versionTarget: 'v0.8.0',
-    description: 'Atletas que atingem 34+ anos e encerram contratos podem ser recontratados pela guilda como Instrutores da Academia de Base, transferindo bônus passivo para as novas gerações de aprendizes.',
-    acceptanceCriteria: [
-      'Opção "Contratar como Instrutor" na rescisão/aposentadoria de heróis com 34+ anos',
-      'Bônus passivo de +5 a +15% no crescimento de atributos de jovens aprendizes',
-      'Salário reduzido de instrutor debitado na linha de Academia do DRE'
-    ],
-    estimatedPoints: 5
-  },
-  {
     id: 'TASK-803',
     title: 'A Incursão à Cidadela do Rei Demônio (Endgame do Campeão)',
     pillar: 'phase4_dungeon',
@@ -554,17 +539,17 @@ export const INITIAL_BACKLOG: BacklogTask[] = [
   },
   {
     id: 'TASK-808',
-    title: 'Validação Matemática dos Sistemas & Simulação Massiva de Curvas',
-    pillar: 'phase4_dungeon',
+    title: 'Arquitetura dos 5 Slots Canônicos, Cobertura Corporativa & Trade-offs Claros',
+    pillar: 'phase2_workshop',
     priority: 'P0 - Crítica',
-    status: 'backlog',
+    status: 'done',
     versionTarget: 'v0.8.0',
-    description: 'Execução de sessão de simulação massiva (10.000+ partidas e 50+ temporadas) para auditar curvas matemáticas de economia, progressão de atletas, taxa de empates (0x0), frequência de lesões e distribuição de vitórias, identificando gargalos e desvios de balanceamento.',
+    description: 'Garantir cobertura integral dos 5 slots de equipamento por corporações concorrentes, com catálogo mínimo de 9 peças físicas por empresa e vantagens e desvantagens nítidas nas escolhas do jogador.',
     acceptanceCriteria: [
-      'Script de simulação estocástica em lote para 10.000 partidas e 50 temporadas completas',
-      'Auditoria de curvas de inflação de ouro no DRE e acúmulo de patrimônio',
-      'Mapeamento de desvios padrão em taxas de vitória por arquétipo tático e bioma',
-      'Relatório analítico com recomendações numéricas de balanceamento para os parâmetros de balance_seed.json'
+      'Mapeamento dos 5 slots canônicos: Arsenal Ofensivo, Blindagem Operacional, Ativo de Performance, Alvará de Risco e Provisão Logística',
+      'Todas as 11 corporações contam com pelo menos 9 peças no catálogo de data/parts_seed.json (112 peças no total)',
+      'Definição canônica de Prós e Contras em data/corporations_seed.json (ex: Valkyria com +20% PE vs +15% consumo; Goblin com -30% preço vs +20% fadiga)',
+      'Balanceamento simétrico por slot: cada slot possui opções opostas em agressividade, economia e estabilidade'
     ],
     estimatedPoints: 8
   },
@@ -573,7 +558,7 @@ export const INITIAL_BACKLOG: BacklogTask[] = [
     title: 'Redução da Cota Semanal de Partes no Balcão B2B (5 para 3)',
     pillar: 'phase2_workshop',
     priority: 'P1 - Alta',
-    status: 'backlog',
+    status: 'done',
     versionTarget: 'v0.8.0',
     description: 'Reduzir de 5 para 3 o limite de peças modulares disponíveis para aquisição imediata no mercado spot (weekly_spot_quota_per_part) em balance_seed.json e no serviço da Oficina, estimulando a manufatura interna e valorizando os contratos corporativos.',
     acceptanceCriteria: [
@@ -588,7 +573,7 @@ export const INITIAL_BACKLOG: BacklogTask[] = [
     title: 'Espólios de Itens Completos em Masmorras com Taxa Rara de Drop',
     pillar: 'phase4_dungeon',
     priority: 'P1 - Alta',
-    status: 'backlog',
+    status: 'done',
     versionTarget: 'v0.8.0',
     description: 'Permitir que as incursões a masmorras concedam itens manufaturados completos (armas, armaduras, joias, alvarás) em vez de exclusivamente peças modulares brutas, operando sob uma taxa estocástica reduzida (drop raro por câmara e mini-boss).',
     acceptanceCriteria: [
@@ -599,36 +584,18 @@ export const INITIAL_BACKLOG: BacklogTask[] = [
     estimatedPoints: 5
   },
   {
-    id: 'TASK-811',
-    title: 'Implementação de Drenos Financeiros Temáticos (Money Sinks)',
-    pillar: 'phase5_results',
-    priority: 'P1 - Alta',
-    status: 'backlog',
-    versionTarget: 'v0.8.0',
-    description: 'Adição de drenos financeiros estratégicos coerentes com o lore corporativo para conter a superinflação de ouro da guilda: emolumentos de averbação cartorária, apólices de seguro corporativo de risco, taxas de manutenção de estande da oficina e banquetes de moral e integração da equipe.',
-    acceptanceCriteria: [
-      'Taxas de Averbação Cartorial na contratação e rescisão de atletas',
-      'Apólice Preventiva de Seguro de Incursão (atenua custo de reabilitação e indenizações)',
-      'Custos de Manutenção e Modernização Periódica dos 4 ramos da Oficina',
-      'Banquete de Confraternização Corporativa na Fase 1 (recupera moral e reduz fadiga por ouro)',
-      'Discriminação exata de todas as novas rubricas na DRE da Fase 5'
-    ],
-    estimatedPoints: 8
-  },
-  {
     id: 'TASK-812',
-    title: 'Suíte de Otimizações de UX/UI & Ergonomia de Fluxo de Fases',
+    title: 'Interface de Decisão de Trade-offs nos 5 Slots & Ergonomia das Fases',
     pillar: 'phase3_tactics',
     priority: 'P1 - Alta',
-    status: 'backlog',
+    status: 'done',
     versionTarget: 'v0.8.0',
-    description: 'Refinamento geral da interface do usuário em todo o ciclo de 5 fases: badges de status mais legíveis, transições táteis entre rodadas, tooltips com impacto numérico explícito em cada decisão, filtros rápidos no inventário e melhoria na densidade de informação.',
+    description: 'Apresentação visual clara na interface das vantagens e desvantagens de cada empresa ao equipar os 5 slots táticos, além de tooltips de impacto de cada escolha empresarial no fluxo de jogo.',
     acceptanceCriteria: [
-      'Melhoria na ergonomia visual da transição entre Fases I a V com feedback de ação pendente',
+      'Visualização explícita de Prós e Contras das marcas nos 5 slots na Fase 2 e Fase 3',
       'Tooltips explicativos em todos os atributos e bônus de peças/itens',
       'Filtros rápidos por posição e aptidão física na tela de escalação tática (Fase 3)',
-      'Indicadores visuais claros para estados críticos (fadiga alta, alvará ausente, risco de falência)',
-      'Responsividade refinada para painéis compactos e telas widescreen'
+      'Indicadores visuais claros para estados críticos e compatibilidade de marcas'
     ],
     estimatedPoints: 5
   },

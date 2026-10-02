@@ -175,7 +175,7 @@
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
     "name": "Núcleo de Safira",
-    "branch": "Joalheria",
+    "branch": "Ativo de Performance",
     "part_type": "gem",
     "compatible_slots": [
       "Ativo de Performance"
@@ -1669,7 +1669,7 @@
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
     "name": "Engaste Fino",
-    "branch": "Joalheria",
+    "branch": "Ativo de Performance",
     "part_type": "plating",
     "compatible_slots": [
       "Ativo de Performance",
@@ -1698,7 +1698,7 @@
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
     "name": "Broche Imperial",
-    "branch": "Joalheria",
+    "branch": "Ativo de Performance",
     "part_type": "hilt",
     "compatible_slots": [
       "Ativo de Performance"
@@ -1755,7 +1755,7 @@
     "corp_id": "corp_elf_precision",
     "brand_id": "corp_elf_precision",
     "name": "Fio de Prata",
-    "branch": "Joalheria",
+    "branch": "Ativo de Performance",
     "part_type": "core",
     "compatible_slots": [
       "Ativo de Performance",
@@ -2159,7 +2159,7 @@
     "part_type": "filter",
     "compatible_slots": [
       "Blindagem Operacional",
-      "Acessório"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "base_cost": 105,
@@ -2188,7 +2188,7 @@
     "part_type": "gem",
     "compatible_slots": [
       "Arsenal Ofensivo",
-      "Acessório"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "base_cost": 115,
@@ -2217,7 +2217,7 @@
     "part_type": "core",
     "compatible_slots": [
       "Blindagem Operacional",
-      "Acessório"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "base_cost": 110,
@@ -2246,7 +2246,7 @@
     "part_type": "filter",
     "compatible_slots": [
       "Blindagem Operacional",
-      "Acessório"
+      "Ativo de Performance"
     ],
     "tier": 3,
     "base_cost": 215,
@@ -2275,7 +2275,7 @@
     "part_type": "gem",
     "compatible_slots": [
       "Arsenal Ofensivo",
-      "Acessório"
+      "Ativo de Performance"
     ],
     "tier": 3,
     "base_cost": 235,
@@ -2304,7 +2304,7 @@
     "part_type": "core",
     "compatible_slots": [
       "Blindagem Operacional",
-      "Acessório"
+      "Ativo de Performance"
     ],
     "tier": 3,
     "base_cost": 225,
@@ -2329,10 +2329,10 @@
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
     "name": "Ágata Lapidada",
-    "branch": "Joalheria",
+    "branch": "Ativo de Performance",
     "part_type": "gem",
     "compatible_slots": [
-      "Acessório"
+      "Ativo de Performance"
     ],
     "tier": 1,
     "base_cost": 55,
@@ -2357,10 +2357,10 @@
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
     "name": "Broche de Platina Chanceler",
-    "branch": "Joalheria",
+    "branch": "Ativo de Performance",
     "part_type": "hilt",
     "compatible_slots": [
-      "Acessório"
+      "Ativo de Performance"
     ],
     "tier": 2,
     "base_cost": 110,
@@ -2385,10 +2385,10 @@
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
     "name": "Prisma Solar",
-    "branch": "Joalheria",
+    "branch": "Ativo de Performance",
     "part_type": "gem",
     "compatible_slots": [
-      "Acessório"
+      "Ativo de Performance"
     ],
     "tier": 3,
     "base_cost": 240,
@@ -2413,10 +2413,10 @@
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
     "name": "Engaste Platina",
-    "branch": "Joalheria",
+    "branch": "Ativo de Performance",
     "part_type": "plating",
     "compatible_slots": [
-      "Acessório",
+      "Ativo de Performance",
       "Blindagem Operacional"
     ],
     "tier": 3,
@@ -2442,10 +2442,10 @@
     "corp_id": "corp_chancellor",
     "brand_id": "corp_chancellor",
     "name": "Núcleo Diamantino",
-    "branch": "Joalheria",
+    "branch": "Ativo de Performance",
     "part_type": "core",
     "compatible_slots": [
-      "Acessório"
+      "Ativo de Performance"
     ],
     "tier": 3,
     "base_cost": 230,
@@ -2474,7 +2474,7 @@
     "part_type": "filter",
     "compatible_slots": [
       "Blindagem Operacional",
-      "Acessório"
+      "Ativo de Performance"
     ],
     "tier": 3,
     "base_cost": 210,
@@ -2502,7 +2502,7 @@
     "branch": "Alquimia",
     "part_type": "gem",
     "compatible_slots": [
-      "Acessório",
+      "Ativo de Performance",
       "Arsenal Ofensivo"
     ],
     "tier": 3,
@@ -2585,10 +2585,10 @@
     "corp_id": "corp_crown_notarial",
     "brand_id": "corp_crown_notarial",
     "name": "Chancela Imperial",
-    "branch": "Joalheria",
+    "branch": "Ativo de Performance",
     "part_type": "gem",
     "compatible_slots": [
-      "Acessório"
+      "Ativo de Performance"
     ],
     "tier": 3,
     "base_cost": 215,
@@ -3349,5 +3349,24 @@
     "name_modifier": "Régio",
     "synergy_position": "pos_suporte_logistico",
     "min_synergy_count": 1
+  },
+  {
+    "id": "part_chancellor_amulet_t2",
+    "name": "Pingente Ducal",
+    "corp_id": "corp_chancellor",
+    "tier": 2,
+    "slot_role": "base",
+    "branch": "Ativo de Performance",
+    "compatible_slots": [
+      "Ativo de Performance"
+    ],
+    "power_bonus": 14,
+    "market_value_base": 220,
+    "description": "Amuleto de nobreza com lapidação prismática que eleva o prestígio corporativo e a margem de balcão.",
+    "attributes": {
+      "lck": 6,
+      "wis": 4
+    },
+    "part_id": "part_chancellor_amulet_t2"
   }
 ]

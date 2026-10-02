@@ -481,6 +481,9 @@ class PhaseService:
         )
         self.state.last_expedition_loot = loot_dropped
         for item in loot_dropped:
+            pid = item.get("part_id", item.get("material_id"))
+            qty = item.get("quantity", 1)
+            self.state.materials[pid] = self.state.materials.get(pid, 0) + qty
             if item.get("is_full_item"):
                 full_item_data = item.get("item_data", item)
                 if not hasattr(self.state, "inventory") or self.state.inventory is None:
@@ -492,13 +495,10 @@ class PhaseService:
                     f"inserido diretamente no arsenal da guilda!"
                 )
             else:
-                pid = item.get("part_id", item.get("material_id"))
-                qty = item.get("quantity", 1)
                 if hasattr(self.state, "add_warehouse_part"):
                     self.state.add_warehouse_part(pid, qty)
                 else:
                     self.state.warehouse_parts[pid] = self.state.warehouse_parts.get(pid, 0) + qty
-                self.state.materials[pid] = self.state.materials.get(pid, 0) + qty
                 match_log.append(f"[Logística de Espólios] Recuperado: {qty}x '{item.get('name', pid)}' ({item.get('slot_role', 'Peça').capitalize()}).")
 
         # Atualização da Confiança da Contratante com base no resultado da expedição
@@ -644,6 +644,8 @@ class PhaseService:
         market_expenses = getattr(self.state, "weekly_market_expenses", 0)
         contract_signing_expenses = getattr(self.state, "weekly_contract_signing_expenses", 0)
         hiring_expenses = getattr(self.state, "weekly_hiring_expenses", 0)
+        medical_expenses = getattr(self.state, "weekly_medical_expenses", 0)
+        severance_expenses = getattr(self.state, "weekly_severance_expenses", 0)
 
         total_revenue = expedition_revenue + sales_revenue + assembly_sales_revenue + season_award + crown_subsidy
         total_expenses = (
@@ -655,6 +657,8 @@ class PhaseService:
             + market_expenses
             + contract_signing_expenses
             + hiring_expenses
+            + medical_expenses
+            + severance_expenses
         )
         net = (
             expedition_revenue
@@ -691,6 +695,8 @@ class PhaseService:
             "market_expenses": market_expenses,
             "contract_signing_expenses": contract_signing_expenses,
             "hiring_expenses": hiring_expenses,
+            "medical_expenses": medical_expenses,
+            "severance_expenses": severance_expenses,
             "total_revenue": total_revenue,
             "total_expenses": total_expenses,
             "net": net,
@@ -793,6 +799,8 @@ class PhaseService:
         self.state.weekly_market_expenses = 0
         self.state.weekly_contract_signing_expenses = 0
         self.state.weekly_hiring_expenses = 0
+        self.state.weekly_medical_expenses = 0
+        self.state.weekly_severance_expenses = 0
 
         return {
             "phase": 5,
