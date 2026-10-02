@@ -45,6 +45,7 @@ import {
   MOCK_ASSEMBLY_WORKERS,
   MOCK_MODULAR_PARTS,
   CORPORATIONS_MAP,
+  WEEKLY_SPOT_QUOTA_PER_PART,
   getDungeonForDay,
   getClimateForDay,
   type GameState,
@@ -3686,7 +3687,7 @@ export default function Phase2Workshop({
 
                   const spotPurchasesThisWeek = (state as any).spot_purchases_this_week ?? {}
                   const alreadyBought = spotPurchasesThisWeek[pId] ?? 0
-                  const maxWeeklyQuota = 5
+                  const maxWeeklyQuota = WEEKLY_SPOT_QUOTA_PER_PART
                   const remainingQuota = Math.max(0, maxWeeklyQuota - alreadyBought)
                   const isQuotaExhausted = remainingQuota <= 0
 

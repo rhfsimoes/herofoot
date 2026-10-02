@@ -1,4 +1,7 @@
 import partsSeed from '../../data/parts_seed.json'
+import balanceSeed from '../../data/balance_seed.json'
+
+export const WEEKLY_SPOT_QUOTA_PER_PART = balanceSeed.b2b.weekly_spot_quota_per_part
 
 export type HeroStatus = 'Apto' | 'Fatigado' | 'Afastado' | 'Falecido'
 export type ItemQuality = 'Fraco' | 'Normal' | 'Ótimo' | 'Lendário'
